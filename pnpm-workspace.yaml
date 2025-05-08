@@ -1,4 +1,6 @@
 packages:
   - apps/*
   - packages/*
+# The 'hoisted' nodeLinker setting is used to optimize dependency resolution
+# and ensure compatibility with tools that expect a flat node_modules structure.
 nodeLinker: hoisted
