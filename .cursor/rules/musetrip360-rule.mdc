@@ -1,0 +1,78 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+---
+
+## rule_type: always display_name: "MuseTrip360" description: "Rules for developing the MuseTrip360 digital museum platform"
+
+## General Guidelines
+
+- **Project Overview:** MuseTrip360 is a digital platform for historical museums to create virtual exhibitions, manage cultural events, and provide intelligent visitor interactions. It supports multiple museums with shared infrastructure.
+- **Technologies:** Use ASP.NET Core 8 for backend, ReactJS/NextJS for web frontend, React Native for mobile, Three.js for 3D content, and integrate Large Language Models (e.g., deepseek-r1, llama, gemma3) for AI features.
+- **Databases:** Utilize PostgreSQL for relational data, Redis for caching, and vector databases (Qdrant, pgvector, MongoDB) for advanced queries.
+- **Coding Standards:** Follow professional coding practices, including RESTful API design, meaningful naming conventions, and proper documentation.
+
+## Backend Development
+
+- **API Design:** Ensure all APIs follow RESTful principles.
+- **Authentication:** Use JWT for secure authentication and authorization.
+- **Error Handling:** Implement robust error handling and logging mechanisms.
+- **Database Interactions:** Use Entity Framework Core for ORM with PostgreSQL. For vector databases, use appropriate clients (e.g., Qdrant client for .NET).
+
+## Frontend Development
+
+- **State Management:** Use Redux or Context API for managing application state.
+- **3D Rendering:** Leverage Three.js for creating immersive 3D exhibition experiences.
+- **Responsiveness:** Ensure the web application is responsive and works across devices.
+- **Multi-Language Support:** Implement support for Vietnamese and English.
+
+## Mobile Development
+
+- **Platform Consistency:** Maintain consistency with the web application while optimizing for mobile usability.
+- **Offline Support:** Consider implementing offline capabilities where appropriate.
+
+## AI Integration
+
+- **Chatbot Functionality:** The AI chatbot should:
+  - Provide exhibition recommendations based on user preferences.
+  - Answer questions about museum collections, events, and visitor information.
+  - Guide users through ticket booking and event registration.
+- **Natural Language Understanding:** Ensure the AI can interpret user intents accurately, especially for museum-specific queries.
+- **Training Data:** Use museum-specific terminology and context (e.g., exhibitions, artifacts, events) for fine-tuning.
+
+## User Roles and Permissions
+
+- **Role-Based Access Control (RBAC):** Implement RBAC to manage access for different user roles (Visitor, Museum Manager, Staff, Event Organizer, Admin).
+- **Functionality per Role:** Ensure the AI understands the specific functionalities for each role:
+  - **Visitor:** Search exhibitions, book tickets, view details, receive recommendations.
+  - **Museum Manager:** Create exhibitions, manage content, set ticket pricing, view analytics.
+  - **Staff:** Manage tasks, view attendee lists, collect feedback.
+  - **Event Organizer:** Manage event schedules, assign staff, handle ticketing.
+  - **Admin:** Manage accounts, approve exhibitions, configure settings.
+
+## Payment Integration
+
+- **Gateways:** Integrate with Momo, ZaloPay, and other specified payment gateways.
+- **Security:** Ensure all payment-related data is handled securely, following PCI DSS guidelines.
+
+## Example Scenarios
+
+- **Creating a New Exhibition:**
+  - Generate code for creating a new exhibition entity, including uploading images, videos, and 3D models, and setting up exhibition metadata.
+- **Booking a Ticket:**
+  - Generate code for the ticket booking flow, including selecting exhibition or event, choosing date and time, and processing payment.
+- **AI Chatbot Interaction:**
+  - Provide sample dialogues for common user queries:
+    - User: "What exhibitions are available this weekend?"
+    - AI: "This weekend, you can visit our featured exhibitions: \[List of exhibitions with brief descriptions\]. Would you like to book a ticket?"
+    - User: "How do I book a ticket for the history exhibit?"
+    - AI: "To book a ticket, go to the exhibition page, select your preferred date and time, choose the ticket type, and proceed to payment. You can also ask me for help during the process."
+
+## Additional Notes
+
+- **Performance Optimization:** Ensure the application is optimized for performance, especially for 3D content and real-time data.
+- **Testing:** Emphasize thorough testing, including unit tests, integration tests, and user acceptance testing.
+- **Security:** Prioritize data security, especially for user information and payment processing.
+- **Scalability:** Design the system to support multiple museums and a large number of users.
