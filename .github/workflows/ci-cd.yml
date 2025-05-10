@@ -139,13 +139,21 @@ jobs:
       - name: Build
         run: pnpm build
 
-      - name: Upload build artifacts
+      - name: Upload web build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-output
-          path: |
-            apps/web/.next
-            apps/docs/.next
+          name: web-build
+          path: apps/web/.next
+          if-no-files-found: error
+          retention-days: 1
+
+      - name: Upload docs build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build
+          path: apps/docs/.next
+          if-no-files-found: error
+          retention-days: 1
 
   deploy-web:
     name: Deploy Web App
@@ -164,17 +172,17 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Download build artifacts
+      - name: Download web build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-output
-          path: .
+          name: web-build
+          path: apps/web/.next
 
       - name: Deploy to Vercel
         run: |
+          cd apps/web
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} ./apps/web
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} ./apps/web
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
 
   deploy-docs:
     name: Deploy Docs App
@@ -193,14 +201,14 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Download build artifacts
+      - name: Download docs build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-output
-          path: .
+          name: docs-build
+          path: apps/docs/.next
 
       - name: Deploy to Vercel
         run: |
+          cd apps/docs
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          vercel build --prod --token=${{ secrets.VERCEL_TOKEN }} ./apps/docs
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }} ./apps/docs
+          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
