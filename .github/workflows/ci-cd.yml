@@ -99,7 +99,11 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Lint
-        run: pnpm lint
+        run: |
+          # Run lint for each workspace package individually
+          pnpm --filter=web lint
+          pnpm --filter=docs lint
+          pnpm --filter=mobile lint
 
   build:
     name: Build
