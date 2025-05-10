@@ -22,31 +22,48 @@ The CI/CD pipeline is implemented using GitHub Actions and Vercel. It automates 
 
 To set up the CI/CD pipeline, you need to configure the following secrets and variables in your GitHub repository:
 
-### GitHub Secrets
+GitHub provides two types of secrets for managing sensitive information:
 
-1. **`VERCEL_TOKEN`**: Your Vercel API token
+- **GitHub Environment Secrets**: These are tied to specific environments (e.g., `production`) and are used to manage secrets that vary between environments. They are ideal for deployment-related secrets.
+- **Repository Secrets**: These are repository-wide and are not tied to any specific environment. They are suitable for secrets that apply globally across the repository.
+### GitHub Environment Secrets
+
+This project uses GitHub Environment Secrets for deployment. You need to:
+
+1. Create an environment named `production` in your GitHub repository
+
+   - Go to your repository → Settings → Environments → New environment
+   - Name it `production`
+
+2. Add the following secrets to the `production` environment:
+
+   a. **`VERCEL_TOKEN`**: Your Vercel API token
 
    - Generate from Vercel dashboard → Settings → Tokens
 
-2. **`VERCEL_ORG_ID`**: Your Vercel organization ID
+   b. **`VERCEL_ORG_ID`**: Your Vercel organization ID
 
    - Found in Vercel dashboard → Settings → General → Organization ID
 
-3. **`VERCEL_PROJECT_ID_WEB`**: Project ID for the web application
+   c. **`VERCEL_PROJECT_ID_WEB`**: Project ID for the web application
 
    - Found in Vercel dashboard → Select web project → Settings → General → Project ID
 
-4. **`VERCEL_PROJECT_ID_DOCS`**: Project ID for the docs application
+   d. **`VERCEL_PROJECT_ID_DOCS`**: Project ID for the docs application
 
    - Found in Vercel dashboard → Select docs project → Settings → General → Project ID
 
-5. **`TURBO_TOKEN`** (optional): Token for Turborepo remote caching
+### Repository Secrets
+
+1. **`TURBO_TOKEN`** (optional): Token for Turborepo remote caching
    - Generate from Vercel dashboard → Settings → Tokens
+   - This can be added as a regular repository secret
 
 ### GitHub Variables
 
 1. **`TURBO_TEAM`** (optional): Your team name for Turborepo remote caching
    - Usually your Vercel account or team name
+   - Add this as a repository variable
 
 ## Setting Up Vercel Projects
 
@@ -96,7 +113,8 @@ Solution:
 
 1. Go to Vercel dashboard → Settings → Tokens
 2. Create a new token with appropriate permissions
-3. Add it to your GitHub repository secrets as `VERCEL_TOKEN`
+3. Add it to your GitHub repository's `production` environment secrets as `VERCEL_TOKEN`
+   - Go to your repository → Settings → Environments → production → Add secret
 
 #### Authentication Errors
 
@@ -104,9 +122,10 @@ Error: `Error: You defined "--token", but it's missing a value`
 
 Solution:
 
-1. Check that your `VERCEL_TOKEN` secret is correctly set in GitHub
+1. Check that your `VERCEL_TOKEN` secret is correctly set in the `production` environment
 2. Ensure the token has not expired
 3. Regenerate the token if necessary
+4. Verify that your workflow is using the `environment: production` setting
 
 #### Project ID Issues
 
@@ -117,6 +136,7 @@ Solution:
 1. Verify the project IDs in your Vercel dashboard
 2. Make sure you're using the correct organization ID
 3. Check that your token has access to the projects
+4. Ensure that the project IDs are correctly set in the `production` environment secrets
 
 ## Future Improvements
 
