@@ -1,0 +1,194 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # Global environment variables
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+
+jobs:
+  cache-and-install:
+    name: Setup and Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.10.0
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Upload workspace for reuse
+        uses: actions/upload-artifact@v4
+        with:
+          name: workspace
+          path: |
+            .
+            !node_modules
+            !apps/*/node_modules
+            !packages/*/node_modules
+
+  lint:
+    name: Lint
+    needs: cache-and-install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.10.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Lint
+        run: |
+          # Run lint for each workspace package individually
+          pnpm --filter=web lint
+          pnpm --filter=docs lint
+          pnpm --filter=mobile lint
+
+  build:
+    name: Build
+    needs: cache-and-install
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download workspace
+        uses: actions/download-artifact@v4
+        with:
+          name: workspace
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10.10.0
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Restore Turbo cache
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Build
+        run: |
+          # Build each application individually
+          echo "Building web application..."
+          pnpm --filter=web build
+
+          echo "Building docs application..."
+          pnpm --filter=docs build
+
+          # Debug: List the build output directories
+          echo "Checking build output directories..."
+          ls -la apps/web/
+          ls -la apps/web/.next || echo "Web .next directory not found"
+          ls -la apps/docs/
+          ls -la apps/docs/.next || echo "Docs .next directory not found"
+
+      - name: Create artifact directories if they don't exist
+        run: |
+          mkdir -p artifact-web
+          mkdir -p artifact-docs
+
+          # Copy build output if it exists, otherwise create placeholder
+          if [ -d "apps/web/.next" ]; then
+            cp -r apps/web/.next/* artifact-web/
+            echo "Copied web build output to artifact directory"
+          else
+            echo "Web build failed or output directory not found" > artifact-web/build-error.txt
+            echo "Created placeholder for web artifacts"
+          fi
+
+          if [ -d "apps/docs/.next" ]; then
+            cp -r apps/docs/.next/* artifact-docs/
+            echo "Copied docs build output to artifact directory"
+          else
+            echo "Docs build failed or output directory not found" > artifact-docs/build-error.txt
+            echo "Created placeholder for docs artifacts"
+          fi
+
+          # List the artifact directories
+          echo "Web artifact contents:"
+          ls -la artifact-web/
+
+          echo "Docs artifact contents:"
+          ls -la artifact-docs/
+
+      - name: Upload web build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: artifact-web/
+          retention-days: 1
+
+      - name: Upload docs build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-build
+          path: artifact-docs/
+          retention-days: 1
