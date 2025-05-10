@@ -235,10 +235,23 @@ jobs:
 
       - name: Deploy to Vercel
         if: steps.check-build.outputs.build_success == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
           cd apps/web
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Creating Vercel project configuration..."
+          mkdir -p .vercel
+          cat > .vercel/project.json << EOF
+          {
+            "projectId": "$VERCEL_PROJECT_ID",
+            "orgId": "$VERCEL_ORG_ID"
+          }
+          EOF
+
+          echo "Deploying to Vercel..."
+          npx vercel --token=$VERCEL_TOKEN --prod
 
       - name: Skip deployment due to build error
         if: steps.check-build.outputs.build_success != 'true'
@@ -284,10 +297,23 @@ jobs:
 
       - name: Deploy to Vercel
         if: steps.check-build.outputs.build_success == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
         run: |
           cd apps/docs
-          vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
-          vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+          echo "Creating Vercel project configuration..."
+          mkdir -p .vercel
+          cat > .vercel/project.json << EOF
+          {
+            "projectId": "$VERCEL_PROJECT_ID",
+            "orgId": "$VERCEL_ORG_ID"
+          }
+          EOF
+
+          echo "Deploying to Vercel..."
+          npx vercel --token=$VERCEL_TOKEN --prod
 
       - name: Skip deployment due to build error
         if: steps.check-build.outputs.build_success != 'true'
