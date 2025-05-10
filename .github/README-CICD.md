@@ -7,6 +7,7 @@ This document explains how to set up and use the CI/CD pipeline for the MuseTrip
 The CI/CD pipeline is implemented using GitHub Actions and Vercel. It automates the following processes:
 
 1. **Continuous Integration (CI)**:
+
    - Dependency installation
    - Linting
    - Building
@@ -24,15 +25,19 @@ To set up the CI/CD pipeline, you need to configure the following secrets and va
 ### GitHub Secrets
 
 1. **`VERCEL_TOKEN`**: Your Vercel API token
+
    - Generate from Vercel dashboard → Settings → Tokens
 
 2. **`VERCEL_ORG_ID`**: Your Vercel organization ID
+
    - Found in Vercel dashboard → Settings → General → Organization ID
 
 3. **`VERCEL_PROJECT_ID_WEB`**: Project ID for the web application
+
    - Found in Vercel dashboard → Select web project → Settings → General → Project ID
 
 4. **`VERCEL_PROJECT_ID_DOCS`**: Project ID for the docs application
+
    - Found in Vercel dashboard → Select docs project → Settings → General → Project ID
 
 5. **`TURBO_TOKEN`** (optional): Token for Turborepo remote caching
@@ -46,6 +51,7 @@ To set up the CI/CD pipeline, you need to configure the following secrets and va
 ## Setting Up Vercel Projects
 
 1. Create two projects in Vercel:
+
    - One for the web application (`apps/web`)
    - One for the docs application (`apps/docs`)
 
@@ -79,6 +85,38 @@ If you encounter issues with the CI/CD pipeline:
 2. Verify that all required secrets and variables are correctly set
 3. Ensure your Vercel token has the necessary permissions
 4. Check that your Vercel projects are correctly configured
+
+### Common Issues
+
+#### Missing Vercel Token
+
+Error: `VERCEL_TOKEN is not set. Please add it to your repository secrets.`
+
+Solution:
+
+1. Go to Vercel dashboard → Settings → Tokens
+2. Create a new token with appropriate permissions
+3. Add it to your GitHub repository secrets as `VERCEL_TOKEN`
+
+#### Authentication Errors
+
+Error: `Error: You defined "--token", but it's missing a value`
+
+Solution:
+
+1. Check that your `VERCEL_TOKEN` secret is correctly set in GitHub
+2. Ensure the token has not expired
+3. Regenerate the token if necessary
+
+#### Project ID Issues
+
+Error: `Error: The project you're trying to access does not exist or you don't have access to it.`
+
+Solution:
+
+1. Verify the project IDs in your Vercel dashboard
+2. Make sure you're using the correct organization ID
+3. Check that your token has access to the projects
 
 ## Future Improvements
 
