@@ -209,9 +209,6 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
-
       - name: Download web build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -234,24 +231,17 @@ jobs:
           fi
 
       - name: Deploy to Vercel
+        # Using the vercel-action simplifies deployment by automating the process
+        # and avoiding the need for manual Vercel CLI commands. This ensures
+        # consistency and reduces the risk of human error.
         if: steps.check-build.outputs.build_success == 'true'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
-        run: |
-          cd apps/web
-          echo "Creating Vercel project configuration..."
-          mkdir -p .vercel
-          cat > .vercel/project.json << EOF
-          {
-            "projectId": "$VERCEL_PROJECT_ID",
-            "orgId": "$VERCEL_ORG_ID"
-          }
-          EOF
-
-          echo "Deploying to Vercel..."
-          npx vercel --token=$VERCEL_TOKEN --prod
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
+          working-directory: ./apps/web
+          vercel-args: '--prod'
 
       - name: Skip deployment due to build error
         if: steps.check-build.outputs.build_success != 'true'
@@ -270,9 +260,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-
-      - name: Install Vercel CLI
-        run: npm install --global vercel@latest
 
       - name: Download docs build artifacts
         uses: actions/download-artifact@v4
@@ -297,23 +284,13 @@ jobs:
 
       - name: Deploy to Vercel
         if: steps.check-build.outputs.build_success == 'true'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
-        run: |
-          cd apps/docs
-          echo "Creating Vercel project configuration..."
-          mkdir -p .vercel
-          cat > .vercel/project.json << EOF
-          {
-            "projectId": "$VERCEL_PROJECT_ID",
-            "orgId": "$VERCEL_ORG_ID"
-          }
-          EOF
-
-          echo "Deploying to Vercel..."
-          npx vercel --token=$VERCEL_TOKEN --prod
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
+          working-directory: ./apps/docs
+          vercel-args: '--prod'
 
       - name: Skip deployment due to build error
         if: steps.check-build.outputs.build_success != 'true'
