@@ -8,11 +8,12 @@ on:
   workflow_dispatch:
 
 env:
+  # Global environment variables
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  # Vercel environment variables - will be overridden by environment secrets in deployment jobs
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID_WEB: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
-  VERCEL_PROJECT_ID_DOCS: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
 
 jobs:
   cache-and-install:
@@ -200,6 +201,7 @@ jobs:
     needs: [lint, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -233,8 +235,6 @@ jobs:
       - name: Verify secrets
         if: steps.check-build.outputs.build_success == 'true'
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
@@ -261,8 +261,6 @@ jobs:
         # consistency and reduces the risk of human error.
         if: steps.check-build.outputs.build_success == 'true'
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_WEB }}
         run: |
           cd apps/web
@@ -284,6 +282,7 @@ jobs:
     needs: [lint, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: production
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -317,8 +316,6 @@ jobs:
       - name: Verify secrets
         if: steps.check-build.outputs.build_success == 'true'
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
         run: |
           if [ -z "$VERCEL_TOKEN" ]; then
@@ -342,8 +339,6 @@ jobs:
       - name: Deploy to Vercel
         if: steps.check-build.outputs.build_success == 'true'
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_DOCS }}
         run: |
           cd apps/docs
