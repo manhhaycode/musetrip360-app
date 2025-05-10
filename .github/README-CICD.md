@@ -26,6 +26,7 @@ GitHub provides two types of secrets for managing sensitive information:
 
 - **GitHub Environment Secrets**: These are tied to specific environments (e.g., `production`) and are used to manage secrets that vary between environments. They are ideal for deployment-related secrets.
 - **Repository Secrets**: These are repository-wide and are not tied to any specific environment. They are suitable for secrets that apply globally across the repository.
+
 ### GitHub Environment Secrets
 
 This project uses GitHub Environment Secrets for deployment. You need to:
