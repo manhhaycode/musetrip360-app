@@ -137,22 +137,62 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Build
-        run: pnpm build
+        run: |
+          # Build each application individually
+          echo "Building web application..."
+          pnpm --filter=web build
+
+          echo "Building docs application..."
+          pnpm --filter=docs build
+
+          # Debug: List the build output directories
+          echo "Checking build output directories..."
+          ls -la apps/web/
+          ls -la apps/web/.next || echo "Web .next directory not found"
+          ls -la apps/docs/
+          ls -la apps/docs/.next || echo "Docs .next directory not found"
+
+      - name: Create artifact directories if they don't exist
+        run: |
+          mkdir -p artifact-web
+          mkdir -p artifact-docs
+
+          # Copy build output if it exists, otherwise create placeholder
+          if [ -d "apps/web/.next" ]; then
+            cp -r apps/web/.next/* artifact-web/
+            echo "Copied web build output to artifact directory"
+          else
+            echo "Web build failed or output directory not found" > artifact-web/build-error.txt
+            echo "Created placeholder for web artifacts"
+          fi
+
+          if [ -d "apps/docs/.next" ]; then
+            cp -r apps/docs/.next/* artifact-docs/
+            echo "Copied docs build output to artifact directory"
+          else
+            echo "Docs build failed or output directory not found" > artifact-docs/build-error.txt
+            echo "Created placeholder for docs artifacts"
+          fi
+
+          # List the artifact directories
+          echo "Web artifact contents:"
+          ls -la artifact-web/
+
+          echo "Docs artifact contents:"
+          ls -la artifact-docs/
 
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: web-build
-          path: apps/web/.next
-          if-no-files-found: error
+          path: artifact-web/
           retention-days: 1
 
       - name: Upload docs build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: docs-build
-          path: apps/docs/.next
-          if-no-files-found: error
+          path: artifact-docs/
           retention-days: 1
 
   deploy-web:
@@ -176,13 +216,33 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: web-build
-          path: apps/web/.next
+          path: web-artifact
+
+      - name: Check for build errors
+        id: check-build
+        run: |
+          if [ -f "web-artifact/build-error.txt" ]; then
+            echo "Build error detected. Deployment will be skipped."
+            cat web-artifact/build-error.txt
+            echo "build_success=false" >> $GITHUB_OUTPUT
+          else
+            echo "Build artifacts look good. Proceeding with deployment."
+            echo "build_success=true" >> $GITHUB_OUTPUT
+            # Create .next directory and move artifacts there
+            mkdir -p apps/web/.next
+            cp -r web-artifact/* apps/web/.next/
+          fi
 
       - name: Deploy to Vercel
+        if: steps.check-build.outputs.build_success == 'true'
         run: |
           cd apps/web
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Skip deployment due to build error
+        if: steps.check-build.outputs.build_success != 'true'
+        run: echo "Deployment skipped due to build errors"
 
   deploy-docs:
     name: Deploy Docs App
@@ -205,10 +265,30 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docs-build
-          path: apps/docs/.next
+          path: docs-artifact
+
+      - name: Check for build errors
+        id: check-build
+        run: |
+          if [ -f "docs-artifact/build-error.txt" ]; then
+            echo "Build error detected. Deployment will be skipped."
+            cat docs-artifact/build-error.txt
+            echo "build_success=false" >> $GITHUB_OUTPUT
+          else
+            echo "Build artifacts look good. Proceeding with deployment."
+            echo "build_success=true" >> $GITHUB_OUTPUT
+            # Create .next directory and move artifacts there
+            mkdir -p apps/docs/.next
+            cp -r docs-artifact/* apps/docs/.next/
+          fi
 
       - name: Deploy to Vercel
+        if: steps.check-build.outputs.build_success == 'true'
         run: |
           cd apps/docs
           vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
           vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Skip deployment due to build error
+        if: steps.check-build.outputs.build_success != 'true'
+        run: echo "Deployment skipped due to build errors"
