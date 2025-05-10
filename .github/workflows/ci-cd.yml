@@ -231,6 +231,9 @@ jobs:
           fi
 
       - name: Deploy to Vercel
+        # Using the vercel-action simplifies deployment by automating the process
+        # and avoiding the need for manual Vercel CLI commands. This ensures
+        # consistency and reduces the risk of human error.
         if: steps.check-build.outputs.build_success == 'true'
         uses: amondnet/vercel-action@v25
         with:
