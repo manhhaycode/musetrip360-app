@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd ../.. && pnpm turbo run build --filter=docs",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "installCommand": "cd ../.. && pnpm install",
+  "git": {
+    "deploymentEnabled": {
+      "main": false
+    }
+  }
+}
