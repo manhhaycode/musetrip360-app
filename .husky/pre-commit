@@ -1,2 +1,8 @@
 # Run dependency check
 pnpm check-deps
+
+# Run linting
+pnpm lint
+
+# Run formatting
+pnpm format
