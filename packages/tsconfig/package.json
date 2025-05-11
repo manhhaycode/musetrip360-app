@@ -1,0 +1,12 @@
+{
+  "name": "@musetrip360/tsconfig",
+  "version": "0.0.1",
+  "description": "TypeScript configuration for MuseTrip360 projects",
+  "private": true,
+  "scripts": {
+    "clean": "rm -rf node_modules"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
