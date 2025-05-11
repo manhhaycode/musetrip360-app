@@ -59,6 +59,7 @@ If you encounter issues with the CI pipeline:
 Error: `Web build failed or output directory not found`
 
 Solution:
+
 1. Check that your Next.js configuration is correct
 2. Ensure all dependencies are properly installed
 3. Verify that the build command works locally
@@ -68,6 +69,7 @@ Solution:
 Error: `Command failed with exit code 1` during lint step
 
 Solution:
+
 1. Run the lint command locally to identify the issues
 2. Fix the linting errors in your code
 3. Commit the changes and push again

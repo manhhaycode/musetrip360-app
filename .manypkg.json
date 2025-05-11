@@ -1,0 +1,4 @@
+{
+  "ignoredRules": ["MISMATCHED_PEER_DEPS"],
+  "ignoredDependencies": ["react-native", "react-native-web", "expo", "three"]
+}

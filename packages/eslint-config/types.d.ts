@@ -1,0 +1,10 @@
+declare module '@next/eslint-plugin-next';
+declare module 'eslint-config-expo/flat';
+declare module 'eslint-config-expo/flat.js';
+declare module 'eslint-plugin-import';
+declare module 'eslint-plugin-react';
+declare module 'eslint-plugin-react-hooks';
+declare module 'eslint-plugin-expo';
+declare module 'eslint-plugin-jsx-a11y';
+declare module 'eslint-plugin-prettier';
+declare module 'eslint-config-prettier';
