@@ -13,11 +13,12 @@
     "fix-deps": "manypkg fix",
     "clean": "turbo run clean && rm -rf node_modules",
     "test": "turbo run test",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "devDependencies": {
     "@manypkg/cli": "^0.24.0",
     "@types/node": "^20",
+    "eslint": "^9",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.0",
     "tsup": "^8.0.1",

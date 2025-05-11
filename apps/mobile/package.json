@@ -40,9 +40,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
+    "@musetrip360/eslint-config": "workspace:*",
+    "@musetrip360/tsconfig": "workspace:*",
     "@types/react": "^19",
     "eslint": "^9",
-    "eslint-config-expo": "~9.2.0",
+    "eslint-config-expo": "^9.2.0",
     "typescript": "^5"
   },
   "private": true
