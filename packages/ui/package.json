@@ -1,0 +1,23 @@
+{
+  "name": "@musetrip360/ui",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "module": "index.ts",
+  "types": "index.ts",
+  "scripts": {
+    "dev": "echo 'Add dev script here'",
+    "build": "echo 'Add build script here'",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  },
+  "dependencies": {
+    "@mantine/core": "^8.0.1",
+    "@mantine/hooks": "^8.0.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4"
+  }
+}

@@ -12,7 +12,12 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "paths": {
+      "@musetrip360/ui": ["../ui/src"],
+      "@musetrip360/eslint-config": ["../eslint-config/src"],
+      "@musetrip360/tsconfig": ["../tsconfig/src"]
+    }
   },
   "include": ["src", "**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules", "build", "dist"]
