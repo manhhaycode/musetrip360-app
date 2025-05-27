@@ -7,7 +7,6 @@ This package contains shared TypeScript configurations for the MuseTrip360 proje
 - `tsconfig.base.json`: Base TypeScript configuration with sensible defaults
 - `tsconfig.nextjs.json`: Configuration for Next.js projects
 - `tsconfig.react.json`: Configuration for React projects
-- `tsconfig.react-native.json`: Configuration for React Native projects
 
 ## Usage
 
@@ -49,22 +48,6 @@ This package contains shared TypeScript configurations for the MuseTrip360 proje
     // Add your project-specific compiler options here
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
-  "exclude": ["node_modules"]
-}
-```
-
-### React Native Configuration
-
-```json
-{
-  "extends": "@musetrip360/tsconfig/tsconfig.react-native.json",
-  "compilerOptions": {
-    // Add your project-specific compiler options here
-    "paths": {
-      "@/*": ["./*"]
-    }
-  },
-  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],
   "exclude": ["node_modules"]
 }
 ```
