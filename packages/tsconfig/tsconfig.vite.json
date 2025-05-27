@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "MuseTrip360 Vite React Library Configuration",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    /* Vite Build Specific Overrides */
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+
+    /* React Library Configuration */
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+
+    /* Library Build Configuration */
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "noEmit": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    /* React Library Optimization */
+    "isolatedModules": true,
+    "preserveValueImports": false,
+    "verbatimModuleSyntax": false,
+
+    /* Vite Optimization */
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "**/*.config.js",
+    "**/*.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts"
+  ]
+}

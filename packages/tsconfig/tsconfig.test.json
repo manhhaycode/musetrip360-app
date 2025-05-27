@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "MuseTrip360 Testing Configuration",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    /* Testing Environment Overrides */
+    "jsx": "react-jsx",
+    "types": ["node", "jest", "vitest/globals", "@testing-library/jest-dom"],
+
+    /* Test-specific path overrides */
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/utils/*": ["./src/utils/*"],
+      "@/types/*": ["./src/types/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/test/*": ["./src/__tests__/*"],
+      "@/mocks/*": ["./src/__mocks__/*"],
+      "@/fixtures/*": ["./src/__fixtures__/*"]
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/__tests__/**/*.ts",
+    "**/__tests__/**/*.tsx",
+    "**/__mocks__/**/*.ts",
+    "**/__mocks__/**/*.tsx",
+    "test/**/*.ts",
+    "test/**/*.tsx"
+  ],
+  "exclude": ["node_modules", "build", "dist", ".next", ".expo", "coverage"]
+}

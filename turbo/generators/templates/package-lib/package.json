@@ -1,0 +1,62 @@
+{
+  "name": "@musetrip360/{{name}}",
+  "version": "0.1.0",
+  "description": "{{description}}",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build:watch": "vite build --watch",
+    "dev": "vite build --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "typescript": "^5",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^3.7.0",
+    "vitest": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/musetrip360-app.git",
+    "directory": "packages/{{name}}"
+  },
+  "keywords": [
+    "musetrip360",
+    "museum",
+    "react",
+    "typescript"
+  ],
+  "author": "MuseTrip360 Team",
+  "license": "MIT"
+}
