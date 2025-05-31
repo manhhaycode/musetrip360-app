@@ -1,5 +1,5 @@
 {
-  "extends": "@musetrip360/tsconfig/tsconfig.nextjs.json",
+  "extends": "@musetrip360/tsconfig/tsconfig.nextjs",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"]

@@ -6,11 +6,13 @@
   "type": "module",
   "exports": {
     "./eslint-config-nextjs": "./eslint-config-nextjs.js",
-    "./eslint-config-react": "./eslint-config-react.js"
+    "./eslint-config-react": "./eslint-config-react.js",
+    "./eslint-config-vite": "./eslint-config-vite.js"
   },
   "files": [
     "eslint-config-nextjs.js",
-    "eslint-config-react.js"
+    "eslint-config-react.js",
+    "eslint-config-vite.js"
   ],
   "scripts": {
     "clean": "rm -rf node_modules"
@@ -29,7 +31,9 @@
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-prettier": "^5.1.3",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0"
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.0.0"
   },
   "peerDependencies": {
     "eslint": "^9.26.0",

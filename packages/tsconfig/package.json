@@ -3,6 +3,19 @@
   "version": "0.0.1",
   "description": "TypeScript configuration for MuseTrip360 projects",
   "private": true,
+  "type": "module",
+  "exports": {
+    "./tsconfig.base": "./tsconfig.base.json",
+    "./tsconfig.nextjs": "./tsconfig.nextjs.json",
+    "./tsconfig.react": "./tsconfig.react.json",
+    "./tsconfig.vite": "./tsconfig.vite.json"
+  },
+  "files": [
+    "tsconfig.base.json",
+    "tsconfig.nextjs.json",
+    "tsconfig.react.json",
+    "tsconfig.vite.json"
+  ],
   "scripts": {
     "clean": "rm -rf node_modules"
   },
