@@ -13,13 +13,13 @@ This package contains shared ESLint configurations for the MuseTrip360 project.
 
 ```js
 // eslint.config.js
-import { defineConfig } from 'eslint/config';
-import nextConfig from '@musetrip360/eslint-config/eslint-config-nextjs';
+import { defineConfig } from "eslint/config";
+import nextConfig from "@musetrip360/eslint-config/eslint-config-nextjs";
 
 export default defineConfig([
   nextConfig,
   {
-    ignores: ['dist/*'],
+    ignores: ["dist/*"],
   },
 ]);
 ```
@@ -28,13 +28,13 @@ export default defineConfig([
 
 ```js
 // eslint.config.js
-import { defineConfig } from 'eslint/config';
-import reactConfig from '@musetrip360/eslint-config/eslint-config-react';
+import { defineConfig } from "eslint/config";
+import reactConfig from "@musetrip360/eslint-config/eslint-config-react";
 
 export default defineConfig([
   reactConfig,
   {
-    ignores: ['dist/*'],
+    ignores: ["dist/*"],
   },
 ]);
 ```

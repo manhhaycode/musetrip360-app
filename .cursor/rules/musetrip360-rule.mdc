@@ -14,65 +14,1191 @@ alwaysApply: true
 - **Databases:** Utilize PostgreSQL for relational data, Redis for caching, and vector databases (Qdrant, pgvector, MongoDB) for advanced queries.
 - **Coding Standards:** Follow professional coding practices, including RESTful API design, meaningful naming conventions, and proper documentation.
 
-## Backend Development
+The platform focuses on three main areas:
 
-- **API Design:** Ensure all APIs follow RESTful principles.
-- **Authentication:** Use JWT for secure authentication and authorization.
-- **Error Handling:** Implement robust error handling and logging mechanisms.
-- **Database Interactions:** Use Entity Framework Core for ORM with PostgreSQL. For vector databases, use appropriate clients (e.g., Qdrant client for .NET).
+1. A visitor-facing portal for browsing museums, events, and artifacts, including virtual 360° tours and event ticket purchases across multiple museums
+2. A museum dashboard for managing artifacts, events (including planning, approval workflows, organizational management, ticket sales, and post-event analysis), staff roles, and organizational structure
+3. A 360° virtual tour and 3D model editing system using ThreeJS
 
-## Frontend Development
+The project structure:
 
-- **State Management:** Use Redux or Context API for managing application state.
-- **3D Rendering:** Leverage Three.js for creating immersive 3D exhibition experiences.
-- **Responsiveness:** Ensure the web application is responsive and works across devices.
-- **Multi-Language Support:** Implement support for Vietnamese and English.
+# Museum Platform Apps Structure
 
-## Mobile Development
+## 📱 Apps Directory (`/apps`)
 
-- **Platform Consistency:** Maintain consistency with the web application while optimizing for mobile usability.
-- **Offline Support:** Consider implementing offline capabilities where appropriate.
+### Visitor-Facing Applications
 
-## AI Integration
+```
+apps/
+├── visitor-portal/                # Next.js - Public visitor web portal
+│   ├── src/
+│   │   ├── app/                   # Next.js App Router
+│   │   │   ├── (museum)/          # Museum browsing routes
+│   │   │   │   ├── museums/       # Museum listing and details
+│   │   │   │   ├── artifacts/     # Artifact browsing and search
+│   │   │   │   ├── collections/   # Museum collections
+│   │   │   │   └── virtual-tours/ # 360° tour viewing
+│   │   │   ├── (events)/          # Event-related routes
+│   │   │   │   ├── events/        # Event listings and details
+│   │   │   │   ├── booking/       # Multi-step booking process
+│   │   │   │   └── tickets/       # Ticket management (user tickets)
+│   │   │   ├── (user)/            # User account routes
+│   │   │   │   ├── profile/       # User profile management
+│   │   │   │   ├── favorites/     # Saved museums/events
+│   │   │   │   └── booking-history/ # Past bookings
+│   │   │   └── layout.tsx         # Root layout with navigation
+│   │   ├── components/            # App-specific components
+│   │   │   ├── navigation/        # Navigation components
+│   │   │   ├── pages/             # Page-level components
+│   │   │   └── sections/          # Page sections
+│   │   └── lib/                   # App-specific utilities
+│   │       ├── metadata.ts        # SEO metadata helpers
+│   │       ├── seo-utils.ts       # SEO optimization
+│   │       └── analytics-config.ts # Analytics configuration
+│   ├── package.json
+│   └── next.config.js
+│
+├── visitor-mobile/                # Expo React Native - Visitor mobile app
+│   ├── src/
+│   │   ├── screens/               # Mobile screens
+│   │   │   ├── Museums/           # Museum browsing screens
+│   │   │   │   ├── MuseumListScreen.tsx
+│   │   │   │   ├── MuseumDetailScreen.tsx
+│   │   │   │   └── VirtualTourScreen.tsx
+│   │   │   ├── Events/            # Event screens
+│   │   │   │   ├── EventListScreen.tsx
+│   │   │   │   ├── EventDetailScreen.tsx
+│   │   │   │   └── BookingScreen.tsx
+│   │   │   ├── Tickets/           # Ticket management screens
+│   │   │   │   ├── TicketWalletScreen.tsx
+│   │   │   │   ├── TicketDetailScreen.tsx
+│   │   │   │   └── PurchaseHistoryScreen.tsx
+│   │   │   ├── Profile/           # User profile screens
+│   │   │   │   ├── ProfileScreen.tsx
+│   │   │   │   ├── FavoritesScreen.tsx
+│   │   │   │   └── SettingsScreen.tsx
+│   │   │   └── Navigation/        # Navigation screens
+│   │   │       ├── MapScreen.tsx  # Museum location maps
+│   │   │       └── DirectionsScreen.tsx
+│   │   ├── navigation/            # React Navigation setup
+│   │   │   ├── AppNavigator.tsx   # Main navigation structure
+│   │   │   ├── TabNavigator.tsx   # Bottom tab navigation
+│   │   │   └── StackNavigator.tsx # Stack navigation
+│   │   ├── components/            # Mobile-specific components
+│   │   │   ├── common/            # Shared mobile components
+│   │   │   └── screens/           # Screen-specific components
+│   │   └── lib/                   # Mobile app utilities
+│   │       ├── push-notifications.ts # Push notification setup
+│   │       ├── deep-linking.ts    # Deep link handling
+│   │       └── offline-sync.ts    # Offline functionality
+│   ├── package.json
+│   ├── app.config.js              # Expo configuration
+│   └── metro.config.js            # Metro bundler config
+```
 
-- **Chatbot Functionality:** The AI chatbot should:
-  - Provide exhibition recommendations based on user preferences.
-  - Answer questions about museum collections, events, and visitor information.
-  - Guide users through ticket booking and event registration.
-- **Natural Language Understanding:** Ensure the AI can interpret user intents accurately, especially for museum-specific queries.
-- **Training Data:** Use museum-specific terminology and context (e.g., exhibitions, artifacts, events) for fine-tuning.
+### Museum Management Applications
 
-## User Roles and Permissions
+```
+├── museum-dashboard/              # Next.js - Museum management dashboard
+│   ├── src/
+│   │   ├── app/
+│   │   │   ├── (dashboard)/       # Protected dashboard routes
+│   │   │   │   ├── overview/      # Dashboard overview and analytics
+│   │   │   │   ├── museums/       # Museum profile management
+│   │   │   │   │   ├── profile/   # Museum profile editing
+│   │   │   │   │   ├── galleries/ # Gallery management
+│   │   │   │   │   └── settings/  # Museum settings
+│   │   │   │   ├── artifacts/     # Artifact management
+│   │   │   │   │   ├── catalog/   # Artifact catalog
+│   │   │   │   │   ├── collections/ # Collection management
+│   │   │   │   │   ├── editor/    # Artifact editor
+│   │   │   │   │   └── upload/    # Asset upload interface
+│   │   │   │   ├── events/        # Event management
+│   │   │   │   │   ├── calendar/  # Event calendar view
+│   │   │   │   │   ├── create/    # Event creation workflow
+│   │   │   │   │   ├── manage/    # Event management
+│   │   │   │   │   ├── approval/  # Event approval workflow
+│   │   │   │   │   ├── analytics/ # Event performance analytics
+│   │   │   │   │   └── ticketing/ # Ticket sales management
+│   │   │   │   ├── virtual-tours/ # Virtual tour management
+│   │   │   │   │   ├── tours/     # Tour listing and management
+│   │   │   │   │   ├── editor/    # 3D/360° tour editor interface
+│   │   │   │   │   ├── assets/    # Asset management for tours
+│   │   │   │   │   └── analytics/ # Tour engagement analytics
+│   │   │   │   ├── staff/         # Staff management
+│   │   │   │   │   ├── members/   # Staff member management
+│   │   │   │   │   ├── roles/     # Role and permission management
+│   │   │   │   │   ├── schedules/ # Staff scheduling
+│   │   │   │   │   └── training/  # Staff training modules
+│   │   │   │   ├── organization/  # Organizational management
+│   │   │   │   │   ├── structure/ # Org structure management
+│   │   │   │   │   ├── departments/ # Department management
+│   │   │   │   │   └── policies/  # Organizational policies
+│   │   │   │   ├── reports/       # Reporting and analytics
+│   │   │   │   │   ├── visitor-analytics/ # Visitor behavior reports
+│   │   │   │   │   ├── financial/ # Financial reports
+│   │   │   │   │   ├── operational/ # Operational reports
+│   │   │   │   │   └── custom/    # Custom report builder
+│   │   │   │   └── settings/      # System settings
+│   │   │   │       ├── integrations/ # Third-party integrations
+│   │   │   │       ├── notifications/ # Notification preferences
+│   │   │   │       └── security/  # Security settings
+│   │   │   ├── (auth)/            # Authentication routes
+│   │   │   │   ├── login/         # Staff login
+│   │   │   │   ├── register/      # Staff registration
+│   │   │   │   └── forgot-password/ # Password recovery
+│   │   │   └── layout.tsx         # Dashboard layout with sidebar
+│   │   ├── components/            # Dashboard-specific components
+│   │   │   ├── dashboard/         # Dashboard widgets and layouts
+│   │   │   ├── forms/             # Complex form components
+│   │   │   ├── tables/            # Data table components
+│   │   │   ├── charts/            # Analytics chart components
+│   │   │   └── workflows/         # Workflow UI components
+│   │   └── lib/                   # Dashboard utilities
+│   │       ├── permissions.ts     # Permission checking utilities
+│   │       ├── workflow-helpers.ts # Workflow management helpers
+│   │       └── export-utils.ts    # Data export utilities
+│   ├── package.json
+│   └── next.config.js
+│
+├── staff-mobile/                  # Expo React Native - Staff mobile app
+│   ├── src/
+│   │   ├── screens/               # Staff mobile screens
+│   │   │   ├── Auth/              # Authentication screens
+│   │   │   │   ├── LoginScreen.tsx
+│   │   │   │   └── BiometricSetupScreen.tsx
+│   │   │   ├── Dashboard/         # Staff dashboard screens
+│   │   │   │   ├── HomeScreen.tsx # Staff home dashboard
+│   │   │   │   ├── ScheduleScreen.tsx # Staff schedule
+│   │   │   │   └── NotificationsScreen.tsx
+│   │   │   ├── TicketScanning/    # Ticket validation screens
+│   │   │   │   ├── ScannerScreen.tsx # QR code scanner
+│   │   │   │   ├── ValidationScreen.tsx # Ticket validation
+│   │   │   │   ├── OfflineModeScreen.tsx # Offline scanning
+│   │   │   │   ├── BulkScanScreen.tsx # Bulk ticket scanning
+│   │   │   │   └── ScanHistoryScreen.tsx # Scan history
+│   │   │   ├── Events/            # Event management screens
+│   │   │   │   ├── EventListScreen.tsx # Assigned events
+│   │   │   │   ├── EventDetailScreen.tsx # Event details and management
+│   │   │   │   ├── AttendanceScreen.tsx # Real-time attendance
+│   │   │   │   ├── CapacityScreen.tsx # Capacity management
+│   │   │   │   └── IncidentReportScreen.tsx # Incident reporting
+│   │   │   ├── Visitors/          # Visitor assistance screens
+│   │   │   │   ├── VisitorHelpScreen.tsx # Visitor assistance
+│   │   │   │   ├── DirectionsScreen.tsx # Provide directions
+│   │   │   │   └── FeedbackScreen.tsx # Collect visitor feedback
+│   │   │   ├── Inventory/         # Inventory management (if applicable)
+│   │   │   │   ├── AssetScanScreen.tsx # Asset tracking
+│   │   │   │   └── MaintenanceScreen.tsx # Maintenance requests
+│   │   │   └── Reports/           # Mobile reporting
+│   │   │       ├── DailyReportScreen.tsx # Daily activity reports
+│   │   │       └── IncidentLogScreen.tsx # Incident logging
+│   │   ├── navigation/            # Staff app navigation
+│   │   │   ├── StaffNavigator.tsx # Main navigation
+│   │   │   └── AuthNavigator.tsx  # Authentication flow
+│   │   ├── components/            # Staff app components
+│   │   │   ├── scanner/           # QR scanning components
+│   │   │   ├── forms/             # Staff form components
+│   │   │   └── reports/           # Reporting components
+│   │   └── lib/                   # Staff app utilities
+│   │       ├── biometric-auth.ts  # Biometric authentication
+│   │       ├── offline-storage.ts # Offline data storage
+│   │       ├── sync-manager.ts    # Data synchronization
+│   │       └── camera-utils.ts    # Camera utilities
+│   ├── package.json
+│   ├── app.config.js
+│   └── metro.config.js
+```
 
-- **Role-Based Access Control (RBAC):** Implement RBAC to manage access for different user roles (Visitor, Museum Manager, Staff, Event Organizer, Admin).
-- **Functionality per Role:** Ensure the AI understands the specific functionalities for each role:
-  - **Visitor:** Search exhibitions, book tickets, view details, receive recommendations.
-  - **Museum Manager:** Create exhibitions, manage content, set ticket pricing, view analytics.
-  - **Staff:** Manage tasks, view attendee lists, collect feedback.
-  - **Event Organizer:** Manage event schedules, assign staff, handle ticketing.
-  - **Admin:** Manage accounts, approve exhibitions, configure settings.
+### System Management Application
 
-## Payment Integration
+```
+└── system-dashboard/              # Next.js - System administration dashboard
+    ├── src/
+    │   ├── app/
+    │   │   ├── (admin)/           # Super admin routes
+    │   │   │   ├── overview/      # System overview and health
+    │   │   │   ├── organizations/ # Multi-organization management
+    │   │   │   │   ├── museums/   # Museum organization management
+    │   │   │   │   ├── approval/  # New museum approval workflow
+    │   │   │   │   ├── billing/   # Billing and subscription management
+    │   │   │   │   └── support/   # Customer support interface
+    │   │   │   ├── users/         # Global user management
+    │   │   │   │   ├── accounts/  # User account management
+    │   │   │   │   ├── roles/     # Global role management
+    │   │   │   │   ├── permissions/ # Permission matrix management
+    │   │   │   │   └── security/  # Security audit and monitoring
+    │   │   │   ├── platform/      # Platform management
+    │   │   │   │   ├── features/  # Feature flag management
+    │   │   │   │   ├── integrations/ # Third-party integration management
+    │   │   │   │   ├── apis/      # API management and monitoring
+    │   │   │   │   └── versions/  # Version and deployment management
+    │   │   │   ├── analytics/     # System-wide analytics
+    │   │   │   │   ├── usage/     # Platform usage analytics
+    │   │   │   │   ├── performance/ # System performance monitoring
+    │   │   │   │   ├── errors/    # Error tracking and analysis
+    │   │   │   │   └── business/  # Cross-organization business metrics
+    │   │   │   ├── content/       # Content management
+    │   │   │   │   ├── moderation/ # Content moderation
+    │   │   │   │   ├── assets/    # Global asset management
+    │   │   │   │   └── templates/ # System templates and branding
+    │   │   │   ├── support/       # Customer support tools
+    │   │   │   │   ├── tickets/   # Support ticket management
+    │   │   │   │   ├── knowledge-base/ # Knowledge base management
+    │   │   │   │   └── communication/ # Customer communication tools
+    │   │   │   └── system/        # System configuration
+    │   │   │       ├── settings/  # Global system settings
+    │   │   │       ├── maintenance/ # System maintenance tools
+    │   │   │       ├── backups/   # Backup management
+    │   │   │       └── security-audit/ # Security audit tools
+    │   │   ├── (auth)/            # Admin authentication
+    │   │   │   ├── admin-login/   # Admin login with MFA
+    │   │   │   └── security-check/ # Security verification
+    │   │   └── layout.tsx         # Admin dashboard layout
+    │   ├── components/            # System admin components
+    │   │   ├── admin/             # Admin-specific components
+    │   │   ├── monitoring/        # System monitoring components
+    │   │   ├── security/          # Security management components
+    │   │   └── multi-tenant/      # Multi-tenancy components
+    │   └── lib/                   # System admin utilities
+    │       ├── multi-tenant.ts    # Multi-tenancy utilities
+    │       ├── system-health.ts   # System health monitoring
+    │       └── audit-logging.ts   # Audit logging utilities
+    ├── package.json
+    └── next.config.js
+```
 
-- **Gateways:** Integrate with Momo, ZaloPay, and other specified payment gateways.
-- **Security:** Ensure all payment-related data is handled securely, following PCI DSS guidelines.
+# Museum Platform Packages Structure
 
-## Example Scenarios
+# Museum Platform Packages Structure
 
-- **Creating a New Exhibition:**
-  - Generate code for creating a new exhibition entity, including uploading images, videos, and 3D models, and setting up exhibition metadata.
-- **Booking a Ticket:**
-  - Generate code for the ticket booking flow, including selecting exhibition or event, choosing date and time, and processing payment.
-- **AI Chatbot Interaction:**
-  - Provide sample dialogues for common user queries:
-    - User: "What exhibitions are available this weekend?"
-    - AI: "This weekend, you can visit our featured exhibitions: \[List of exhibitions with brief descriptions\]. Would you like to book a ticket?"
-    - User: "How do I book a ticket for the history exhibit?"
-    - AI: "To book a ticket, go to the exhibition page, select your preferred date and time, choose the ticket type, and proceed to payment. You can also ask me for help during the process."
+## 📦 Core Domain Packages (`/packages/domain`)
 
-## Additional Notes
+### Business Logic & Models
 
-- **Performance Optimization:** Ensure the application is optimized for performance, especially for 3D content and real-time data.
-- **Testing:** Emphasize thorough testing, including unit tests, integration tests, and user acceptance testing.
-- **Security:** Prioritize data security, especially for user information and payment processing.
-- **Scalability:** Design the system to support multiple museums and a large number of users.
+```
+packages/
+├── domain/
+│   ├── museum-core/               # Core museum business logic
+│   │   ├── src/
+│   │   │   ├── entities/
+│   │   │   │   ├── Museum.ts      # Museum entity with metadata, location, categories
+│   │   │   │   ├── Artifact.ts    # Artifact with 3D models, descriptions, history
+│   │   │   │   ├── Collection.ts  # Artifact collections and exhibitions
+│   │   │   │   └── VirtualTour.ts # 360° tour structure and navigation
+│   │   │   ├── services/
+│   │   │   │   ├── MuseumService.ts     # Museum CRUD operations
+│   │   │   │   ├── ArtifactService.ts   # Artifact management logic
+│   │   │   │   ├── TourService.ts       # Virtual tour navigation logic
+│   │   │   │   └── SearchService.ts     # Search and filtering logic
+│   │   │   ├── value-objects/
+│   │   │   │   ├── Location.ts          # GPS coordinates, address
+│   │   │   │   ├── OpeningHours.ts      # Museum schedule
+│   │   │   │   └── TourNode.ts          # 360° tour navigation nodes
+│   │   │   └── types/
+│   │   │       ├── museum-types.ts
+│   │   │       └── tour-types.ts
+│   │   └── package.json
+│   │
+│   ├── event-core/                # Event management domain
+│   │   ├── src/
+│   │   │   ├── entities/
+│   │   │   │   ├── Event.ts       # Event with capacity, pricing, virtual tours
+│   │   │   │   ├── EventSeries.ts # Recurring events and series
+│   │   │   │   ├── Venue.ts       # Event venues and spaces
+│   │   │   │   └── Schedule.ts    # Event scheduling and time slots
+│   │   │   ├── services/
+│   │   │   │   ├── EventService.ts      # Event CRUD and business logic
+│   │   │   │   ├── CapacityService.ts   # Capacity management
+│   │   │   │   ├── PricingService.ts    # Dynamic pricing logic
+│   │   │   │   └── ScheduleService.ts   # Scheduling and conflicts
+│   │   │   ├── workflows/         # Complex business workflows
+│   │   │   │   ├── EventApprovalWorkflow.ts  # Multi-stage approval
+│   │   │   │   ├── EventPublishingWorkflow.ts # Publishing pipeline
+│   │   │   │   └── EventCancellationWorkflow.ts # Cancellation logic
+│   │   │   └── value-objects/
+│   │   │       ├── TimeSlot.ts
+│   │   │       ├── Capacity.ts
+│   │   │       └── EventStatus.ts
+│   │   └── package.json
+│   │
+│   ├── ticketing-core/            # Ticketing and booking domain
+│   │   ├── src/
+│   │   │   ├── entities/
+│   │   │   │   ├── Ticket.ts      # Digital ticket with QR codes
+│   │   │   │   ├── Booking.ts     # Booking with multiple tickets
+│   │   │   │   ├── Cart.ts        # Shopping cart functionality
+│   │   │   │   └── TicketType.ts  # Different ticket categories
+│   │   │   ├── services/
+│   │   │   │   ├── BookingService.ts    # Booking creation and management
+│   │   │   │   ├── TicketService.ts     # Ticket generation and validation
+│   │   │   │   ├── CartService.ts       # Cart management
+│   │   │   │   ├── ValidationService.ts # Ticket scanning validation
+│   │   │   │   └── RefundService.ts     # Refund and cancellation
+│   │   │   ├── validation/
+│   │   │   │   ├── TicketValidator.ts   # QR code validation logic
+│   │   │   │   ├── OfflineValidator.ts  # Offline validation for staff app
+│   │   │   │   └── FraudDetection.ts    # Fraud prevention
+│   │   │   └── value-objects/
+│   │   │       ├── Price.ts
+│   │   │       ├── QRCode.ts
+│   │   │       └── BookingReference.ts
+│   │   └── package.json
+│   │
+│   └── user-management/           # User and staff management
+│       ├── src/
+│       │   ├── entities/
+│       │   │   ├── User.ts        # Visitor user profiles
+│       │   │   ├── Staff.ts       # Museum staff with roles
+│       │   │   ├── Organization.ts # Museum organizations
+│       │   │   └── Role.ts        # Role-based permissions
+│       │   ├── services/
+│       │   │   ├── AuthService.ts       # Authentication logic
+│       │   │   ├── UserService.ts       # User profile management
+│       │   │   ├── StaffService.ts      # Staff management
+│       │   │   ├── PermissionService.ts # Role-based access control
+│       │   │   └── OrganizationService.ts # Organization management
+│       │   ├── permissions/
+│       │   │   ├── PermissionMatrix.ts  # Permission definitions
+│       │   │   ├── RoleDefinitions.ts   # Predefined roles
+│       │   │   └── AccessControl.ts     # Access control logic
+│       │   └── value-objects/
+│       │       ├── Permission.ts
+│       │       └── UserProfile.ts
+│       └── package.json
+```
+
+## 🎨 UI & Design System (`/packages/ui`)
+
+### Foundation & Design System
+
+```
+├── ui/
+│   ├── design-system/             # Core design system
+│   │   ├── src/
+│   │   │   ├── tokens/            # Design tokens for consistency
+│   │   │   │   ├── colors.ts      # Brand colors, semantic colors
+│   │   │   │   ├── typography.ts  # Font scales, families
+│   │   │   │   ├── spacing.ts     # Spacing scale
+│   │   │   │   ├── borders.ts     # Border radius, widths
+│   │   │   │   └── shadows.ts     # Shadow definitions
+│   │   │   ├── themes/            # Theme variations
+│   │   │   │   ├── light-theme.ts
+│   │   │   │   ├── dark-theme.ts
+│   │   │   │   └── museum-branded-themes.ts # Custom museum themes
+│   │   │   └── breakpoints/       # Responsive breakpoints
+│   │   │       └── breakpoints.ts
+│   │   └── package.json
+│   │
+│   ├── web-components/            # Web-specific UI components
+│   │   ├── src/
+│   │   │   ├── primitives/        # Basic building blocks
+│   │   │   │   ├── Button/        # Button variants and states
+│   │   │   │   ├── Input/         # Form inputs with validation
+│   │   │   │   ├── Card/          # Content cards
+│   │   │   │   ├── Modal/         # Modal dialogs
+│   │   │   │   └── Dropdown/      # Dropdown menus
+│   │   │   ├── layout/            # Layout components
+│   │   │   │   ├── Container/     # Responsive containers
+│   │   │   │   ├── Grid/          # CSS Grid system
+│   │   │   │   ├── Stack/         # Flexbox stacks
+│   │   │   │   └── Sidebar/       # Navigation sidebars
+│   │   │   ├── navigation/        # Navigation components
+│   │   │   │   ├── Navbar/        # Top navigation
+│   │   │   │   ├── Breadcrumb/    # Breadcrumb navigation
+│   │   │   │   ├── Tabs/          # Tab navigation
+│   │   │   │   └── Pagination/    # Pagination controls
+│   │   │   ├── data-display/      # Data presentation
+│   │   │   │   ├── Table/         # Data tables with sorting, filtering
+│   │   │   │   ├── List/          # Lists and item displays
+│   │   │   │   ├── Badge/         # Status badges
+│   │   │   │   ├── Avatar/        # User avatars
+│   │   │   │   └── Timeline/      # Event timelines
+│   │   │   ├── feedback/          # User feedback
+│   │   │   │   ├── Toast/         # Notification toasts
+│   │   │   │   ├── Alert/         # Alert messages
+│   │   │   │   ├── Loading/       # Loading states
+│   │   │   │   └── EmptyState/    # Empty state illustrations
+│   │   │   └── forms/             # Complex form components
+│   │   │       ├── FormField/     # Form field wrapper
+│   │   │       ├── DatePicker/    # Date selection
+│   │   │       ├── TimePicker/    # Time selection
+│   │   │       ├── FileUpload/    # File upload with preview
+│   │   │       └── SearchInput/   # Search with autocomplete
+│   │   └── package.json
+│   │
+│   ├── mobile-components/         # React Native specific components
+│   │   ├── src/
+│   │   │   ├── primitives/        # Mobile-optimized primitives
+│   │   │   │   ├── Button/        # Touch-optimized buttons
+│   │   │   │   ├── Input/         # Mobile keyboard handling
+│   │   │   │   ├── Card/          # Mobile card layouts
+│   │   │   │   └── ActionSheet/   # Native action sheets
+│   │   │   ├── navigation/        # Mobile navigation
+│   │   │   │   ├── TabBar/        # Bottom tab navigation
+│   │   │   │   ├── Header/        # Screen headers
+│   │   │   │   └── DrawerMenu/    # Slide-out menus
+│   │   │   ├── camera/            # Camera components
+│   │   │   │   ├── QRScanner/     # QR code scanning
+│   │   │   │   ├── CameraView/    # Camera preview
+│   │   │   │   └── BarcodeSanner/ # Barcode scanning
+│   │   │   ├── location/          # Location-based components
+│   │   │   │   ├── MapView/       # Interactive maps
+│   │   │   │   └── LocationPicker/ # Location selection
+│   │   │   └── offline/           # Offline-first components
+│   │   │       ├── OfflineIndicator/ # Connection status
+│   │   │       └── SyncStatus/    # Data sync status
+│   │   └── package.json
+│   │
+│   └── museum-components/         # Museum-specific business components
+│       ├── src/
+│       │   ├── museum/            # Museum display components
+│       │   │   ├── MuseumCard/    # Museum preview cards
+│       │   │   ├── MuseumDetail/  # Detailed museum view
+│       │   │   ├── MuseumMap/     # Interactive museum maps
+│       │   │   └── MuseumGallery/ # Museum image galleries
+│       │   ├── artifacts/         # Artifact components
+│       │   │   ├── ArtifactCard/  # Artifact preview cards
+│       │   │   ├── ArtifactViewer/ # Detailed artifact viewer
+│       │   │   ├── ArtifactGallery/ # Artifact image galleries
+│       │   │   └── ArtifactSearch/ # Artifact search interface
+│       │   ├── events/            # Event components
+│       │   │   ├── EventCard/     # Event preview cards
+│       │   │   ├── EventCalendar/ # Event calendar view
+│       │   │   ├── EventTimeline/ # Event timeline
+│       │   │   ├── TicketSelector/ # Ticket selection UI
+│       │   │   └── EventFilters/  # Event filtering
+│       │   ├── tickets/           # Ticketing components
+│       │   │   ├── TicketCard/    # Digital ticket display
+│       │   │   ├── TicketWallet/  # Ticket collection
+│       │   │   ├── BookingForm/   # Booking creation form
+│       │   │   └── PaymentForm/   # Payment processing
+│       │   ├── virtual-tours/     # Virtual tour components
+│       │   │   ├── TourViewer/    # 360° tour viewer
+│       │   │   ├── TourNavigation/ # Tour navigation controls
+│       │   │   ├── HotspotOverlay/ # Interactive hotspots
+│       │   │   └── TourMap/       # Tour overview map
+│       │   └── staff/             # Staff-specific components
+│       │       ├── StaffDashboard/ # Staff dashboard widgets
+│       │       ├── ScannerInterface/ # Ticket scanning UI
+│       │       ├── EventMonitor/  # Real-time event monitoring
+│       │       └── ReportViewer/  # Report visualization
+│       └── package.json
+```
+
+## 🔄 State Management (`/packages/state`)
+
+### Zustand-based State Management
+
+```
+├── state/
+│   ├── core-state/                # Core state management foundation
+│   │   ├── src/
+│   │   │   ├── store/             # Base store configuration
+│   │   │   │   ├── createStore.ts # Store factory with persistence
+│   │   │   │   ├── middleware/    # Custom Zustand middleware
+│   │   │   │   │   ├── persistMiddleware.ts # Cross-platform persistence
+│   │   │   │   │   ├── syncMiddleware.ts    # Cross-app sync
+│   │   │   │   │   └── devtoolsMiddleware.ts # Development tools
+│   │   │   │   └── types/         # State type definitions
+│   │   │   │       ├── store-types.ts
+│   │   │   │       └── action-types.ts
+│   │   │   ├── hooks/             # State hooks
+│   │   │   │   ├── useStore.ts    # Base store hook
+│   │   │   │   ├── useSelector.ts # Optimized selectors
+│   │   │   │   └── useActions.ts  # Action dispatchers
+│   │   │   └── utils/             # State utilities
+│   │   │       ├── selectors.ts   # Reusable selectors
+│   │   │       ├── actions.ts     # Action creators
+│   │   │       └── persistence.ts # Persistence utilities
+│   │   └── package.json
+│   │
+│   ├── museum-state/              # Museum-specific state management
+│   │   ├── src/
+│   │   │   ├── stores/            # Museum state stores
+│   │   │   │   ├── museumStore.ts # Museum data store
+│   │   │   │   ├── artifactStore.ts # Artifact management
+│   │   │   │   ├── searchStore.ts # Search state and filters
+│   │   │   │   └── favoritesStore.ts # User favorites
+│   │   │   ├── slices/            # Store slices for organization
+│   │   │   │   ├── museum-slice.ts
+│   │   │   │   ├── search-slice.ts
+│   │   │   │   └── filter-slice.ts
+│   │   │   ├── hooks/             # Museum-specific hooks
+│   │   │   │   ├── useMuseums.ts  # Museum data hooks
+│   │   │   │   ├── useArtifacts.ts # Artifact data hooks
+│   │   │   │   ├── useSearch.ts   # Search functionality
+│   │   │   │   └── useFavorites.ts # Favorites management
+│   │   │   └── selectors/         # Optimized selectors
+│   │   │       ├── museum-selectors.ts
+│   │   │       └── search-selectors.ts
+│   │   └── package.json
+│   │
+│   ├── event-state/               # Event management state
+│   │   ├── src/
+│   │   │   ├── stores/
+│   │   │   │   ├── eventStore.ts  # Event data management
+│   │   │   │   ├── bookingStore.ts # Booking process state
+│   │   │   │   ├── cartStore.ts   # Shopping cart state
+│   │   │   │   └── calendarStore.ts # Calendar view state
+│   │   │   ├── hooks/
+│   │   │   │   ├── useEvents.ts   # Event data hooks
+│   │   │   │   ├── useBooking.ts  # Booking process hooks
+│   │   │   │   ├── useCart.ts     # Cart management hooks
+│   │   │   │   └── useCalendar.ts # Calendar hooks
+│   │   │   └── workflows/         # State workflows
+│   │   │       ├── booking-workflow.ts # Multi-step booking
+│   │   │       └── approval-workflow.ts # Event approval flow
+│   │   └── package.json
+│   │
+│   ├── auth-state/                # Authentication state management
+│   │   ├── src/
+│   │   │   ├── stores/
+│   │   │   │   ├── authStore.ts   # Authentication state
+│   │   │   │   ├── userStore.ts   # User profile state
+│   │   │   │   ├── permissionStore.ts # User permissions
+│   │   │   │   └── sessionStore.ts # Session management
+│   │   │   ├── hooks/
+│   │   │   │   ├── useAuth.ts     # Authentication hooks
+│   │   │   │   ├── useUser.ts     # User profile hooks
+│   │   │   │   ├── usePermissions.ts # Permission hooks
+│   │   │   │   └── useSession.ts  # Session hooks
+│   │   │   └── guards/            # Route guards and protection
+│   │   │       ├── AuthGuard.tsx  # Authentication guard
+│   │   │       └── PermissionGuard.tsx # Permission-based guard
+│   │   └── package.json
+│   │
+│   └── virtual-tour-state/        # Virtual tour state management
+│       ├── src/
+│       │   ├── stores/
+│       │   │   ├── tourStore.ts   # Tour navigation state
+│       │   │   ├── viewerStore.ts # 360° viewer state
+│       │   │   ├── editorStore.ts # Tour editor state
+│       │   │   └── progressStore.ts # Tour progress tracking
+│       │   ├── hooks/
+│       │   │   ├── useTour.ts     # Tour navigation hooks
+│       │   │   ├── useViewer.ts   # Viewer control hooks
+│       │   │   ├── useEditor.ts   # Editor functionality hooks
+│       │   │   └── useProgress.ts # Progress tracking hooks
+│       │   └── controls/          # Tour control logic
+│       │       ├── navigation-controls.ts
+│       │       └── viewer-controls.ts
+│       └── package.json
+```
+
+## 🌐 API & Data Layer (`/packages/api`)
+
+### React Query & API Integration
+
+```
+├── api/
+│   ├── query-foundation/          # React Query foundation
+│   │   ├── src/
+│   │   │   ├── client/            # Base API client setup
+│   │   │   │   ├── httpClient.ts  # Axios/fetch wrapper
+│   │   │   │   ├── queryClient.ts # React Query client config
+│   │   │   │   └── errorHandler.ts # Global error handling
+│   │   │   ├── hooks/             # Base query hooks
+│   │   │   │   ├── useQuery.ts    # Enhanced useQuery
+│   │   │   │   ├── useMutation.ts # Enhanced useMutation
+│   │   │   │   └── useInfiniteQuery.ts # Infinite scroll queries
+│   │   │   ├── cache/             # Caching strategies
+│   │   │   │   ├── cacheKeys.ts   # Centralized cache keys
+│   │   │   │   ├── invalidation.ts # Cache invalidation
+│   │   │   │   └── optimisticUpdates.ts # Optimistic updates
+│   │   │   ├── offline/           # Offline-first functionality
+│   │   │   │   ├── offlineManager.ts # Offline detection
+│   │   │   │   ├── syncManager.ts # Background sync
+│   │   │   │   └── queueManager.ts # Request queuing
+│   │   │   └── types/             # API type definitions
+│   │   │       ├── api-types.ts
+│   │   │       └── query-types.ts
+│   │   └── package.json
+│   │
+│   ├── museum-api/                # Museum-specific API layer
+│   │   ├── src/
+│   │   │   ├── endpoints/         # API endpoint definitions
+│   │   │   │   ├── museums.ts     # Museum CRUD endpoints
+│   │   │   │   ├── artifacts.ts   # Artifact management endpoints
+│   │   │   │   ├── collections.ts # Collection endpoints
+│   │   │   │   └── search.ts      # Search endpoints
+│   │   │   ├── hooks/             # Museum query hooks
+│   │   │   │   ├── useMuseumQuery.ts # Museum data fetching
+│   │   │   │   ├── useArtifactQuery.ts # Artifact queries
+│   │   │   │   ├── useSearchQuery.ts # Search functionality
+│   │   │   │   └── useMuseumMutations.ts # Museum mutations
+│   │   │   ├── transforms/        # Data transformations
+│   │   │   │   ├── museum-transforms.ts
+│   │   │   │   └── artifact-transforms.ts
+│   │   │   └── cache/             # Museum-specific caching
+│   │   │       ├── museum-cache.ts
+│   │   │       └── artifact-cache.ts
+│   │   └── package.json
+│   │
+│   ├── event-api/                 # Event management API layer
+│   │   ├── src/
+│   │   │   ├── endpoints/
+│   │   │   │   ├── events.ts      # Event CRUD endpoints
+│   │   │   │   ├── bookings.ts    # Booking endpoints
+│   │   │   │   ├── tickets.ts     # Ticket management
+│   │   │   │   └── analytics.ts   # Event analytics endpoints
+│   │   │   ├── hooks/
+│   │   │   │   ├── useEventQuery.ts # Event data fetching
+│   │   │   │   ├── useBookingMutations.ts # Booking process
+│   │   │   │   ├── useTicketQuery.ts # Ticket management
+│   │   │   │   └── useEventAnalytics.ts # Analytics hooks
+│   │   │   └── real-time/         # Real-time updates
+│   │   │       ├── eventSocket.ts # WebSocket for live updates
+│   │   │       └── capacityUpdates.ts # Live capacity updates
+│   │   └── package.json
+│   │
+│   ├── user-api/                  # User management API layer
+│   │   ├── src/
+│   │   │   ├── endpoints/
+│   │   │   │   ├── auth.ts        # Authentication endpoints
+│   │   │   │   ├── users.ts       # User profile endpoints
+│   │   │   │   ├── staff.ts       # Staff management endpoints
+│   │   │   │   └── permissions.ts # Permission endpoints
+│   │   │   ├── hooks/
+│   │   │   │   ├── useAuthMutations.ts # Auth mutations
+│   │   │   │   ├── useUserQuery.ts # User profile queries
+│   │   │   │   ├── useStaffQuery.ts # Staff management
+│   │   │   │   └── usePermissionQuery.ts # Permission queries
+│   │   │   └── security/          # Security utilities
+│   │   │       ├── tokenManager.ts # JWT token management
+│   │   │       └── encryptionUtils.ts # Data encryption
+│   │   └── package.json
+│   │
+│   └── virtual-tour-api/          # Virtual tour API layer
+│       ├── src/
+│       │   ├── endpoints/
+│       │   │   ├── tours.ts       # Tour CRUD endpoints
+│       │   │   ├── assets.ts      # Asset management endpoints
+│       │   │   └── analytics.ts   # Tour analytics endpoints
+│       │   ├── hooks/
+│       │   │   ├── useTourQuery.ts # Tour data fetching
+│       │   │   ├── useAssetMutations.ts # Asset upload/management
+│       │   │   └── useTourAnalytics.ts # Tour analytics
+│       │   ├── upload/            # Asset upload handling
+│       │   │   ├── imageUpload.ts # Image upload utilities
+│       │   │   ├── videoUpload.ts # Video upload utilities
+│       │   │   └── modelUpload.ts # 3D model upload
+│       │   └── processing/        # Asset processing
+│       │       ├── imageProcessing.ts # Image optimization
+│       │       └── modelProcessing.ts # 3D model processing
+│       └── package.json
+```
+
+## 🎮 3D & Virtual Tour Engine (`/packages/virtual`)
+
+### Three.js Foundation & Tools
+
+```
+├── virtual/
+│   ├── three-foundation/          # Core Three.js foundation
+│   │   ├── src/
+│   │   │   ├── core/              # Core 3D engine components
+│   │   │   │   ├── Scene.ts       # Scene management
+│   │   │   │   ├── Camera.ts      # Camera controls and management
+│   │   │   │   ├── Renderer.ts    # Rendering optimization
+│   │   │   │   ├── Controls.ts    # User interaction controls
+│   │   │   │   └── Performance.ts # Performance monitoring
+│   │   │   ├── loaders/           # Asset loading utilities
+│   │   │   │   ├── TextureLoader.ts # Texture loading and caching
+│   │   │   │   ├── ModelLoader.ts # 3D model loading (GLTF, OBJ)
+│   │   │   │   ├── PanoramaLoader.ts # 360° image loading
+│   │   │   │   └── VideoLoader.ts # Video texture loading
+│   │   │   ├── materials/         # Custom materials and shaders
+│   │   │   │   ├── PanoramaMaterial.ts # 360° panorama shader
+│   │   │   │   ├── HotspotMaterial.ts # Interactive hotspot shader
+│   │   │   │   └── CustomShaders.ts # Custom GLSL shaders
+│   │   │   ├── geometry/          # Geometry utilities
+│   │   │   │   ├── SphereGeometry.ts # Optimized sphere for panoramas
+│   │   │   │   ├── PlaneGeometry.ts # UI plane geometry
+│   │   │   │   └── CustomGeometry.ts # Custom geometry builders
+│   │   │   ├── utils/             # 3D math and utilities
+│   │   │   │   ├── MathUtils.ts   # 3D math utilities
+│   │   │   │   ├── CoordinateUtils.ts # Coordinate transformations
+│   │   │   │   ├── AnimationUtils.ts # Animation helpers
+│   │   │   │   └── OptimizationUtils.ts # Performance optimization
+│   │   │   └── hooks/             # React Three.js hooks
+│   │   │       ├── useThree.ts    # Three.js context hook
+│   │   │       ├── useLoader.ts   # Asset loading hook
+│   │   │       ├── useFrame.ts    # Animation frame hook
+│   │   │       └── useControls.ts # Controls management hook
+│   │   └── package.json
+│   │
+│   ├── tour-engine/               # Virtual tour engine
+│   │   ├── src/
+│   │   │   ├── components/        # React Three.js components
+│   │   │   │   ├── TourViewer.tsx # Main tour viewer component
+│   │   │   │   ├── PanoramaViewer.tsx # 360° panorama viewer
+│   │   │   │   ├── HotspotSystem.tsx # Interactive hotspot system
+│   │   │   │   ├── NavigationMesh.tsx # Tour navigation mesh
+│   │   │   │   ├── UIOverlay.tsx  # UI overlay system
+│   │   │   │   └── TransitionSystem.tsx # Scene transitions
+│   │   │   ├── navigation/        # Tour navigation system
+│   │   │   │   ├── TourGraph.ts   # Tour structure and graph
+│   │   │   │   ├── PathFinding.ts # Pathfinding algorithms
+│   │   │   │   ├── NavigationControls.ts # Navigation interface
+│   │   │   │   └── AutoTour.ts    # Automated tour playback
+│   │   │   ├── interactions/      # User interactions
+│   │   │   │   ├── HotspotManager.ts # Hotspot interaction handling
+│   │   │   │   ├── GestureHandler.ts # Touch/mouse gestures
+│   │   │   │   ├── VoiceNarration.ts # Audio narration system
+│   │   │   │   └── AccessibilityUtils.ts # Accessibility features
+│   │   │   ├── analytics/         # Tour analytics
+│   │   │   │   ├── ViewerAnalytics.ts # User viewing behavior
+│   │   │   │   ├── HeatmapGenerator.ts # Attention heatmaps
+│   │   │   │   └── PerformanceMetrics.ts # Performance tracking
+│   │   │   └── export/            # Tour export functionality
+│   │   │       ├── WebExporter.ts # Web-compatible export
+│   │   │       ├── MobileExporter.ts # Mobile-optimized export
+│   │   │       └── StandaloneExporter.ts # Standalone app export
+│   │   └── package.json
+│   │
+│   ├── editor-engine/             # Virtual tour & 3D model editor
+│   │   ├── src/
+│   │   │   ├── components/        # Editor UI components
+│   │   │   │   ├── EditorCanvas.tsx # Main 3D editor canvas
+│   │   │   │   ├── ToolPanel.tsx  # Editor tools panel
+│   │   │   │   ├── PropertyPanel.tsx # Object properties editor
+│   │   │   │   ├── AssetLibrary.tsx # Asset library browser
+│   │   │   │   ├── TimelineEditor.tsx # Animation timeline
+│   │   │   │   └── PreviewWindow.tsx # Real-time preview
+│   │   │   ├── tools/             # Editor tools and utilities
+│   │   │   │   ├── TransformTool.ts # Move/rotate/scale tools
+│   │   │   │   ├── HotspotTool.ts # Hotspot placement tool
+│   │   │   │   ├── NavigationTool.ts # Navigation path editor
+│   │   │   │   ├── LightingTool.ts # Scene lighting editor
+│   │   │   │   └── CameraTool.ts  # Camera path editor
+│   │   │   ├── serialization/     # Project save/load
+│   │   │   │   ├── ProjectSerializer.ts # Save/load project files
+│   │   │   │   ├── AssetExporter.ts # Export optimized assets
+│   │   │   │   └── FormatConverter.ts # Convert between formats
+│   │   │   ├── validation/        # Content validation
+│   │   │   │   ├── SceneValidator.ts # Validate 3D scenes
+│   │   │   │   ├── AssetValidator.ts # Validate asset integrity
+│   │   │   │   └── TourValidator.ts # Validate tour structure
+│   │   │   └── collaboration/     # Real-time collaboration
+│   │   │       ├── CollaborationManager.ts # Multi-user editing
+│   │   │       ├── VersionControl.ts # Change tracking
+│   │   │       └── ConflictResolver.ts # Resolve editing conflicts
+│   │   └── package.json
+│   │
+│   ├── asset-pipeline/            # Asset processing pipeline
+│   │   ├── src/
+│   │   │   ├── processors/        # Asset processors
+│   │   │   │   ├── ImageProcessor.ts # Image optimization/conversion
+│   │   │   │   ├── VideoProcessor.ts # Video compression/conversion
+│   │   │   │   ├── ModelProcessor.ts # 3D model optimization
+│   │   │   │   ├── AudioProcessor.ts # Audio processing
+│   │   │   │   └── PanoramaProcessor.ts # 360° image processing
+│   │   │   ├── optimization/      # Performance optimization
+│   │   │   │   ├── TextureOptimizer.ts # Texture compression
+│   │   │   │   ├── GeometryOptimizer.ts # Mesh optimization
+│   │   │   │   ├── LODGenerator.ts # Level-of-detail generation
+│   │   │   │   └── BundleOptimizer.ts # Asset bundle optimization
+│   │   │   ├── conversion/        # Format conversion utilities
+│   │   │   │   ├── ImageConverter.ts # Image format conversion
+│   │   │   │   ├── ModelConverter.ts # 3D model format conversion
+│   │   │   │   └── VideoConverter.ts # Video format conversion
+│   │   │   ├── storage/           # Asset storage management
+│   │   │   │   ├── CDNManager.ts  # CDN upload/distribution
+│   │   │   │   ├── CacheManager.ts # Asset caching strategies
+│   │   │   │   ├── CompressionUtils.ts # Asset compression
+│   │   │   │   └── MetadataManager.ts # Asset metadata handling
+│   │   │   └── quality/           # Quality assurance
+│   │   │       ├── QualityChecker.ts # Asset quality validation
+│   │   │       ├── ErrorDetector.ts # Asset error detection
+│   │   │       └── ReportGenerator.ts # Quality reports
+│   │   └── package.json
+│   │
+│   └── ar-vr-extensions/          # AR/VR capabilities (future-ready)
+│       ├── src/
+│       │   ├── ar/                # Augmented Reality features
+│       │   │   ├── ARViewer.tsx   # AR tour viewer
+│       │   │   ├── MarkerDetection.ts # AR marker detection
+│       │   │   ├── PlaneDetection.ts # Surface detection
+│       │   │   └── ObjectTracking.ts # Object tracking
+│       │   ├── vr/                # Virtual Reality features
+│       │   │   ├── VRViewer.tsx   # VR tour viewer
+│       │   │   ├── HandTracking.ts # Hand gesture tracking
+│       │   │   ├── GazeTracking.ts # Eye/gaze tracking
+│       │   │   └── SpatialAudio.ts # 3D spatial audio
+│       │   ├── webxr/             # WebXR integration
+│       │   │   ├── WebXRManager.ts # WebXR session management
+│       │   │   ├── DeviceDetection.ts # VR/AR device detection
+│       │   │   └── ControllerInput.ts # VR controller input
+│       │   └── compatibility/     # Cross-platform compatibility
+│       │       ├── PlatformAdapter.ts # Platform-specific adaptations
+│       │       ├── FallbackRenderer.ts # Non-VR/AR fallbacks
+│       │       └── PerformanceScaler.ts # Performance scaling
+│       └── package.json
+```
+
+## 🏗️ Infrastructure & Utilities (`/packages/infrastructure`)
+
+### Cross-Platform Utilities & Services
+
+```
+├── infrastructure/
+│   ├── config-management/         # Configuration management
+│   │   ├── src/
+│   │   │   ├── environments/      # Environment configurations
+│   │   │   │   ├── development.ts # Development config
+│   │   │   │   ├── staging.ts     # Staging config
+│   │   │   │   ├── production.ts  # Production config
+│   │   │   │   └── testing.ts     # Testing config
+│   │   │   ├── feature-flags/     # Feature flag system
+│   │   │   │   ├── FeatureFlagManager.ts # Feature flag logic
+│   │   │   │   ├── RemoteConfig.ts # Remote configuration
+│   │   │   │   └── LocalOverrides.ts # Local development overrides
+│   │   │   ├── secrets/           # Secret management (non-sensitive structure)
+│   │   │   │   ├── SecretManager.ts # Secret loading and management
+│   │   │   │   └── EnvironmentValidator.ts # Validate required secrets
+│   │   │   ├── app-config/        # Application-specific configs
+│   │   │   │   ├── web-config.ts  # Web app configuration
+│   │   │   │   ├── mobile-config.ts # Mobile app configuration
+│   │   │   │   └── staff-config.ts # Staff app configuration
+│   │   │   └── hooks/             # Configuration hooks
+│   │   │       ├── useConfig.ts   # Configuration access hook
+│   │   │       ├── useFeatureFlag.ts # Feature flag hook
+│   │   │       └── useEnvironment.ts # Environment detection hook
+│   │   └── package.json
+│   │
+│   ├── analytics-core/            # Analytics foundation
+│   │   ├── src/
+│   │   │   ├── tracking/          # Event tracking system
+│   │   │   │   ├── EventTracker.ts # Base event tracking
+│   │   │   │   ├── UserBehaviorTracker.ts # User interaction tracking
+│   │   │   │   ├── PerformanceTracker.ts # Performance metrics
+│   │   │   │   ├── ErrorTracker.ts # Error and crash tracking
+│   │   │   │   └── CustomEventTracker.ts # Custom business events
+│   │   │   ├── collectors/        # Data collectors
+│   │   │   │   ├── WebAnalyticsCollector.ts # Web-specific analytics
+│   │   │   │   ├── MobileAnalyticsCollector.ts # Mobile analytics
+│   │   │   │   ├── TourAnalyticsCollector.ts # Virtual tour analytics
+│   │   │   │   └── BusinessMetricsCollector.ts # Business KPIs
+│   │   │   ├── processors/        # Data processing
+│   │   │   │   ├── DataAggregator.ts # Aggregate raw data
+│   │   │   │   ├── MetricsCalculator.ts # Calculate derived metrics
+│   │   │   │   ├── AnomalyDetector.ts # Detect unusual patterns
+│   │   │   │   └── ReportGenerator.ts # Generate analytics reports
+│   │   │   ├── storage/           # Analytics storage
+│   │   │   │   ├── LocalStorage.ts # Local analytics storage
+│   │   │   │   ├── CloudStorage.ts # Cloud analytics storage
+│   │   │   │   └── DataRetention.ts # Data retention policies
+│   │   │   └── privacy/           # Privacy compliance
+│   │   │       ├── DataAnonymizer.ts # Anonymize sensitive data
+│   │   │       ├── ConsentManager.ts # User consent management
+│   │   │       └── GDPRCompliance.ts # GDPR compliance utilities
+│   │   └── package.json
+│   │
+│   ├── notification-system/       # Multi-platform notifications
+│   │   ├── src/
+│   │   │   ├── providers/         # Notification providers
+│   │   │   │   ├── PushNotificationProvider.ts # Push notifications
+│   │   │   │   ├── EmailProvider.ts # Email notifications
+│   │   │   │   ├── SMSProvider.ts # SMS notifications
+│   │   │   │   ├── WebPushProvider.ts # Web push notifications
+│   │   │   │   └── InAppProvider.ts # In-app notifications
+│   │   │   ├── templates/         # Notification templates
+│   │   │   │   ├── EventReminder.ts # Event reminder templates
+│   │   │   │   ├── TicketConfirmation.ts # Ticket confirmation
+│   │   │   │   ├── EventUpdates.ts # Event update notifications
+│   │   │   │   └── SecurityAlerts.ts # Security-related alerts
+│   │   │   ├── scheduling/        # Notification scheduling
+│   │   │   │   ├── NotificationScheduler.ts # Schedule notifications
+│   │   │   │   ├── RecurringNotifications.ts # Recurring reminders
+│   │   │   │   └── DelayedNotifications.ts # Time-delayed notifications
+│   │   │   ├── personalization/   # Personalized notifications
+│   │   │   │   ├── UserPreferences.ts # User notification preferences
+│   │   │   │   ├── SmartTiming.ts # Optimal notification timing
+│   │   │   │   └── ContentPersonalization.ts # Personalized content
+│   │   │   └── delivery/          # Notification delivery
+│   │   │       ├── DeliveryManager.ts # Manage notification delivery
+│   │   │       ├── RetryManager.ts # Handle failed deliveries
+│   │   │       └── DeliveryTracking.ts # Track delivery status
+│   │   └── package.json
+│   │
+│   ├── security-core/             # Security utilities
+│   │   ├── src/
+│   │   │   ├── authentication/    # Authentication utilities
+│   │   │   │   ├── TokenManager.ts # JWT token management
+│   │   │   │   ├── BiometricAuth.ts # Biometric authentication
+│   │   │   │   ├── MFAManager.ts  # Multi-factor authentication
+│   │   │   │   └── SSOIntegration.ts # Single sign-on integration
+│   │   │   ├── encryption/        # Encryption utilities
+│   │   │   │   ├── DataEncryption.ts # Data encryption/decryption
+│   │   │   │   ├── CryptoUtils.ts # Cryptographic utilities
+│   │   │   │   └── SecureStorage.ts # Secure local storage
+│   │   │   ├── validation/        # Input validation
+│   │   │   │   ├── InputSanitizer.ts # Sanitize user inputs
+│   │   │   │   ├── SchemaValidator.ts # Data schema validation
+│   │   │   │   └── SecurityHeaders.ts # HTTP security headers
+│   │   │   ├── monitoring/        # Security monitoring
+│   │   │   │   ├── ThreatDetector.ts # Detect security threats
+│   │   │   │   ├── AuditLogger.ts # Security audit logging
+│   │   │   │   └── IncidentReporter.ts # Security incident reporting
+│   │   │   └── compliance/        # Compliance utilities
+│   │   │       ├── DataProtection.ts # Data protection compliance
+│   │   │       ├── AccessControl.ts # Fine-grained access control
+│   │   │       └── ComplianceReporter.ts # Compliance reporting
+│   │   └── package.json
+│   │
+│   ├── logging-system/            # Comprehensive logging
+│   │   ├── src/
+│   │   │   ├── loggers/           # Different logger implementations
+│   │   │   │   ├── ConsoleLogger.ts # Development console logging
+│   │   │   │   ├── FileLogger.ts  # File-based logging
+│   │   │   │   ├── CloudLogger.ts # Cloud logging service
+│   │   │   │   └── StructuredLogger.ts # Structured JSON logging
+│   │   │   ├── formatters/        # Log formatting
+│   │   │   │   ├── JSONFormatter.ts # JSON log formatting
+│   │   │   │   ├── TextFormatter.ts # Human-readable formatting
+│   │   │   │   └── ErrorFormatter.ts # Error stack trace formatting
+│   │   │   ├── transports/        # Log transport mechanisms
+│   │   │   │   ├── HTTPTransport.ts # HTTP log shipping
+│   │   │   │   ├── FileTransport.ts # File-based transport
+│   │   │   │   └── StreamTransport.ts # Stream-based transport
+│   │   │   ├── filters/           # Log filtering
+│   │   │   │   ├── LevelFilter.ts # Filter by log level
+│   │   │   │   ├── CategoryFilter.ts # Filter by category
+│   │   │   │   └── SensitiveDataFilter.ts # Filter sensitive information
+│   │   │   └── aggregation/       # Log aggregation
+│   │   │       ├── LogAggregator.ts # Aggregate similar logs
+│   │   │       ├── MetricsExtractor.ts # Extract metrics from logs
+│   │   │       └── AlertTrigger.ts # Trigger alerts from log patterns
+│   │   └── package.json
+│   │
+│   ├── testing-utilities/         # Testing utilities
+│   │   ├── src/
+│   │   │   ├── mocks/             # Mock implementations
+│   │   │   │   ├── APIMocks.ts    # API endpoint mocks
+│   │   │   │   ├── StateMocks.ts  # State management mocks
+│   │   │   │   ├── StorageMocks.ts # Storage mocks
+│   │   │   │   └── ServiceMocks.ts # Service layer mocks
+│   │   │   ├── fixtures/          # Test data fixtures
+│   │   │   │   ├── MuseumFixtures.ts # Museum test data
+│   │   │   │   ├── EventFixtures.ts # Event test data
+│   │   │   │   ├── UserFixtures.ts # User test data
+│   │   │   │   └── TourFixtures.ts # Virtual tour test data
+│   │   │   ├── helpers/           # Test helper functions
+│   │   │   │   ├── RenderHelpers.tsx # Component rendering helpers
+│   │   │   │   ├── StateHelpers.ts # State testing helpers
+│   │   │   │   ├── APIHelpers.ts  # API testing helpers
+│   │   │   │   └── NavigationHelpers.ts # Navigation testing helpers
+│   │   │   ├── matchers/          # Custom test matchers
+│   │   │   │   ├── CustomMatchers.ts # Domain-specific matchers
+│   │   │   │   └── AccessibilityMatchers.ts # A11y testing matchers
+│   │   │   └── setup/             # Test environment setup
+│   │   │       ├── TestSetup.ts   # Global test setup
+│   │   │       ├── DatabaseSetup.ts # Test database setup
+│   │   │       └── MockServerSetup.ts # Mock server configuration
+│   │   └── package.json
+│   │
+│   └── deployment-tools/          # Deployment and build utilities
+│       ├── src/
+│       │   ├── build/             # Build configuration utilities
+│       │   │   ├── WebpackConfig.ts # Webpack configuration helpers
+│       │   │   ├── ViteConfig.ts  # Vite configuration helpers
+│       │   │   ├── BabelConfig.ts # Babel configuration
+│       │   │   └── ESLintConfig.ts # ESLint configuration
+│       │   ├── bundling/          # Bundle optimization
+│       │   │   ├── ChunkStrategy.ts # Code splitting strategies
+│       │   │   ├── AssetOptimizer.ts # Asset optimization
+│       │   │   ├── TreeShaking.ts # Dead code elimination
+│       │   │   └── BundleAnalyzer.ts # Bundle analysis tools
+│       │   ├── deployment/        # Deployment utilities
+│       │   │   ├── EnvironmentManager.ts # Environment management
+│       │   │   ├── VersionManager.ts # Version management
+│       │   │   ├── RollbackManager.ts # Rollback capabilities
+│       │   │   └── HealthChecker.ts # Post-deployment health checks
+│       │   ├── optimization/      # Performance optimization
+│       │   │   ├── PWAGenerator.ts # Progressive Web App generation
+│       │   │   ├── ServiceWorkerBuilder.ts # Service worker building
+│       │   │   ├── CacheStrategy.ts # Caching strategies
+│       │   │   └── PreloadManager.ts # Resource preloading
+│       │   └── monitoring/        # Deployment monitoring
+│       │       ├── PerformanceMonitor.ts # Performance monitoring
+│       │       ├── ErrorMonitor.ts # Error monitoring
+│       │       └── UsageMonitor.ts # Usage analytics
+│       └── package.json
+```
+
+## 🔗 Package Dependencies by App
+
+### visitor-portal (Next.js)
+
+**Primary Package Dependencies:**
+
+- `@packages/museum-core` - Museum and artifact entities, services
+- `@packages/event-core` - Event browsing and booking logic
+- `@packages/ticketing-core` - Ticket purchasing functionality
+- `@packages/user-management` - User authentication and profiles
+- `@packages/design-system` - Design tokens and theming
+- `@packages/web-components` - All web UI components
+- `@packages/museum-components` - Museum-specific business components
+- `@packages/museum-state` - Museum data state management
+- `@packages/event-state` - Event booking state
+- `@packages/auth-state` - User authentication state
+- `@packages/virtual-tour-state` - Virtual tour navigation state
+- `@packages/museum-api` - Museum data fetching
+- `@packages/event-api` - Event and booking APIs
+- `@packages/user-api` - User management APIs
+- `@packages/virtual-tour-api` - Virtual tour APIs
+- `@packages/tour-engine` - 360° tour viewer
+- `@packages/config-management` - App configuration
+- `@packages/analytics-core` - User behavior tracking
+
+**Usage Notes:**
+
+- Focuses on public-facing museum and event discovery
+- Heavy use of virtual tour components for immersive experiences
+- Optimized for SEO and conversion (booking flow)
+- Uses Next.js App Router for optimal performance and SEO
+
+### visitor-mobile (Expo React Native)
+
+**Primary Package Dependencies:**
+
+- `@packages/museum-core` - Same core business logic as web
+- `@packages/event-core` - Event logic (shared with web)
+- `@packages/ticketing-core` - Mobile ticket management
+- `@packages/user-management` - User auth (shared with web)
+- `@packages/design-system` - Shared design tokens
+- `@packages/mobile-components` - Mobile-optimized UI components
+- `@packages/museum-components` - Business components (mobile versions)
+- `@packages/museum-state` - Shared state with web app
+- `@packages/event-state` - Shared booking state
+- `@packages/auth-state` - Shared auth state
+- `@packages/museum-api` - Same API layer as web
+- `@packages/event-api` - Same event APIs
+- `@packages/user-api` - Same user APIs
+- `@packages/tour-engine` - Mobile-optimized tour viewer
+- `@packages/config-management` - Mobile app configuration
+- `@packages/analytics-core` - Mobile analytics tracking
+
+**Usage Notes:**
+
+- Shares core business logic and state with web visitor portal
+- Includes mobile-specific features: camera, GPS, push notifications
+- Offline-first approach for ticket storage and viewing
+- Native performance for 3D/360° experiences
+
+### museum-dashboard (Next.js)
+
+**Primary Package Dependencies:**
+
+- `@packages/museum-core` - Full museum management capabilities
+- `@packages/event-core` - Complete event management with workflows
+- `@packages/ticketing-core` - Ticket sales and validation management
+- `@packages/user-management` - Staff and organizational management
+- `@packages/design-system` - Professional dashboard theming
+- `@packages/web-components` - Complex dashboard UI components
+- `@packages/museum-components` - All museum business components
+- `@packages/museum-state` - Museum management state
+- `@packages/event-state` - Event management workflows
+- `@packages/auth-state` - Staff authentication and permissions
+- `@packages/museum-api` - Museum management APIs
+- `@packages/event-api` - Event management APIs
+- `@packages/user-api` - Staff management APIs
+- `@packages/virtual-tour-api` - Tour management APIs
+- `@packages/editor-engine` - 3D/360° content editor
+- `@packages/asset-pipeline` - Asset processing and optimization
+- `@packages/config-management` - Dashboard configuration
+- `@packages/analytics-core` - Business analytics and reporting
+- `@packages/notification-system` - Staff and customer notifications
+
+**Usage Notes:**
+
+- Most complex app with full CRUD operations
+- Heavy use of workflow components for event approval processes
+- Integrates 3D editor for creating virtual tours
+- Advanced analytics and reporting capabilities
+- Role-based access control throughout
+
+### staff-mobile (Expo React Native)
+
+**Primary Package Dependencies:**
+
+- `@packages/event-core` - Event monitoring and management
+- `@packages/ticketing-core` - Ticket validation and scanning
+- `@packages/user-management` - Staff authentication and roles
+- `@packages/design-system` - Consistent mobile theming
+- `@packages/mobile-components` - Mobile UI optimized for staff workflows
+- `@packages/museum-components` - Staff-specific business components
+- `@packages/event-state` - Real-time event state management
+- `@packages/auth-state` - Staff authentication state
+- `@packages/event-api` - Event management APIs
+- `@packages/user-api` - Staff APIs
+- `@packages/config-management` - Staff app configuration
+- `@packages/security-core` - Enhanced security for staff operations
+
+**Usage Notes:**
+
+- Specialized for staff operational tasks
+- Heavy use of camera for QR/barcode scanning
+- Offline capability for ticket validation during network issues
+- Real-time updates for event capacity and attendance
+- Biometric authentication for secure access
+
+### system-dashboard (Next.js)
+
+**Primary Package Dependencies:**
+
+- `@packages/user-management` - Global user and organization management
+- `@packages/design-system` - Admin-focused design system
+- `@packages/web-components` - Administrative UI components
+- `@packages/auth-state` - Super admin authentication
+- `@packages/user-api` - User management APIs
+- `@packages/config-management` - System-wide configuration
+- `@packages/analytics-core` - Platform-wide analytics
+- `@packages/security-core` - Advanced security monitoring
+- `@packages/logging-system` - System-wide logging and monitoring
+- `@packages/notification-system` - System notifications
+
+**Usage Notes:**
+
+- Highest-level administrative interface
+- Multi-tenant organization management
+- Platform-wide monitoring and analytics
+- Security audit and compliance tools
+- Feature flag and system configuration management
+
+## 🔄 State Sharing Strategy
+
+### Cross-Platform State Sharing
+
+- `museum-state`, `event-state`, `auth-state` packages are shared between web and mobile visitor apps
+- State persistence ensures consistent experience across platforms
+- Real-time synchronization for booking cart and user preferences
+
+### Role-Based State Management
+
+- Visitor apps share user-focused state (favorites, bookings, profiles)
+- Staff apps share operational state (event monitoring, capacity tracking)
+- Admin apps use system-wide state (organization management, platform analytics)
+
+### Offline-First Considerations
+
+- Mobile apps prioritize offline capability with background sync
+- Critical data (tickets, user profiles) cached locally
+- Graceful degradation when network unavailable
+
+## 📦 Shared Component Strategy
+
+### UI Component Hierarchy
+
+1. **design-system**: Foundation (tokens, themes)
+2. **web-components/mobile-components**: Platform-specific primitives
+3. **museum-components**: Business logic components (platform-agnostic logic, platform-specific rendering)
+
+### Business Component Sharing
+
+- Museum display components shared across visitor and dashboard apps
+- Event components shared but with different permission levels
+- Ticket components adapted for different user roles (visitor vs staff)
+
+This structure maximizes code reuse while maintaining clear separation of concerns and enabling efficient development across all platform touchpoints.
