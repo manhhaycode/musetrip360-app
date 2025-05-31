@@ -1,7 +1,7 @@
 {
   "name": "@musetrip360/design-system",
   "version": "0.1.0",
-  "description": "A comprehensive design system use internal in MuseTrip360 app",
+  "description": "A comprehensive design system used internally in the MuseTrip360 app",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
