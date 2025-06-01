@@ -376,17 +376,11 @@ importers:
       clsx:
         specifier: ^2.1.0
         version: 2.1.1
-      react:
-        specifier: ^19.0.0
-        version: 19.0.0
-      react-dom:
-        specifier: ^19.0.0
-        version: 19.0.0(react@19.0.0)
       react-icons:
         specifier: ^5.0.1
         version: 5.5.0(react@19.0.0)
       tailwindcss:
-        specifier: ^4.1.8
+        specifier: ^4
         version: 4.1.8
     devDependencies:
       '@eslint/eslintrc':
@@ -410,6 +404,12 @@ importers:
       eslint:
         specifier: ^9
         version: 9.26.0(jiti@2.4.2)
+      react:
+        specifier: ^19.0.0
+        version: 19.0.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.0.0(react@19.0.0)
       typescript:
         specifier: ^5
         version: 5.8.3
