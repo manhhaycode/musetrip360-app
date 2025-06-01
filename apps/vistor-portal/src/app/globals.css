@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+
+/* Import MuseTrip360 Design System styles */
+@import '@musetrip360/design-system/styles.css';

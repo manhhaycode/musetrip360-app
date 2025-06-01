@@ -16,16 +16,18 @@
       "import": "./dist/styles.css",
       "require": "./dist/styles.css"
     },
+    "./styles.css": "./dist/styles.css",
     "./package.json": "./package.json"
   },
   "files": [
     "dist",
+    "styles.css",
     "README.md"
   ],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
     "build:watch": "vite build --watch",
-    "dev": "vite build --watch",
+    "dev": "vite build --watch --mode development",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",

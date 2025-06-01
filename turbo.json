@@ -13,8 +13,13 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
+      "dependsOn": ["^build"],
       "persistent": true,
       "cache": false
+    },
+    "dev:packages": {
+      "cache": false,
+      "persistent": true
     }
   },
   "ui": "tui"

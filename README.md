@@ -144,3 +144,40 @@ This project is proprietary and confidential. All rights reserved.
 ## Contact
 
 For questions or support, please contact the project maintainers.
+
+## Package Management & Development Workflow
+
+### ✅ Package Import Resolution
+
+All packages in this monorepo correctly import from **built `dist` files**, not source files:
+
+- `@musetrip360/design-system` → `/packages/design-system/dist/index.cjs`
+- `@musetrip360/design-system/styles` → `/packages/design-system/dist/styles.css`
+
+### Development Scripts
+
+```bash
+# Build all packages and start development (recommended)
+pnpm dev:clean
+
+# Standard development (builds packages first, then starts dev servers)
+pnpm dev
+
+# Build only packages in watch mode
+pnpm dev:packages
+
+# Start only apps in development mode
+pnpm dev:apps
+
+# Build all packages for production
+pnpm build
+```
+
+### Package Development Workflow
+
+1. **Initial Setup**: Always run `pnpm build` after cloning or when packages change
+2. **Daily Development**: Use `pnpm dev` which automatically builds packages before starting dev servers
+3. **Package Changes**: When modifying packages, they automatically rebuild in watch mode
+4. **Clean Start**: Use `pnpm dev:clean` for a complete rebuild and fresh start
+
+### Architecture Overview

@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-// @ts-ignore – Plugin installed in generated project
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import banner from 'rollup-plugin-banner2';
 
 export default defineConfig({
   plugins: [
@@ -24,6 +24,16 @@ export default defineConfig({
         preserveSymlinks: false,
         skipLibCheck: true,
       },
+    }),
+    banner(() => {
+      return `
+        /**
+         * @musetrip360/ui-core
+         * A comprehensive UI component library for MuseTrip360 built on the design system
+         * @license MIT
+         */
+        'use client';
+      `;
     }),
   ],
 
