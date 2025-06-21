@@ -7,13 +7,39 @@ import path from 'node:path';
 // @ts-ignore – Plugin installed in generated project
 import tailwindcss from '@tailwindcss/vite';
 
+// Chunk splitting configuration - easily maintainable
+const CHUNK_CONFIG = {
+  reactCore: ['react', 'react-dom', 'scheduler', 'react/jsx-runtime'],
+  reactPatterns: [
+    /^react/,
+    /^@react/,
+    /use-.*/,
+    /^aria-/,
+    /^radix-ui/,
+    /^@radix-ui/,
+    /framer/,
+    /lucide/,
+    /cmdk/,
+    /sonner/,
+    /vaul/,
+    /embla/,
+    /recharts/,
+    /input-otp/,
+  ],
+  vendorPatterns: {
+    '3d': /^(three|@react-three|@drei)/,
+    state: /^(zustand|@tanstack|redux|mobx|jotai|valtio)/,
+    utils: /^(lodash|ramda|date-fns|moment|dayjs|clsx|classnames|tailwind|@tailwindcss)/,
+    large: /^(monaco|codemirror|chart\.js|d3|plotly)/,
+    styling: /^(@emotion|styled|stitches|@stitches)/,
+    test: /^(@testing-library|vitest|jest)/,
+  },
+};
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   // Load environment variables based on the current mode.
   const env = loadEnv(mode, process.cwd(), '');
-
-  // Enable bundle visualizer when ANALYZE=true
-  const isAnalyze = env.ANALYZE === 'true';
 
   return {
     plugins: [
@@ -72,48 +98,72 @@ export default defineConfig(({ mode }) => {
       brotliSize: false,
       rollupOptions: {
         output: {
-          // Enhanced chunk splitting for monorepo
+          // Dynamic chunk splitting with pattern-based grouping
           manualChunks(id: string) {
-            // Workspace packages get their own chunks
+            // Helper function to get package name from path
+            const getPackageName = (id: string) => {
+              if (!id.includes('node_modules')) return null;
+              const parts = id.split('node_modules/')[1]?.split('/');
+              return parts?.[0]?.startsWith('@') ? `${parts[0]}/${parts[1]}` : parts?.[0];
+            };
+
+            // Helper function to detect React-dependent packages
+            const isReactDependent = (packageName: string) => {
+              return CHUNK_CONFIG.reactPatterns.some((pattern) => pattern.test(packageName || ''));
+            };
+
+            // Helper function to categorize vendor packages
+            const getVendorCategory = (packageName: string) => {
+              for (const [category, pattern] of Object.entries(CHUNK_CONFIG.vendorPatterns)) {
+                if (pattern.test(packageName)) {
+                  return category;
+                }
+              }
+              return 'misc';
+            };
+
+            // Workspace packages - highest priority for caching
             if (id.includes('packages/')) {
               const packageName = id.split('packages/')[1]?.split('/')[0];
               return `workspace-${packageName}`;
             }
 
-            // Group common vendor libraries
+            // Node modules
             if (id.includes('node_modules')) {
-              const vendorName = id.split('node_modules/')[1]?.split('/')[0]?.replace('@', '');
+              const packageName = getPackageName(id);
+              if (!packageName) return 'vendor-misc';
 
-              // Group React ecosystem
-              if (['react', 'react-dom', 'react-router'].some((pkg) => vendorName?.includes(pkg))) {
-                return 'vendor-react';
+              // React core ecosystem - must load first
+              if (CHUNK_CONFIG.reactCore.includes(packageName)) {
+                return 'react-core';
               }
 
-              // Group UI libraries
-              if (['framer-motion', 'lucide-react', 'radix-ui'].some((pkg) => vendorName?.includes(pkg))) {
-                return 'vendor-ui';
+              // React-dependent libraries - second priority
+              if (isReactDependent(packageName)) {
+                return 'react-deps';
               }
 
-              // Group state management
-              if (['zustand', 'tanstack'].some((pkg) => vendorName?.includes(pkg))) {
-                return 'vendor-state';
-              }
-
-              // Group Three.js ecosystem
-              if (['three', 'fiber', 'drei'].some((pkg) => vendorName?.includes(pkg))) {
-                return 'vendor-3d';
-              }
-
-              // Other vendors
-              return `vendor-${vendorName}`;
+              // Categorize other vendor packages dynamically
+              const category = getVendorCategory(packageName);
+              return `vendor-${category}`;
             }
+
+            // Application code stays in main chunk
+            return undefined;
           },
           // Consistent naming for better caching
           chunkFileNames: 'js/[name]-[hash].js',
           assetFileNames: 'assets/[name]-[hash].[ext]',
         },
-        // External dependencies that should not be bundled (if any)
+        // Ensure proper loading order
         external: [],
+        // Force dependency order
+        treeshake: {
+          moduleSideEffects: (id) => {
+            // Ensure React side effects are preserved and loaded first
+            return id.includes('react') || id.includes('scheduler');
+          },
+        },
       },
     },
 
