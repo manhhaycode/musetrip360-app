@@ -27,6 +27,13 @@ export default defineConfig({
     }),
   ],
 
+  // Add path alias resolution
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src'),
+    },
+  },
+
   build: {
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
@@ -36,7 +43,17 @@ export default defineConfig({
     },
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
-      external: ['react', 'react-dom', 'react/jsx-runtime', '@musetrip360/design-system'],
+      external: [
+        'react',
+        'react-dom',
+        'react/jsx-runtime',
+        'embla-carousel-react',
+        'recharts',
+        'input-otp',
+        'cmdk',
+        'react-resizable-panels',
+        'sonner',
+      ],
       output: {
         // Provide global variables for externalized deps in UMD builds
         globals: {
@@ -61,6 +78,8 @@ export default defineConfig({
     sourcemap: true,
     // Emit CSS as separate files
     cssCodeSplit: false,
+    // Ensure CSS is emitted
+    emptyOutDir: true,
     // Optimize for library size
     reportCompressedSize: false,
   },

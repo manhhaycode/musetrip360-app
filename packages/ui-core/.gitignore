@@ -35,3 +35,6 @@ pids
 *.pid
 *.seed
 *.pid.lock 
+
+*storybook.log
+storybook-static

@@ -1,8 +1,6 @@
 'use client';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
-import { MantineProvider } from '@mantine/core';
-import { theme, cssVariablesResolver } from '@musetrip360/ui';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -21,11 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <MantineProvider theme={theme} cssVariablesResolver={cssVariablesResolver}>
-          {children}
-        </MantineProvider>
-      </body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }
