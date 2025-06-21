@@ -1,10 +1,6 @@
-// @ts-ignore – Vite types will be available in the generated project
 import { defineConfig, loadEnv } from 'vite';
-// @ts-ignore – Plugin installed in generated project
 import react from '@vitejs/plugin-react-swc';
-// @ts-ignore – Plugin installed in generated project
 import path from 'node:path';
-// @ts-ignore – Plugin installed in generated project
 import tailwindcss from '@tailwindcss/vite';
 
 // Chunk splitting configuration - easily maintainable
