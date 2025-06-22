@@ -135,49 +135,7 @@ jobs:
             ${{ runner.os }}-turbo-
 
       - name: Build
-        run: |
-          # Build each application individually
-          echo "Building web application..."
-          pnpm --filter=web build
-
-          echo "Building docs application..."
-          pnpm --filter=docs build
-
-          # Debug: List the build output directories
-          echo "Checking build output directories..."
-          ls -la apps/web/
-          ls -la apps/web/.next || echo "Web .next directory not found"
-          ls -la apps/docs/
-          ls -la apps/docs/.next || echo "Docs .next directory not found"
-
-      - name: Create artifact directories if they don't exist
-        run: |
-          mkdir -p artifact-web
-          mkdir -p artifact-docs
-
-          # Copy build output if it exists, otherwise create placeholder
-          if [ -d "apps/web/.next" ]; then
-            cp -r apps/web/.next/* artifact-web/
-            echo "Copied web build output to artifact directory"
-          else
-            echo "Web build failed or output directory not found" > artifact-web/build-error.txt
-            echo "Created placeholder for web artifacts"
-          fi
-
-          if [ -d "apps/docs/.next" ]; then
-            cp -r apps/docs/.next/* artifact-docs/
-            echo "Copied docs build output to artifact directory"
-          else
-            echo "Docs build failed or output directory not found" > artifact-docs/build-error.txt
-            echo "Created placeholder for docs artifacts"
-          fi
-
-          # List the artifact directories
-          echo "Web artifact contents:"
-          ls -la artifact-web/
-
-          echo "Docs artifact contents:"
-          ls -la artifact-docs/
+        run: pnpm build
 
       - name: Upload web build artifacts
         uses: actions/upload-artifact@v4
