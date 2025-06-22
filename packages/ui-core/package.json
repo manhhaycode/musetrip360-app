@@ -23,7 +23,7 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
     "build:watch": "vite build --watch",
-    "dev": "vite build --watch",
+    "dev": "vite build --watch --emptyOutDir=false && tsc --emitDeclarationOnly --declaration --outDir dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
