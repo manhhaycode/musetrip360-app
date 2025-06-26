@@ -12,7 +12,7 @@ import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from './prettier-config.js';
+import prettierConfig from './prettier.config.js';
 
 /**
  * Next.js ESLint configuration
@@ -84,7 +84,13 @@ export default [
       'import/no-extraneous-dependencies': [
         'error',
         {
-          devDependencies: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/*.stories.{ts,tsx}', '**/jest.config.{js,ts}', '**/jest.setup.{js,ts}'],
+          devDependencies: [
+            '**/*.test.{ts,tsx}',
+            '**/*.spec.{ts,tsx}',
+            '**/*.stories.{ts,tsx}',
+            '**/jest.config.{js,ts}',
+            '**/jest.setup.{js,ts}',
+          ],
         },
       ],
 
@@ -122,7 +128,13 @@ export default [
       'import/no-extraneous-dependencies': [
         'error',
         {
-          devDependencies: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/*.stories.{ts,tsx}', '**/jest.config.{js,ts}', '**/jest.setup.{js,ts}'],
+          devDependencies: [
+            '**/*.test.{ts,tsx}',
+            '**/*.spec.{ts,tsx}',
+            '**/*.stories.{ts,tsx}',
+            '**/jest.config.{js,ts}',
+            '**/jest.setup.{js,ts}',
+          ],
         },
       ],
       'no-unused-vars': 'off',
