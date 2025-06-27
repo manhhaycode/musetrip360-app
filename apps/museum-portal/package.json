@@ -1,8 +1,8 @@
 {
-  "name": "@apps/admin-portal",
+  "name": "@apps/museum-portal",
   "private": true,
   "version": "0.0.0",
-  "description": "A Vite application of admin to manage Musetrip360 system",
+  "description": "A Vite application of museum to manage Musetrip360 system",
   "type": "module",
   "scripts": {
     "dev": "vite",
