@@ -12,22 +12,22 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@musetrip360/ui-core": "workspace:*",
+    "@tailwindcss/vite": "^4.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@musetrip360/ui-core": "workspace:*",
-    "tailwindcss": "^4",
-    "@tailwindcss/vite": "^4.1.8"
+    "tailwindcss": "^4"
   },
   "devDependencies": {
+    "@eslint/js": "^9.26.0",
     "@musetrip360/eslint-config": "workspace:*",
     "@musetrip360/tsconfig": "workspace:*",
-    "@eslint/js": "^9.25.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "eslint": "^9",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
     "typescript": "^5",
     "typescript-eslint": "^8.32.0",

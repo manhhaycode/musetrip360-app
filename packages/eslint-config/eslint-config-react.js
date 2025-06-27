@@ -13,7 +13,7 @@ import reactPlugin from 'eslint-plugin-react';
 import reactHooksPlugin from 'eslint-plugin-react-hooks';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
-import prettierConfig from './prettier-config.js';
+import prettierConfig from './prettier.config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -57,7 +57,7 @@ export default [
     'plugin:react-hooks/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
-    'plugin:prettier/recommended',
+    'plugin:prettier/recommended'
   ),
   {
     languageOptions: {
@@ -100,7 +100,13 @@ export default [
       'import/no-extraneous-dependencies': [
         'error',
         {
-          devDependencies: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/*.stories.{ts,tsx}', '**/jest.config.{js,ts}', '**/jest.setup.{js,ts}'],
+          devDependencies: [
+            '**/*.test.{ts,tsx}',
+            '**/*.spec.{ts,tsx}',
+            '**/*.stories.{ts,tsx}',
+            '**/jest.config.{js,ts}',
+            '**/jest.setup.{js,ts}',
+          ],
         },
       ],
 
