@@ -14,8 +14,12 @@
   "dependencies": {
     "@musetrip360/ui-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.517.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^6.28.0",
+    "tailwind-merge": "^3.3.0",
     "tailwindcss": "^4"
   },
   "devDependencies": {
