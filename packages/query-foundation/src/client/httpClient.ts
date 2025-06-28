@@ -8,12 +8,13 @@ import type {
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
+import { getEnvVar } from '@musetrip360/infras';
 
 /**
  * Default API client configuration
  */
 const DEFAULT_CONFIG: APIClientConfig = {
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL: getEnvVar('API_URL')!,
   timeout: 30000, // 30 seconds
   retries: 3,
   retryDelay: 1000, // 1 second
@@ -22,7 +23,7 @@ const DEFAULT_CONFIG: APIClientConfig = {
   enableCache: true,
   cacheTimeout: 300000, // 5 minutes
   enableAuth: true,
-  enableLogging: process.env.NODE_ENV === 'development',
+  enableLogging: getEnvVar('NODE_ENV') === 'development',
 };
 
 /**
@@ -36,6 +37,9 @@ export class HTTPClient {
 
   constructor(config: Partial<APIClientConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
+    if (!this.config.baseURL) {
+      throw new Error('API_URL is not set in the environment variables');
+    }
     this.client = this.createAxiosInstance();
     this.setupInterceptors();
   }
@@ -367,6 +371,16 @@ export class HTTPClient {
 }
 
 /**
- * Default HTTP client instance
+ * Default HTTP client instance (lazy-initialized)
  */
-export const httpClient = new HTTPClient();
+let _httpClient: HTTPClient | null = null;
+
+/**
+ * Get or create the default HTTP client
+ */
+export function getHttpClient(config?: Partial<APIClientConfig>): HTTPClient {
+  if (!_httpClient) {
+    _httpClient = new HTTPClient(config);
+  }
+  return _httpClient;
+}

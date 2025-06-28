@@ -356,25 +356,61 @@ importers:
         specifier: ^5
         version: 5.8.3
 
+  packages/infras:
+    devDependencies:
+      '@eslint/eslintrc':
+        specifier: ^3
+        version: 3.3.1
+      '@musetrip360/eslint-config':
+        specifier: workspace:*
+        version: link:../eslint-config
+      '@musetrip360/tsconfig':
+        specifier: workspace:*
+        version: link:../tsconfig
+      '@vitejs/plugin-react-swc':
+        specifier: ^3.9.0
+        version: 3.10.0(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(yaml@2.7.1))
+      eslint:
+        specifier: ^9
+        version: 9.26.0(jiti@2.4.2)
+      typescript:
+        specifier: ^5
+        version: 5.8.3
+      typescript-eslint:
+        specifier: ^8.32.0
+        version: 8.33.0(eslint@9.26.0(jiti@2.4.2))(typescript@5.8.3)
+      vite:
+        specifier: ^6.3.5
+        version: 6.3.5(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(yaml@2.7.1)
+      vite-plugin-dts:
+        specifier: ^3.7.0
+        version: 3.9.1(@types/node@20.17.46)(rollup@4.40.2)(typescript@5.8.3)(vite@6.3.5(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(yaml@2.7.1))
+      vitest:
+        specifier: ^3.1.4
+        version: 3.1.4(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(yaml@2.7.1)
+
   packages/query-foundation:
     dependencies:
-      '@tanstack/query-sync-storage-persister':
-        specifier: ^5.59.20
+      '@musetrip360/infras':
+        specifier: workspace:*
+        version: link:../infras
+      '@tanstack/query-async-storage-persister':
+        specifier: ^5.81.5
         version: 5.81.5
       '@tanstack/react-query':
-        specifier: ^5.59.20
+        specifier: ^5.81.5
         version: 5.81.5(react@19.0.0)
       '@tanstack/react-query-persist-client':
-        specifier: ^5.59.20
+        specifier: ^5.81.5
         version: 5.81.5(@tanstack/react-query@5.81.5(react@19.0.0))(react@19.0.0)
       axios:
-        specifier: ^1.7.9
+        specifier: ^1.10.0
         version: 1.10.0
       idb:
         specifier: ^8.0.0
         version: 8.0.3
       zustand:
-        specifier: ^5.0.2
+        specifier: ^5.0.6
         version: 5.0.6(@types/react@19.0.14)(react@19.0.0)(use-sync-external-store@1.5.0(react@19.0.0))
     devDependencies:
       '@eslint/eslintrc':
@@ -2884,14 +2920,14 @@ packages:
     peerDependencies:
       vite: ^5.2.0 || ^6
 
+  '@tanstack/query-async-storage-persister@5.81.5':
+    resolution: {integrity: sha512-5a8t7Q0Dih3Qp80txG88sbNP5nXjqj+djnfVt1xbEuMNRwa6CWVA7fhfdatl3GL5gw8tlBEhPcP0ddnviJjNmw==}
+
   '@tanstack/query-core@5.81.5':
     resolution: {integrity: sha512-ZJOgCy/z2qpZXWaj/oxvodDx07XcQa9BF92c0oINjHkoqUPsmm3uG08HpTaviviZ/N9eP1f9CM7mKSEkIo7O1Q==}
 
   '@tanstack/query-persist-client-core@5.81.5':
     resolution: {integrity: sha512-imiMWYXf8KuXavOgVRc5IDixqP0VKEN6IxZ/vyuX87Wk0eX7QmRtjLn1AD4Hz7GxYPM3RalRzP5Bshc30hgOcg==}
-
-  '@tanstack/query-sync-storage-persister@5.81.5':
-    resolution: {integrity: sha512-dkCtueftbmK68PxcAT9oIH6R8LV3vZZJGg3uaq0w0gqcmSvRDqkquHmBIVBA7Oi+PAgO9yfw0Gv2SvCr4oJ7sg==}
 
   '@tanstack/react-query-persist-client@5.81.5':
     resolution: {integrity: sha512-ZV69n636C22RkbFK0rzel80oWjyWbMKiUwUE2MKhYWTSr42+JmqoehDwJ5sWcO8CxHNm4vWF8pyG+goRzluMYw==}
@@ -9731,16 +9767,15 @@ snapshots:
       tailwindcss: 4.1.8
       vite: 6.3.5(@types/node@20.17.46)(jiti@2.4.2)(lightningcss@1.30.1)(terser@5.39.0)(yaml@2.7.1)
 
+  '@tanstack/query-async-storage-persister@5.81.5':
+    dependencies:
+      '@tanstack/query-persist-client-core': 5.81.5
+
   '@tanstack/query-core@5.81.5': {}
 
   '@tanstack/query-persist-client-core@5.81.5':
     dependencies:
       '@tanstack/query-core': 5.81.5
-
-  '@tanstack/query-sync-storage-persister@5.81.5':
-    dependencies:
-      '@tanstack/query-core': 5.81.5
-      '@tanstack/query-persist-client-core': 5.81.5
 
   '@tanstack/react-query-persist-client@5.81.5(@tanstack/react-query@5.81.5(react@19.0.0))(react@19.0.0)':
     dependencies:

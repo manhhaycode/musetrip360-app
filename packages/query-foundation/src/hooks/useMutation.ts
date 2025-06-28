@@ -1,5 +1,5 @@
 import { useMutation as useReactMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
-import { httpClient } from '../client/httpClient';
+import { getHttpClient } from '../client/httpClient';
 import type { CustomMutationOptions, APIError } from '../types/query-types';
 import type { RequestConfig } from '../types/api-types';
 
@@ -55,7 +55,7 @@ export function usePostMutation<TData = unknown, TVariables = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, TVariables>, 'requestConfig'>
 ) {
-  return useMutation((variables: TVariables) => httpClient.post<TData>(url, variables), {
+  return useMutation((variables: TVariables) => getHttpClient().post<TData>(url, variables), {
     ...options,
     requestConfig,
   });
@@ -69,7 +69,7 @@ export function usePutMutation<TData = unknown, TVariables = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, TVariables>, 'requestConfig'>
 ) {
-  return useMutation((variables: TVariables) => httpClient.put<TData>(url, variables), {
+  return useMutation((variables: TVariables) => getHttpClient().put<TData>(url, variables), {
     ...options,
     requestConfig,
   });
@@ -83,7 +83,7 @@ export function usePatchMutation<TData = unknown, TVariables = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, TVariables>, 'requestConfig'>
 ) {
-  return useMutation((variables: TVariables) => httpClient.patch<TData>(url, variables), {
+  return useMutation((variables: TVariables) => getHttpClient().patch<TData>(url, variables), {
     ...options,
     requestConfig,
   });
@@ -97,7 +97,7 @@ export function useDeleteMutation<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, void>, 'requestConfig'>
 ) {
-  return useMutation(() => httpClient.delete<TData>(url), {
+  return useMutation(() => getHttpClient().delete<TData>(url), {
     ...options,
     requestConfig,
   });
@@ -112,7 +112,7 @@ export function useUploadMutation<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, File>, 'requestConfig'>
 ) {
-  return useMutation((file: File) => httpClient.upload<TData>(url, file, { onProgress }), {
+  return useMutation((file: File) => getHttpClient().upload<TData>(url, file, { onProgress }), {
     ...options,
     requestConfig,
   });
