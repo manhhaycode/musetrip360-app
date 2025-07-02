@@ -2,14 +2,15 @@ const routes = {
   dashboard: '/',
   museums: {
     list: '/museums',
-    requests: '/museums/requests',
-    approval: '/museums/approval',
+    approval: '/museums/requests',
   },
   analytics: {
     overview: '/analytics/overview',
     museums: '/analytics/museums',
     performance: '/analytics/performance',
   },
+  users: '/users',
+  settings: '/settings',
 };
 
 export default routes;

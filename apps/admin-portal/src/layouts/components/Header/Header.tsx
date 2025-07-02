@@ -10,21 +10,23 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Input,
   SidebarTrigger,
 } from '@musetrip360/ui-core';
-import { Bell, ChevronRight, LogOut, Search, Settings, User } from 'lucide-react';
+import { Bell, ChevronRight, LogOut, Settings, User } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
 const getBreadcrumb = (pathname: string) => {
   const paths = {
-    '/': 'Tổng quan',
+    '/': 'Dashboard',
     '/museums': 'Danh sách Bảo tàng',
-    '/museums/requests': 'Yêu cầu Đăng ký',
-    '/museums/approval': 'Xét duyệt',
+    '/museums/requests': 'Xét duyệt Bảo tàng',
+    '/museums/approval': 'Xét duyệt Bảo tàng',
     '/analytics/overview': 'Thống kê Tổng quan',
+    '/users': 'Quản lý Người dùng',
+    '/settings': 'Cài đặt Hệ thống',
+    '/policies': 'Chính sách & Quy định',
   };
-  return paths[pathname as keyof typeof paths] || 'Trang không xác định';
+  return paths[pathname as keyof typeof paths] || 'Trang chính';
 };
 
 export default function Header() {
@@ -32,29 +34,15 @@ export default function Header() {
   const currentPage = getBreadcrumb(location.pathname);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 max-w-screen-2xl items-center justify-between px-4">
+    <header className="sticky top-0 z-50 w-full border-b">
+      <div className="flex h-14 w-full items-center justify-between px-4">
         {/* Left side - Sidebar trigger và breadcrumb */}
         <div className="flex items-center gap-4">
           <SidebarTrigger className="-ml-1" />
-          <div className="hidden lg:flex items-center space-x-2 text-sm">
+          <div className="flex items-center space-x-2 text-sm">
             <span className="text-muted-foreground">Quản trị</span>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">{currentPage}</span>
-          </div>
-        </div>
-
-        {/* Center - Tìm kiếm */}
-        <div className="flex flex-1 items-center justify-center px-6">
-          <div className="w-full max-w-md">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Tìm kiếm bảo tàng, yêu cầu đăng ký..."
-                className="pl-8 md:w-[300px] lg:w-[400px]"
-              />
-            </div>
+            <span className="font-medium text-foreground">{currentPage}</span>
           </div>
         </div>
 
@@ -84,9 +72,7 @@ export default function Header() {
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="/avatars/admin.png" alt="Admin" />
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                    QT
-                  </AvatarFallback>
+                  <AvatarFallback className="bg-muted text-muted-foreground">QT</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -107,7 +93,7 @@ export default function Header() {
                 <span>Cài đặt</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-destructive">
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Đăng xuất</span>
               </DropdownMenuItem>

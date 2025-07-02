@@ -11,18 +11,39 @@ import {
   TrendingUp,
   XCircle,
 } from 'lucide-react';
+import { useState } from 'react';
 
 export default function AdminDashboard() {
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Sample data for visitor trends chart
+  const visitorTrends = [
+    { period: 'T1', visitors: 450000, growth: 12, x: 0, y: 45 },
+    { period: 'T2', visitors: 520000, growth: 15, x: 1, y: 52 },
+    { period: 'T3', visitors: 480000, growth: -8, x: 2, y: 48 },
+    { period: 'T4', visitors: 610000, growth: 27, x: 3, y: 61 },
+    { period: 'T5', visitors: 580000, growth: -5, x: 4, y: 58 },
+    { period: 'T6', visitors: 720000, growth: 24, x: 5, y: 72 },
+  ];
+
+  // Generate SVG path for wave chart
+  const generatePath = (data: typeof visitorTrends) => {
+    const width = 300;
+    const height = 100;
+    const points = data.map((d, i) => `${(i * width) / (data.length - 1)},${height - (d.y * height) / 100}`);
+    return `M ${points.join(' L ')}`;
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       {/* Quick Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         {/* Tổng số bảo tàng */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Tổng số Bảo tàng</CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <Building2 className="h-4 w-4 text-blue-600" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Building2 className="h-4 w-4 text-primary" />
             </div>
           </CardHeader>
           <CardContent>
@@ -55,7 +76,7 @@ export default function AdminDashboard() {
               <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                 Cần xử lý
               </Badge>
-              <Button variant="ghost" size="sm" className="h-6 text-xs">
+              <Button variant="secondary" size="sm" className="h-6 text-xs">
                 Xem tất cả
               </Button>
             </div>
@@ -102,7 +123,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="grid gap-6 lg:grid-cols-7">
+      <div className="grid gap-4 lg:grid-cols-7">
         {/* Recent Requests */}
         <Card className="lg:col-span-4">
           <CardHeader>
@@ -179,13 +200,13 @@ export default function AdminDashboard() {
                         ? 'bg-yellow-100 text-yellow-800 border-yellow-200'
                         : item.status === 'approved'
                           ? 'bg-green-100 text-green-800 border-green-200'
-                          : 'bg-red-100 text-red-800 border-red-200'
+                          : undefined
                     }
                   >
                     {item.status === 'pending' ? 'Chờ duyệt' : item.status === 'approved' ? 'Đã duyệt' : 'Từ chối'}
                   </Badge>
                   {item.status === 'pending' && (
-                    <Button size="sm" variant="ghost">
+                    <Button size="sm" variant="secondary">
                       <Eye className="h-4 w-4" />
                     </Button>
                   )}
@@ -194,7 +215,7 @@ export default function AdminDashboard() {
             ))}
 
             <div className="pt-4 border-t">
-              <Button variant="ghost" className="w-full justify-center">
+              <Button variant="secondary" className="w-full justify-center">
                 Xem tất cả yêu cầu
                 <TrendingUp className="ml-2 h-4 w-4" />
               </Button>
@@ -246,7 +267,7 @@ export default function AdminDashboard() {
               ].map((museum, index) => (
                 <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
                   <div className="flex items-center space-x-3">
-                    <div className="h-8 w-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-medium">
+                    <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
                       {index + 1}
                     </div>
                     <div className="min-w-0">
@@ -260,6 +281,239 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Enhanced Analytics Section */}
+      <div className="space-y-4">
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 p-1 bg-muted rounded-lg">
+          <button
+            className={`flex-1 py-2 px-4 text-sm tab-button ${activeTab === 'overview' ? 'active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            Tổng quan
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-sm tab-button ${activeTab === 'trends' ? 'active' : ''}`}
+            onClick={() => setActiveTab('trends')}
+          >
+            Xu hướng Lượt thăm
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-sm tab-button ${activeTab === 'museums' ? 'active' : ''}`}
+            onClick={() => setActiveTab('museums')}
+          >
+            Bảo tàng
+          </button>
+          <button
+            className={`flex-1 py-2 px-4 text-sm tab-button ${activeTab === 'performance' ? 'active' : ''}`}
+            onClick={() => setActiveTab('performance')}
+          >
+            Hiệu suất
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'overview' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <TrendingUp className="mr-2 h-5 w-5" />
+                Thống kê Tổng quan
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-64">
+                {/* Wave Chart */}
+                <div className="relative w-full h-48 bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4">
+                  <svg viewBox="0 0 300 100" className="w-full h-full">
+                    {/* Grid lines */}
+                    <defs>
+                      <linearGradient id="waveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.3} />
+                        <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+
+                    {/* Wave line */}
+                    <path
+                      d={generatePath(visitorTrends)}
+                      stroke="#3b82f6"
+                      strokeWidth="2"
+                      fill="none"
+                      className="drop-shadow-sm"
+                    />
+
+                    {/* Area under curve */}
+                    <path d={`${generatePath(visitorTrends)} L 300,100 L 0,100 Z`} fill="url(#waveGradient)" />
+
+                    {/* Data points */}
+                    {visitorTrends.map((item, index) => (
+                      <circle
+                        key={index}
+                        cx={(index * 300) / (visitorTrends.length - 1)}
+                        cy={100 - (item.y * 100) / 100}
+                        r="4"
+                        fill="#3b82f6"
+                        className="drop-shadow-sm"
+                      />
+                    ))}
+                  </svg>
+
+                  {/* Period labels */}
+                  <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                    {visitorTrends.map((item) => (
+                      <span key={item.period}>{item.period}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'trends' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Xu hướng Chi tiết</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {visitorTrends.map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-3 w-3 rounded-full bg-blue-500" />
+                      <span className="font-medium">{item.period}</span>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <span className="text-lg font-bold">{item.visitors.toLocaleString()}</span>
+                      <span className={`text-sm font-medium ${item.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {item.growth > 0 ? '+' : ''}
+                        {item.growth}%
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'museums' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Bảo tàng Nổi bật</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {[
+                  { name: 'Bảo tàng Lịch sử VN', rating: 4.9, visitors: '245K' },
+                  { name: 'Bảo tàng Mỹ thuật HCM', rating: 4.7, visitors: '198K' },
+                  { name: 'Bảo tàng Dân tộc học', rating: 4.6, visitors: '167K' },
+                ].map((museum, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium">
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{museum.name}</p>
+                        <p className="text-xs text-muted-foreground">{museum.visitors} lượt thăm</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Star className="h-4 w-4 text-yellow-400 fill-current" />
+                      <span className="text-sm font-medium">{museum.rating}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {activeTab === 'performance' && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Hiệu suất Hệ thống</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { metric: 'Uptime', value: '99.9%', color: 'bg-green-500' },
+                  { metric: 'Response Time', value: '120ms', color: 'bg-blue-500' },
+                  { metric: 'CPU Usage', value: '45%', color: 'bg-yellow-500' },
+                  { metric: 'Memory Usage', value: '68%', color: 'bg-purple-500' },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center space-x-3">
+                      <div className={`h-3 w-3 rounded-full ${item.color}`} />
+                      <span className="font-medium">{item.metric}</span>
+                    </div>
+                    <span className="text-lg font-bold">{item.value}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Additional Statistics */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Phân tích Lượt thăm Chi tiết</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {[
+                  { metric: 'Lượt thăm Web', value: '1.8M', change: '+15%' },
+                  { metric: 'Lượt thăm Mobile', value: '600K', change: '+25%' },
+                  { metric: 'Tour ảo', value: '340K', change: '+40%' },
+                  { metric: 'Tương tác trực tiếp', value: '89K', change: '+8%' },
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-3 w-3 rounded-full bg-primary" />
+                      <span className="font-medium">{item.metric}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold">{item.value}</span>
+                      <span className="text-sm text-green-600 font-medium">{item.change}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Địa điểm</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {[
+                  { location: 'Hà Nội', percentage: 35, visitors: '840K' },
+                  { location: 'TP.HCM', percentage: 28, visitors: '672K' },
+                  { location: 'Đà Nẵng', percentage: 15, visitors: '360K' },
+                  { location: 'Huế', percentage: 12, visitors: '288K' },
+                  { location: 'Khác', percentage: 10, visitors: '240K' },
+                ].map((item, index) => (
+                  <div key={index} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">{item.location}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {item.visitors} ({item.percentage}%)
+                      </span>
+                    </div>
+                    <Progress value={item.percentage} className="h-2" />
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
         </div>
