@@ -11,11 +11,11 @@ import Sidebar from '../components/Sidebar';
 export default function DefaultLayout() {
   return (
     <SidebarProvider>
-      <div className="h-screen w-full flex overflow-hidden" style={{ backgroundColor: '#fff0eb' }}>
+      <div className="h-screen w-full flex overflow-hidden" style={{ backgroundColor: '#fff0eb', gap: 0 }}>
         <Sidebar />
-        <SidebarInset className="flex flex-col flex-1 h-full overflow-hidden">
+        <SidebarInset className="flex flex-col flex-1 h-full overflow-hidden" style={{ gap: 0 }}>
           <Header />
-          <main className="flex-1 overflow-auto" style={{ backgroundColor: '#fef7f0' }}>
+          <main className="flex-1 overflow-auto" style={{ backgroundColor: '#fef7f0', border: 'none' }}>
             <div className="w-full px-4 py-4">
               <Outlet />
             </div>
