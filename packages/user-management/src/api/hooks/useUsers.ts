@@ -1,0 +1,247 @@
+/**
+ * @fileoverview User Management React Query Hooks
+ *
+ * React Query hooks for user management operations including queries and mutations.
+ * Integrates with the query-foundation package for consistent caching and offline support.
+ */
+
+import { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@musetrip360/query-foundation';
+import { userEndpoints, adminUserEndpoints, userApiErrorHandler } from '../endpoints/users';
+import type {
+  UserSearchParams,
+  UserAdminSearchParams,
+  UserCreateDto,
+  UserUpdateDto,
+  UserViewModel,
+  PaginatedResponse,
+  UserRoleFormDto,
+} from '../../types';
+import { userCacheKeys } from '../cache/cacheKeys';
+import { User } from '../..';
+
+/**
+ * Hook to fetch paginated list of users
+ */
+export function useUsers(params: UserSearchParams) {
+  return useQuery(userCacheKeys.list(params), async () => {
+    const userViews = await userEndpoints.getUsers(params);
+    return userViews.data.map((user) => User.fromAPI(user));
+  });
+}
+
+/**
+ * Hook to fetch all users for admin (with additional filters)
+ */
+export function useAdminUsers(params: UserAdminSearchParams) {
+  return useQuery(userCacheKeys.list(params), () => adminUserEndpoints.getAllUsers(params));
+}
+
+/**
+ * Hook to fetch user roles
+ */
+export function useUserRoles(userId: string) {
+  return useQuery(userCacheKeys.roles(userId), () => userEndpoints.getUserRoles(userId));
+}
+
+/**
+ * Hook to create a new user (admin only)
+ */
+export function useCreateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation((userData: UserCreateDto) => userEndpoints.createUser(userData), {
+    onSuccess: (newUser: UserViewModel) => {
+      // Invalidate users list to refetch with new user
+      queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
+
+      // Optionally add the new user to existing queries
+      queryClient.setQueryData<PaginatedResponse<UserViewModel>>(
+        userCacheKeys.list({ page: 1, pageSize: 20 }),
+        (oldData) => {
+          if (oldData) {
+            return {
+              ...oldData,
+              data: [newUser, ...oldData.data],
+              totalCount: oldData.totalCount + 1,
+            };
+          }
+          return oldData;
+        }
+      );
+    },
+    onError: (error: any) => {
+      console.error('Failed to create user:', userApiErrorHandler.handleError(error));
+    },
+  });
+}
+
+/**
+ * Hook to update a user (admin only)
+ */
+export function useUpdateUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    ({ id, userData }: { id: string; userData: UserUpdateDto }) => userEndpoints.updateUser(id, userData),
+    {
+      onSuccess: (updatedUser: UserViewModel) => {
+        // Update user in all relevant queries
+        queryClient.setQueryData<UserViewModel>(userCacheKeys.detail(updatedUser.id), updatedUser);
+
+        // Update user in lists
+        queryClient.setQueriesData<PaginatedResponse<UserViewModel>>({ queryKey: userCacheKeys.lists() }, (oldData) => {
+          if (oldData) {
+            return {
+              ...oldData,
+              data: oldData.data.map((user) => (user.id === updatedUser.id ? updatedUser : user)),
+            };
+          }
+          return oldData;
+        });
+      },
+      onError: (error: any) => {
+        console.error('Failed to update user:', userApiErrorHandler.handleError(error));
+      },
+    }
+  );
+}
+
+/**
+ * Hook to add a role to a user
+ */
+export function useAddUserRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation((roleData: UserRoleFormDto) => userEndpoints.addUserRole(roleData), {
+    onSuccess: (_, variables) => {
+      // Invalidate user permissions query
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.privileges(),
+      });
+
+      // Invalidate user details if cached
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.detail(variables.userId),
+      });
+
+      // Invalidate user lists to refresh role information
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.lists(),
+      });
+    },
+    onError: (error: any) => {
+      console.error('Failed to add user role:', userApiErrorHandler.handleError(error));
+    },
+  });
+}
+
+/**
+ * Hook to remove a role from a user
+ */
+export function useRemoveUserRole() {
+  const queryClient = useQueryClient();
+
+  return useMutation((roleData: UserRoleFormDto) => userEndpoints.removeUserRole(roleData), {
+    onSuccess: (_, variables) => {
+      // Invalidate user permissions query
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.privileges(),
+      });
+
+      // Invalidate user details if cached
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.detail(variables.userId),
+      });
+
+      // Invalidate user lists to refresh role information
+      queryClient.invalidateQueries({
+        queryKey: userCacheKeys.lists(),
+      });
+    },
+    onError: (error: any) => {
+      console.error('Failed to remove user role:', userApiErrorHandler.handleError(error));
+    },
+  });
+}
+
+/**
+ * Hook to get current user privileges
+ */
+export function useUserPrivileges() {
+  return useQuery(userCacheKeys.privileges(), () => userEndpoints.getUserPrivileges());
+}
+
+/**
+ * Hook for bulk user operations (utility hook)
+ */
+export function useBulkUserOperations() {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    async (operations: Array<{ operation: 'delete' | 'activate' | 'deactivate'; userId: string }>) => {
+      const promises = operations.map(({ operation, userId }) => {
+        switch (operation) {
+          case 'activate':
+            return userEndpoints.updateUser(userId, { isActive: true });
+          case 'deactivate':
+            return userEndpoints.updateUser(userId, { isActive: false });
+          default:
+            throw new Error(`Unknown operation: ${operation}`);
+        }
+      });
+
+      const responses = await Promise.all(promises);
+      return responses.map((response: any) => response.data);
+    },
+    {
+      onSuccess: () => {
+        // Invalidate all user-related queries after bulk operations
+        queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: userCacheKeys.profile() });
+      },
+    }
+  );
+}
+
+/**
+ * Hook for bulk role assignments
+ */
+export function useBulkRoleAssignment() {
+  const queryClient = useQueryClient();
+
+  return useMutation(
+    async (assignments: UserRoleFormDto[]) => {
+      const promises = assignments.map((roleData) => userEndpoints.addUserRole(roleData));
+      const responses = await Promise.all(promises);
+      return responses.map((response: any) => response.data);
+    },
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: userCacheKeys.privileges() });
+      },
+    }
+  );
+}
+
+/**
+ * Hook for searching users with debounced search term
+ */
+export function useUserSearch(searchTerm: string, delay: number = 300) {
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm, delay]);
+
+  return useQuery(userCacheKeys.search(debouncedSearchTerm), () =>
+    userEndpoints.getUsers({ search: debouncedSearchTerm })
+  );
+}

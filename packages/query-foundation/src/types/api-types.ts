@@ -1,17 +1,16 @@
 /**
  * Base API response structure
  */
-export interface APIResponse<T = any> {
+export interface APIResponse<T> {
   data: T;
+  code: number;
   message?: string;
-  success: boolean;
-  timestamp: string;
 }
 
 /**
  * Paginated API response
  */
-export interface PaginatedResponse<T = any> extends APIResponse<T[]> {
+export interface PaginatedResponse<T> extends APIResponse<T[]> {
   pagination: {
     page: number;
     limit: number;

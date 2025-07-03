@@ -62,18 +62,7 @@ export {
 } from './hooks/useMutation';
 
 // Cache Management
-export {
-  cacheKeys,
-  getAllCacheKeys,
-  createCacheKey,
-  MuseumCacheKeys,
-  EventCacheKeys,
-  UserCacheKeys,
-  AuthCacheKeys,
-  ArtifactCacheKeys,
-  VirtualTourCacheKeys,
-  SearchCacheKeys,
-} from './cache/cacheKeys';
+export { createCacheKey, BaseCacheKeyFactory } from './cache/cacheKeys';
 
 // Default configurations and utilities
 export const queryFoundationVersion = '0.1.0';
