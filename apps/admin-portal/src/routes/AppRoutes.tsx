@@ -21,7 +21,6 @@ export default function AppRoutes() {
           <Route index element={<AdminDashboard />} />
           <Route path="/museums" element={<MuseumList />} />
           <Route path="/museums/requests" element={<MuseumApproval />} />
-          <Route path="/museums/approval" element={<MuseumApproval />} />
           <Route path="/analytics/overview" element={<AnalyticsOverview />} />
           <Route path="/users" element={<UserManagement />} />
           <Route path="/settings" element={<SystemSettings />} />

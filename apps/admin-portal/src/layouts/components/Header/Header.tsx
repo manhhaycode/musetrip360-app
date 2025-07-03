@@ -20,7 +20,6 @@ const getBreadcrumb = (pathname: string) => {
     '/': 'Dashboard',
     '/museums': 'Danh sách Bảo tàng',
     '/museums/requests': 'Xét duyệt Bảo tàng',
-    '/museums/approval': 'Xét duyệt Bảo tàng',
     '/analytics/overview': 'Thống kê Tổng quan',
     '/users': 'Quản lý Người dùng',
     '/settings': 'Cài đặt Hệ thống',

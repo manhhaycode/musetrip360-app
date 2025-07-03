@@ -80,21 +80,15 @@ export default function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={location.pathname === '/museums/requests' || location.pathname === '/museums/approval'}
-                  data-active={location.pathname === '/museums/requests' || location.pathname === '/museums/approval'}
+                  isActive={location.pathname === '/museums/requests'}
+                  data-active={location.pathname === '/museums/requests'}
                 >
                   <Link to="/museums/requests" className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       <span>Xét duyệt</span>
                     </div>
-                    <Badge
-                      variant="secondary"
-                      className="ml-auto h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center font-medium"
-                      style={{ backgroundColor: '#feb47b', color: '#3d3436', border: '1px solid #ffe0d6' }}
-                    >
-                      23
-                    </Badge>
+                    <Badge>23</Badge>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
