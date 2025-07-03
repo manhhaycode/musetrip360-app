@@ -25,9 +25,9 @@ export default function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar variant="inset" className="h-screen border-r">
-      <SidebarHeader className="border-b p-0">
-        <div className="flex items-center gap-3 px-6 py-4 border-b" style={{ backgroundColor: '#fff0eb' }}>
+    <Sidebar variant="inset" className="h-screen">
+      <SidebarHeader className="p-0">
+        <div className="flex items-center gap-3 px-6 py-4" style={{ backgroundColor: '#fff0eb' }}>
           <div
             className="flex h-8 w-8 items-center justify-center rounded-lg"
             style={{ backgroundColor: '#feb47b', border: '1px solid #ffe0d6' }}
@@ -45,7 +45,7 @@ export default function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="flex-1">
         {/* Tổng quan */}
         <SidebarGroup>
           <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>

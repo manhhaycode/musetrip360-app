@@ -34,7 +34,7 @@ export default function Header() {
   const currentPage = getBreadcrumb(location.pathname);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b">
+    <header className="sticky top-0 z-50 w-full">
       <div className="flex h-14 w-full items-center justify-between px-4">
         {/* Left side - Sidebar trigger và breadcrumb */}
         <div className="flex items-center gap-4">
