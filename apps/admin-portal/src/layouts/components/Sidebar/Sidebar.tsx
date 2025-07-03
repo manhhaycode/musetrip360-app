@@ -38,9 +38,6 @@ export default function AppSidebar() {
             <span className="truncate font-semibold" style={{ color: '#3d3436' }}>
               MuseTrip360
             </span>
-            <span className="truncate text-xs" style={{ color: '#3d3436', opacity: 0.7 }}>
-              Admin Portal
-            </span>
           </div>
         </div>
       </SidebarHeader>
