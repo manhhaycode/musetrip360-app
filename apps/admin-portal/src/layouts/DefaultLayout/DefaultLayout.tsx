@@ -15,7 +15,7 @@ export default function DefaultLayout() {
         <Sidebar />
         <SidebarInset className="flex flex-col flex-1 h-full overflow-hidden" style={{ gap: 0 }}>
           <Header />
-          <main className="flex-1 overflow-auto" style={{ backgroundColor: '#fef7f0', border: 'none' }}>
+          <main className="flex-1 overflow-auto border-none" style={{ backgroundColor: '#fef7f0' }}>
             <div className="w-full px-4 py-4">
               <Outlet />
             </div>

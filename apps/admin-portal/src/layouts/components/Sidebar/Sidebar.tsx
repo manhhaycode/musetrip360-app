@@ -25,7 +25,7 @@ export default function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar variant="inset" className="h-screen">
+    <Sidebar variant="inset" className="h-screen" style={{ backgroundColor: '#fff0eb' }}>
       <SidebarHeader className="p-0">
         <div className="flex items-center gap-3 px-6 py-4" style={{ backgroundColor: '#fff0eb' }}>
           <div
@@ -42,14 +42,18 @@ export default function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1">
+      <SidebarContent className="flex-1" style={{ backgroundColor: '#fff0eb' }}>
         {/* Tổng quan */}
         <SidebarGroup>
           <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={location.pathname === '/'} data-active={location.pathname === '/'}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={location.pathname === '/'}
+                  className={location.pathname === '/' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                >
                   <Link to="/">
                     <Home className="h-4 w-4" />
                     <span>Dashboard</span>
@@ -69,7 +73,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/museums'}
-                  data-active={location.pathname === '/museums'}
+                  className={location.pathname === '/museums' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
                 >
                   <Link to="/museums">
                     <Building2 className="h-4 w-4" />
@@ -80,15 +84,25 @@ export default function AppSidebar() {
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={location.pathname === '/museums/requests'}
-                  data-active={location.pathname === '/museums/requests'}
+                  isActive={location.pathname === '/museums/requests' || location.pathname === '/museums/approval'}
+                  className={
+                    location.pathname === '/museums/requests' || location.pathname === '/museums/approval'
+                      ? '[&>*]:!text-white [&_*]:!text-white'
+                      : ''
+                  }
                 >
                   <Link to="/museums/requests" className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-2">
                       <FileText className="h-4 w-4" />
                       <span>Xét duyệt</span>
                     </div>
-                    <Badge>23</Badge>
+                    <Badge
+                      variant="secondary"
+                      className="ml-auto h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center font-medium"
+                      style={{ backgroundColor: '#feb47b', color: '#3d3436', border: '1px solid #ffe0d6' }}
+                    >
+                      23
+                    </Badge>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -105,7 +119,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/analytics/overview'}
-                  data-active={location.pathname === '/analytics/overview'}
+                  className={location.pathname === '/analytics/overview' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
                 >
                   <Link to="/analytics/overview">
                     <BarChart3 className="h-4 w-4" />
@@ -126,7 +140,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/users'}
-                  data-active={location.pathname === '/users'}
+                  className={location.pathname === '/users' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
                 >
                   <Link to="/users">
                     <Users className="h-4 w-4" />
@@ -138,7 +152,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/policies'}
-                  data-active={location.pathname === '/policies'}
+                  className={location.pathname === '/policies' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
                 >
                   <Link to="/policies">
                     <Gavel className="h-4 w-4" />
@@ -150,7 +164,7 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/settings'}
-                  data-active={location.pathname === '/settings'}
+                  className={location.pathname === '/settings' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
                 >
                   <Link to="/settings">
                     <Settings className="h-4 w-4" />
@@ -163,7 +177,7 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter style={{ backgroundColor: '#fff0eb' }}>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
