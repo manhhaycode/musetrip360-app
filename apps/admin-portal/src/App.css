@@ -4,16 +4,16 @@
   padding: 0;
   height: 100vh;
   overflow: hidden;
+}
 
-  /* Remove all default margins and paddings */
-  * {
-    box-sizing: border-box;
-  }
+/* Remove all default margins and paddings */
+* {
+  box-sizing: border-box;
+}
 
-  body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    overflow: hidden;
-  }
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden;
 }

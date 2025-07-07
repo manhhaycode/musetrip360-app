@@ -1,15 +1,12 @@
 {
-  "name": "@apps/admin-portal",
-  "name": "@apps/admin-portal",
+  "name": "@apps/museum-portal",
   "private": true,
   "version": "0.0.0",
-  "description": "A Vite application of admin to manage Musetrip360 system",
-  "description": "A Vite application of admin to manage Musetrip360 system",
+  "description": "A Vite application of museum to manage Musetrip360 system",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "start": "vite preview",
     "start": "vite preview",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -19,9 +16,7 @@
     "@tailwindcss/vite": "^4.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "@musetrip360/ui-core": "workspace:*",
-    "tailwindcss": "^4",
-    "@tailwindcss/vite": "^4.1.8"
+    "tailwindcss": "^4"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

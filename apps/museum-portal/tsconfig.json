@@ -1,0 +1,27 @@
+{
+  "extends": "@musetrip360/tsconfig/tsconfig.vite",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx",
+    "**/*.stories.ts",
+    "**/*.stories.tsx",
+    "@storybook/global",
+    "storybook/internal/csf"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
