@@ -10,10 +10,14 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@musetrip360/auth-system": "workspace:*",
+    "@musetrip360/infras": "workspace:*",
+    "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "next": "15.3.2",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
@@ -24,7 +28,6 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "tailwindcss": "^4",
     "typescript": "^5"
   }
 }

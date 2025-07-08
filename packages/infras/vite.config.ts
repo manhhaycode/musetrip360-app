@@ -19,6 +19,9 @@ export default defineConfig({
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },
+    rollupOptions: {
+      external: ['react', 'react-dom'],
+    },
     target: 'es2022',
     minify: 'esbuild',
     sourcemap: true,

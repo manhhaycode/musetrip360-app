@@ -3,14 +3,259 @@
   "version": "0.1.0",
   "description": "A comprehensive UI component library for MuseTrip360 built on the design system",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
+  "main": "./dist/es/index.js",
+  "module": "./dist/es/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.js"
+    },
+    "./utils": {
+      "types": "./dist/lib/utils.d.ts",
+      "import": "./dist/es/utils.js",
+      "require": "./dist/cjs/utils.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/ui/*/index.d.ts",
+      "import": "./dist/es/components/*.js",
+      "require": "./dist/cjs/components/*.js"
+    },
+    "./accordion": {
+      "types": "./dist/components/ui/accordion/index.d.ts",
+      "import": "./dist/es/components/accordion.js",
+      "require": "./dist/cjs/components/accordion.js"
+    },
+    "./alert": {
+      "types": "./dist/components/ui/alert/index.d.ts",
+      "import": "./dist/es/components/alert.js",
+      "require": "./dist/cjs/components/alert.js"
+    },
+    "./alert-dialog": {
+      "types": "./dist/components/ui/alert-dialog/index.d.ts",
+      "import": "./dist/es/components/alert-dialog.js",
+      "require": "./dist/cjs/components/alert-dialog.js"
+    },
+    "./aspect-ratio": {
+      "types": "./dist/components/ui/aspect-ratio/index.d.ts",
+      "import": "./dist/es/components/aspect-ratio.js",
+      "require": "./dist/cjs/components/aspect-ratio.js"
+    },
+    "./avatar": {
+      "types": "./dist/components/ui/avatar/index.d.ts",
+      "import": "./dist/es/components/avatar.js",
+      "require": "./dist/cjs/components/avatar.js"
+    },
+    "./badge": {
+      "types": "./dist/components/ui/badge/index.d.ts",
+      "import": "./dist/es/components/badge.js",
+      "require": "./dist/cjs/components/badge.js"
+    },
+    "./breadcrumb": {
+      "types": "./dist/components/ui/breadcrumb/index.d.ts",
+      "import": "./dist/es/components/breadcrumb.js",
+      "require": "./dist/cjs/components/breadcrumb.js"
+    },
+    "./button": {
+      "types": "./dist/components/ui/button/index.d.ts",
+      "import": "./dist/es/components/button.js",
+      "require": "./dist/cjs/components/button.js"
+    },
+    "./calendar": {
+      "types": "./dist/components/ui/calendar/index.d.ts",
+      "import": "./dist/es/components/calendar.js",
+      "require": "./dist/cjs/components/calendar.js"
+    },
+    "./card": {
+      "types": "./dist/components/ui/card/index.d.ts",
+      "import": "./dist/es/components/card.js",
+      "require": "./dist/cjs/components/card.js"
+    },
+    "./carousel": {
+      "types": "./dist/components/ui/carousel/index.d.ts",
+      "import": "./dist/es/components/carousel.js",
+      "require": "./dist/cjs/components/carousel.js"
+    },
+    "./chart": {
+      "types": "./dist/components/ui/chart/index.d.ts",
+      "import": "./dist/es/components/chart.js",
+      "require": "./dist/cjs/components/chart.js"
+    },
+    "./checkbox": {
+      "types": "./dist/components/ui/checkbox/index.d.ts",
+      "import": "./dist/es/components/checkbox.js",
+      "require": "./dist/cjs/components/checkbox.js"
+    },
+    "./collapsible": {
+      "types": "./dist/components/ui/collapsible/index.d.ts",
+      "import": "./dist/es/components/collapsible.js",
+      "require": "./dist/cjs/components/collapsible.js"
+    },
+    "./command": {
+      "types": "./dist/components/ui/command/index.d.ts",
+      "import": "./dist/es/components/command.js",
+      "require": "./dist/cjs/components/command.js"
+    },
+    "./context-menu": {
+      "types": "./dist/components/ui/context-menu/index.d.ts",
+      "import": "./dist/es/components/context-menu.js",
+      "require": "./dist/cjs/components/context-menu.js"
+    },
+    "./dialog": {
+      "types": "./dist/components/ui/dialog/index.d.ts",
+      "import": "./dist/es/components/dialog.js",
+      "require": "./dist/cjs/components/dialog.js"
+    },
+    "./drawer": {
+      "types": "./dist/components/ui/drawer/index.d.ts",
+      "import": "./dist/es/components/drawer.js",
+      "require": "./dist/cjs/components/drawer.js"
+    },
+    "./dropdown-menu": {
+      "types": "./dist/components/ui/dropdown-menu/index.d.ts",
+      "import": "./dist/es/components/dropdown-menu.js",
+      "require": "./dist/cjs/components/dropdown-menu.js"
+    },
+    "./form": {
+      "types": "./dist/components/ui/form/index.d.ts",
+      "import": "./dist/es/components/form.js",
+      "require": "./dist/cjs/components/form.js"
+    },
+    "./hover-card": {
+      "types": "./dist/components/ui/hover-card/index.d.ts",
+      "import": "./dist/es/components/hover-card.js",
+      "require": "./dist/cjs/components/hover-card.js"
+    },
+    "./input": {
+      "types": "./dist/components/ui/input/index.d.ts",
+      "import": "./dist/es/components/input.js",
+      "require": "./dist/cjs/components/input.js"
+    },
+    "./input-otp": {
+      "types": "./dist/components/ui/input-otp/index.d.ts",
+      "import": "./dist/es/components/input-otp.js",
+      "require": "./dist/cjs/components/input-otp.js"
+    },
+    "./label": {
+      "types": "./dist/components/ui/label/index.d.ts",
+      "import": "./dist/es/components/label.js",
+      "require": "./dist/cjs/components/label.js"
+    },
+    "./menubar": {
+      "types": "./dist/components/ui/menubar/index.d.ts",
+      "import": "./dist/es/components/menubar.js",
+      "require": "./dist/cjs/components/menubar.js"
+    },
+    "./navigation-menu": {
+      "types": "./dist/components/ui/navigation-menu/index.d.ts",
+      "import": "./dist/es/components/navigation-menu.js",
+      "require": "./dist/cjs/components/navigation-menu.js"
+    },
+    "./pagination": {
+      "types": "./dist/components/ui/pagination/index.d.ts",
+      "import": "./dist/es/components/pagination.js",
+      "require": "./dist/cjs/components/pagination.js"
+    },
+    "./popover": {
+      "types": "./dist/components/ui/popover/index.d.ts",
+      "import": "./dist/es/components/popover.js",
+      "require": "./dist/cjs/components/popover.js"
+    },
+    "./progress": {
+      "types": "./dist/components/ui/progress/index.d.ts",
+      "import": "./dist/es/components/progress.js",
+      "require": "./dist/cjs/components/progress.js"
+    },
+    "./radio-group": {
+      "types": "./dist/components/ui/radio-group/index.d.ts",
+      "import": "./dist/es/components/radio-group.js",
+      "require": "./dist/cjs/components/radio-group.js"
+    },
+    "./resizable": {
+      "types": "./dist/components/ui/resizable/index.d.ts",
+      "import": "./dist/es/components/resizable.js",
+      "require": "./dist/cjs/components/resizable.js"
+    },
+    "./scroll-area": {
+      "types": "./dist/components/ui/scroll-area/index.d.ts",
+      "import": "./dist/es/components/scroll-area.js",
+      "require": "./dist/cjs/components/scroll-area.js"
+    },
+    "./select": {
+      "types": "./dist/components/ui/select/index.d.ts",
+      "import": "./dist/es/components/select.js",
+      "require": "./dist/cjs/components/select.js"
+    },
+    "./separator": {
+      "types": "./dist/components/ui/separator/index.d.ts",
+      "import": "./dist/es/components/separator.js",
+      "require": "./dist/cjs/components/separator.js"
+    },
+    "./sheet": {
+      "types": "./dist/components/ui/sheet/index.d.ts",
+      "import": "./dist/es/components/sheet.js",
+      "require": "./dist/cjs/components/sheet.js"
+    },
+    "./sidebar": {
+      "types": "./dist/components/ui/sidebar/index.d.ts",
+      "import": "./dist/es/components/sidebar.js",
+      "require": "./dist/cjs/components/sidebar.js"
+    },
+    "./skeleton": {
+      "types": "./dist/components/ui/skeleton/index.d.ts",
+      "import": "./dist/es/components/skeleton.js",
+      "require": "./dist/cjs/components/skeleton.js"
+    },
+    "./slider": {
+      "types": "./dist/components/ui/slider/index.d.ts",
+      "import": "./dist/es/components/slider.js",
+      "require": "./dist/cjs/components/slider.js"
+    },
+    "./sonner": {
+      "types": "./dist/components/ui/sonner/index.d.ts",
+      "import": "./dist/es/components/sonner.js",
+      "require": "./dist/cjs/components/sonner.js"
+    },
+    "./switch": {
+      "types": "./dist/components/ui/switch/index.d.ts",
+      "import": "./dist/es/components/switch.js",
+      "require": "./dist/cjs/components/switch.js"
+    },
+    "./table": {
+      "types": "./dist/components/ui/table/index.d.ts",
+      "import": "./dist/es/components/table.js",
+      "require": "./dist/cjs/components/table.js"
+    },
+    "./tabs": {
+      "types": "./dist/components/ui/tabs/index.d.ts",
+      "import": "./dist/es/components/tabs.js",
+      "require": "./dist/cjs/components/tabs.js"
+    },
+    "./textarea": {
+      "types": "./dist/components/ui/textarea/index.d.ts",
+      "import": "./dist/es/components/textarea.js",
+      "require": "./dist/cjs/components/textarea.js"
+    },
+    "./theme-provider": {
+      "types": "./dist/components/ui/theme-provider/index.d.ts",
+      "import": "./dist/es/components/theme-provider.js",
+      "require": "./dist/cjs/components/theme-provider.js"
+    },
+    "./toggle": {
+      "types": "./dist/components/ui/toggle/index.d.ts",
+      "import": "./dist/es/components/toggle.js",
+      "require": "./dist/cjs/components/toggle.js"
+    },
+    "./toggle-group": {
+      "types": "./dist/components/ui/toggle-group/index.d.ts",
+      "import": "./dist/es/components/toggle-group.js",
+      "require": "./dist/cjs/components/toggle-group.js"
+    },
+    "./tooltip": {
+      "types": "./dist/components/ui/tooltip/index.d.ts",
+      "import": "./dist/es/components/tooltip.js",
+      "require": "./dist/cjs/components/tooltip.js"
     },
     "./styles.css": "./dist/styles.css",
     "./styles": "./dist/styles.css",
@@ -47,12 +292,14 @@
     "@eslint/eslintrc": "^3",
     "@musetrip360/eslint-config": "workspace:*",
     "@musetrip360/tsconfig": "workspace:*",
+    "@types/glob": "^9.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "cmdk": "^1.1.1",
     "embla-carousel-react": "^8.6.0",
     "eslint": "^9",
+    "glob": "^11.0.3",
     "input-otp": "^1.4.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

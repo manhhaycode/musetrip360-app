@@ -14,10 +14,6 @@
     "eslint-config-react.js",
     "eslint-config-vite.js"
   ],
-  "scripts": {
-    "build": "echo 'No build step required for config package'",
-    "clean": "rm -rf node_modules"
-  },
   "dependencies": {
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.26.0",

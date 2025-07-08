@@ -22,6 +22,7 @@ import type { QueryCacheConfig, OfflineQueryConfig, BackgroundSyncConfig } from 
 
 // Re-export TanStack Query essentials
 export { QueryClient, QueryClientProvider, useQueryClient, useIsFetching, useIsMutating } from '@tanstack/react-query';
+export type { QueryKey } from '@tanstack/react-query';
 
 // Types
 export type * from './types/api-types';

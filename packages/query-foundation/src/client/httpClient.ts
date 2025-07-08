@@ -8,13 +8,12 @@ import type {
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
-import { getEnvVar } from '@musetrip360/infras';
+import { config } from '@musetrip360/infras';
 
 /**
  * Default API client configuration
  */
 const DEFAULT_CONFIG: APIClientConfig = {
-  baseURL: getEnvVar('API_URL')!,
   timeout: 30000, // 30 seconds
   retries: 3,
   retryDelay: 1000, // 1 second
@@ -23,7 +22,6 @@ const DEFAULT_CONFIG: APIClientConfig = {
   enableCache: true,
   cacheTimeout: 300000, // 5 minutes
   enableAuth: true,
-  enableLogging: getEnvVar('NODE_ENV') === 'development',
 };
 
 /**
@@ -35,8 +33,10 @@ export class HTTPClient {
   private authToken: AuthToken | null = null;
   private tokenRefreshPromise: Promise<AuthToken> | null = null;
 
-  constructor(config: Partial<APIClientConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...config };
+  constructor(configuration: Partial<APIClientConfig> = {}) {
+    this.config = { ...DEFAULT_CONFIG, ...configuration };
+    this.config.baseURL = config('API_URL');
+    this.config.enableLogging = config('NODE_ENV') === 'development';
     if (!this.config.baseURL) {
       throw new Error('API_URL is not set in the environment variables');
     }

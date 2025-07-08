@@ -73,7 +73,7 @@ export interface AuthToken {
  * API client configuration
  */
 export interface APIClientConfig {
-  baseURL: string;
+  baseURL?: string;
   timeout: number;
   retries: number;
   retryDelay: number;
@@ -82,7 +82,7 @@ export interface APIClientConfig {
   enableCache: boolean;
   cacheTimeout: number;
   enableAuth: boolean;
-  enableLogging: boolean;
+  enableLogging?: boolean;
 }
 
 /**

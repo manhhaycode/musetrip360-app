@@ -46,4 +46,3 @@ export * from './components/ui/toggle';
 export * from './components/ui/toggle-group';
 export * from './components/ui/tooltip';
 export * from './lib/utils';
-export * from './index.css';

@@ -1,10 +1,19 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-// @ts-ignore – Plugin installed in generated project
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import { glob } from 'glob';
+import packageJson from './package.json';
+
+// Generate entry points for all components
+const componentEntries = Object.fromEntries(
+  glob.sync('src/components/ui/*/index.ts').map((file) => {
+    const name = file.match(/src\/components\/ui\/(.+)\/index\.ts$/)?.[1];
+    return [name!, resolve(__dirname, file)];
+  })
+);
 
 export default defineConfig({
   plugins: [
@@ -36,45 +45,56 @@ export default defineConfig({
 
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'MuseTrip360UICore',
-      formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+      entry: {
+        // Main entry point
+        index: resolve(__dirname, 'src/index.ts'),
+        // Utils entry
+        utils: resolve(__dirname, 'src/lib/utils.ts'),
+        // Individual component entries for better tree-shaking
+        ...componentEntries,
+      },
+      formats: ['es'],
     },
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
       external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'embla-carousel-react',
-        'recharts',
-        'input-otp',
-        'cmdk',
-        'react-resizable-panels',
-        'sonner',
-      ],
+        ...new Set([...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.peerDependencies)]),
+      ].map((dep) => new RegExp(`^${dep}`)),
       output: {
-        // Provide global variables for externalized deps in UMD builds
+        // Preserve module structure for better tree-shaking
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        // Clean file names that map to original structure
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'index') {
+            return '[format]/index.js';
+          }
+          if (chunkInfo.name === 'utils') {
+            return '[format]/utils.js';
+          }
+          // Component entries
+          if (componentEntries[chunkInfo.name]) {
+            return `[format]/components/${chunkInfo.name}.js`;
+          }
+          return '[format]/[name].js';
+        },
+        chunkFileNames: '[format]/chunks/[name]-[hash].js',
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name?.endsWith('.css')) {
+            return 'styles.css';
+          }
+          return 'assets/[name][extname]';
+        },
+        // Provide global variables for externalized deps
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
           'react/jsx-runtime': 'jsxRuntime',
         },
-        // Preserve module structure for better tree-shaking
-        preserveModules: false,
-        // Clean chunk names
-        chunkFileNames: '[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          if (assetInfo.name?.endsWith('.css')) {
-            return 'styles.css';
-          }
-          return assetInfo.name || 'asset';
-        },
       },
     },
     target: 'es2022',
-    minify: 'esbuild',
+    minify: false,
     sourcemap: true,
     // Emit CSS as separate files
     cssCodeSplit: false,

@@ -43,9 +43,6 @@
     "test:coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "@musetrip360/infras": "workspace:*",
-    "@musetrip360/query-foundation": "workspace:*",
-    "@musetrip360/ui-core": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
@@ -56,10 +53,10 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@musetrip360/eslint-config": "workspace:*",
-    "@musetrip360/infras": "*",
-    "@musetrip360/query-foundation": "*",
+    "@musetrip360/infras": "workspace:*",
+    "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/tsconfig": "workspace:*",
-    "@musetrip360/ui-core": "*",
+    "@musetrip360/ui-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "@types/react": "^19",
     "@types/react-dom": "^19",
