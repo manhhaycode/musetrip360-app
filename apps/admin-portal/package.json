@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@musetrip360/infras": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "react": "^19.0.0",

@@ -1,0 +1,64 @@
+{
+  "name": "@musetrip360/infras",
+  "version": "0.1.0",
+  "description": "Simple environment variable handling across different frameworks",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build:watch": "vite build --watch",
+    "dev": "vite build --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@musetrip360/eslint-config": "workspace:*",
+    "@musetrip360/tsconfig": "workspace:*",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "eslint": "^9",
+    "typescript": "^5",
+    "typescript-eslint": "^8.32.0",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^3.7.0",
+    "vitest": "^3.1.4"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/musetrip360-app.git",
+    "directory": "packages/infras"
+  },
+  "keywords": [
+    "musetrip360",
+    "environment-variables",
+    "configuration",
+    "nextjs",
+    "vite",
+    "expo",
+    "typescript"
+  ],
+  "author": "MuseTrip360 Team",
+  "license": "MIT"
+}
