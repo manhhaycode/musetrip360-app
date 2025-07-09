@@ -7,17 +7,10 @@
 
 import { useQuery, useMutation, useQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
 import { authEndpoints, authErrorHandler } from '../endpoints/auth';
-import type {
-  LoginReq,
-  RegisterReq,
-  RefreshReq,
-  LoginResponse,
-  RequestChangePasswordOTP,
-  VerifyOTPChangePassword,
-} from '@/lib/types';
+import type { LoginReq, RegisterReq, RefreshReq, LoginResponse, VerifyOTPChangePassword } from '@/types';
 import { authCacheKeys } from '../cache/cacheKeys';
-import { useAuthStore } from '@/lib/state';
-import { AuthToken } from '@/lib/domain';
+import { useAuthStore } from '@/state';
+import { AuthToken } from '@/domain';
 
 /**
  * Hook for user login

@@ -5,7 +5,7 @@ import {
   LoginResponse,
   TokenVerificationResponse,
   VerifyOTPChangePassword,
-} from '@/lib/types';
+} from '@/types';
 import { getHttpClient, type HTTPClient, type AuthToken } from '@musetrip360/query-foundation';
 
 export class AuthEndpoints {

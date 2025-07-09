@@ -6,11 +6,12 @@ import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
 import { glob } from 'glob';
 import packageJson from './package.json';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // Generate entry points for all components
 const componentEntries = Object.fromEntries(
-  glob.sync('src/components/ui/*/index.ts').map((file) => {
-    const name = file.match(/src\/components\/ui\/(.+)\/index\.ts$/)?.[1];
+  glob.sync('lib/components/ui/*/index.ts').map((file) => {
+    const name = file.match(/lib\/components\/ui\/(.+)\/index\.ts$/)?.[1];
     return [name!, resolve(__dirname, file)];
   })
 );
@@ -22,10 +23,11 @@ export default defineConfig({
       jsxImportSource: 'react',
     }),
     tailwindcss(),
+    tsconfigPaths({ ignoreConfigErrors: true }),
     dts({
       // Generate TypeScript declarations
       insertTypesEntry: true,
-      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      include: ['lib/**/*.ts', 'lib/**/*.tsx'],
       exclude: ['**/*.test.*', '**/*.spec.*', '**/*.stories.*'],
       outDir: 'dist',
       copyDtsFiles: false,
@@ -39,7 +41,7 @@ export default defineConfig({
   // Add path alias resolution
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': resolve(__dirname, './lib'),
     },
   },
 
@@ -47,9 +49,9 @@ export default defineConfig({
     lib: {
       entry: {
         // Main entry point
-        index: resolve(__dirname, 'src/index.ts'),
+        index: resolve(__dirname, 'lib/index.ts'),
         // Utils entry
-        utils: resolve(__dirname, 'src/lib/utils.ts'),
+        utils: resolve(__dirname, 'lib/libs/utils.ts'),
         // Individual component entries for better tree-shaking
         ...componentEntries,
       },
@@ -63,7 +65,7 @@ export default defineConfig({
       output: {
         // Preserve module structure for better tree-shaking
         preserveModules: true,
-        preserveModulesRoot: 'src',
+        preserveModulesRoot: 'lib',
         // Clean file names that map to original structure
         entryFileNames: (chunkInfo) => {
           if (chunkInfo.name === 'index') {

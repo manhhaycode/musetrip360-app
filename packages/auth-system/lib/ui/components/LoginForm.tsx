@@ -10,8 +10,8 @@ import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 
-import { loginSchema, type LoginFormData } from '@/lib/validation';
-import { AuthTypeEnum } from '@/lib/types';
+import { loginSchema, type LoginFormData } from '@/validation';
+import { AuthTypeEnum } from '@/types';
 
 export interface LoginFormProps {
   onSubmit: (data: LoginFormData) => void;

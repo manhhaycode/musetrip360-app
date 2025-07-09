@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { AuthModal } from './AuthModal';
-import { useLogin, useRegister, useRequestOTP, useVerifyOTP } from '@/lib/api/hooks/useAuth';
-import { authErrorHandler } from '@/lib/api/endpoints/auth';
-import { AuthTypeEnum, LoginReq, RegisterReq, AuthModalStep, VerifyOTPChangePassword } from '@/lib/types';
-import { AuthModalConnectorProps } from '@/lib/state/hooks/useAuthModal';
+import { useLogin, useRegister, useRequestOTP, useVerifyOTP } from '@/api/hooks/useAuth';
+import { authErrorHandler } from '@/api/endpoints/auth';
+import { AuthTypeEnum, LoginReq, RegisterReq, AuthModalStep, VerifyOTPChangePassword } from '@/types';
+import { AuthModalConnectorProps } from '@/state/hooks/useAuthModal';
 
 export function AuthModalConnector({
   onLoginSuccess,

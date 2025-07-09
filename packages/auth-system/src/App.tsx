@@ -1,6 +1,6 @@
-import { useAuthModal } from '@/lib/state/hooks/useAuthModal';
+import { useAuthModal } from '@/state/hooks/useAuthModal';
 import { getQueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
-import { AuthModalConnector } from '@/lib/ui/components/AuthModalConnector';
+import { AuthModalConnector } from '@/ui/components/AuthModalConnector';
 import { Button } from '@musetrip360/ui-core/button';
 
 const App = () => {

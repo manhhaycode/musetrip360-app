@@ -1,15 +1,15 @@
 'use client';
 
 import * as React from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, ScrollArea } from '@musetrip360/ui-core';
-
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@musetrip360/ui-core/dialog';
+import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { ResetPasswordForm } from './ResetPasswordForm';
 
-import { AuthModalStep } from '@/lib/types';
-import { AuthModalProps } from '@/lib/state/hooks/useAuthModal';
+import { AuthModalStep } from '@/types';
+import { AuthModalProps } from '@/state/hooks/useAuthModal';
 import { Lock, Mail } from 'lucide-react';
 
 export function AuthModal({

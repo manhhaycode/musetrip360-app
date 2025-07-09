@@ -17,7 +17,7 @@ import {
 } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 
-import { getPasswordStrength, resetPasswordSchema, type ResetPasswordFormData } from '@/lib/validation';
+import { getPasswordStrength, resetPasswordSchema, type ResetPasswordFormData } from '@/validation';
 
 export interface ResetPasswordFormProps {
   onSubmit: (data: ResetPasswordFormData) => void;

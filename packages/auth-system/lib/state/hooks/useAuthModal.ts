@@ -1,5 +1,5 @@
 import React from 'react';
-import type { AuthModalStep, LoginReq, RegisterReq, VerifyOTPChangePassword } from '@/lib/types';
+import type { AuthModalStep, LoginReq, RegisterReq, VerifyOTPChangePassword } from '@/types';
 
 export interface AuthModalProps {
   isOpen: boolean;

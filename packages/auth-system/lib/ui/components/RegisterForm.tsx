@@ -18,7 +18,7 @@ import {
   FormMessage,
   FormDescription,
 } from '@musetrip360/ui-core/form';
-import { registerSchema, type RegisterFormData, getPasswordStrength } from '@/lib/validation';
+import { registerSchema, type RegisterFormData, getPasswordStrength } from '@/validation';
 
 export interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;

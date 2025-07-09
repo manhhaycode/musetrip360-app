@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AuthTypeEnum } from '../types';
+import { AuthTypeEnum } from '@/types';
 
 /**
  * Password validation schema with comprehensive rules

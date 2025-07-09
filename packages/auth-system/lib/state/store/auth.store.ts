@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AuthToken } from '@/lib/domain';
+import { AuthToken } from '@/domain';
 
 export interface AuthStore {
   accessToken: AuthToken | null;
