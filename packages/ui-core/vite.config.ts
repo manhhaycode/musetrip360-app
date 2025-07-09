@@ -11,7 +11,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 // Generate entry points for all components
 const componentEntries = Object.fromEntries(
   glob.sync('lib/components/ui/*/index.ts').map((file) => {
-    const name = file.match(/lib\/components\/ui\/(.+)\/index\.ts$/)?.[1];
+    const normalizedFile = file.replace(/\\/g, '/');
+    const name = normalizedFile.match(/lib\/components\/ui\/(.+)\/index\.ts$/)?.[1];
     return [name!, resolve(__dirname, file)];
   })
 );
