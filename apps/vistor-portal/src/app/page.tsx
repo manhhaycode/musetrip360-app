@@ -1,572 +1,255 @@
-import { Button } from '@musetrip360/ui-core/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
+'use client';
+
+import { FeaturedMuseums } from '@/components/sections/FeaturedMuseums';
+import { HeroSection } from '@/components/sections/HeroSection';
+import { UpcomingEvents } from '@/components/sections/UpcomingEvents';
 import { Badge } from '@musetrip360/ui-core/badge';
-import { Separator } from '@musetrip360/ui-core/separator';
-import {
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  Star,
-  ArrowRight,
-  Menu,
-  Search,
-  Globe,
-  Phone,
-  Mail,
-  Facebook,
-  Twitter,
-  Instagram,
-  Youtube,
-} from 'lucide-react';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import { ArrowRight, Building2, Camera, Globe, Headset, Heart, Play, Quote, Star, Zap } from 'lucide-react';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 max-w-screen-2xl items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Globe className="h-6 w-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">MuseTrip360</h1>
-              <p className="text-xs text-muted-foreground">Digital Museum Platform</p>
-            </div>
-          </div>
+      <HeroSection />
 
-          <nav className="hidden md:flex items-center gap-6">
-            <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
-              Museums
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
-              Events
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
-              Virtual Tours
-            </a>
-            <a href="#" className="text-sm font-medium hover:text-primary transition-colors">
-              About
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
-              <Search className="h-4 w-4" />
-            </Button>
-            <Button>Get Started</Button>
-            <Button variant="ghost" size="icon" className="md:hidden">
-              <Menu className="h-4 w-4" />
-            </Button>
+      {/* Stats Section */}
+      <section className="py-16 bg-muted/30">
+        <div className="container mx-auto max-w-screen-2xl px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-primary">200+</div>
+              <div className="text-sm text-muted-foreground">Bảo tàng</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-primary">50K+</div>
+              <div className="text-sm text-muted-foreground">Tour ảo</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-primary">1M+</div>
+              <div className="text-sm text-muted-foreground">Người dùng</div>
+            </div>
+            <div className="space-y-2">
+              <div className="text-3xl font-bold text-primary">98%</div>
+              <div className="text-sm text-muted-foreground">Hài lòng</div>
+            </div>
           </div>
         </div>
-      </header>
+      </section>
 
-      <main>
-        {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-20 md:py-32">
-          <div className="container relative z-10 mx-auto max-w-screen-2xl px-4">
-            <div className="mx-auto max-w-4xl text-center">
-              <Badge variant="secondary" className="mb-6">
-                🎨 Digital Museum Experience
-              </Badge>
-              <h1 className="mb-6 text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-                Discover Museums <br />
-                <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
-                  Around the World
-                </span>
-              </h1>
-              <p className="mx-auto mb-8 max-w-2xl text-lg text-muted-foreground md:text-xl">
-                Explore amazing museums, join exciting events, and experience immersive virtual tours from the comfort
-                of your home.
-              </p>
-              <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-                <Button size="lg" className="text-base">
-                  Explore Museums <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button size="lg" variant="outline" className="text-base">
-                  Virtual Tour Demo
-                </Button>
-              </div>
-            </div>
-          </div>
+      <FeaturedMuseums />
+      <UpcomingEvents />
 
-          {/* Decorative elements */}
-          <div className="absolute top-20 left-10 h-20 w-20 rounded-full bg-primary/10 blur-xl"></div>
-          <div className="absolute bottom-20 right-10 h-32 w-32 rounded-full bg-purple-500/10 blur-xl"></div>
-        </section>
-
-        {/* Stats Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto max-w-screen-2xl px-4">
-            <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">150+</div>
-                <div className="text-sm text-muted-foreground">Museums</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Events</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">1M+</div>
-                <div className="text-sm text-muted-foreground">Visitors</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">50+</div>
-                <div className="text-sm text-muted-foreground">Countries</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Museums */}
-        <section className="py-20">
-          <div className="container mx-auto max-w-screen-2xl px-4">
-            <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold md:text-4xl">Featured Museums</h2>
-              <p className="mx-auto max-w-2xl text-muted-foreground">
-                Discover world-renowned museums and their incredible collections
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Museum Card 1 */}
-              <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
-                <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <Badge variant="secondary" className="mb-2">
-                      Virtual Tour Available
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle>Museum of Modern Art</CardTitle>
-                      <CardDescription className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-4 w-4" />
-                        New York, USA
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      4.8
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Explore contemporary masterpieces and cutting-edge installations in this world-famous museum.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      15k+ visitors/month
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Explore
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Museum Card 2 */}
-              <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
-                <div className="aspect-video bg-gradient-to-br from-green-500 to-teal-600 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <Badge variant="secondary" className="mb-2">
-                      360° Experience
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle>Natural History Museum</CardTitle>
-                      <CardDescription className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-4 w-4" />
-                        London, UK
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      4.9
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Journey through millions of years of natural history with dinosaurs, minerals, and wildlife.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      25k+ visitors/month
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Explore
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Museum Card 3 */}
-              <Card className="overflow-hidden group hover:shadow-lg transition-all duration-300">
-                <div className="aspect-video bg-gradient-to-br from-orange-500 to-red-600 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/20"></div>
-                  <div className="absolute bottom-4 left-4 text-white">
-                    <Badge variant="secondary" className="mb-2">
-                      AR Experience
-                    </Badge>
-                  </div>
-                </div>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle>Ancient Egypt Museum</CardTitle>
-                      <CardDescription className="flex items-center gap-1 mt-1">
-                        <MapPin className="h-4 w-4" />
-                        Cairo, Egypt
-                      </CardDescription>
-                    </div>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                      4.7
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Discover the treasures of ancient pharaohs and explore the mysteries of Egyptian civilization.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Users className="h-4 w-4" />
-                      12k+ visitors/month
-                    </div>
-                    <Button size="sm" variant="outline">
-                      Explore
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                View All Museums <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Upcoming Events */}
-        <section className="py-20 bg-muted/30">
-          <div className="container mx-auto max-w-screen-2xl px-4">
-            <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold md:text-4xl">Upcoming Events</h2>
-              <p className="mx-auto max-w-2xl text-muted-foreground">
-                Join exciting cultural events and exhibitions happening around the world
-              </p>
-            </div>
-
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {/* Event Card 1 */}
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <Badge variant="default">Art Exhibition</Badge>
-                    <div className="text-right text-sm">
-                      <div className="font-semibold">MAR</div>
-                      <div className="text-2xl font-bold text-primary">15</div>
-                    </div>
-                  </div>
-                  <CardTitle className="mt-4">Impressionist Masters</CardTitle>
-                  <CardDescription>Museum of Fine Arts, Paris</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    A rare collection of Monet, Renoir, and Degas paintings gathered for this special exhibition.
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>10:00 AM - 6:00 PM</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>234 interested</span>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4">Get Tickets</Button>
-                </CardContent>
-              </Card>
-
-              {/* Event Card 2 */}
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <Badge variant="secondary">Workshop</Badge>
-                    <div className="text-right text-sm">
-                      <div className="font-semibold">MAR</div>
-                      <div className="text-2xl font-bold text-primary">22</div>
-                    </div>
-                  </div>
-                  <CardTitle className="mt-4">Digital Art Creation</CardTitle>
-                  <CardDescription>Tech Museum, San Francisco</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Learn to create stunning digital art using cutting-edge technology and VR tools.
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>2:00 PM - 5:00 PM</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>89 interested</span>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4">Register Now</Button>
-                </CardContent>
-              </Card>
-
-              {/* Event Card 3 */}
-              <Card className="overflow-hidden">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <Badge variant="outline">Virtual Event</Badge>
-                    <div className="text-right text-sm">
-                      <div className="font-semibold">APR</div>
-                      <div className="text-2xl font-bold text-primary">05</div>
-                    </div>
-                  </div>
-                  <CardTitle className="mt-4">Ancient Rome VR Tour</CardTitle>
-                  <CardDescription>Virtual Museum Experience</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Experience ancient Rome like never before with our immersive virtual reality tour.
-                  </p>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>7:00 PM - 8:30 PM</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      <span>567 interested</span>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4">Join Virtual Tour</Button>
-                </CardContent>
-              </Card>
-            </div>
-
-            <div className="mt-12 text-center">
-              <Button variant="outline" size="lg">
-                View All Events <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section className="py-20">
-          <div className="container mx-auto max-w-screen-2xl px-4">
-            <div className="mb-12 text-center">
-              <h2 className="mb-4 text-3xl font-bold md:text-4xl">Why Choose MuseTrip360?</h2>
-              <p className="mx-auto max-w-2xl text-muted-foreground">
-                Experience museums like never before with our cutting-edge digital platform
-              </p>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Globe className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">Virtual Reality Tours</h3>
-                <p className="text-muted-foreground">
-                  Explore museums from anywhere with immersive 360° virtual reality experiences.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Calendar className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">Live Events</h3>
-                <p className="text-muted-foreground">
-                  Join real-time exhibitions, workshops, and cultural events with museum experts.
-                </p>
-              </div>
-
-              <div className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                  <Users className="h-6 w-6 text-primary" />
-                </div>
-                <h3 className="mb-2 text-xl font-semibold">Global Community</h3>
-                <p className="text-muted-foreground">
-                  Connect with fellow culture enthusiasts and share your museum experiences.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-20 bg-primary text-primary-foreground">
-          <div className="container mx-auto max-w-screen-2xl px-4 text-center">
-            <h2 className="mb-4 text-3xl font-bold md:text-4xl">Ready to Start Exploring?</h2>
-            <p className="mx-auto mb-8 max-w-2xl text-primary-foreground/90">
-              Join thousands of culture enthusiasts discovering amazing museums and events worldwide.
+      {/* Features Section */}
+      <section className="py-20 bg-gradient-to-b from-background to-muted/20">
+        <div className="container mx-auto max-w-screen-2xl px-4">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              ✨ Tính năng nổi bật
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 lg:text-4xl">
+              Trải nghiệm{' '}
+              <span className="bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
+                tương lai
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Khám phá bảo tàng với công nghệ tiên tiến nhất thế giới
             </p>
-            <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" variant="secondary">
-                Create Free Account
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                Browse Museums
-              </Button>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t bg-muted/30">
-        <div className="container mx-auto max-w-screen-2xl px-4 py-12">
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
-            {/* Company Info */}
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Globe className="h-4 w-4" />
-                </div>
-                <span className="font-bold">MuseTrip360</span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Connecting people with cultural heritage through immersive digital experiences.
-              </p>
-              <div className="flex gap-2">
-                <Button size="icon" variant="ghost">
-                  <Facebook className="h-4 w-4" />
-                </Button>
-                <Button size="icon" variant="ghost">
-                  <Twitter className="h-4 w-4" />
-                </Button>
-                <Button size="icon" variant="ghost">
-                  <Instagram className="h-4 w-4" />
-                </Button>
-                <Button size="icon" variant="ghost">
-                  <Youtube className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="mb-4 font-semibold">Explore</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Museums
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Events
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Virtual Tours
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Collections
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Support */}
-            <div>
-              <h3 className="mb-4 font-semibold">Support</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Help Center
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Contact Us
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Privacy Policy
-                  </a>
-                </div>
-                <div>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    Terms of Service
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            {/* Contact */}
-            <div>
-              <h3 className="mb-4 font-semibold">Contact</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Mail className="h-4 w-4" />
-                  <span>hello@musetrip360.com</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  <span>+1 (555) 123-4567</span>
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  <span>San Francisco, CA</span>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <Separator className="my-8" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: Camera,
+                title: '360° Virtual Tours',
+                description: 'Khám phá mọi góc độ với công nghệ 360° chất lượng cao',
+                gradient: 'from-blue-500 to-purple-600',
+              },
+              {
+                icon: Headset,
+                title: 'VR Experience',
+                description: 'Trải nghiệm thực tế ảo hoàn toàn nhập vai',
+                gradient: 'from-purple-500 to-pink-600',
+              },
+              {
+                icon: Zap,
+                title: 'AI Guide',
+                description: 'Hướng dẫn viên AI thông minh và tương tác',
+                gradient: 'from-orange-500 to-red-600',
+              },
+              {
+                icon: Globe,
+                title: 'Global Access',
+                description: 'Truy cập bảo tàng từ khắp nơi trên thế giới',
+                gradient: 'from-green-500 to-teal-600',
+              },
+            ].map((feature, index) => {
+              const IconComponent = feature.icon;
 
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-muted-foreground md:flex-row">
-            <div>© 2024 MuseTrip360. All rights reserved.</div>
-            <div className="flex gap-4">
-              <a href="#" className="hover:text-primary transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                Terms
-              </a>
-              <a href="#" className="hover:text-primary transition-colors">
-                Cookies
-              </a>
-            </div>
+              return (
+                <Card key={index} className="group hover:shadow-xl transition-all duration-500">
+                  <CardContent className="p-6 text-center space-y-4">
+                    <div
+                      className={`w-16 h-16 rounded-full bg-gradient-to-r ${feature.gradient} mx-auto flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <IconComponent className="h-8 w-8 text-white" />
+                    </div>
+                    <h3 className="font-semibold text-lg">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
-      </footer>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto max-w-screen-2xl px-4">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              🚀 Cách thức hoạt động
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 lg:text-4xl">
+              Chỉ{' '}
+              <span className="bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
+                3 bước đơn giản
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                step: '01',
+                title: 'Chọn bảo tàng',
+                description: 'Duyệt qua hàng trăm bảo tàng từ khắp nơi trên thế giới',
+                icon: Building2,
+              },
+              {
+                step: '02',
+                title: 'Bắt đầu tour ảo',
+                description: 'Khám phá với công nghệ 360° và VR tiên tiến',
+                icon: Play,
+              },
+              {
+                step: '03',
+                title: 'Tận hưởng trải nghiệm',
+                description: 'Học hỏi và khám phá với AI guide thông minh',
+                icon: Heart,
+              },
+            ].map((step, index) => {
+              const IconComponent = step.icon;
+
+              return (
+                <div key={index} className="text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-r from-primary to-purple-600 mx-auto flex items-center justify-center text-white font-bold text-2xl">
+                      {step.step}
+                    </div>
+                    <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2">
+                      <div className="w-12 h-12 rounded-full bg-background border-4 border-primary flex items-center justify-center">
+                        <IconComponent className="h-6 w-6 text-primary" />
+                      </div>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-semibold mt-8">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-to-b from-background to-muted/20">
+        <div className="container mx-auto max-w-screen-2xl px-4">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              💬 Người dùng nói gì
+            </Badge>
+            <h2 className="text-3xl font-bold tracking-tight mb-4 lg:text-4xl">
+              Trải nghiệm{' '}
+              <span className="bg-gradient-to-r from-primary via-purple-600 to-secondary bg-clip-text text-transparent">
+                tuyệt vời
+              </span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                name: 'Mai Linh',
+                role: 'Giáo viên',
+                avatar: '👩‍🏫',
+                content: 'MuseTrip360 đã giúp tôi mang thế giới bảo tàng vào lớp học. Học sinh rất thích!',
+                rating: 5,
+              },
+              {
+                name: 'David Johnson',
+                role: 'Du khách',
+                avatar: '👨‍💼',
+                content: 'Amazing experience! I visited the Louvre from my home in New York. Incredible technology!',
+                rating: 5,
+              },
+              {
+                name: 'Thanh Hương',
+                role: 'Sinh viên',
+                avatar: '👩‍🎓',
+                content: 'Nghiên cứu lịch sử trở nên thú vị hơn bao giờ hết với tour ảo 360°.',
+                rating: 5,
+              },
+            ].map((testimonial, index) => {
+              return (
+                <Card key={index} className="p-6">
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-1">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                    <Quote className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-muted-foreground italic">"{testimonial.content}"</p>
+                    <div className="flex items-center space-x-3">
+                      <div className="text-2xl">{testimonial.avatar}</div>
+                      <div>
+                        <div className="font-semibold">{testimonial.name}</div>
+                        <div className="text-sm text-muted-foreground">{testimonial.role}</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section for Museums */}
+      <section className="py-20 bg-gradient-to-r from-primary via-purple-600 to-secondary">
+        <div className="container mx-auto max-w-screen-2xl px-4 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4 lg:text-4xl">Bạn là quản lý bảo tàng?</h2>
+          <p className="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+            Tham gia nền tảng MuseTrip360 để đưa bảo tàng của bạn đến với hàng triệu người trên thế giới
+          </p>
+          <div className="space-x-4">
+            <Button size="lg" variant="secondary">
+              Đăng ký ngay
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
+            >
+              Tìm hiểu thêm
+            </Button>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
