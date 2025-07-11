@@ -1,6 +1,6 @@
 'use client';
 
-import { Button } from '@musetrip360/ui-core/button';
+import { Button, buttonVariants } from '@musetrip360/ui-core/button';
 import { Input } from '@musetrip360/ui-core/input';
 import {
   NavigationMenu,
@@ -19,6 +19,8 @@ import {
   SheetTrigger,
 } from '@musetrip360/ui-core/sheet';
 import { Globe, Search, Menu, User, MapPin, Calendar, GraduationCap, Info, Phone, Home } from 'lucide-react';
+import Link from 'next/link';
+import { twMerge } from 'tailwind-merge';
 
 export function Header() {
   return (
@@ -39,17 +41,22 @@ export function Header() {
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                <div className="flex items-center gap-2">
-                  <Home className="mr-2 h-6 w-6" />
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/">
+                  <Home className="mr-2 h-6 w-6 hover:text-primary" />
                   Trang chủ
-                </div>
+                </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="bg-transparent">
-                <MapPin className="mr-2 h-4 w-4" />
+              <NavigationMenuTrigger
+                className={twMerge(
+                  buttonVariants({ variant: 'ghost' }),
+                  '!flex-row bg-transparent data-[state=open]:bg-accent data-[state=open]:text-primary-foreground'
+                )}
+              >
+                <MapPin className="mr-2 h-6 w-6 hover:text-primary" />
                 Bảo tàng
               </NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -66,21 +73,29 @@ export function Header() {
                   <div className="space-y-2">
                     <div className="text-sm font-medium">Danh mục</div>
                     <div className="grid gap-1">
-                      <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Nghệ thuật</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Bảo tàng nghệ thuật và triển lãm
-                        </p>
+                      <NavigationMenuLink asChild>
+                        <Link href="/museum/art">
+                          <div className="text-sm font-medium leading-none">Nghệ thuật</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Bảo tàng nghệ thuật và triển lãm
+                          </p>
+                        </Link>
                       </NavigationMenuLink>
-                      <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Lịch sử</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                          Di tích lịch sử và văn hóa
-                        </p>
+                      <NavigationMenuLink asChild>
+                        <Link href="/museum/history">
+                          <div className="text-sm font-medium leading-none">Lịch sử</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Di tích lịch sử và văn hóa
+                          </p>
+                        </Link>
                       </NavigationMenuLink>
-                      <NavigationMenuLink className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground">
-                        <div className="text-sm font-medium leading-none">Khoa học</div>
-                        <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">Khoa học và công nghệ</p>
+                      <NavigationMenuLink asChild>
+                        <Link href="/museum/science">
+                          <div className="text-sm font-medium leading-none">Khoa học</div>
+                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                            Khoa học và công nghệ
+                          </p>
+                        </Link>
                       </NavigationMenuLink>
                     </div>
                   </div>
@@ -89,38 +104,38 @@ export function Header() {
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                <div className="flex items-center gap-2">
-                  <Calendar className="mr-2 h-6 w-6" />
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/event">
+                  <Calendar className="mr-2 h-6 w-6 hover:text-primary" />
                   Sự kiện
-                </div>
+                </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="mr-2 h-6 w-6" />
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/education">
+                  <GraduationCap className="mr-2 h-6 w-6 hover:text-primary" />
                   Giáo dục
-                </div>
+                </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                <div className="flex items-center gap-2">
-                  <Info className="mr-2 h-6 w-6" />
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/about">
+                  <Info className="mr-2 h-6 w-6 hover:text-primary" />
                   Giới thiệu
-                </div>
+                </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
             <NavigationMenuItem>
-              <NavigationMenuLink className="group inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50">
-                <div className="flex items-center gap-2">
-                  <Phone className="mr-2 h-6 w-6" />
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/contact">
+                  <Phone className="mr-2 h-6 w-6 hover:text-primary" />
                   Liên hệ
-                </div>
+                </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>

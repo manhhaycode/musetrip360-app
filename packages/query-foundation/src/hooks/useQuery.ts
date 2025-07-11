@@ -69,7 +69,7 @@ export function usePaginatedQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>
 ) {
-  const paginatedUrl = `${url}?page=${page}&limit=${limit}`;
+  const paginatedUrl = `${url}?Page=${page}&PageSize=${limit}`;
   const paginatedQueryKey = [...queryKey, { page, limit }];
 
   return useQuery(paginatedQueryKey as QueryKey, () => getHttpClient().get<TData>(paginatedUrl), {

@@ -13,8 +13,7 @@
       "dependsOn": ["^check-types"]
     },
     "dev": {
-      "persistent": true,
-      "cache": false
+      "outputs": ["dist/**"]
     },
     "start": {
       "persistent": true,
