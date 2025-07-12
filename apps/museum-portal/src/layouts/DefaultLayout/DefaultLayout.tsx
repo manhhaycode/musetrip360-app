@@ -1,9 +1,16 @@
 import { SidebarInset, SidebarProvider } from '@musetrip360/ui-core/sidebar';
-import { Outlet } from 'react-router';
+import { Navigate, Outlet } from 'react-router';
 import Header from '../components/Header';
 import DashboardSidebar from '../components/Sidebar';
+import { useIsAuthenticated } from '@musetrip360/auth-system';
 
 export default function DefaultLayout() {
+  const isAuthenticated = useIsAuthenticated();
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />; // Redirect to login if not authenticated
+  }
+
   return (
     <SidebarProvider>
       <DashboardSidebar variant="inset" />

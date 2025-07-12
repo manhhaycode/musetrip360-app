@@ -1,15 +1,15 @@
 import ScrollToTop from '@/components/ScrollToTop';
 import { Routes, Route, BrowserRouter } from 'react-router';
 import DefaultLayout from '@/layouts/DefaultLayout';
+import AuthPage from '@/features/auth/pages/AuthPage';
 
 export default function AppRoutes() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <Routes>
+        <Route path="/login" element={<AuthPage />} />
         <Route path="/" element={<DefaultLayout />}>
-          <Route path="/" index element={<div>Home</div>} />
-
           {/* Statistics */}
           <Route path="/statistics" element={<div>Statistics</div>} />
           <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />

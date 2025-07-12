@@ -12,24 +12,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 
 import { loginSchema, type LoginFormData } from '@/validation';
 import { AuthTypeEnum } from '@/types';
+import { useAuthContext } from '@/state/context/auth.context';
 
-export interface LoginFormProps {
-  onSubmit: (data: LoginFormData) => void;
-  isLoading?: boolean;
-  error?: string | null;
-  onForgotPassword?: () => void;
-  onSwitchToRegister?: () => void;
-  defaultValues?: Partial<LoginFormData>;
-}
-
-export function LoginForm({
-  onSubmit,
-  isLoading = false,
-  error,
-  onForgotPassword,
-  onSwitchToRegister,
-  defaultValues,
-}: LoginFormProps) {
+export function LoginForm() {
+  const { onSubmit, isLoading, error, setCurrentStep } = useAuthContext();
   const [showPassword, setShowPassword] = React.useState(false);
 
   const form = useForm({
@@ -39,7 +25,6 @@ export function LoginForm({
       password: '',
       authType: AuthTypeEnum.Email,
       rememberMe: false,
-      ...defaultValues,
     },
   });
 
@@ -141,18 +126,16 @@ export function LoginForm({
               )}
             />
 
-            {onForgotPassword && (
-              <Button
-                type="button"
-                variant="link"
-                size="sm"
-                className="h-auto p-0 text-sm"
-                onClick={onForgotPassword}
-                disabled={isLoading}
-              >
-                Quên mật khẩu?
-              </Button>
-            )}
+            <Button
+              type="button"
+              variant="link"
+              size="sm"
+              className="h-auto p-0 text-sm"
+              onClick={setCurrentStep.bind(null, 'forgot-password')}
+              disabled={isLoading}
+            >
+              Quên mật khẩu?
+            </Button>
           </div>
 
           {/* Submit Button */}
@@ -164,21 +147,19 @@ export function LoginForm({
       </Form>
 
       {/* Register Link */}
-      {onSwitchToRegister && (
-        <div className="text-center text-sm text-muted-foreground">
-          Chưa có tài khoản?{' '}
-          <Button
-            type="button"
-            variant="link"
-            size="sm"
-            className="h-auto p-0 text-sm font-medium"
-            onClick={onSwitchToRegister}
-            disabled={isLoading}
-          >
-            Tạo tài khoản
-          </Button>
-        </div>
-      )}
+      <div className="text-center text-sm text-muted-foreground">
+        Chưa có tài khoản?{' '}
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-sm font-medium"
+          onClick={setCurrentStep.bind(null, 'register')}
+          disabled={isLoading}
+        >
+          Tạo tài khoản
+        </Button>
+      </div>
     </div>
   );
 }

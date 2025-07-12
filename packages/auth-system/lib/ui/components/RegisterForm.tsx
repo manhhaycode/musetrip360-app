@@ -19,6 +19,7 @@ import {
   FormDescription,
 } from '@musetrip360/ui-core/form';
 import { registerSchema, type RegisterFormData, getPasswordStrength } from '@/validation';
+import { useAuthContext } from '@/state/context/auth.context';
 
 export interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;
@@ -67,13 +68,8 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({ password })
   );
 };
 
-export function RegisterForm({
-  onSubmit,
-  isLoading = false,
-  error,
-  onSwitchToLogin,
-  defaultValues,
-}: RegisterFormProps) {
+export function RegisterForm() {
+  const { onSubmit, isLoading, error, setCurrentStep } = useAuthContext();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
@@ -88,7 +84,6 @@ export function RegisterForm({
       avatarUrl: '',
       agreeToTerms: false,
       subscribeToNewsletter: false,
-      ...defaultValues,
     },
     mode: 'onBlur',
   });
@@ -96,11 +91,7 @@ export function RegisterForm({
   const password = form.watch('password');
 
   const handleSubmit = async (data: RegisterFormData) => {
-    try {
-      await onSubmit(data);
-    } catch (error) {
-      console.error('Registration submission error:', error);
-    }
+    onSubmit(data);
   };
 
   return (
@@ -315,21 +306,19 @@ export function RegisterForm({
       </Form>
 
       {/* Login Link */}
-      {onSwitchToLogin && (
-        <div className="text-center text-sm text-muted-foreground">
-          Đã có tài khoản?{' '}
-          <Button
-            type="button"
-            variant="link"
-            size="sm"
-            className="h-auto p-0 text-sm font-medium"
-            onClick={onSwitchToLogin}
-            disabled={isLoading}
-          >
-            Đăng nhập
-          </Button>
-        </div>
-      )}
+      <div className="text-center text-sm text-muted-foreground">
+        Đã có tài khoản?{' '}
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          className="h-auto p-0 text-sm font-medium"
+          onClick={setCurrentStep.bind(null, 'login')}
+          disabled={isLoading}
+        >
+          Đăng nhập
+        </Button>
+      </div>
     </div>
   );
 }

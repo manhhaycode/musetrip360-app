@@ -18,6 +18,7 @@ import {
 import { Input } from '@musetrip360/ui-core/input';
 
 import { getPasswordStrength, resetPasswordSchema, type ResetPasswordFormData } from '@/validation';
+import { useAuthContext } from '@/state/context/auth.context';
 
 export interface ResetPasswordFormProps {
   onSubmit: (data: ResetPasswordFormData) => void;
@@ -112,27 +113,19 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({ password })
   );
 };
 
-export function ResetPasswordForm({
-  onSubmit,
-  isLoading = false,
-  error,
-  email,
-  onBackToForgotPassword,
-  resendCooldown = 0,
-  defaultValues,
-}: ResetPasswordFormProps) {
+export function ResetPasswordForm() {
+  const { onSubmit, isLoading = false, error, resetPasswordEmail, otpCooldown = 60, setCurrentStep } = useAuthContext();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-  const [cooldownTimer, setCooldownTimer] = React.useState(resendCooldown);
+  const [cooldownTimer, setCooldownTimer] = React.useState(otpCooldown);
 
   const form = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      email,
+      email: resetPasswordEmail || '',
       otp: '',
       newPassword: '',
       confirmPassword: '',
-      ...defaultValues,
     },
     mode: 'onBlur',
   });
@@ -150,8 +143,8 @@ export function ResetPasswordForm({
   }, [cooldownTimer]);
 
   React.useEffect(() => {
-    setCooldownTimer(resendCooldown);
-  }, [resendCooldown]);
+    setCooldownTimer(otpCooldown);
+  }, [otpCooldown]);
 
   const handleSubmit = async (data: ResetPasswordFormData) => {
     try {
@@ -299,13 +292,17 @@ export function ResetPasswordForm({
       </Form>
 
       {/* Back to Forgot Password */}
-      {onBackToForgotPassword && (
-        <div className="text-center">
-          <Button type="button" variant="link" size="sm" onClick={onBackToForgotPassword} disabled={isLoading}>
-            Sử dụng địa chỉ email khác
-          </Button>
-        </div>
-      )}
+      <div className="text-center">
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          onClick={setCurrentStep.bind(null, 'forgot-password')}
+          disabled={isLoading}
+        >
+          Sử dụng địa chỉ email khác
+        </Button>
+      </div>
     </div>
   );
 }

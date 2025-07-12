@@ -15,6 +15,10 @@ export class AuthCacheKeys extends BaseCacheKeyFactory {
     super('auth');
   }
 
+  login(): QueryKey {
+    return [this.prefix, 'login'];
+  }
+
   currentUser(): QueryKey {
     return [this.prefix, 'currentUser'];
   }

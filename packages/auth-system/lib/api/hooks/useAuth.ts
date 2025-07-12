@@ -6,9 +6,9 @@
  */
 
 import { useQuery, useMutation, useQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
-import { authEndpoints, authErrorHandler } from '../endpoints/auth';
+import { AuthEndpoints, authErrorHandler } from '../endpoints/auth';
 import type { LoginReq, RegisterReq, RefreshReq, LoginResponse, VerifyOTPChangePassword } from '@/types';
-import { authCacheKeys } from '../cache/cacheKeys';
+import { authCacheKeys } from '../cache';
 import { useAuthStore } from '@/state';
 import { AuthToken } from '@/domain';
 
@@ -16,8 +16,11 @@ import { AuthToken } from '@/domain';
  * Hook for user login
  */
 export function useLogin(options?: CustomMutationOptions<LoginResponse, APIError, LoginReq, unknown>) {
-  return useMutation((loginData: LoginReq) => authEndpoints.instance.login(loginData), {
-    onSuccess: ({ data: authResponse }: LoginResponse) => {
+  const { onSuccess, onError, ...optionMutate } = options || {};
+  return useMutation((loginData: LoginReq) => AuthEndpoints.login(loginData), {
+    mutationKey: authCacheKeys.login(),
+    onSuccess: (...data) => {
+      const authResponse = data[0].data;
       useAuthStore
         .getState()
         .setAccessToken(
@@ -29,11 +32,13 @@ export function useLogin(options?: CustomMutationOptions<LoginResponse, APIError
           AuthToken.createRefreshToken(authResponse.refreshToken, authResponse.userId, authResponse.refreshTokenExpAt)
         );
       useAuthStore.getState().setIsAuthenticated(true);
+      onSuccess?.(...data);
     },
-    onError: (error: any) => {
-      console.error('Login failed:', authErrorHandler.handleLoginError(error));
+    onError: (...data) => {
+      console.error('Login failed:', authErrorHandler.handleLoginError(data[0]));
+      onError?.(...data);
     },
-    ...options,
+    ...optionMutate,
   });
 }
 
@@ -41,7 +46,7 @@ export function useLogin(options?: CustomMutationOptions<LoginResponse, APIError
  * Hook for user registration
  */
 export function useRegister(options?: CustomMutationOptions<LoginResponse, APIError, RegisterReq, unknown>) {
-  return useMutation((registerData: RegisterReq) => authEndpoints.instance.register(registerData), {
+  return useMutation((registerData: RegisterReq) => AuthEndpoints.register(registerData), {
     ...options,
   });
 }
@@ -52,7 +57,7 @@ export function useRegister(options?: CustomMutationOptions<LoginResponse, APIEr
 export function useRefreshToken() {
   const queryClient = useQueryClient();
 
-  return useMutation((refreshData: RefreshReq) => authEndpoints.instance.refreshToken(refreshData), {
+  return useMutation((refreshData: RefreshReq) => AuthEndpoints.refreshToken(refreshData), {
     onSuccess: ({ data: authResponse }: LoginResponse, { userId }) => {
       useAuthStore
         .getState()
@@ -71,7 +76,7 @@ export function useRefreshToken() {
  * Hook for token verification
  */
 export function useVerifyToken(token?: string) {
-  return useQuery(authCacheKeys.authState(), () => authEndpoints.instance.verifyToken(token), {
+  return useQuery(authCacheKeys.authState(), () => AuthEndpoints.verifyToken(token), {
     enabled: !!token,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
@@ -84,7 +89,7 @@ export function useVerifyToken(token?: string) {
 export function useLogout() {
   const queryClient = useQueryClient();
 
-  return useMutation(() => authEndpoints.instance.logout(), {
+  return useMutation(() => AuthEndpoints.logout(), {
     onSuccess: () => {
       // Clear all authentication-related cache
       queryClient.removeQueries({ queryKey: authCacheKeys.currentUser() });
@@ -104,7 +109,7 @@ export function useLogout() {
  * Hook to get current authenticated user
  */
 export function useCurrentUser() {
-  return useQuery(authCacheKeys.currentUser(), () => authEndpoints.instance.getCurrentUser(), {
+  return useQuery(authCacheKeys.currentUser(), () => AuthEndpoints.getCurrentUser(), {
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: (failureCount, error: any) => {
       // Don't retry if user is not authenticated
@@ -117,18 +122,15 @@ export function useCurrentUser() {
 }
 
 export function useRequestOTP(options?: CustomMutationOptions<any, APIError, string, unknown>) {
-  return useMutation((email: string) => authEndpoints.instance.requestOTP(email), {
+  return useMutation((email: string) => AuthEndpoints.requestOTP(email), {
     ...options,
   });
 }
 
 export function useVerifyOTP(options?: CustomMutationOptions<any, APIError, VerifyOTPChangePassword, unknown>) {
-  return useMutation(
-    (otpVerifyData: VerifyOTPChangePassword) => authEndpoints.instance.verifyOTPChangePassword(otpVerifyData),
-    {
-      ...options,
-    }
-  );
+  return useMutation((otpVerifyData: VerifyOTPChangePassword) => AuthEndpoints.verifyOTPChangePassword(otpVerifyData), {
+    ...options,
+  });
 }
 
 /**

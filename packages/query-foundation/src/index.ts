@@ -79,9 +79,6 @@ export const DEFAULT_CONFIG = {
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
   },
-  mutation: {
-    retries: 2,
-  },
   offline: {
     enabled: true,
     syncOnReconnect: true,

@@ -1,5 +1,7 @@
 import React from 'react';
-import type { AuthModalStep, LoginReq, RegisterReq, VerifyOTPChangePassword } from '@/types';
+import type { LoginReq, RegisterReq, VerifyOTPChangePassword } from '@/types';
+
+export type AuthModalStep = 'login' | 'register' | 'forgot-password' | 'reset-password';
 
 export interface AuthModalProps {
   isOpen: boolean;
@@ -54,58 +56,44 @@ export interface AuthModalConnectorProps
   close?: () => void;
 }
 
-export function useAuthModal() {
+export type AuthController = {
+  currentStep: AuthModalStep;
+  setCurrentStep: (step: AuthModalStep) => void;
+  modalController?: {
+    isOpen: boolean;
+    open: (step?: AuthModalStep) => void;
+    close: () => void;
+    onOpenChange?: (open: boolean) => void;
+    showCloseButton?: boolean;
+  };
+};
+
+export function useAuthController(state: { isAuthModal: boolean } = { isAuthModal: false }): AuthController {
   const [isOpen, setIsOpen] = React.useState(false);
   const [currentStep, setCurrentStep] = React.useState<AuthModalStep>('login');
-  const [error, setError] = React.useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = React.useState<string | null>(null);
-  const [isLoading, setIsLoading] = React.useState(false);
 
   const open = (step: AuthModalStep = 'login') => {
     setCurrentStep(step);
     setIsOpen(true);
-    setError(null);
-    setSuccessMessage(null);
   };
 
   const close = () => {
     setIsOpen(false);
-    setError(null);
-    setSuccessMessage(null);
-    setIsLoading(false);
-  };
-
-  const setLoading = (loading: boolean) => {
-    setIsLoading(loading);
-  };
-
-  const showError = (errorMessage: string) => {
-    setError(errorMessage);
-    setSuccessMessage(null);
-  };
-
-  const showSuccess = (message: string) => {
-    setSuccessMessage(message);
-    setError(null);
-  };
-
-  const clearMessages = () => {
-    setError(null);
-    setSuccessMessage(null);
   };
 
   return {
-    isOpen,
     currentStep,
-    error,
-    successMessage,
-    isLoading,
-    open,
-    close,
     setCurrentStep,
-    setLoading,
-    showError,
-    showSuccess,
-    clearMessages,
+    ...(state?.isAuthModal && {
+      modalController: {
+        isOpen,
+        open,
+        close,
+        onOpenChange: (open: boolean) => {
+          setIsOpen(open);
+        },
+        showCloseButton: true,
+      },
+    }),
   };
 }

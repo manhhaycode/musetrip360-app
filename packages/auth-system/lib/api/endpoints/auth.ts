@@ -6,57 +6,60 @@ import {
   TokenVerificationResponse,
   VerifyOTPChangePassword,
 } from '@/types';
-import { getHttpClient, type HTTPClient, type AuthToken } from '@musetrip360/query-foundation';
+import { type HTTPClient, type AuthToken, getHttpClient } from '@musetrip360/query-foundation';
 
 export class AuthEndpoints {
-  private httpClient: HTTPClient;
+  private static httpClient: HTTPClient;
 
-  constructor() {
-    this.httpClient = getHttpClient();
+  static getHttpClient(): HTTPClient {
+    if (!this.httpClient) {
+      this.httpClient = getHttpClient();
+    }
+    return this.httpClient;
   }
 
   // Register endpoint
-  async register(data: RegisterReq): Promise<LoginResponse> {
+  static async register(data: RegisterReq): Promise<LoginResponse> {
     return this.httpClient.post<LoginResponse>('/auth/register', data);
   }
 
   // Login endpoint
-  async login(data: LoginReq): Promise<LoginResponse> {
+  static async login(data: LoginReq): Promise<LoginResponse> {
     return this.httpClient.post<LoginResponse>('/auth/login', data);
   }
 
   // Token refresh endpoint
-  async refreshToken(data: RefreshReq): Promise<LoginResponse> {
+  static async refreshToken(data: RefreshReq): Promise<LoginResponse> {
     return this.httpClient.post<LoginResponse>('/auth/refresh', data);
   }
 
   // Logout endpoint
-  async logout(): Promise<{ message: string }> {
+  static async logout(): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/logout');
   }
 
   // Verify token endpoint
-  async verifyToken(token?: string): Promise<TokenVerificationResponse> {
+  static async verifyToken(token?: string): Promise<TokenVerificationResponse> {
     return this.httpClient.post<TokenVerificationResponse>('/auth/verify-token', { token });
   }
 
   // Get current user endpoint
-  async getCurrentUser(): Promise<any> {
+  static async getCurrentUser(): Promise<any> {
     return this.httpClient.get<any>('/auth/me');
   }
 
   // Request OTP for password reset
-  async requestOTP(email: string): Promise<{ message: string }> {
+  static async requestOTP(email: string): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/forgot-password/request', { email });
   }
 
   // Verify OTP and change password
-  async verifyOTPChangePassword(data: VerifyOTPChangePassword): Promise<{ message: string }> {
+  static async verifyOTPChangePassword(data: VerifyOTPChangePassword): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/forgot-password/verify', data);
   }
 
   // Set authentication token for future requests
-  setAuthToken(accessToken: string, refreshToken: string, expiresAt: number): void {
+  static setAuthToken(accessToken: string, refreshToken: string, expiresAt: number): void {
     const authToken: AuthToken = {
       accessToken,
       refreshToken,
@@ -67,37 +70,13 @@ export class AuthEndpoints {
   }
 
   // Clear authentication token
-  clearAuthToken(): void {
+  static clearAuthToken(): void {
     this.httpClient.clearAuth();
   }
 }
 
-// Lazy initialization - only create instance when first accessed
-let _authEndpointsInstance: AuthEndpoints | null = null;
-
-/**
- * Get the singleton AuthEndpoints instance
- * Uses lazy initialization to avoid creating the instance at module load time
- */
-export function getAuthEndpoints(): AuthEndpoints {
-  if (!_authEndpointsInstance) {
-    _authEndpointsInstance = new AuthEndpoints();
-  }
-  return _authEndpointsInstance;
-}
-
-/**
- * Reset the singleton instance (useful for testing)
- */
-export function resetAuthEndpoints(): void {
-  _authEndpointsInstance = null;
-}
-
-// For backward compatibility, you can also export this
-export const authEndpoints = {
-  get instance() {
-    return getAuthEndpoints();
-  },
+export const initAuthEndpoints = () => {
+  AuthEndpoints.getHttpClient();
 };
 
 /**

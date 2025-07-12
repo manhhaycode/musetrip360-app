@@ -1,8 +1,5 @@
 import { MuseTrip360Logo } from '@/assets/svg';
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -15,12 +12,12 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from '@musetrip360/ui-core';
+} from '@musetrip360/ui-core/sidebar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
 import {
   ArchiveIcon,
   BookUserIcon,
   CalendarDaysIcon,
-  CalendarIcon,
   CalendarRangeIcon,
   ChartBar,
   ChevronRight,
@@ -33,7 +30,6 @@ import {
   ListChecksIcon,
   LogOutIcon,
   LucideIcon,
-  MapPinIcon,
   PlusIcon,
   ScaleIcon,
   SettingsIcon,
@@ -279,7 +275,6 @@ export const SidebarMenuGroupItem = ({
   };
 }) => {
   const location = useLocation();
-
   const [isOpen, setIsOpen] = useState(true);
   useEffect(() => {
     if (location.pathname === '/') {
@@ -290,6 +285,7 @@ export const SidebarMenuGroupItem = ({
       setIsOpen(true);
     }
   }, [location, item]);
+
   return (
     <Collapsible
       onOpenChange={(open) => {

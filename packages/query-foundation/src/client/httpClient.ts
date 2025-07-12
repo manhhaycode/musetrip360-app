@@ -15,7 +15,7 @@ import { config } from '@musetrip360/infras';
  */
 const DEFAULT_CONFIG: APIClientConfig = {
   timeout: 30000, // 30 seconds
-  retries: 3,
+  retries: 0,
   retryDelay: 1000, // 1 second
   maxRetryDelay: 10000, // 10 seconds
   enableOffline: true,
@@ -158,21 +158,6 @@ export class HTTPClient {
       } catch {
         this.clearAuth();
         throw this.formatError(error);
-      }
-    }
-
-    // Handle retries for network errors or 5xx responses
-    if (this.shouldRetry(error) && !originalRequest._retry) {
-      const retryCount = (originalRequest._retryCount || 0) + 1;
-
-      if (retryCount <= this.config.retries) {
-        originalRequest._retryCount = retryCount;
-        originalRequest._retry = true;
-
-        const delay = this.calculateRetryDelay(retryCount);
-        await this.delay(delay);
-
-        return this.client(originalRequest);
       }
     }
 

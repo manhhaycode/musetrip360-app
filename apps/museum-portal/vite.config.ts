@@ -50,9 +50,6 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src'),
-        // Monorepo workspace aliases
-        '@packages': path.resolve(__dirname, '../../packages'),
-        '@shared': path.resolve(__dirname, '../../packages'),
       },
       // Dedupe dependencies that might be duplicated across workspace packages
       dedupe: ['react', 'react-dom', '@types/react', '@types/react-dom', 'zustand', '@tanstack/react-query'],
@@ -73,15 +70,9 @@ export default defineConfig(({ mode }) => {
 
     optimizeDeps: {
       // Pre-bundle workspace dependencies for faster dev server startup
-      include: ['react', 'react-dom', 'react/jsx-runtime', 'zustand', '@tanstack/react-query'],
+      include: ['react', 'react-dom', 'react/jsx-runtime'],
       // Exclude workspace packages from pre-bundling to enable HMR
-      exclude: [
-        '@packages/ui',
-        '@packages/museum-core',
-        '@packages/event-core',
-        '@packages/ticketing-core',
-        '@packages/user-management',
-      ],
+      exclude: ['@mustrip360/ui-core', '@mustrip360/auth-system'],
     },
 
     build: {
@@ -152,7 +143,7 @@ export default defineConfig(({ mode }) => {
           assetFileNames: 'assets/[name]-[hash].[ext]',
         },
         // Ensure proper loading order
-        external: [],
+        external: [/^@musetrip360\/.*/],
         // Force dependency order
         treeshake: {
           moduleSideEffects: (id) => {

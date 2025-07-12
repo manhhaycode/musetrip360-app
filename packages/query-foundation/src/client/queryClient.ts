@@ -1,14 +1,21 @@
-import { QueryClient, DefaultOptions, QueryCache, MutationCache } from '@tanstack/react-query';
-import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { DefaultOptions, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { openDB, type IDBPDatabase } from 'idb';
 import type {
-  QueryCacheConfig,
-  OfflineQueryConfig,
-  BackgroundSyncConfig,
-  SyncStatus,
   APIError,
+  BackgroundSyncConfig,
+  OfflineQueryConfig,
+  QueryCacheConfig,
+  SyncStatus,
 } from '../types/query-types';
+
+// Define global window object for TypeScript to using devtools
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import('@tanstack/query-core').QueryClient;
+  }
+}
 
 /**
  * IndexedDB storage implementation for query cache persistence
@@ -274,17 +281,6 @@ export class QueryClientManager {
         refetchOnMount: this.cacheConfig.refetchOnMount,
         refetchOnWindowFocus: this.cacheConfig.refetchOnWindowFocus,
         refetchOnReconnect: this.cacheConfig.refetchOnReconnect,
-        networkMode: 'offlineFirst',
-      },
-      mutations: {
-        retry: (failureCount: number, error: any) => {
-          // Only retry mutations for network errors or 5xx
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return false;
-          }
-          return failureCount < 2;
-        },
-        networkMode: 'offlineFirst',
       },
     };
 
@@ -733,7 +729,11 @@ export function getQueryClient(
   offlineConfig?: Partial<OfflineQueryConfig>,
   backgroundSyncConfig?: Partial<BackgroundSyncConfig>
 ): QueryClient {
-  return getQueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig).getQueryClient();
+  const queryClient = getQueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig).getQueryClient();
+  if (typeof window !== 'undefined' && !window.__TANSTACK_QUERY_CLIENT__) {
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+  }
+  return queryClient;
 }
 
 /**
