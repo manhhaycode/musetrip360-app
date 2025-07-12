@@ -12,10 +12,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@musetrip360/auth-system": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
-    "@musetrip360/auth-system": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
