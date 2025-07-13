@@ -12,15 +12,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
     "@musetrip360/ui-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
+    "@tanstack/react-table": "^8.20.5",
     "clsx": "^2.1.1",
     "lucide-react": "^0.517.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.58.1",
     "react-router-dom": "^6.28.0",
+    "recharts": "^2.15.4",
     "tailwind-merge": "^3.3.0",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "zod": "^3.25.67"
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",

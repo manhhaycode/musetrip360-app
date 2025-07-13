@@ -1,7 +1,7 @@
-import { useQuery as useReactQuery, QueryKey } from '@tanstack/react-query';
+import { QueryKey, useQuery as useReactQuery } from '@tanstack/react-query';
 import { httpClient } from '../client/httpClient';
-import type { CustomQueryOptions, APIError } from '../types/query-types';
 import type { RequestConfig } from '../types/api-types';
+import type { APIError, CustomQueryOptions } from '../types/query-types';
 
 /**
  * Enhanced useQuery hook with custom configuration
@@ -86,7 +86,7 @@ export function useSearchQuery<TData = unknown>(
   url: string,
   queryKey: QueryKey,
   searchTerm: string,
-  debounceMs: number = 300, // TODO: Implement debouncing logic
+  _debounceMs: number = 300, // TODO: Implement debouncing logic
   minLength: number = 2,
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>

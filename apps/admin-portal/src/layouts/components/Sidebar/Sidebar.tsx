@@ -2,7 +2,6 @@ import {
   Avatar,
   AvatarFallback,
   AvatarImage,
-  Badge,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -18,41 +17,40 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@musetrip360/ui-core';
-import { BarChart3, Building2, ChevronDown, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
+import { Building2, ChevronDown, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 export default function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar variant="inset" className="h-screen" style={{ backgroundColor: '#fff0eb' }}>
+    <Sidebar variant="inset" className="h-screen bg-rose-50">
       <SidebarHeader className="p-0">
-        <div className="flex items-center gap-3 px-6 py-4" style={{ backgroundColor: '#fff0eb' }}>
-          <div
-            className="flex h-8 w-8 items-center justify-center rounded-lg"
-            style={{ backgroundColor: '#feb47b', border: '1px solid #ffe0d6' }}
-          >
-            <Building2 className="h-4 w-4" style={{ color: '#ff7e5f' }} />
+        <div className="flex items-center gap-3 px-6 py-4 bg-rose-50">
+          <div className="flex h-8 w-8 items-center justify-center">
+            <Building2 className="h-4 w-4 text-foreground" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold" style={{ color: '#3d3436' }}>
-              MuseTrip360
-            </span>
+            <span className="truncate font-semibold text-foreground">MuseTrip360</span>
           </div>
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1" style={{ backgroundColor: '#fff0eb' }}>
+      <SidebarContent className="flex-1 bg-rose-50">
         {/* Tổng quan */}
         <SidebarGroup>
-          <SidebarGroupLabel>Tổng quan</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">Tổng quan</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/'}
-                  className={location.pathname === '/' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                  className={
+                    location.pathname === '/'
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
+                  }
                 >
                   <Link to="/">
                     <Home className="h-4 w-4" />
@@ -66,14 +64,18 @@ export default function AppSidebar() {
 
         {/* Quản lý Bảo tàng */}
         <SidebarGroup>
-          <SidebarGroupLabel>Quản lý Bảo tàng</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">Quản lý Bảo tàng</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/museums'}
-                  className={location.pathname === '/museums' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                  className={
+                    location.pathname === '/museums'
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
+                  }
                 >
                   <Link to="/museums">
                     <Building2 className="h-4 w-4" />
@@ -87,43 +89,13 @@ export default function AppSidebar() {
                   isActive={location.pathname === '/museums/requests' || location.pathname === '/museums/approval'}
                   className={
                     location.pathname === '/museums/requests' || location.pathname === '/museums/approval'
-                      ? '[&>*]:!text-white [&_*]:!text-white'
-                      : ''
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
                   }
                 >
-                  <Link to="/museums/requests" className="flex items-center justify-between w-full">
-                    <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      <span>Xét duyệt</span>
-                    </div>
-                    <Badge
-                      variant="secondary"
-                      className="ml-auto h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center font-medium"
-                      style={{ backgroundColor: '#feb47b', color: '#3d3436', border: '1px solid #ffe0d6' }}
-                    >
-                      23
-                    </Badge>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        {/* Phân tích */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Phân tích</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/analytics/overview'}
-                  className={location.pathname === '/analytics/overview' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
-                >
-                  <Link to="/analytics/overview">
-                    <BarChart3 className="h-4 w-4" />
-                    <span>Thống kê</span>
+                  <Link to="/museums/requests">
+                    <FileText className="h-4 w-4" />
+                    <span>Xét duyệt</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -133,14 +105,18 @@ export default function AppSidebar() {
 
         {/* Hệ thống */}
         <SidebarGroup>
-          <SidebarGroupLabel>Hệ thống</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-muted-foreground">Hệ thống</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/users'}
-                  className={location.pathname === '/users' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                  className={
+                    location.pathname === '/users'
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
+                  }
                 >
                   <Link to="/users">
                     <Users className="h-4 w-4" />
@@ -152,7 +128,11 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/policies'}
-                  className={location.pathname === '/policies' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                  className={
+                    location.pathname === '/policies'
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
+                  }
                 >
                   <Link to="/policies">
                     <Gavel className="h-4 w-4" />
@@ -164,7 +144,11 @@ export default function AppSidebar() {
                 <SidebarMenuButton
                   asChild
                   isActive={location.pathname === '/settings'}
-                  className={location.pathname === '/settings' ? '[&>*]:!text-white [&_*]:!text-white' : ''}
+                  className={
+                    location.pathname === '/settings'
+                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
+                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
+                  }
                 >
                   <Link to="/settings">
                     <Settings className="h-4 w-4" />
@@ -177,23 +161,18 @@ export default function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter style={{ backgroundColor: '#fff0eb' }}>
+      <SidebarFooter className="bg-rose-50">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
-                  className="data-[state=open]:bg-muted data-[state=open]:text-foreground hover:bg-muted/50"
+                  className="data-[state=open]:bg-orange-200 data-[state=open]:text-orange-900 hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200"
                 >
-                  <Avatar className="h-8 w-8 rounded-lg border">
+                  <Avatar className="h-8 w-8 rounded-lg border border-border">
                     <AvatarImage src="/avatars/admin.png" alt="Admin" />
-                    <AvatarFallback
-                      className="rounded-lg border"
-                      style={{ backgroundColor: '#feb47b', color: '#3d3436' }}
-                    >
-                      QT
-                    </AvatarFallback>
+                    <AvatarFallback className="rounded-lg border bg-muted text-muted-foreground">QT</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">Admin</span>

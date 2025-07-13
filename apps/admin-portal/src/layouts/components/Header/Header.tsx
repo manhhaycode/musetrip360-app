@@ -20,8 +20,6 @@ const getBreadcrumb = (pathname: string) => {
     '/': 'Dashboard',
     '/museums': 'Danh sách Bảo tàng',
     '/museums/requests': 'Xét duyệt Bảo tàng',
-    '/museums/approval': 'Xét duyệt Bảo tàng',
-    '/analytics/overview': 'Thống kê Tổng quan',
     '/users': 'Quản lý Người dùng',
     '/settings': 'Cài đặt Hệ thống',
     '/policies': 'Chính sách & Quy định',
@@ -34,10 +32,7 @@ export default function Header() {
   const currentPage = getBreadcrumb(location.pathname);
 
   return (
-    <header
-      className="flex h-16 shrink-0 items-center justify-between px-4 border-b"
-      style={{ backgroundColor: '#fef7f0' }}
-    >
+    <header className="flex h-16 shrink-0 items-center justify-between px-4 border-b bg-secondary/20">
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -51,9 +46,8 @@ export default function Header() {
         <Button variant="ghost" size="sm" className="relative">
           <Bell className="h-4 w-4" />
           <Badge
-            variant="destructive"
-            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-            style={{ backgroundColor: '#ff7e5f', fontSize: '10px' }}
+            variant="secondary"
+            className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center bg-muted text-muted-foreground"
           >
             3
           </Badge>
@@ -62,9 +56,9 @@ export default function Header() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8" style={{ border: '1px solid #ffe0d6' }}>
+              <Avatar className="h-8 w-8 border border-border">
                 <AvatarImage src="/avatars/admin.png" alt="Admin" />
-                <AvatarFallback style={{ backgroundColor: '#feb47b', color: '#3d3436' }}>QT</AvatarFallback>
+                <AvatarFallback className="bg-muted text-muted-foreground">QT</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
