@@ -3,18 +3,16 @@
 import * as React from 'react';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 import {
-  SidebarMenu,
-  SidebarMenuItem,
   DropdownMenu,
   DropdownMenuTrigger,
-  SidebarMenuButton,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from '@musetrip360/ui-core';
+} from '@musetrip360/ui-core/dropdown-menu';
+import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@musetrip360/ui-core/sidebar';
 import { MuseTrip360Logo } from '@/assets/svg';
-import { Museum, useMuseumStore } from '@musetrip360/museum-management';
+import { useMuseumStore } from '@musetrip360/museum-management';
 
 const MuseumSelect = () => {
   const { selectedMuseum, userMuseums, setSelectedMuseum } = useMuseumStore();
@@ -44,7 +42,7 @@ const MuseumSelect = () => {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">Bảo tàng</DropdownMenuLabel>
-            {userMuseums.map((museum: Museum) => (
+            {userMuseums.map((museum) => (
               <DropdownMenuItem key={museum.id} onClick={() => setSelectedMuseum(museum)} className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md w-full gap-2">
                   <MuseTrip360Logo className="size-3.5 shrink-0" />

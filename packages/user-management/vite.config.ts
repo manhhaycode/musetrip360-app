@@ -20,8 +20,9 @@ export default defineConfig({
       insertTypesEntry: true,
       include: ['lib/**/*.ts', 'lib/**/*.tsx'],
       exclude: ['lib/**/*.test.*', 'lib/**/*.spec.*'],
-      outDir: 'dist',
-      copyDtsFiles: false,
+      outDir: 'dist/types',
+      entryRoot: resolve(__dirname, 'lib'),
+      copyDtsFiles: true,
       compilerOptions: {
         preserveSymlinks: false,
         skipLibCheck: true,
@@ -129,7 +130,7 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@/lib': resolve(__dirname, './lib'),
+      '@': resolve(__dirname, './lib'),
     },
   },
 });
