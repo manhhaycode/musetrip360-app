@@ -1,5 +1,5 @@
 {
-  "name": "@apps/vistor-portal",
+  "name": "@apps/visitor-portal",
   "version": "0.1.0",
   "description": "A nextjs application for MuseTrip360 platform",
   "private": true,
@@ -14,6 +14,8 @@
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
+    "@musetrip360/user-management": "workspace:*",
+    "lucide-react": "^0.525.0",
     "next": "15.3.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
