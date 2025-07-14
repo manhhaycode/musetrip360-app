@@ -11,9 +11,9 @@ import { MuseumSearchParams, MuseumSearchResponse, Museum } from '@/types';
  * Museum API endpoints configuration
  */
 export const museumEndpoints = {
-  search: '/api/v1/museums',
-  getById: (id: string) => `/api/v1/museums/${id}`,
-  getUserMuseums: '/api/v1/museums/user',
+  search: 'museums',
+  getById: (id: string) => `museums/${id}`,
+  getUserMuseums: 'museums/user',
 } as const;
 
 /**

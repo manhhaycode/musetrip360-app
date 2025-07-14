@@ -1,4 +1,3 @@
-import { MuseTrip360Logo } from '@/assets/svg';
 import {
   Sidebar,
   SidebarContent,
@@ -40,6 +39,7 @@ import {
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { twMerge } from 'tailwind-merge';
+import MuseumSelect from '../MuseumSelect';
 
 const sidebarButtonClasses =
   'hover:text-primary-foreground data-[active=true]:text-primary-foreground data-[active=true]:bg-primary/70 active:text-primary-foreground data-[state=close]:hover:text-primary-foreground data-[state=open]:hover:text-primary-foreground';
@@ -48,14 +48,7 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <Link className="flex items-center gap-2 border-2 p-2 rounded-lg" to="/">
-              <MuseTrip360Logo />
-              <span className="text-sm font-semibold text-center">Bảo tàng quân sự Việt Nam</span>
-            </Link>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <MuseumSelect />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroupItem
