@@ -17,6 +17,7 @@ import {
 } from '@musetrip360/ui-core';
 import {
   ColumnDef,
+  ColumnFiltersState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -59,8 +60,8 @@ const mockRequests: MuseumRequest[] = [
     website: 'https://vnhistorymuseum.vn',
     status: 'pending',
     submittedDate: '2024-01-20',
-    reviewedDate: null,
-    rejectionReason: null,
+    reviewedDate: undefined,
+    rejectionReason: undefined,
     documents: ['license.pdf', 'proposal.pdf'],
   },
   {
@@ -76,8 +77,8 @@ const mockRequests: MuseumRequest[] = [
     website: 'https://dainamart.vn',
     status: 'under_review',
     submittedDate: '2024-01-18',
-    reviewedDate: null,
-    rejectionReason: null,
+    reviewedDate: undefined,
+    rejectionReason: undefined,
     documents: ['certificate.pdf'],
   },
   {
@@ -94,7 +95,7 @@ const mockRequests: MuseumRequest[] = [
     status: 'approved',
     submittedDate: '2024-01-15',
     reviewedDate: '2024-01-22',
-    rejectionReason: null,
+    rejectionReason: undefined,
     documents: ['license.pdf', 'plan.pdf', 'budget.pdf'],
   },
   {
@@ -332,7 +333,7 @@ export default function MuseumRequests() {
   const [categoryFilter, setCategoryFilter] = useState<MuseumCategory | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<MuseumRequestStatus | 'all'>('all');
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
