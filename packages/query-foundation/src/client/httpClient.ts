@@ -2,13 +2,12 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, In
 import type {
   APIClientConfig,
   APIError,
-  AuthToken,
   RequestInterceptorContext,
   ResponseInterceptorContext,
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
-import { config } from '@musetrip360/infras';
+import { config, getEnvironment } from '@musetrip360/infras';
 
 /**
  * Default API client configuration
@@ -30,13 +29,16 @@ const DEFAULT_CONFIG: APIClientConfig = {
 export class HTTPClient {
   private client: AxiosInstance;
   private config: APIClientConfig;
-  private authToken: AuthToken | null = null;
-  private tokenRefreshPromise: Promise<AuthToken> | null = null;
+  private authToken: string | null = null;
+  private responseErrorHandlers: ((error: AxiosError) => Promise<any>) | null = null;
 
   constructor(configuration: Partial<APIClientConfig> = {}) {
-    this.config = { ...DEFAULT_CONFIG, ...configuration };
+    this.config = {
+      ...DEFAULT_CONFIG,
+      ...configuration,
+    };
     this.config.baseURL = config('API_URL');
-    this.config.enableLogging = config('NODE_ENV') === 'development';
+    this.config.enableLogging = getEnvironment() === 'development';
     if (!this.config.baseURL) {
       throw new Error('API_URL is not set in the environment variables');
     }
@@ -92,7 +94,7 @@ export class HTTPClient {
     // Add authentication token
     if (this.config.enableAuth && this.authToken) {
       config.headers = config.headers || {};
-      config.headers.Authorization = `${this.authToken.tokenType} ${this.authToken.accessToken}`;
+      config.headers.Authorization = `Bearer ${this.authToken}`;
     }
 
     // Add request ID for tracking
@@ -143,27 +145,19 @@ export class HTTPClient {
    * Handle response errors
    */
   private async handleResponseError(error: AxiosError): Promise<AxiosResponse> {
-    const originalRequest = error.config as InternalAxiosRequestConfig & {
-      _retry?: boolean;
-      _retryCount?: number;
-    };
-
-    // Handle token refresh for 401 errors
-    if (error.response?.status === 401 && !originalRequest._retry && this.config.enableAuth) {
-      originalRequest._retry = true;
-
-      try {
-        await this.refreshToken();
-        return this.client(originalRequest);
-      } catch {
-        this.clearAuth();
-        throw this.formatError(error);
-      }
-    }
-
     // Log error in development
     if (this.config.enableLogging) {
       console.error('[HTTP Client] Response Error:', error);
+    }
+
+    // Check if we have custom error handlers
+    if (this.responseErrorHandlers) {
+      try {
+        const responseHandleError = await this.responseErrorHandlers(error);
+        return responseHandleError;
+      } catch (error: any) {
+        return Promise.reject(this.formatError(error));
+      }
     }
 
     throw this.formatError(error);
@@ -172,7 +166,7 @@ export class HTTPClient {
   /**
    * Set authentication token
    */
-  public setAuth(token: AuthToken): void {
+  public setAuth(token: string): void {
     this.authToken = token;
   }
 
@@ -181,37 +175,15 @@ export class HTTPClient {
    */
   public clearAuth(): void {
     this.authToken = null;
-    this.tokenRefreshPromise = null;
   }
 
+  /*
   /**
-   * Refresh authentication token
+   * Make generic HTTP request
    */
-  private async refreshToken(): Promise<AuthToken> {
-    if (this.tokenRefreshPromise) {
-      return this.tokenRefreshPromise;
-    }
-
-    if (!this.authToken?.refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    this.tokenRefreshPromise = this.client
-      .post('/auth/refresh', {
-        refreshToken: this.authToken!.refreshToken,
-      })
-      .then((response: AxiosResponse<{ data: AuthToken }>) => {
-        const newToken: AuthToken = response.data.data;
-        this.setAuth(newToken);
-        this.tokenRefreshPromise = null;
-        return newToken;
-      })
-      .catch((error: AxiosError) => {
-        this.tokenRefreshPromise = null;
-        throw error;
-      });
-
-    return this.tokenRefreshPromise;
+  public async request<T = any>(config: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.request<T>(config);
+    return response.data;
   }
 
   /**
@@ -339,6 +311,10 @@ export class HTTPClient {
    */
   public getAxiosInstance(): AxiosInstance {
     return this.client;
+  }
+
+  public setErrorHandlers(handlers: (error: AxiosError) => Promise<any>): void {
+    this.responseErrorHandlers = handlers;
   }
 
   /**

@@ -1,3 +1,4 @@
+import { useAuthStore } from '@musetrip360/auth-system';
 import { Button } from '@musetrip360/ui-core/button';
 import { Separator } from '@musetrip360/ui-core/separator';
 import { SidebarTrigger } from '@musetrip360/ui-core/sidebar';
@@ -13,7 +14,12 @@ export default function Header() {
         <h1 className="text-base font-medium">Museum Portal</h1>
         <div className="ml-auto flex items-center gap-2">
           <Link to="/">
-            <Button leftIcon={<LogOutIcon />} size="sm" className="hidden sm:flex">
+            <Button
+              onClick={() => useAuthStore.getState().resetStore()}
+              leftIcon={<LogOutIcon />}
+              size="sm"
+              className="hidden sm:flex"
+            >
               Đăng xuất
             </Button>
           </Link>

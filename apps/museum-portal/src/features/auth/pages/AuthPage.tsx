@@ -1,4 +1,4 @@
-import { useAuthController, AuthProvider, AuthModal, useIsAuthenticated } from '@musetrip360/auth-system';
+import { useAuthController, AuthModal, useIsAuthenticated, AuthActionProvider } from '@musetrip360/auth-system';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
 
@@ -18,9 +18,9 @@ export default function AuthPage() {
   }, [isAuthenticated]);
   return (
     <div className="flex h-screen w-screen items-center justify-center">
-      <AuthProvider authController={authController}>
+      <AuthActionProvider authController={authController}>
         <AuthModal />
-      </AuthProvider>
+      </AuthActionProvider>
     </div>
   );
 }

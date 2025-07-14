@@ -10,3 +10,4 @@ export * from './RegisterForm';
 export * from './ForgotPasswordForm';
 export * from './ResetPasswordForm';
 export * from './AuthModal';
+export * from './GoogleOAuthCallback';

@@ -1,2 +1,2 @@
-export * from './auth.context';
+export * from './auth-action';
 export * from './AuthProvider';

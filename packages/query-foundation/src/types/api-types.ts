@@ -72,16 +72,6 @@ export interface APIEndpoint {
 }
 
 /**
- * Authentication token
- */
-export interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  tokenType: 'Bearer';
-}
-
-/**
  * API client configuration
  */
 export interface APIClientConfig {
@@ -102,7 +92,6 @@ export interface APIClientConfig {
  */
 export interface RequestInterceptorContext {
   config: any;
-  token?: AuthToken;
   isRetry?: boolean;
   retryCount?: number;
 }

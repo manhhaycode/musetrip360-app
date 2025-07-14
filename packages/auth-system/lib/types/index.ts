@@ -1,6 +1,18 @@
 // Import User types from user-management package for internal use
 import { APIResponse } from '@musetrip360/query-foundation';
-import type { User } from '@musetrip360/user-management';
+
+export interface IUser {
+  id: string;
+  username: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string | null;
+  avatarUrl: string | null;
+  birthDate: string | null;
+  authType: 'Email';
+  status: 'Active';
+  lastLogin: '2025-06-29T04:01:28.673817Z';
+}
 
 // Auth types based on swagger.json
 export enum AuthTypeEnum {
@@ -18,7 +30,7 @@ export interface RegisterReq {
   phoneNumber?: string;
   avatarUrl?: string;
 }
-export type RegisterResponse = APIResponse<User>;
+export type RegisterResponse = APIResponse<IUser>;
 
 export interface LoginReq {
   authType: AuthTypeEnum;
@@ -26,6 +38,11 @@ export interface LoginReq {
   password?: string;
   redirect?: string;
   firebaseToken?: string;
+}
+
+export interface LoginWithGoogleReq {
+  state: string;
+  redirect: string;
 }
 
 export interface RefreshReq {
@@ -43,41 +60,24 @@ export interface VerifyOTPChangePassword {
   newPassword: string;
 }
 
-export type LoginResponse = APIResponse<{
-  userId: string;
-  accessToken: string;
-  refreshToken: string;
-  accessTokenExpAt: number;
-  refreshTokenExpAt: number;
-}>;
+export type LoginResponse = APIResponse<
+  | {
+      userId: string;
+      accessToken: string;
+      refreshToken: string;
+      accessTokenExpAt: number;
+      refreshTokenExpAt: number;
+    }
+  | {
+      redirectLink: string;
+      token: string;
+    }
+>;
 
-export interface TokenVerificationResponse {
-  isValid: boolean;
-  user?: User;
-  expiresAt?: string;
-}
-
-// OAuth types
-export interface OAuthConfig {
-  clientId: string;
-  redirectUri: string;
-  scope: string;
-}
-
-export interface GoogleAuthConfig extends OAuthConfig {
-  googleClientId: string;
-}
-
-// Authentication result for frontend service methods
-export interface AuthenticationResult {
-  success: boolean;
-  user?: User;
-  tokens?: {
-    accessToken: string;
-    refreshToken: string;
-    expiresAt: number;
-  };
-  message?: string;
+export interface AuthToken {
+  token: string;
+  expiresAt: number;
+  type: 'access' | 'refresh';
 }
 
 export type AuthModalStep = 'login' | 'register' | 'forgot-password' | 'reset-password';

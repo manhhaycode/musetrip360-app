@@ -25,8 +25,7 @@ export { QueryClient, QueryClientProvider, useQueryClient, useIsFetching, useIsM
 export type { QueryKey } from '@tanstack/react-query';
 
 // Types
-export type * from './types/api-types';
-export type * from './types/query-types';
+export * from './types';
 
 // HTTP Client
 export { HTTPClient, getHttpClient } from './client/httpClient';

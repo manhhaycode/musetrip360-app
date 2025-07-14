@@ -17,10 +17,10 @@ import {
 import { Input } from '@musetrip360/ui-core/input';
 
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '../../validation';
-import { useAuthContext } from '@/state/context/auth.context';
+import { useAuthActionContext } from '@/state/context/auth-action/auth-action.context';
 
 export function ForgotPasswordForm() {
-  const { onSubmit, isLoading, error, successMessage, setCurrentStep } = useAuthContext();
+  const { onSubmit, isLoading, error, successMessage, setCurrentStep } = useAuthActionContext();
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {

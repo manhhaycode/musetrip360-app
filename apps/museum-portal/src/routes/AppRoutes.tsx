@@ -2,6 +2,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { Routes, Route, BrowserRouter } from 'react-router';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import AuthPage from '@/features/auth/pages/AuthPage';
+import { GoogleOAuthCallback } from '@musetrip360/auth-system';
 
 export default function AppRoutes() {
   return (
@@ -50,6 +51,7 @@ export default function AppRoutes() {
           {/* Logout */}
           <Route path="/logout" element={<div>Đăng xuất</div>} />
         </Route>
+        <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="*" element={<div>404</div>} />
       </Routes>
     </BrowserRouter>

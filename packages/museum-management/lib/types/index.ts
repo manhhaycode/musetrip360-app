@@ -34,3 +34,10 @@ export interface MuseumSearchParams extends Pagination {
 }
 
 export type MuseumSearchResponse = PaginatedResponse<Museum>;
+
+export interface MuseumStore {
+  userMuseums: Museum[];
+  museums: Museum[];
+  setMuseums: (museums: Museum[]) => void;
+  setUserMuseums: (museums: Museum[]) => void;
+}

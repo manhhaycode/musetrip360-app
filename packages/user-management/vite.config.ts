@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react-swc';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import packageJson from './package.json';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
   plugins: [
@@ -12,23 +14,44 @@ export default defineConfig({
       jsxImportSource: 'react',
     }),
     tailwindcss(),
+    tsconfigPaths({ ignoreConfigErrors: true }),
     dts({
       // Generate TypeScript declarations
       insertTypesEntry: true,
-      exclude: ['**/*.test.*', '**/*.spec.*'],
+      include: ['lib/**/*.ts', 'lib/**/*.tsx'],
+      exclude: ['lib/**/*.test.*', 'lib/**/*.spec.*'],
+      outDir: 'dist',
+      copyDtsFiles: false,
+      compilerOptions: {
+        preserveSymlinks: false,
+        skipLibCheck: true,
+      },
     }),
   ],
 
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
-      name: 'MuseTrip360DesignSystem',
+      entry: {
+        index: resolve(__dirname, './lib/index.ts'),
+        api: resolve(__dirname, './lib/api/index.ts'),
+        types: resolve(__dirname, './lib/types/index.ts'),
+        ui: resolve(__dirname, './lib/ui/index.ts'),
+        state: resolve(__dirname, './lib/state/index.ts'),
+        // validation: resolve(__dirname, './lib/validation/index.ts'),
+      },
+      name: 'UserManagement',
       formats: ['es', 'cjs'],
-      fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
+      fileName: (format, entryName) => {
+        const ext = format === 'es' ? 'mjs' : 'js';
+        return `${entryName}.${ext}`;
+      },
     },
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
-      external: ['react', 'react-dom', '@musetrip360/ui-core', '@musetrip360/infras', '@musetrip360/query-foundation'],
+      external: [
+        ...new Set([...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.peerDependencies)]),
+      ].map((dep) => new RegExp(`^${dep}`)),
+
       output: {
         // Provide global variables for externalized deps in UMD builds
         globals: {
@@ -36,18 +59,43 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
         },
         // Preserve module structure for better tree-shaking
-        preserveModules: false,
-        // Clean chunk names
-        chunkFileNames: '[name]-[hash].js',
+        preserveModules: true,
+        preserveModulesRoot: 'lib',
+        // Clean file names that map to original structure
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'index') {
+            return '[format]/index.js';
+          }
+          if (chunkInfo.name === 'api') {
+            return '[format]/api/index.js';
+          }
+          if (chunkInfo.name === 'domain') {
+            return '[format]/domain/index.js';
+          }
+          if (chunkInfo.name === 'types') {
+            return '[format]/types/index.js';
+          }
+          if (chunkInfo.name === 'ui') {
+            return '[format]/ui/index.js';
+          }
+          if (chunkInfo.name === 'state') {
+            return '[format]/state/index.js';
+          }
+          if (chunkInfo.name === 'validation') {
+            return '[format]/validation/index.js';
+          }
+          return '[format]/[name].js';
+        },
+        chunkFileNames: '[format]/chunks/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {
             return 'styles.css';
           }
-          return assetInfo.name || 'asset';
+          return 'assets/[name][extname]';
         },
       },
     },
-    target: 'es2022',
+    target: 'es2020',
     minify: 'esbuild',
     sourcemap: true,
     // Emit CSS as separate files
@@ -76,6 +124,12 @@ export default defineConfig({
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'src/test/', '**/*.d.ts', '**/*.test.*', '**/*.spec.*'],
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@/lib': resolve(__dirname, './lib'),
     },
   },
 });

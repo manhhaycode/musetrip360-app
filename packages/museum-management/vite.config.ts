@@ -34,7 +34,7 @@ export default defineConfig({
         state: resolve(__dirname, './lib/state/index.ts'),
         validation: resolve(__dirname, './lib/validation/index.ts'),
       },
-      name: 'AuthManagement',
+      name: 'MuseumManagement',
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => {
         const ext = format === 'es' ? 'mjs' : 'js';

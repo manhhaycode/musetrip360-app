@@ -34,7 +34,6 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, './lib/index.ts'),
         api: resolve(__dirname, './lib/api/index.ts'),
-        domain: resolve(__dirname, './lib/domain/index.ts'),
         types: resolve(__dirname, './lib/types/index.ts'),
         ui: resolve(__dirname, './lib/ui/index.ts'),
         state: resolve(__dirname, './lib/state/index.ts'),

@@ -8,10 +8,10 @@ import { RegisterForm } from './RegisterForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import { ResetPasswordForm } from './ResetPasswordForm';
 
-import { useAuthContext } from '@/state/context/auth.context';
+import { useAuthActionContext } from '@/state/context/auth-action/auth-action.context';
 
 export function AuthModal() {
-  const { modalControl, currentStep, stepIcon, stepTitle, stepDescription } = useAuthContext();
+  const { modalControl, currentStep, stepIcon, stepTitle, stepDescription } = useAuthActionContext();
   return (
     <Dialog open={modalControl!.isOpen} onOpenChange={modalControl!.onOpenChange}>
       <DialogContent className="sm:max-w-xl w-full" showCloseButton={modalControl!.showCloseButton}>

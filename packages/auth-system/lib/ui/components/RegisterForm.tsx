@@ -19,7 +19,7 @@ import {
   FormDescription,
 } from '@musetrip360/ui-core/form';
 import { registerSchema, type RegisterFormData, getPasswordStrength } from '@/validation';
-import { useAuthContext } from '@/state/context/auth.context';
+import { useAuthActionContext } from '@/state/context/auth-action/auth-action.context';
 
 export interface RegisterFormProps {
   onSubmit: (data: RegisterFormData) => void;
@@ -69,7 +69,7 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({ password })
 };
 
 export function RegisterForm() {
-  const { onSubmit, isLoading, error, setCurrentStep } = useAuthContext();
+  const { onSubmit, isLoading, error, setCurrentStep } = useAuthActionContext();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 

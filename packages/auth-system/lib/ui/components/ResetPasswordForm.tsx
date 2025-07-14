@@ -18,7 +18,7 @@ import {
 import { Input } from '@musetrip360/ui-core/input';
 
 import { getPasswordStrength, resetPasswordSchema, type ResetPasswordFormData } from '@/validation';
-import { useAuthContext } from '@/state/context/auth.context';
+import { useAuthActionContext } from '@/state/context/auth-action/auth-action.context';
 
 export interface ResetPasswordFormProps {
   onSubmit: (data: ResetPasswordFormData) => void;
@@ -114,7 +114,14 @@ const PasswordStrengthIndicator: React.FC<{ password: string }> = ({ password })
 };
 
 export function ResetPasswordForm() {
-  const { onSubmit, isLoading = false, error, resetPasswordEmail, otpCooldown = 60, setCurrentStep } = useAuthContext();
+  const {
+    onSubmit,
+    isLoading = false,
+    error,
+    resetPasswordEmail,
+    otpCooldown = 60,
+    setCurrentStep,
+  } = useAuthActionContext();
   const [showPassword, setShowPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [cooldownTimer, setCooldownTimer] = React.useState(otpCooldown);
