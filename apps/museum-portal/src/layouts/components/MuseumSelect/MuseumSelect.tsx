@@ -14,7 +14,7 @@ import {
   DropdownMenuSeparator,
 } from '@musetrip360/ui-core';
 import { MuseTrip360Logo } from '@/assets/svg';
-import { useMuseumStore } from '@musetrip360/museum-management';
+import { Museum, useMuseumStore } from '@musetrip360/museum-management';
 
 const MuseumSelect = () => {
   const { selectedMuseum, userMuseums, setSelectedMuseum } = useMuseumStore();
@@ -44,7 +44,7 @@ const MuseumSelect = () => {
             sideOffset={4}
           >
             <DropdownMenuLabel className="text-muted-foreground text-xs">Bảo tàng</DropdownMenuLabel>
-            {userMuseums.map((museum) => (
+            {userMuseums.map((museum: Museum) => (
               <DropdownMenuItem key={museum.id} onClick={() => setSelectedMuseum(museum)} className="gap-2 p-2">
                 <div className="flex size-6 items-center justify-center rounded-md w-full gap-2">
                   <MuseTrip360Logo className="size-3.5 shrink-0" />
