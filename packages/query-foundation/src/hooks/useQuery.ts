@@ -86,7 +86,7 @@ export function useSearchQuery<TData = unknown>(
   url: string,
   queryKey: QueryKey,
   searchTerm: string,
-  _debounceMs: number = 300, // TODO: Implement debouncing logic
+  debounceMs: number = 300, // TODO: Implement debouncing logic
   minLength: number = 2,
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>
