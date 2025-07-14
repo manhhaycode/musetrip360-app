@@ -38,6 +38,9 @@ export type MuseumSearchResponse = PaginatedResponse<Museum>;
 export interface MuseumStore {
   userMuseums: Museum[];
   museums: Museum[];
+  selectedMuseum: Museum | null;
   setMuseums: (museums: Museum[]) => void;
   setUserMuseums: (museums: Museum[]) => void;
+  setSelectedMuseum: (museum: Museum | null) => void;
+  hydrate: () => Promise<boolean>;
 }

@@ -13,6 +13,7 @@ import { MuseumSearchParams, MuseumSearchResponse, Museum } from '@/types';
 export const museumEndpoints = {
   search: '/api/v1/museums',
   getById: (id: string) => `/api/v1/museums/${id}`,
+  getUserMuseums: '/api/v1/museums/user',
 } as const;
 
 /**
@@ -40,6 +41,17 @@ export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumS
 export const getMuseumById = async (id: string): Promise<Museum> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<{ data: Museum; code: number; message: string }>(museumEndpoints.getById(id));
+  return response.data;
+};
+
+/**
+ * Get User Museums
+ */
+export const getUserMuseums = async (): Promise<Museum[]> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<{ data: Museum[]; code: number; message: string }>(
+    museumEndpoints.getUserMuseums
+  );
   return response.data;
 };
 
