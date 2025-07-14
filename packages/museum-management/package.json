@@ -9,24 +9,24 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.cjs"
     },
     "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
+      "types": "./dist/api.d.ts",
+      "import": "./dist/es/api/index.js"
     },
     "./state": {
-      "types": "./dist/state/index.d.ts",
-      "import": "./dist/state/index.js"
+      "types": "./dist/state.d.ts",
+      "import": "./dist/es/state/index.js"
     },
     "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js"
+      "types": "./dist/ui.d.ts",
+      "import": "./dist/es/ui/index.js"
     },
     "./domain": {
-      "types": "./dist/domain/index.d.ts",
-      "import": "./dist/domain/index.js"
+      "types": "./dist/domain.d.ts",
+      "import": "./dist/es/domain/index.js"
     },
     "./package.json": "./package.json"
   },
