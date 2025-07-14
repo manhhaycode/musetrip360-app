@@ -12,6 +12,3 @@ export * from './types';
 
 // Export schemas and inferred types
 export * from './schemas';
-
-// Re-export example for reference
-export { default as AdminRefactorExample } from './AdminRefactorExample';
