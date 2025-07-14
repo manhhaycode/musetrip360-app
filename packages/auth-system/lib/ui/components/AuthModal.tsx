@@ -22,12 +22,13 @@ export function AuthModal() {
           </DialogTitle>
           <DialogDescription className="text-muted-foreground text-sm text-center">{stepDescription}</DialogDescription>
         </DialogHeader>
-        {/* Conditional rendering based on current step */}
-        {currentStep === 'login' && <LoginForm />}
-        {currentStep === 'register' && <RegisterForm />}
-        {currentStep === 'forgot-password' && <ForgotPasswordForm />}
-        {currentStep === 'reset-password' && <ResetPasswordForm />}
-        <ScrollArea className="-mx-5 py-2 max-h-[calc(95vh-10rem)]"></ScrollArea>
+        <ScrollArea className="-mx-5 py-2 max-h-[calc(95vh-10rem)]">
+          {/* Conditional rendering based on current step */}
+          {currentStep === 'login' && <LoginForm />}
+          {currentStep === 'register' && <RegisterForm />}
+          {currentStep === 'forgot-password' && <ForgotPasswordForm />}
+          {currentStep === 'reset-password' && <ResetPasswordForm />}
+        </ScrollArea>
       </DialogContent>
     </Dialog>
   );

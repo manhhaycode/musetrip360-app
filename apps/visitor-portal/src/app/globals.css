@@ -2,12 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
+@source '../../node_modules/@musetrip360/auth-system/lib';
 @source '../../node_modules/@musetrip360/ui-core';
-@source '../../node_modules/@musetrip360/auth-system';
+@source '../../node_modules/@musetrip360/user-management/lib';
 
 @custom-variant dark (&:is(.dark *));
 
-*{
+* {
   border-color: var(--border);
 }
 

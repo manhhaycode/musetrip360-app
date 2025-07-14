@@ -18,8 +18,14 @@ export default defineConfig({
     dts({
       // Generate TypeScript declarations
       insertTypesEntry: true,
-      include: ['lib/**/*'],
+      include: ['lib/**/*.ts', 'lib/**/*.tsx'],
       exclude: ['lib/**/*.test.*', 'lib/**/*.spec.*'],
+      outDir: 'dist',
+      copyDtsFiles: false,
+      compilerOptions: {
+        preserveSymlinks: false,
+        skipLibCheck: true,
+      },
     }),
   ],
 
@@ -27,7 +33,6 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, './lib/index.ts'),
-        // domain: resolve(__dirname, './lib/domain/index.ts'),
         api: resolve(__dirname, './lib/api/index.ts'),
         types: resolve(__dirname, './lib/types/index.ts'),
         ui: resolve(__dirname, './lib/ui/index.ts'),
@@ -54,14 +59,39 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
         },
         // Preserve module structure for better tree-shaking
-        preserveModules: false,
-        // Clean chunk names
-        chunkFileNames: '[name]-[hash].js',
+        preserveModules: true,
+        preserveModulesRoot: 'lib',
+        // Clean file names that map to original structure
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === 'index') {
+            return '[format]/index.js';
+          }
+          if (chunkInfo.name === 'api') {
+            return '[format]/api/index.js';
+          }
+          if (chunkInfo.name === 'domain') {
+            return '[format]/domain/index.js';
+          }
+          if (chunkInfo.name === 'types') {
+            return '[format]/types/index.js';
+          }
+          if (chunkInfo.name === 'ui') {
+            return '[format]/ui/index.js';
+          }
+          if (chunkInfo.name === 'state') {
+            return '[format]/state/index.js';
+          }
+          if (chunkInfo.name === 'validation') {
+            return '[format]/validation/index.js';
+          }
+          return '[format]/[name].js';
+        },
+        chunkFileNames: '[format]/chunks/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith('.css')) {
             return 'styles.css';
           }
-          return assetInfo.name || 'asset';
+          return 'assets/[name][extname]';
         },
       },
     },
