@@ -29,6 +29,10 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
   museumSearch(params: MuseumSearchParams): QueryKey {
     return [this.prefix, 'museumSearch', params];
   }
+
+  userMuseums(): QueryKey {
+    return [this.prefix, 'userMuseums'];
+  }
 }
 
 /**
