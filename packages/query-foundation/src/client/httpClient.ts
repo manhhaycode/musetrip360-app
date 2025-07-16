@@ -7,7 +7,7 @@ import type {
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
-import { config, getEnvironment } from '@musetrip360/infras';
+import { config, getEnvironment, getEnvVar } from '@musetrip360/infras';
 
 /**
  * Default API client configuration
@@ -30,6 +30,7 @@ export class HTTPClient {
   private client: AxiosInstance;
   private config: APIClientConfig;
   private authToken: string | null = null;
+
   private responseErrorHandlers: ((error: AxiosError) => Promise<any>) | null = null;
 
   constructor(configuration: Partial<APIClientConfig> = {}) {
@@ -38,7 +39,7 @@ export class HTTPClient {
       ...configuration,
     };
     this.config.baseURL = config('API_URL');
-    this.config.enableLogging = getEnvironment() === 'development';
+    this.config.enableLogging = getEnvironment() === 'development' && getEnvVar('LOGGING_REQUEST') === 'true';
     if (!this.config.baseURL) {
       throw new Error('API_URL is not set in the environment variables');
     }
@@ -88,7 +89,7 @@ export class HTTPClient {
   /**
    * Handle outgoing requests
    */
-  private handleRequest(context: RequestInterceptorContext): InternalAxiosRequestConfig {
+  private async handleRequest(context: RequestInterceptorContext): Promise<InternalAxiosRequestConfig> {
     const { config } = context;
 
     // Add authentication token
@@ -153,14 +154,22 @@ export class HTTPClient {
     // Check if we have custom error handlers
     if (this.responseErrorHandlers) {
       try {
-        const responseHandleError = await this.responseErrorHandlers(error);
-        return responseHandleError;
-      } catch (error: any) {
-        return Promise.reject(this.formatError(error));
+        await this.responseErrorHandlers(error);
+        return Promise.reject({
+          ...error,
+          response: {
+            ...error.response,
+            data: {
+              ...(error.response?.data as object),
+              retry: true,
+            },
+          },
+        });
+      } catch (error) {
+        return Promise.reject(this.formatError(error as AxiosError));
       }
     }
-
-    throw this.formatError(error);
+    return Promise.reject(this.formatError(error));
   }
 
   /**
@@ -181,9 +190,9 @@ export class HTTPClient {
   /**
    * Make generic HTTP request
    */
-  public async request<T = any>(config: AxiosRequestConfig): Promise<T> {
+  public async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     const response = await this.client.request<T>(config);
-    return response.data;
+    return response;
   }
 
   /**
@@ -254,35 +263,6 @@ export class HTTPClient {
   }
 
   /**
-   * Check if error should be retried
-   */
-  private shouldRetry(error: AxiosError): boolean {
-    // Don't retry for 4xx errors (except 408, 429)
-    if (error.response?.status && error.response.status >= 400 && error.response.status < 500) {
-      return error.response.status === 408 || error.response.status === 429;
-    }
-
-    // Retry for network errors or 5xx responses
-    return !error.response || error.response.status >= 500;
-  }
-
-  /**
-   * Calculate retry delay with exponential backoff
-   */
-  private calculateRetryDelay(retryCount: number): number {
-    const delay = this.config.retryDelay * Math.pow(2, retryCount - 1);
-    const jitter = Math.random() * 0.1 * delay; // Add 10% jitter
-    return Math.min(delay + jitter, this.config.maxRetryDelay);
-  }
-
-  /**
-   * Delay helper function
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  /**
    * Format error for consistent error handling
    */
   private formatError(error: AxiosError): APIError {
@@ -293,6 +273,7 @@ export class HTTPClient {
       code: responseData?.code || error.code || 'NETWORK_ERROR',
       message: responseData?.message || error.message || 'An unexpected error occurred',
       details: responseData?.details || {},
+      retry: responseData?.retry || false,
       timestamp: new Date().toISOString(),
       path: error.config?.url,
       statusCode: response?.status || 0,

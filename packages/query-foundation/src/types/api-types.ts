@@ -42,6 +42,7 @@ export interface APIError {
   details?: Record<string, any>;
   timestamp: string;
   path?: string;
+  retry?: boolean;
   statusCode: number;
 }
 

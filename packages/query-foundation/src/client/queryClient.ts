@@ -180,10 +180,10 @@ const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
   defaultCacheTime: 10 * 60 * 1000, // 10 minutes
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
   maxQueries: 1000,
-  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  retryOnMount: true,
-  refetchOnMount: true,
-  refetchOnWindowFocus: true,
+  retryDelay: () => 0,
+  retryOnMount: false,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   refetchOnReconnect: true,
 };
 
@@ -271,11 +271,7 @@ export class QueryClientManager {
         staleTime: this.cacheConfig.defaultStaleTime,
         gcTime: this.cacheConfig.defaultCacheTime,
         retry: (failureCount: number, error: any) => {
-          // Don't retry for 4xx errors except specific cases
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return error?.statusCode === 408 || error?.statusCode === 429;
-          }
-          return failureCount < 3;
+          return failureCount < 3 && error.response?.data?.retry;
         },
         retryDelay: this.cacheConfig.retryDelay,
         refetchOnMount: this.cacheConfig.refetchOnMount,
@@ -531,7 +527,7 @@ export class QueryClientManager {
     switch (error.code) {
       case 'UNAUTHORIZED':
         // Clear auth-related queries
-        this.queryClient.removeQueries({ queryKey: ['auth'] });
+        // this.queryClient.removeQueries({ queryKey: ['auth'] });
         break;
       case 'FORBIDDEN':
         // Handle permission errors

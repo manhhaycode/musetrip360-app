@@ -13,6 +13,7 @@ export const useMuseumStore = create<MuseumStore>()(
       immer((set) => ({
         museums: [],
         userMuseums: [],
+        selectedMuseum: null,
 
         setMuseums: (museums) =>
           set((state) => {
@@ -24,13 +25,21 @@ export const useMuseumStore = create<MuseumStore>()(
             state.userMuseums = museums;
           }),
 
+        setSelectedMuseum: (museum) =>
+          set((state) => {
+            state.selectedMuseum = museum;
+          }),
+
         // SSR-safe hydration
-        hydrate: () => {
-          useMuseumStore.persist.rehydrate();
+        hydrate: async () => {
+          await useMuseumStore.persist.rehydrate();
+          return true;
         },
         resetStore: () =>
           set((state) => {
             state.museums = [];
+            state.userMuseums = [];
+            state.selectedMuseum = null;
           }),
       })),
       {
@@ -39,8 +48,9 @@ export const useMuseumStore = create<MuseumStore>()(
         partialize: (state) => ({
           museums: state.museums,
           userMuseums: state.userMuseums,
+          selectedMuseum: state.selectedMuseum,
         }),
-
+        skipHydration: true,
         version: 1,
         onRehydrateStorage: () => {
           return (state, error) => {

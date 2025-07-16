@@ -5,31 +5,31 @@
   "type": "module",
   "main": "./dist/es/index.js",
   "module": "./dist/es/index.js",
-  "types": "./dist/es/index.d.ts",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./dist/types/index.d.ts",
       "import": "./dist/es/index.js",
       "require": "./dist/cjs/index.cjs"
     },
     "./api": {
-      "types": "./dist/api.d.ts",
+      "types": "./dist/types/api.d.ts",
       "import": "./dist/es/api/index.js"
     },
     "./state": {
-      "types": "./dist/state.d.ts",
+      "types": "./dist/types/state.d.ts",
       "import": "./dist/es/state/index.js"
     },
     "./types": {
-      "types": "./dist/types.d.ts",
+      "types": "./dist/types/types.d.ts",
       "import": "./dist/es/types/index.js"
     },
     "./ui": {
-      "types": "./dist/ui.d.ts",
+      "types": "./dist/types/ui.d.ts",
       "import": "./dist/es/ui/index.js"
     },
     "./validation": {
-      "types": "./dist/validation.d.ts",
+      "types": "./dist/types/validation.d.ts",
       "import": "./dist/es/validation/index.js"
     },
     "./package.json": "./package.json"
@@ -56,6 +56,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@musetrip360/auth-system": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",

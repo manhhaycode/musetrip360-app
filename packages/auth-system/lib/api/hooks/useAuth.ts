@@ -5,14 +5,7 @@
  * logout, and token management.
  */
 
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  CustomMutationOptions,
-  APIError,
-  CustomQueryOptions,
-} from '@musetrip360/query-foundation';
+import { useMutation, useQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
 import { AuthEndpoints, authErrorHandler } from '../endpoints/auth';
 import {
   type LoginReq,
