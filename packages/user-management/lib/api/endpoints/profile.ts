@@ -5,7 +5,7 @@
  * Handles current user profile operations and password changes.
  */
 
-import { getHttpClient } from '@musetrip360/query-foundation';
+import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
 import type { UpdateProfileReq, ChangePasswordReq, IUser } from '@/types';
 
 // API Base URLs
@@ -18,15 +18,15 @@ export const profileEndpoints = {
   // GET /api/v1/users/profile - Get current user profile
   getCurrentProfile: async (): Promise<IUser> => {
     const client = getHttpClient();
-    const response = await client.get<IUser>(PROFILE_API_BASE);
-    return response;
+    const response = await client.get<APIResponse<IUser>>(PROFILE_API_BASE);
+    return response.data;
   },
 
   // PUT /api/v1/users/profile - Update current user profile
   updateProfile: async (profileData: UpdateProfileReq): Promise<IUser> => {
     const client = getHttpClient();
-    const response = await client.put<IUser>(PROFILE_API_BASE, profileData);
-    return response;
+    const response = await client.put<APIResponse<IUser>>(PROFILE_API_BASE, profileData);
+    return response.data;
   },
 
   // PUT /api/v1/users/profile/change-password - Change user password
@@ -38,8 +38,8 @@ export const profileEndpoints = {
   // GET /api/v1/users/privileges - Get current user privileges
   getCurrentUserPrivileges: async (): Promise<any> => {
     const client = getHttpClient();
-    const response = await client.get<any>('/users/privileges');
-    return response;
+    const response = await client.get<APIResponse<any>>('/users/privileges');
+    return response.data;
   },
 } as const;
 

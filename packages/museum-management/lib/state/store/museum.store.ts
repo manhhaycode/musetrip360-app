@@ -50,7 +50,7 @@ export const useMuseumStore = create<MuseumStore>()(
           userMuseums: state.userMuseums,
           selectedMuseum: state.selectedMuseum,
         }),
-
+        skipHydration: true,
         version: 1,
         onRehydrateStorage: () => {
           return (state, error) => {

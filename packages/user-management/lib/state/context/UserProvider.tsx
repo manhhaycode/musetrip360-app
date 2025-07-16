@@ -5,15 +5,11 @@ import { useUserStore } from '../store/user.store';
 import { IUser } from '@/types';
 import { getQueryClient } from '@musetrip360/query-foundation';
 import { userCacheKeys } from '@/api/cache/cacheKeys';
+import { useIsAuthenticated } from '@musetrip360/auth-system/state';
 
-export const UserProvider = ({
-  children,
-  isAuthenticated,
-}: {
-  children: React.ReactNode;
-  isAuthenticated: boolean;
-}) => {
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [isHydrated, setIsHydrated] = useState(false);
+  const isAuthenticated = useIsAuthenticated();
   const { data: user } = useCurrentProfile({
     enabled: isHydrated && isAuthenticated,
   });
@@ -26,13 +22,13 @@ export const UserProvider = ({
     hydrate();
   }, []);
 
-  useEffect(() => {
-    if (!isAuthenticated && isHydrated) {
-      getQueryClient().removeQueries({ queryKey: userCacheKeys.profile() });
-      useUserStore.getState().resetStore();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  // useEffect(() => {
+  //   if (!isAuthenticated && isHydrated) {
+  //     getQueryClient().removeQueries({ queryKey: userCacheKeys.profile() });
+  //     useUserStore.getState().resetStore();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isAuthenticated]);
 
   useEffect(() => {
     if (user) {

@@ -4,7 +4,7 @@
  * API endpoints for museum search operations.
  */
 
-import { getHttpClient } from '@musetrip360/query-foundation';
+import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
 import { MuseumSearchParams, MuseumSearchResponse, Museum } from '@/types';
 
 /**
@@ -49,9 +49,7 @@ export const getMuseumById = async (id: string): Promise<Museum> => {
  */
 export const getUserMuseums = async (): Promise<Museum[]> => {
   const httpClient = getHttpClient();
-  const response = await httpClient.get<{ data: Museum[]; code: number; message: string }>(
-    museumEndpoints.getUserMuseums
-  );
+  const response = await httpClient.get<APIResponse<Museum[]>>(museumEndpoints.getUserMuseums);
   return response.data;
 };
 

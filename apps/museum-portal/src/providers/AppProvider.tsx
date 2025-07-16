@@ -8,7 +8,7 @@ export default function AppProvider({ children }: { children: React.ReactNode })
   return (
     <QueryClientProvider client={getQueryClient()}>
       <AuthProvider>
-        <UserProvider isAuthenticated={isAuthenticated}>
+        <UserProvider>
           <MuseumProvider>{children}</MuseumProvider>
         </UserProvider>
       </AuthProvider>

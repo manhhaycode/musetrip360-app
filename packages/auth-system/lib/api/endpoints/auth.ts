@@ -5,45 +5,65 @@ import { type HTTPClient, getHttpClient } from '@musetrip360/query-foundation';
 
 export class AuthEndpoints {
   private static httpClient: HTTPClient;
+  private static isRefreshing: boolean = false;
+
+  private static refreshTokenPromise: Promise<any> | null = null;
 
   static getHttpClient(): HTTPClient {
     if (!this.httpClient) {
       this.httpClient = getHttpClient();
-      this.httpClient.setErrorHandlers(this.authResponseErrorHandler);
+      this.httpClient.setErrorHandlers((error) => this.authResponseErrorHandler(error));
     }
     return this.httpClient;
   }
 
   static async authResponseErrorHandler(error: AxiosError): Promise<any> {
-    const originalRequest = error.config;
     // Handle token refresh for 401 errors
     if (error.response?.status === 401) {
-      const authStore = useAuthStore.getState();
-      if (
-        !authStore.refreshToken ||
-        !authStore.refreshToken.token ||
-        new Date().getTime() > authStore.refreshToken.expiresAt ||
-        !authStore.userId
-      ) {
-        authStore.resetStore();
-        return Promise.reject(error);
-      }
-      try {
-        const res = await this.refreshToken({
-          refreshToken: authStore.refreshToken.token,
-          userId: authStore.userId,
-        });
-        if ('accessToken' in res.data && 'refreshToken' in res.data) {
-          authStore.setAccessToken({
-            token: res.data.accessToken,
-            expiresAt: res.data.accessTokenExpAt,
-            type: 'access',
-          });
+      const handleRefreshToken = async () => {
+        const authStore = useAuthStore.getState();
+        if (
+          !authStore.refreshToken ||
+          !authStore.refreshToken.token ||
+          new Date().getTime() > authStore.refreshToken.expiresAt ||
+          !authStore.userId
+        ) {
+          authStore.resetStore();
+          return Promise.reject(error);
         }
-        return await this.httpClient.request(originalRequest!);
-      } catch (error) {
-        authStore.resetStore();
-        return Promise.reject(error);
+        try {
+          const res = await this.refreshToken({
+            refreshToken: authStore.refreshToken.token,
+            userId: authStore.userId,
+          });
+          if ('accessToken' in res.data) {
+            authStore.setAccessToken({
+              token: res.data.accessToken,
+              expiresAt: res.data.accessTokenExpAt * 1000,
+              type: 'access',
+            });
+          }
+          return Promise.resolve();
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      };
+
+      if (!this.isRefreshing) {
+        try {
+          this.refreshTokenPromise = new Promise((resolve, reject) => {
+            handleRefreshToken().then(resolve).catch(reject);
+          });
+          await this.refreshTokenPromise;
+          return Promise.resolve();
+        } catch (error) {
+          useAuthStore.getState().resetStore();
+          return Promise.reject(error);
+        } finally {
+          this.isRefreshing = false;
+        }
+      } else {
+        return this.refreshTokenPromise;
       }
     }
     return Promise.reject(error);
@@ -66,7 +86,15 @@ export class AuthEndpoints {
 
   // Token refresh endpoint
   static async refreshToken(data: RefreshReq): Promise<LoginResponse> {
-    return this.httpClient.post<LoginResponse>('/auth/refresh', data);
+    try {
+      this.isRefreshing = true;
+      const res = await this.httpClient.post<LoginResponse>('/auth/refresh', data);
+      return res;
+    } catch (error) {
+      return Promise.reject(error);
+    } finally {
+      this.isRefreshing = false;
+    }
   }
 
   // Logout endpoint
