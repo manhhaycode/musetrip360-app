@@ -1,14 +1,21 @@
-import { QueryClient, DefaultOptions, QueryCache, MutationCache } from '@tanstack/react-query';
-import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { DefaultOptions, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
 import { openDB, type IDBPDatabase } from 'idb';
 import type {
-  QueryCacheConfig,
-  OfflineQueryConfig,
-  BackgroundSyncConfig,
-  SyncStatus,
   APIError,
+  BackgroundSyncConfig,
+  OfflineQueryConfig,
+  QueryCacheConfig,
+  SyncStatus,
 } from '../types/query-types';
+
+// Define global window object for TypeScript to using devtools
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import('@tanstack/query-core').QueryClient;
+  }
+}
 
 /**
  * IndexedDB storage implementation for query cache persistence
@@ -173,10 +180,10 @@ const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
   defaultCacheTime: 10 * 60 * 1000, // 10 minutes
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
   maxQueries: 1000,
-  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  retryOnMount: true,
-  refetchOnMount: true,
-  refetchOnWindowFocus: true,
+  retryDelay: () => 0,
+  retryOnMount: false,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   refetchOnReconnect: true,
 };
 
@@ -264,27 +271,12 @@ export class QueryClientManager {
         staleTime: this.cacheConfig.defaultStaleTime,
         gcTime: this.cacheConfig.defaultCacheTime,
         retry: (failureCount: number, error: any) => {
-          // Don't retry for 4xx errors except specific cases
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return error?.statusCode === 408 || error?.statusCode === 429;
-          }
-          return failureCount < 3;
+          return failureCount < 3 && error.response?.data?.retry;
         },
         retryDelay: this.cacheConfig.retryDelay,
         refetchOnMount: this.cacheConfig.refetchOnMount,
         refetchOnWindowFocus: this.cacheConfig.refetchOnWindowFocus,
         refetchOnReconnect: this.cacheConfig.refetchOnReconnect,
-        networkMode: 'offlineFirst',
-      },
-      mutations: {
-        retry: (failureCount: number, error: any) => {
-          // Only retry mutations for network errors or 5xx
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return false;
-          }
-          return failureCount < 2;
-        },
-        networkMode: 'offlineFirst',
       },
     };
 
@@ -535,7 +527,7 @@ export class QueryClientManager {
     switch (error.code) {
       case 'UNAUTHORIZED':
         // Clear auth-related queries
-        this.queryClient.removeQueries({ queryKey: ['auth'] });
+        // this.queryClient.removeQueries({ queryKey: ['auth'] });
         break;
       case 'FORBIDDEN':
         // Handle permission errors
@@ -733,7 +725,11 @@ export function getQueryClient(
   offlineConfig?: Partial<OfflineQueryConfig>,
   backgroundSyncConfig?: Partial<BackgroundSyncConfig>
 ): QueryClient {
-  return getQueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig).getQueryClient();
+  const queryClient = getQueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig).getQueryClient();
+  if (typeof window !== 'undefined' && !window.__TANSTACK_QUERY_CLIENT__) {
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+  }
+  return queryClient;
 }
 
 /**

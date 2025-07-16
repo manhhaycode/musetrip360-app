@@ -8,18 +8,30 @@ export interface APIResponse<T> {
 }
 
 /**
+ * Pagination information
+ */
+export interface Pagination extends Partial<SearchRequest> {
+  Page: number;
+  PageSize: number;
+}
+
+export interface SearchRequest {
+  Id: string;
+  Name: string;
+  Title: string;
+  Type: string;
+  Thumbnail: string;
+  Description: string;
+  Status: string;
+}
+
+/**
  * Paginated API response
  */
-export interface PaginatedResponse<T> extends APIResponse<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
+export type PaginatedResponse<T> = APIResponse<{
+  list: T[];
+  total: number;
+}>;
 
 /**
  * API error response structure
@@ -30,6 +42,7 @@ export interface APIError {
   details?: Record<string, any>;
   timestamp: string;
   path?: string;
+  retry?: boolean;
   statusCode: number;
 }
 
@@ -60,16 +73,6 @@ export interface APIEndpoint {
 }
 
 /**
- * Authentication token
- */
-export interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  tokenType: 'Bearer';
-}
-
-/**
  * API client configuration
  */
 export interface APIClientConfig {
@@ -90,7 +93,6 @@ export interface APIClientConfig {
  */
 export interface RequestInterceptorContext {
   config: any;
-  token?: AuthToken;
   isRetry?: boolean;
   retryCount?: number;
 }

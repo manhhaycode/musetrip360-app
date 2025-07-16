@@ -177,19 +177,23 @@ export function resetEnv(): void {
  * Get current environment
  */
 export function getEnvironment(): Environment {
-  const nodeEnv = getEnvVar('NODE_ENV')?.toLowerCase();
-
-  switch (nodeEnv) {
-    case 'production':
-      return 'production';
-    case 'staging':
-      return 'staging';
-    case 'test':
-    case 'testing':
-      return 'testing';
-    default:
+  const envManager = EnvManager.getInstance();
+  const framework = envManager.getFramework();
+  if (framework === 'node') {
+    const nodeEnv = process.env.NODE_ENV?.toLowerCase();
+    if (!nodeEnv) {
       return 'development';
+    }
+    return nodeEnv as Environment;
+  } else if (framework === 'vite') {
+    const viteEnv = getEnvVar('MODE', 'vite');
+    if (!viteEnv) {
+      return 'development';
+    }
+    return viteEnv as Environment;
   }
+
+  return 'development';
 }
 
 /**

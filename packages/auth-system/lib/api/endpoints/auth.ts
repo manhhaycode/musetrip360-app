@@ -1,103 +1,135 @@
-import {
-  LoginReq,
-  RegisterReq,
-  RefreshReq,
-  LoginResponse,
-  TokenVerificationResponse,
-  VerifyOTPChangePassword,
-} from '@/types';
-import { getHttpClient, type HTTPClient, type AuthToken } from '@musetrip360/query-foundation';
+import { useAuthStore } from '@/state';
+import { AxiosError } from 'axios';
+import { LoginReq, RegisterReq, RefreshReq, LoginResponse, VerifyOTPChangePassword, LoginWithGoogleReq } from '@/types';
+import { type HTTPClient, getHttpClient } from '@musetrip360/query-foundation';
 
 export class AuthEndpoints {
-  private httpClient: HTTPClient;
+  private static httpClient: HTTPClient;
+  private static isRefreshing: boolean = false;
 
-  constructor() {
-    this.httpClient = getHttpClient();
+  private static refreshTokenPromise: Promise<any> | null = null;
+
+  static getHttpClient(): HTTPClient {
+    if (!this.httpClient) {
+      this.httpClient = getHttpClient();
+      this.httpClient.setErrorHandlers((error) => this.authResponseErrorHandler(error));
+    }
+    return this.httpClient;
+  }
+
+  static async authResponseErrorHandler(error: AxiosError): Promise<any> {
+    // Handle token refresh for 401 errors
+    if (error.response?.status === 401) {
+      const handleRefreshToken = async () => {
+        const authStore = useAuthStore.getState();
+        if (
+          !authStore.refreshToken ||
+          !authStore.refreshToken.token ||
+          new Date().getTime() > authStore.refreshToken.expiresAt ||
+          !authStore.userId
+        ) {
+          authStore.resetStore();
+          return Promise.reject(error);
+        }
+        try {
+          const res = await this.refreshToken({
+            refreshToken: authStore.refreshToken.token,
+            userId: authStore.userId,
+          });
+          if ('accessToken' in res.data) {
+            authStore.setAccessToken({
+              token: res.data.accessToken,
+              expiresAt: res.data.accessTokenExpAt * 1000,
+              type: 'access',
+            });
+          }
+          return Promise.resolve();
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      };
+
+      if (!this.isRefreshing) {
+        try {
+          this.refreshTokenPromise = new Promise((resolve, reject) => {
+            handleRefreshToken().then(resolve).catch(reject);
+          });
+          await this.refreshTokenPromise;
+          return Promise.resolve();
+        } catch (error) {
+          useAuthStore.getState().resetStore();
+          return Promise.reject(error);
+        } finally {
+          this.isRefreshing = false;
+        }
+      } else {
+        return this.refreshTokenPromise;
+      }
+    }
+    return Promise.reject(error);
   }
 
   // Register endpoint
-  async register(data: RegisterReq): Promise<LoginResponse> {
+  static async register(data: RegisterReq): Promise<LoginResponse> {
     return this.httpClient.post<LoginResponse>('/auth/register', data);
   }
 
   // Login endpoint
-  async login(data: LoginReq): Promise<LoginResponse> {
+  static async login(data: LoginReq): Promise<LoginResponse> {
     return this.httpClient.post<LoginResponse>('/auth/login', data);
   }
 
+  // Login with Google endpoint
+  static async loginWithGoogle(data: LoginWithGoogleReq): Promise<LoginResponse> {
+    return this.httpClient.get<LoginResponse>('/auth/google/login', { params: data });
+  }
+
   // Token refresh endpoint
-  async refreshToken(data: RefreshReq): Promise<LoginResponse> {
-    return this.httpClient.post<LoginResponse>('/auth/refresh', data);
+  static async refreshToken(data: RefreshReq): Promise<LoginResponse> {
+    try {
+      this.isRefreshing = true;
+      const res = await this.httpClient.post<LoginResponse>('/auth/refresh', data);
+      return res;
+    } catch (error) {
+      return Promise.reject(error);
+    } finally {
+      this.isRefreshing = false;
+    }
   }
 
   // Logout endpoint
-  async logout(): Promise<{ message: string }> {
+  static async logout(): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/logout');
   }
 
   // Verify token endpoint
-  async verifyToken(token?: string): Promise<TokenVerificationResponse> {
-    return this.httpClient.post<TokenVerificationResponse>('/auth/verify-token', { token });
-  }
-
-  // Get current user endpoint
-  async getCurrentUser(): Promise<any> {
-    return this.httpClient.get<any>('/auth/me');
+  static async verifyToken(token?: string): Promise<any> {
+    return this.httpClient.get<any>('/auth/verify-token', { params: { token } });
   }
 
   // Request OTP for password reset
-  async requestOTP(email: string): Promise<{ message: string }> {
+  static async requestOTP(email: string): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/forgot-password/request', { email });
   }
 
   // Verify OTP and change password
-  async verifyOTPChangePassword(data: VerifyOTPChangePassword): Promise<{ message: string }> {
+  static async verifyOTPChangePassword(data: VerifyOTPChangePassword): Promise<{ message: string }> {
     return this.httpClient.post<{ message: string }>('/auth/forgot-password/verify', data);
   }
 
   // Set authentication token for future requests
-  setAuthToken(accessToken: string, refreshToken: string, expiresAt: number): void {
-    const authToken: AuthToken = {
-      accessToken,
-      refreshToken,
-      expiresAt,
-      tokenType: 'Bearer',
-    };
-    this.httpClient.setAuth(authToken);
+  static setAuthToken(token: string): void {
+    this.httpClient.setAuth(token);
   }
 
   // Clear authentication token
-  clearAuthToken(): void {
+  static clearAuthToken(): void {
     this.httpClient.clearAuth();
   }
 }
 
-// Lazy initialization - only create instance when first accessed
-let _authEndpointsInstance: AuthEndpoints | null = null;
-
-/**
- * Get the singleton AuthEndpoints instance
- * Uses lazy initialization to avoid creating the instance at module load time
- */
-export function getAuthEndpoints(): AuthEndpoints {
-  if (!_authEndpointsInstance) {
-    _authEndpointsInstance = new AuthEndpoints();
-  }
-  return _authEndpointsInstance;
-}
-
-/**
- * Reset the singleton instance (useful for testing)
- */
-export function resetAuthEndpoints(): void {
-  _authEndpointsInstance = null;
-}
-
-// For backward compatibility, you can also export this
-export const authEndpoints = {
-  get instance() {
-    return getAuthEndpoints();
-  },
+export const initAuthEndpoints = () => {
+  AuthEndpoints.getHttpClient();
 };
 
 /**

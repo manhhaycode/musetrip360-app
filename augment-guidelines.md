@@ -13,7 +13,6 @@ These guidelines instruct Augment Chat to consistently follow the MuseTrip360 MD
 ## Technology Stack Compliance
 
 1. **Backend Development**:
-
    - Always use ASP.NET Core 8 for backend solutions
    - Ensure all APIs follow RESTful principles
    - Implement JWT for authentication and authorization
@@ -21,7 +20,6 @@ These guidelines instruct Augment Chat to consistently follow the MuseTrip360 MD
    - Include robust error handling in all backend code
 
 2. **Frontend Development**:
-
    - Use ReactJS/NextJS for web frontend development
    - Implement Redux or Context API for state management
    - Use Three.js for 3D content and immersive experiences
@@ -29,13 +27,11 @@ These guidelines instruct Augment Chat to consistently follow the MuseTrip360 MD
    - Support both Vietnamese and English languages
 
 3. **Mobile Development**:
-
    - Use React Native for mobile application development
    - Maintain consistency with the web application
    - Consider offline capabilities where appropriate
 
 4. **Database Usage**:
-
    - Use PostgreSQL for relational data
    - Implement Redis for caching
    - Utilize vector databases (Qdrant, pgvector, MongoDB) for advanced queries
@@ -49,19 +45,16 @@ These guidelines instruct Augment Chat to consistently follow the MuseTrip360 MD
 ## Code Quality Standards
 
 1. **Naming Conventions**:
-
    - Use meaningful, descriptive names for variables, functions, and classes
    - Follow consistent casing conventions (camelCase for JavaScript/TypeScript, PascalCase for C#)
    - Use domain-specific terminology from the museum context
 
 2. **Documentation**:
-
    - Include comments explaining complex logic
    - Document all public APIs and interfaces
    - Provide usage examples for reusable components
 
 3. **Error Handling**:
-
    - Implement comprehensive error handling
    - Log errors with appropriate context
    - Provide user-friendly error messages
@@ -74,19 +67,16 @@ These guidelines instruct Augment Chat to consistently follow the MuseTrip360 MD
 ## Feature Implementation Guidelines
 
 1. **User Roles and Permissions**:
-
    - Implement Role-Based Access Control (RBAC)
    - Support different user roles (Visitor, Museum Manager, Staff, Event Organizer, Admin)
    - Ensure features respect role-specific permissions
 
 2. **Exhibition Management**:
-
    - Support creation and management of digital exhibitions
    - Enable uploading and management of multimedia content (images, videos, 3D models)
    - Implement metadata management for exhibitions
 
 3. **Ticket Booking**:
-
    - Support selection of exhibitions or events
    - Enable date and time selection
    - Implement secure payment processing
@@ -112,13 +102,11 @@ Before providing final code or recommendations, validate against these criteria:
 When providing assistance for common scenarios, reference these examples:
 
 1. **Creating a New Exhibition**:
-
    - Generate code following the exhibition entity structure
    - Include support for multimedia uploads
    - Implement exhibition metadata management
 
 2. **Booking a Ticket**:
-
    - Follow the complete ticket booking flow
    - Include exhibition/event selection, date/time choice, and payment processing
 

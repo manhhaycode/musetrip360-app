@@ -8,7 +8,7 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/assets/svg/index.js"],
   "exclude": [
     "node_modules",
     "dist",

@@ -3,30 +3,26 @@
   "version": "0.1.0",
   "description": "A comprehensive authentication system package for the MuseTrip360 system with domain logic, API integration, state management, and UI components",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/es/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.cjs"
     },
     "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
+      "types": "./dist/types/api.d.ts",
+      "import": "./dist/es/api/index.js"
     },
     "./state": {
-      "types": "./dist/state/index.d.ts",
-      "import": "./dist/state/index.js"
+      "types": "./dist/types/state.d.ts",
+      "import": "./dist/es/state/index.js"
     },
     "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js"
-    },
-    "./domain": {
-      "types": "./dist/domain/index.d.ts",
-      "import": "./dist/domain/index.js"
+      "types": "./dist/types/ui.d.ts",
+      "import": "./dist/es/ui/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -37,7 +33,7 @@
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
     "build:watch": "vite build --watch",
-    "dev": "vite",
+    "dev": "vite build --watch --emptyOutDir=false && tsc --emitDeclarationOnly --declaration --outDir dist",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
@@ -55,10 +51,12 @@
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
-    "@musetrip360/user-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.81.5",
+    "js-cookie": "^3.0.5",
+    "lucide-react": "^0.525.0",
     "react-hook-form": "^7.58.1",
+    "react-icons": "^5.5.0",
     "tailwindcss": "^4",
     "zod": "^3.25.67",
     "zustand": "^5.0.6"
@@ -67,6 +65,7 @@
     "@eslint/eslintrc": "^3",
     "@musetrip360/eslint-config": "workspace:*",
     "@musetrip360/tsconfig": "workspace:*",
+    "@types/js-cookie": "^3.0.6",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react-swc": "^3.9.0",

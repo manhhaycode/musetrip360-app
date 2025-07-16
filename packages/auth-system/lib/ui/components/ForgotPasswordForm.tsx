@@ -17,38 +17,20 @@ import {
 import { Input } from '@musetrip360/ui-core/input';
 
 import { forgotPasswordSchema, type ForgotPasswordFormData } from '../../validation';
+import { useAuthActionContext } from '@/state/context/auth-action/auth-action.context';
 
-export interface ForgotPasswordFormProps {
-  onSubmit: (data: ForgotPasswordFormData) => void;
-  isLoading?: boolean;
-  error?: string | null;
-  successMessage?: string | null;
-  onBackToLogin?: () => void;
-  onOTPSent?: (email: string) => void;
-  defaultValues?: Partial<ForgotPasswordFormData>;
-}
-
-export function ForgotPasswordForm({
-  onSubmit,
-  isLoading = false,
-  error,
-  successMessage,
-  onBackToLogin,
-  onOTPSent,
-  defaultValues,
-}: ForgotPasswordFormProps) {
+export function ForgotPasswordForm() {
+  const { onSubmit, isLoading, error, successMessage, setCurrentStep } = useAuthActionContext();
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: '',
-      ...defaultValues,
     },
   });
 
   const handleSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      await onSubmit(data);
-      onOTPSent?.(data.email);
+      onSubmit(data.email);
     } catch (error) {
       console.error('Forgot password submission error:', error);
     }
@@ -105,21 +87,19 @@ export function ForgotPasswordForm({
       </Form>
 
       {/* Back to Login */}
-      {onBackToLogin && (
-        <div className="flex items-center justify-center">
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onBackToLogin}
-            disabled={isLoading}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Quay lại đăng nhập
-          </Button>
-        </div>
-      )}
+      <div className="flex items-center justify-center">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={setCurrentStep.bind(null, 'login')}
+          disabled={isLoading}
+          className="gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Quay lại đăng nhập
+        </Button>
+      </div>
 
       {/* Instructions */}
       <div className="rounded-md bg-muted/50 p-4 text-sm text-muted-foreground">
