@@ -4,7 +4,7 @@ import type { CacheKeyFactory } from '../types/query-types';
 /**
  * Base cache key factory implementation
  */
-abstract class BaseCacheKeyFactory implements CacheKeyFactory {
+export abstract class BaseCacheKeyFactory implements CacheKeyFactory {
   protected prefix: string;
 
   constructor(prefix: string) {
@@ -117,40 +117,6 @@ export class EventCacheKeys extends BaseCacheKeyFactory {
 
   calendar(year: number, month: number): QueryKey {
     return [this.prefix, 'calendar', year, month];
-  }
-}
-
-/**
- * User cache keys
- */
-export class UserCacheKeys extends BaseCacheKeyFactory {
-  constructor() {
-    super('users');
-  }
-
-  // User-specific keys
-  profile(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'profile', userId] : [this.prefix, 'profile'];
-  }
-
-  favorites(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'favorites', userId] : [this.prefix, 'favorites'];
-  }
-
-  bookings(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'bookings', userId] : [this.prefix, 'bookings'];
-  }
-
-  tickets(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'tickets', userId] : [this.prefix, 'tickets'];
-  }
-
-  preferences(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'preferences', userId] : [this.prefix, 'preferences'];
-  }
-
-  history(userId?: string | number): QueryKey {
-    return userId ? [this.prefix, 'history', userId] : [this.prefix, 'history'];
   }
 }
 
@@ -288,26 +254,6 @@ export class SearchCacheKeys extends BaseCacheKeyFactory {
   popularSearches(): QueryKey {
     return [this.prefix, 'popular'];
   }
-}
-
-/**
- * Centralized cache key instances
- */
-export const cacheKeys = {
-  museums: new MuseumCacheKeys(),
-  events: new EventCacheKeys(),
-  users: new UserCacheKeys(),
-  auth: new AuthCacheKeys(),
-  artifacts: new ArtifactCacheKeys(),
-  virtualTours: new VirtualTourCacheKeys(),
-  search: new SearchCacheKeys(),
-} as const;
-
-/**
- * Utility function to get all cache keys for invalidation
- */
-export function getAllCacheKeys(): QueryKey[] {
-  return Object.values(cacheKeys).map((factory) => factory.all);
 }
 
 /**

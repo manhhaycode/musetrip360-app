@@ -16,10 +16,6 @@
     "tsconfig.react.json",
     "tsconfig.vite.json"
   ],
-  "scripts": {
-    "build": "echo 'No build step required for config package'",
-    "clean": "rm -rf node_modules"
-  },
   "publishConfig": {
     "access": "public"
   }

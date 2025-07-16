@@ -1,13 +1,176 @@
-import { QueryClient, DefaultOptions, QueryCache, MutationCache } from '@tanstack/react-query';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { DefaultOptions, MutationCache, QueryCache, QueryClient } from '@tanstack/react-query';
 import { persistQueryClient } from '@tanstack/react-query-persist-client';
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
+import { openDB, type IDBPDatabase } from 'idb';
 import type {
-  QueryCacheConfig,
-  OfflineQueryConfig,
-  BackgroundSyncConfig,
-  SyncStatus,
   APIError,
+  BackgroundSyncConfig,
+  OfflineQueryConfig,
+  QueryCacheConfig,
+  SyncStatus,
 } from '../types/query-types';
+
+// Define global window object for TypeScript to using devtools
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import('@tanstack/query-core').QueryClient;
+  }
+}
+
+/**
+ * IndexedDB storage implementation for query cache persistence
+ */
+class IndexedDBStorage {
+  private dbName = 'musetrip360-query-cache';
+  private storeName = 'cache';
+  private version = 1;
+  private db: IDBPDatabase | null = null;
+
+  async init(): Promise<void> {
+    if (typeof window === 'undefined') return; // SSR safety
+
+    try {
+      this.db = await openDB(this.dbName, this.version, {
+        upgrade(db) {
+          if (!db.objectStoreNames.contains('cache')) {
+            const store = db.createObjectStore('cache');
+            store.createIndex('timestamp', 'timestamp');
+          }
+        },
+      });
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to initialize, falling back to memory storage:', error);
+    }
+  }
+
+  async getItem(key: string): Promise<string | null> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return null;
+    }
+
+    try {
+      const result = await this.db.get(this.storeName, key);
+      return result?.value || null;
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to get item:', error);
+      return null;
+    }
+  }
+
+  async setItem(key: string, value: string): Promise<void> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return;
+    }
+
+    try {
+      await this.db.put(
+        this.storeName,
+        {
+          key,
+          value,
+          timestamp: Date.now(),
+        },
+        key
+      );
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to set item:', error);
+    }
+  }
+
+  async removeItem(key: string): Promise<void> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return;
+    }
+
+    try {
+      await this.db.delete(this.storeName, key);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to remove item:', error);
+    }
+  }
+
+  async clear(): Promise<void> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return;
+    }
+
+    try {
+      await this.db.clear(this.storeName);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to clear storage:', error);
+    }
+  }
+
+  async getAllKeys(): Promise<string[]> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return [];
+    }
+
+    try {
+      return (await this.db.getAllKeys(this.storeName)) as string[];
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to get all keys:', error);
+      return [];
+    }
+  }
+
+  async size(): Promise<number> {
+    if (!this.db) {
+      await this.init();
+      if (!this.db) return 0;
+    }
+
+    try {
+      return await this.db.count(this.storeName);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to get size:', error);
+      return 0;
+    }
+  }
+
+  async getStorageUsage(): Promise<number> {
+    if (!this.db) return 0;
+
+    try {
+      // Estimate storage usage by getting all values and calculating their size
+      const allData = await this.db.getAll(this.storeName);
+      return allData.reduce((total, item) => {
+        return total + new Blob([JSON.stringify(item.value)]).size;
+      }, 0);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to calculate storage usage:', error);
+      return 0;
+    }
+  }
+
+  async cleanup(maxAge: number): Promise<void> {
+    if (!this.db) return;
+
+    try {
+      const cutoffTime = Date.now() - maxAge;
+      const tx = this.db.transaction(this.storeName, 'readwrite');
+      const store = tx.objectStore(this.storeName);
+      const index = store.index('timestamp');
+
+      // Get all keys with timestamp older than cutoff
+      const range = IDBKeyRange.upperBound(cutoffTime);
+      const oldKeys = await index.getAllKeys(range);
+
+      // Delete old entries
+      await Promise.all(oldKeys.map((key) => store.delete(key)));
+      await tx.done;
+
+      console.log(`[IndexedDB] Cleaned up ${oldKeys.length} expired entries`);
+    } catch (error) {
+      console.warn('[IndexedDB] Failed to cleanup old entries:', error);
+    }
+  }
+}
 
 /**
  * Default query cache configuration
@@ -17,10 +180,10 @@ const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
   defaultCacheTime: 10 * 60 * 1000, // 10 minutes
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
   maxQueries: 1000,
-  retryDelay: (attemptIndex: number) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  retryOnMount: true,
-  refetchOnMount: true,
-  refetchOnWindowFocus: true,
+  retryDelay: () => 0,
+  retryOnMount: false,
+  refetchOnMount: false,
+  refetchOnWindowFocus: false,
   refetchOnReconnect: true,
 };
 
@@ -28,7 +191,7 @@ const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
  * Default offline configuration
  */
 const DEFAULT_OFFLINE_CONFIG: OfflineQueryConfig = {
-  enabled: true,
+  enabled: false,
   storageQuota: 50 * 1024 * 1024, // 50MB
   maxOfflineQueries: 100,
   syncOnReconnect: true,
@@ -54,7 +217,8 @@ const DEFAULT_BACKGROUND_SYNC_CONFIG: BackgroundSyncConfig = {
 export class QueryClientManager {
   private queryClient: QueryClient;
   private persister: any;
-  private isOnline: boolean = navigator.onLine;
+  private indexedDBStorage: IndexedDBStorage;
+  private isOnline: boolean = typeof window !== 'undefined' ? navigator.onLine : true;
   private syncStatus: SyncStatus = 'idle';
   private syncTimer: NodeJS.Timeout | null = null;
   private cacheConfig: QueryCacheConfig;
@@ -77,6 +241,7 @@ export class QueryClientManager {
     this.cacheConfig = { ...DEFAULT_QUERY_CACHE_CONFIG, ...cacheConfig };
     this.offlineConfig = { ...DEFAULT_OFFLINE_CONFIG, ...offlineConfig };
     this.backgroundSyncConfig = { ...DEFAULT_BACKGROUND_SYNC_CONFIG, ...backgroundSyncConfig };
+    this.indexedDBStorage = new IndexedDBStorage();
 
     this.queryClient = this.createQueryClient();
     this.setupPersistence();
@@ -106,27 +271,12 @@ export class QueryClientManager {
         staleTime: this.cacheConfig.defaultStaleTime,
         gcTime: this.cacheConfig.defaultCacheTime,
         retry: (failureCount: number, error: any) => {
-          // Don't retry for 4xx errors except specific cases
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return error?.statusCode === 408 || error?.statusCode === 429;
-          }
-          return failureCount < 3;
+          return failureCount < 3 && error.response?.data?.retry;
         },
         retryDelay: this.cacheConfig.retryDelay,
         refetchOnMount: this.cacheConfig.refetchOnMount,
         refetchOnWindowFocus: this.cacheConfig.refetchOnWindowFocus,
         refetchOnReconnect: this.cacheConfig.refetchOnReconnect,
-        networkMode: 'offlineFirst',
-      },
-      mutations: {
-        retry: (failureCount: number, error: any) => {
-          // Only retry mutations for network errors or 5xx
-          if (error?.statusCode >= 400 && error?.statusCode < 500) {
-            return false;
-          }
-          return failureCount < 2;
-        },
-        networkMode: 'offlineFirst',
       },
     };
 
@@ -167,18 +317,22 @@ export class QueryClientManager {
   }
 
   /**
-   * Setup offline persistence
+   * Setup offline persistence using IndexedDB
    */
   private async setupPersistence(): Promise<void> {
-    if (!this.offlineConfig.enabled) return;
+    if (!this.offlineConfig.enabled || typeof window === 'undefined') return;
 
     try {
-      // Create storage persister with IDB for better storage capacity
-      this.persister = createSyncStoragePersister({
-        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      // Initialize IndexedDB storage
+      await this.indexedDBStorage.init();
+
+      // Create async storage persister with IndexedDB
+      this.persister = createAsyncStoragePersister({
+        storage: this.indexedDBStorage,
+        key: 'musetrip360-query-cache',
         serialize: JSON.stringify,
         deserialize: JSON.parse,
-        key: 'musetrip360-query-cache',
+        throttleTime: 1000, // Throttle writes to 1 second
       });
 
       await persistQueryClient({
@@ -189,10 +343,87 @@ export class QueryClientManager {
         hydrateOptions: undefined,
       });
 
-      console.log('[Query Foundation] Persistence setup complete');
+      // Setup periodic cleanup
+      this.setupPeriodicCleanup();
+
+      console.log('[Query Foundation] IndexedDB persistence setup complete');
     } catch (error) {
       console.error('[Query Foundation] Persistence setup failed:', error);
+      // Fallback to localStorage if IndexedDB fails
+      await this.setupFallbackPersistence();
     }
+  }
+
+  /**
+   * Setup fallback persistence using localStorage
+   */
+  private async setupFallbackPersistence(): Promise<void> {
+    try {
+      // Fallback to localStorage-based async persister
+      const fallbackStorage = {
+        async getItem(key: string): Promise<string | null> {
+          return localStorage.getItem(key);
+        },
+        async setItem(key: string, value: string): Promise<void> {
+          localStorage.setItem(key, value);
+        },
+        async removeItem(key: string): Promise<void> {
+          localStorage.removeItem(key);
+        },
+        async clear(): Promise<void> {
+          localStorage.clear();
+        },
+      };
+
+      this.persister = createAsyncStoragePersister({
+        storage: fallbackStorage,
+        key: 'musetrip360-query-cache-fallback',
+        serialize: JSON.stringify,
+        deserialize: JSON.parse,
+        throttleTime: 1000,
+      });
+
+      await persistQueryClient({
+        queryClient: this.queryClient,
+        persister: this.persister,
+        maxAge: this.cacheConfig.maxAge,
+        buster: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
+        hydrateOptions: undefined,
+      });
+
+      console.log('[Query Foundation] Fallback localStorage persistence setup complete');
+    } catch (error) {
+      console.error('[Query Foundation] Fallback persistence also failed:', error);
+    }
+  }
+
+  /**
+   * Setup periodic cleanup for IndexedDB
+   */
+  private setupPeriodicCleanup(): void {
+    // Clean up expired entries every hour
+    const cleanupInterval = 60 * 60 * 1000; // 1 hour
+
+    const cleanup = async () => {
+      try {
+        await this.indexedDBStorage.cleanup(this.cacheConfig.maxAge);
+
+        // Check storage usage and cleanup if over quota
+        const usage = await this.indexedDBStorage.getStorageUsage();
+        if (usage > this.offlineConfig.storageQuota * 0.9) {
+          // 90% of quota
+          console.warn('[Query Foundation] Storage quota nearly reached, performing aggressive cleanup');
+          // Cleanup entries older than half the max age
+          await this.indexedDBStorage.cleanup(this.cacheConfig.maxAge / 2);
+        }
+      } catch (error) {
+        console.warn('[Query Foundation] Periodic cleanup failed:', error);
+      }
+    };
+
+    // Run cleanup immediately and then periodically
+    cleanup();
+    setInterval(cleanup, cleanupInterval);
   }
 
   /**
@@ -296,7 +527,7 @@ export class QueryClientManager {
     switch (error.code) {
       case 'UNAUTHORIZED':
         // Clear auth-related queries
-        this.queryClient.removeQueries({ queryKey: ['auth'] });
+        // this.queryClient.removeQueries({ queryKey: ['auth'] });
         break;
       case 'FORBIDDEN':
         // Handle permission errors
@@ -357,11 +588,54 @@ export class QueryClientManager {
   /**
    * Clear all cache
    */
-  public clearCache(): void {
+  public async clearCache(): Promise<void> {
     this.queryClient.clear();
     if (this.persister) {
-      this.persister.removeClient();
+      try {
+        await this.persister.removeClient();
+      } catch (error) {
+        console.warn('[Query Foundation] Failed to clear persisted cache:', error);
+      }
     }
+
+    // Also clear IndexedDB storage
+    if (this.indexedDBStorage) {
+      try {
+        await this.indexedDBStorage.clear();
+      } catch (error) {
+        console.warn('[Query Foundation] Failed to clear IndexedDB storage:', error);
+      }
+    }
+  }
+
+  /**
+   * Get storage usage information
+   */
+  public async getStorageInfo(): Promise<{
+    usage: number;
+    quota: number;
+    count: number;
+    usagePercentage: number;
+  }> {
+    const usage = await this.indexedDBStorage.getStorageUsage();
+    const count = await this.indexedDBStorage.size();
+    const quota = this.offlineConfig.storageQuota;
+    const usagePercentage = (usage / quota) * 100;
+
+    return {
+      usage,
+      quota,
+      count,
+      usagePercentage: Math.round(usagePercentage * 100) / 100,
+    };
+  }
+
+  /**
+   * Manually trigger cache cleanup
+   */
+  public async performCleanup(maxAge?: number): Promise<void> {
+    const age = maxAge || this.cacheConfig.maxAge;
+    await this.indexedDBStorage.cleanup(age);
   }
 
   /**
@@ -386,7 +660,7 @@ export class QueryClientManager {
   /**
    * Cleanup resources
    */
-  public destroy(): void {
+  public async destroy(): Promise<void> {
     if (this.syncTimer) {
       clearInterval(this.syncTimer);
       this.syncTimer = null;
@@ -397,16 +671,73 @@ export class QueryClientManager {
       window.removeEventListener('offline', this.offlineHandler);
     }
 
+    // Clear query client
     this.queryClient.clear();
+
+    // Clean up persister
+    if (this.persister) {
+      try {
+        await this.persister.removeClient();
+      } catch (error) {
+        console.warn('[Query Foundation] Failed to clean up persister:', error);
+      }
+    }
+
+    // Close IndexedDB connection
+    if (this.indexedDBStorage) {
+      try {
+        // Close the IDB connection if available
+        const db = (this.indexedDBStorage as any).db;
+        if (db && db.close) {
+          db.close();
+        }
+      } catch (error) {
+        console.warn('[Query Foundation] Failed to close IndexedDB connection:', error);
+      }
+    }
   }
 }
 
 /**
- * Default query client manager instance
+ * Default query client manager instance (lazy-initialized)
  */
-export const queryClientManager = new QueryClientManager();
+let _queryClientManager: QueryClientManager | null = null;
 
 /**
- * Default query client instance
+ * Get or create the default query client manager with optional configuration
  */
-export const queryClient = queryClientManager.getQueryClient();
+export function getQueryClientManager(
+  cacheConfig?: Partial<QueryCacheConfig>,
+  offlineConfig?: Partial<OfflineQueryConfig>,
+  backgroundSyncConfig?: Partial<BackgroundSyncConfig>
+): QueryClientManager {
+  if (!_queryClientManager) {
+    _queryClientManager = new QueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig);
+  }
+  return _queryClientManager;
+}
+
+/**
+ * Get or create the default query client with optional configuration
+ */
+export function getQueryClient(
+  cacheConfig?: Partial<QueryCacheConfig>,
+  offlineConfig?: Partial<OfflineQueryConfig>,
+  backgroundSyncConfig?: Partial<BackgroundSyncConfig>
+): QueryClient {
+  const queryClient = getQueryClientManager(cacheConfig, offlineConfig, backgroundSyncConfig).getQueryClient();
+  if (typeof window !== 'undefined' && !window.__TANSTACK_QUERY_CLIENT__) {
+    window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+  }
+  return queryClient;
+}
+
+/**
+ * Reset the singleton instance (useful for testing or reconfiguration)
+ */
+export async function resetQueryClientManager(): Promise<void> {
+  if (_queryClientManager) {
+    await _queryClientManager.destroy();
+    _queryClientManager = null;
+  }
+}

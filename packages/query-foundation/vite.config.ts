@@ -1,10 +1,10 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-// @ts-ignore – Plugin installed in generated project
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
 import tailwindcss from '@tailwindcss/vite';
+import packageJson from './package.json';
 
 export default defineConfig({
   plugins: [
@@ -29,7 +29,9 @@ export default defineConfig({
     },
     rollupOptions: {
       // Externalize dependencies that shouldn't be bundled
-      external: ['react', 'react-dom'],
+      external: [
+        ...new Set([...Object.keys(packageJson.dependencies), ...Object.keys(packageJson.peerDependencies)]),
+      ].map((dep) => new RegExp(`^${dep}`)),
       output: {
         // Provide global variables for externalized deps in UMD builds
         globals: {

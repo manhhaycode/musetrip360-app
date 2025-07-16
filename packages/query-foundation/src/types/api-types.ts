@@ -1,26 +1,37 @@
 /**
  * Base API response structure
  */
-export interface APIResponse<T = any> {
+export interface APIResponse<T> {
   data: T;
+  code: number;
   message?: string;
-  success: boolean;
-  timestamp: string;
+}
+
+/**
+ * Pagination information
+ */
+export interface Pagination extends Partial<SearchRequest> {
+  Page: number;
+  PageSize: number;
+}
+
+export interface SearchRequest {
+  Id: string;
+  Name: string;
+  Title: string;
+  Type: string;
+  Thumbnail: string;
+  Description: string;
+  Status: string;
 }
 
 /**
  * Paginated API response
  */
-export interface PaginatedResponse<T = any> extends APIResponse<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-    hasNext: boolean;
-    hasPrev: boolean;
-  };
-}
+export type PaginatedResponse<T> = APIResponse<{
+  list: T[];
+  total: number;
+}>;
 
 /**
  * API error response structure
@@ -31,6 +42,7 @@ export interface APIError {
   details?: Record<string, any>;
   timestamp: string;
   path?: string;
+  retry?: boolean;
   statusCode: number;
 }
 
@@ -61,20 +73,10 @@ export interface APIEndpoint {
 }
 
 /**
- * Authentication token
- */
-export interface AuthToken {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
-  tokenType: 'Bearer';
-}
-
-/**
  * API client configuration
  */
 export interface APIClientConfig {
-  baseURL: string;
+  baseURL?: string;
   timeout: number;
   retries: number;
   retryDelay: number;
@@ -83,7 +85,7 @@ export interface APIClientConfig {
   enableCache: boolean;
   cacheTimeout: number;
   enableAuth: boolean;
-  enableLogging: boolean;
+  enableLogging?: boolean;
 }
 
 /**
@@ -91,7 +93,6 @@ export interface APIClientConfig {
  */
 export interface RequestInterceptorContext {
   config: any;
-  token?: AuthToken;
   isRetry?: boolean;
   retryCount?: number;
 }

@@ -1,5 +1,5 @@
 import { QueryKey, useQuery as useReactQuery } from '@tanstack/react-query';
-import { httpClient } from '../client/httpClient';
+import { getHttpClient } from '../client/httpClient';
 import type { RequestConfig } from '../types/api-types';
 import type { APIError, CustomQueryOptions } from '../types/query-types';
 
@@ -52,7 +52,7 @@ export function useGetQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>
 ) {
-  return useQuery(queryKey, () => httpClient.get<TData>(url), {
+  return useQuery(queryKey, () => getHttpClient().get<TData>(url), {
     ...options,
     requestConfig,
   });
@@ -69,10 +69,10 @@ export function usePaginatedQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>
 ) {
-  const paginatedUrl = `${url}?page=${page}&limit=${limit}`;
+  const paginatedUrl = `${url}?Page=${page}&PageSize=${limit}`;
   const paginatedQueryKey = [...queryKey, { page, limit }];
 
-  return useQuery(paginatedQueryKey as QueryKey, () => httpClient.get<TData>(paginatedUrl), {
+  return useQuery(paginatedQueryKey as QueryKey, () => getHttpClient().get<TData>(paginatedUrl), {
     ...options,
     requestConfig,
     placeholderData: (previousData: TData | undefined) => previousData, // Keep previous data while loading new page
@@ -94,7 +94,7 @@ export function useSearchQuery<TData = unknown>(
   const shouldSearch = searchTerm.length >= minLength;
   const searchUrl = shouldSearch ? `${url}?q=${encodeURIComponent(searchTerm)}` : '';
 
-  return useQuery([...queryKey, { search: searchTerm }], () => httpClient.get<TData>(searchUrl), {
+  return useQuery([...queryKey, { search: searchTerm }], () => getHttpClient().get<TData>(searchUrl), {
     ...options,
     enabled: shouldSearch && (options?.enabled ?? true),
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -112,7 +112,7 @@ export function useDependentQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig'>
 ) {
-  return useQuery([...queryKey, { dependency }], () => httpClient.get<TData>(url), {
+  return useQuery([...queryKey, { dependency }], () => getHttpClient().get<TData>(url), {
     ...options,
     enabled: Boolean(dependency) && (options?.enabled ?? true),
     requestConfig,
@@ -128,7 +128,7 @@ export function useBackgroundQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig' | 'background'>
 ) {
-  return useQuery(queryKey, () => httpClient.get<TData>(url), {
+  return useQuery(queryKey, () => getHttpClient().get<TData>(url), {
     ...options,
     background: true,
     requestConfig,
@@ -145,7 +145,7 @@ export function useOfflineQuery<TData = unknown>(
   requestConfig?: RequestConfig,
   options?: Omit<CustomQueryOptions<TData>, 'requestConfig' | 'offlineFirst'>
 ) {
-  return useQuery(queryKey, () => httpClient.get<TData>(url), {
+  return useQuery(queryKey, () => getHttpClient().get<TData>(url), {
     ...options,
     offlineFirst: true,
     staleTime: 10 * 60 * 1000, // 10 minutes for offline

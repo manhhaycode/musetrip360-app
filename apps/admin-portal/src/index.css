@@ -1,3 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import '@musetrip360/ui-core/styles.css';
+@source '../node_modules/@musetrip360/ui-core';
+@source '../node_modules/@musetrip360/auth-management';
+@source '../node_modules/@musetrip360/query-foundation';

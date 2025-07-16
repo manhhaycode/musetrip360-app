@@ -16,21 +16,27 @@
  * @author MuseTrip360 Team
  */
 
-import { httpClient } from './client/httpClient';
-import { queryClientManager, QueryClientManager } from './client/queryClient';
+import { getHttpClient } from './client/httpClient';
+import { getQueryClientManager, QueryClientManager, resetQueryClientManager } from './client/queryClient';
+import type { QueryCacheConfig, OfflineQueryConfig, BackgroundSyncConfig } from './types/query-types';
 
 // Re-export TanStack Query essentials
 export { QueryClient, QueryClientProvider, useQueryClient, useIsFetching, useIsMutating } from '@tanstack/react-query';
+export type { QueryKey } from '@tanstack/react-query';
 
 // Types
-export type * from './types/api-types';
-export type * from './types/query-types';
+export * from './types';
 
 // HTTP Client
-export { HTTPClient, httpClient } from './client/httpClient';
+export { HTTPClient, getHttpClient } from './client/httpClient';
 
 // Query Client
-export { QueryClientManager, queryClientManager, queryClient } from './client/queryClient';
+export {
+  QueryClientManager,
+  getQueryClientManager,
+  getQueryClient,
+  resetQueryClientManager,
+} from './client/queryClient';
 
 // Enhanced Hooks
 export {
@@ -56,18 +62,7 @@ export {
 } from './hooks/useMutation';
 
 // Cache Management
-export {
-  cacheKeys,
-  getAllCacheKeys,
-  createCacheKey,
-  MuseumCacheKeys,
-  EventCacheKeys,
-  UserCacheKeys,
-  AuthCacheKeys,
-  ArtifactCacheKeys,
-  VirtualTourCacheKeys,
-  SearchCacheKeys,
-} from './cache/cacheKeys';
+export { createCacheKey, BaseCacheKeyFactory } from './cache/cacheKeys';
 
 // Default configurations and utilities
 export const queryFoundationVersion = '0.1.0';
@@ -82,9 +77,6 @@ export const DEFAULT_CONFIG = {
     retries: 3,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-  },
-  mutation: {
-    retries: 2,
   },
   offline: {
     enabled: true,
@@ -101,26 +93,36 @@ export const DEFAULT_CONFIG = {
 /**
  * Initialize query foundation with custom configuration
  */
-export function initializeQueryFoundation(config?: {
+export async function initializeQueryFoundation(config?: {
   apiBaseURL?: string;
   enableOffline?: boolean;
   enableLogging?: boolean;
-  customCacheConfig?: Record<string, any>;
+  cacheConfig?: Partial<QueryCacheConfig>;
+  offlineConfig?: Partial<OfflineQueryConfig>;
+  backgroundSyncConfig?: Partial<BackgroundSyncConfig>;
 }) {
   const {
     apiBaseURL,
     enableOffline = true,
     enableLogging = process.env.NODE_ENV === 'development',
-    customCacheConfig = {},
+    cacheConfig = {},
+    offlineConfig = {},
+    backgroundSyncConfig = {},
   } = config || {};
+
+  // Reset any existing instance to allow reconfiguration
+  await resetQueryClientManager();
 
   // Update HTTP client configuration
   if (apiBaseURL) {
-    httpClient.updateConfig({ baseURL: apiBaseURL });
+    getHttpClient().updateConfig({ baseURL: apiBaseURL });
   }
 
-  // Update query client configuration
-  queryClientManager.updateConfig(customCacheConfig, { enabled: enableOffline }, { enabled: enableOffline });
+  // Initialize query client with configuration
+  const mergedOfflineConfig = { enabled: enableOffline, ...offlineConfig };
+  const mergedBackgroundSyncConfig = { enabled: enableOffline, ...backgroundSyncConfig };
+
+  getQueryClientManager(cacheConfig, mergedOfflineConfig, mergedBackgroundSyncConfig);
 
   console.log('[Query Foundation] Initialized with config:', {
     apiBaseURL,
