@@ -21,6 +21,7 @@ import prettierConfig from './prettier.config.js';
 export default [
   js.configs.recommended,
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
       '@next/next': nextPlugin,
       '@typescript-eslint': tseslint,
@@ -99,6 +100,7 @@ export default [
     },
   },
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parserOptions: {
         ecmaVersion: 'latest',
