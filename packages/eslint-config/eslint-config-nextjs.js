@@ -13,6 +13,7 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import importPlugin from 'eslint-plugin-import';
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from './prettier.config.js';
+import globals from 'globals';
 
 /**
  * Next.js ESLint configuration
@@ -21,6 +22,7 @@ import prettierConfig from './prettier.config.js';
 export default [
   js.configs.recommended,
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
       '@next/next': nextPlugin,
       '@typescript-eslint': tseslint,
@@ -30,6 +32,7 @@ export default [
       import: importPlugin,
       prettier: prettierPlugin,
     },
+
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -38,6 +41,10 @@ export default [
         ecmaFeatures: {
           jsx: true,
         },
+      },
+      globals: {
+        ...globals.node,
+        ...globals.browser,
       },
     },
     settings: {
@@ -99,6 +106,7 @@ export default [
     },
   },
   {
+    files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
       parserOptions: {
         ecmaVersion: 'latest',

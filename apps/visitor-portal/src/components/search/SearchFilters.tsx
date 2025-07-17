@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { Label } from '@musetrip360/ui-core/label';
-import { Slider } from '@musetrip360/ui-core/slider';
 import { RadioGroup, RadioGroupItem } from '@musetrip360/ui-core/radio-group';
-import { Separator } from '@musetrip360/ui-core/separator';
-import { MapPin, Star, DollarSign, Camera, Clock, Users, Zap, Filter, RotateCcw } from 'lucide-react';
+import { Slider } from '@musetrip360/ui-core/slider';
+import { Camera, Clock, DollarSign, Filter, MapPin, RotateCcw, Star, Users, Zap } from 'lucide-react';
+import { useState } from 'react';
 
 interface SearchFiltersProps {
   selectedCategory: string;
