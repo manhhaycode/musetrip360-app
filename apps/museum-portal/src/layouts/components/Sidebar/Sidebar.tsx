@@ -73,7 +73,7 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
               items: [
                 {
                   title: 'Thông tin cơ bản',
-                  url: '/museum/basic-info',
+                  url: '/museum',
                   icon: InfoIcon,
                 },
                 {
