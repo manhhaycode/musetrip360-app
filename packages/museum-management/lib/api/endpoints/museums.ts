@@ -54,6 +54,15 @@ export const getUserMuseums = async (): Promise<Museum[]> => {
 };
 
 /**
+ * Update Museum
+ */
+export const updateMuseum = async (id: string, data: Partial<Museum>): Promise<Museum> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.put<APIResponse<Museum>>(museumEndpoints.getById(id), data);
+  return response.data;
+};
+
+/**
  * Museum search error handler
  */
 export const museumErrorHandler = {
