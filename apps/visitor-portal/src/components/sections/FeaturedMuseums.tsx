@@ -1,23 +1,10 @@
 'use client';
 
-import { Card, CardContent } from '@musetrip360/ui-core/card';
+import { useStaggeredAnimation } from '@/hooks/useScrollAnimation';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
-import {
-  MapPin,
-  Star,
-  Clock,
-  Users,
-  Camera,
-  Headset,
-  Eye,
-  ArrowRight,
-  Palette,
-  History,
-  Microscope,
-} from 'lucide-react';
-import { useStaggeredAnimation } from '@/hooks/useScrollAnimation';
-import { twMerge } from 'tailwind-merge';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import { ArrowRight, Camera, Clock, Eye, History, MapPin, Microscope, Palette, Star, Users } from 'lucide-react';
 
 const museums = [
   {

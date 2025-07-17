@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthActionProvider, AuthModal, AuthProvider, useAuthController } from '@musetrip360/auth-system';
+import { AuthActionProvider, AuthModal, useAuthController } from '@musetrip360/auth-system';
 import { getQueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
 import { useEffect } from 'react';
 

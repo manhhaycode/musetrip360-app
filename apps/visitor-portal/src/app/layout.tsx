@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 // import Footer from '@/components/layout/Footter';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
+import React from 'react';
 
 export const metadata: Metadata = {
   title: 'MuseTrip360 - Nền tảng bảo tàng số',
