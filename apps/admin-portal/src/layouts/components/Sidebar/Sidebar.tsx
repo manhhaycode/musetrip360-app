@@ -10,175 +10,123 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
 } from '@musetrip360/ui-core';
-import { Building2, ChevronDown, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
+import { Building2, ChevronDown, ChevronRight, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-export default function AppSidebar() {
-  const location = useLocation();
+const sidebarButtonClasses =
+  'hover:text-primary-foreground data-[active=true]:text-primary-foreground data-[active=true]:bg-primary/70 active:text-primary-foreground data-[state=close]:hover:text-primary-foreground data-[state=open]:hover:text-primary-foreground';
 
+export default function AppSidebar() {
   return (
-    <Sidebar variant="inset" className="h-screen bg-rose-50">
-      <SidebarHeader className="p-0">
-        <div className="flex items-center gap-3 px-6 py-4 bg-rose-50">
-          <div className="flex h-8 w-8 items-center justify-center">
-            <Building2 className="h-4 w-4 text-foreground" />
-          </div>
-          <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold text-foreground">MuseTrip360</span>
-          </div>
-        </div>
+    <Sidebar collapsible="offcanvas" variant="inset">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <div>
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Building2 className="size-4" />
+                </div>
+                <div className="grid flex-1 text-left text-sm leading-tight">
+                  <span className="truncate font-semibold">MuseTrip360</span>
+                  <span className="truncate text-xs">Admin Portal</span>
+                </div>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent className="flex-1 bg-rose-50">
-        {/* Tổng quan */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground">Tổng quan</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/'}
-                  className={
-                    location.pathname === '/'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/">
-                    <Home className="h-4 w-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent>
+        <SidebarGroupItem
+          groupLabel="📊 Tổng quan"
+          items={[
+            {
+              title: 'Dashboard',
+              url: '/',
+              icon: Home,
+            },
+          ]}
+        />
 
-        {/* Quản lý Bảo tàng */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground">Quản lý Bảo tàng</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/museums'}
-                  className={
-                    location.pathname === '/museums'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/museums">
-                    <Building2 className="h-4 w-4" />
-                    <span>Danh sách</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/museums/requests' || location.pathname === '/museums/approval'}
-                  className={
-                    location.pathname === '/museums/requests' || location.pathname === '/museums/approval'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/museums/requests">
-                    <FileText className="h-4 w-4" />
-                    <span>Xét duyệt</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarGroupItem
+          groupLabel="🏛️ Quản lý Bảo tàng"
+          items={[
+            {
+              title: 'Bảo tàng',
+              url: '/museums',
+              icon: Building2,
+              items: [
+                {
+                  title: 'Danh sách bảo tàng',
+                  url: '/museums',
+                  icon: Building2,
+                },
+                {
+                  title: 'Xét duyệt đăng ký',
+                  url: '/museums/requests',
+                  icon: FileText,
+                },
+              ],
+            },
+          ]}
+        />
 
-        {/* Hệ thống */}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-muted-foreground">Hệ thống</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/users'}
-                  className={
-                    location.pathname === '/users'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/users">
-                    <Users className="h-4 w-4" />
-                    <span>Người dùng</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/policies'}
-                  className={
-                    location.pathname === '/policies'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/policies">
-                    <Gavel className="h-4 w-4" />
-                    <span>Chính sách</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  asChild
-                  isActive={location.pathname === '/settings'}
-                  className={
-                    location.pathname === '/settings'
-                      ? 'bg-gradient-to-r from-orange-400 to-orange-500 text-white shadow-md [&>*]:!text-white [&_*]:!text-white hover:from-orange-500 hover:to-orange-600'
-                      : 'hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200'
-                  }
-                >
-                  <Link to="/settings">
-                    <Settings className="h-4 w-4" />
-                    <span>Cài đặt</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <SidebarGroupItem
+          groupLabel="⚙️ Quản lý Hệ thống"
+          items={[
+            {
+              title: 'Hệ thống',
+              url: '/system',
+              icon: Settings,
+              items: [
+                {
+                  title: 'Người dùng',
+                  url: '/users',
+                  icon: Users,
+                },
+                {
+                  title: 'Chính sách',
+                  url: '/policies',
+                  icon: Gavel,
+                },
+                {
+                  title: 'Cài đặt',
+                  url: '/settings',
+                  icon: Settings,
+                },
+              ],
+            },
+          ]}
+        />
       </SidebarContent>
 
-      <SidebarFooter className="bg-rose-50">
+      <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  size="lg"
-                  className="data-[state=open]:bg-orange-200 data-[state=open]:text-orange-900 hover:bg-orange-200/50 hover:text-orange-900 transition-all duration-200"
-                >
-                  <Avatar className="h-8 w-8 rounded-lg border border-border">
+                <SidebarMenuButton size="lg">
+                  <Avatar className="h-8 w-8 rounded-lg">
                     <AvatarImage src="/avatars/admin.png" alt="Admin" />
-                    <AvatarFallback className="rounded-lg border bg-muted text-muted-foreground">QT</AvatarFallback>
+                    <AvatarFallback className="rounded-lg">QT</AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">Admin</span>
-                    <span className="truncate text-xs text-muted-foreground">admin@musetrip360.com</span>
+                    <span className="truncate text-xs">admin@musetrip360.com</span>
                   </div>
-                  <ChevronDown className="ml-auto h-4 w-4" />
+                  <ChevronDown className="ml-auto size-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -188,11 +136,11 @@ export default function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuItem>
-                  <Shield className="mr-2 h-4 w-4" />
+                  <Shield />
                   Bảo mật
                 </DropdownMenuItem>
                 <DropdownMenuItem>
-                  <FileText className="mr-2 h-4 w-4" />
+                  <FileText />
                   Nhật ký
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -203,3 +151,121 @@ export default function AppSidebar() {
     </Sidebar>
   );
 }
+
+export const SidebarGroupItem = ({
+  groupLabel,
+  items,
+}: {
+  groupLabel: string;
+  items: {
+    title: string;
+    url: string;
+    icon?: any;
+    items?: {
+      title: string;
+      url: string;
+      icon?: any;
+    }[];
+  }[];
+}) => {
+  return (
+    <SidebarGroup className="font-medium">
+      <SidebarGroupLabel className="text-sm font-semibold text-muted-foreground">{groupLabel}</SidebarGroupLabel>
+      <SidebarMenu>
+        {items.map((item) => (
+          <SidebarMenuGroupItem key={item.title} item={item} />
+        ))}
+      </SidebarMenu>
+    </SidebarGroup>
+  );
+};
+
+export const SidebarMenuGroupItem = ({
+  item,
+}: {
+  item: {
+    title: string;
+    url: string;
+    icon?: any;
+    items?: {
+      title: string;
+      url: string;
+      icon?: any;
+    }[];
+  };
+}) => {
+  const location = useLocation();
+  const [isOpen, setIsOpen] = useState(true);
+
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setIsOpen(true);
+      return;
+    }
+    if (item.items?.some((subItem) => location.pathname.includes(subItem.url))) {
+      setIsOpen(true);
+    }
+  }, [location, item]);
+
+  // Nếu không có sub-items, render như menu item thông thường
+  if (!item.items || item.items.length === 0) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton size="lg" isActive={location.pathname === item.url} className={sidebarButtonClasses} asChild>
+          <Link to={item.url}>
+            {item.icon && <item.icon />}
+            <span>{item.title}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
+  return (
+    <Collapsible
+      onOpenChange={(open) => {
+        if (open) {
+          setIsOpen(true);
+        } else {
+          setIsOpen(false);
+        }
+      }}
+      open={isOpen}
+      key={item.title}
+      asChild
+      className="group/collapsible"
+    >
+      <SidebarMenuItem>
+        <CollapsibleTrigger asChild>
+          <SidebarMenuButton
+            size="lg"
+            tooltip={item.title}
+            className="hover:text-primary-foreground active:text-primary-foreground data-[state=close]:hover:text-primary-foreground data-[state=open]:hover:text-primary-foreground"
+          >
+            {item.icon && <item.icon />}
+            <span>{item.title}</span>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarMenuSub className="p-2">
+            {item.items?.map((subItem) => (
+              <SidebarMenuSubItem key={subItem.title}>
+                <SidebarMenuSubButton
+                  isActive={location.pathname === subItem.url}
+                  className={sidebarButtonClasses}
+                  asChild
+                >
+                  <Link to={subItem.url}>
+                    {subItem.icon && <subItem.icon className="!text-inherit" />}
+                    <span>{subItem.title}</span>
+                  </Link>
+                </SidebarMenuSubButton>
+              </SidebarMenuSubItem>
+            ))}
+          </SidebarMenuSub>
+        </CollapsibleContent>
+      </SidebarMenuItem>
+    </Collapsible>
+  );
+};

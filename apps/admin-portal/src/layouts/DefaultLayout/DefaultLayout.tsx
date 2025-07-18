@@ -23,7 +23,7 @@ export default function DefaultLayout() {
         <SidebarInset className="flex flex-col flex-1 h-full overflow-hidden gap-0">
           <Header />
           <main className="flex-1 overflow-auto border-none bg-secondary/20">
-            <div className="w-full px-4 py-4">
+            <div className="w-full p-4">
               <Outlet />
             </div>
           </main>
