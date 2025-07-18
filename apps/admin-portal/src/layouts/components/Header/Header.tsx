@@ -1,3 +1,4 @@
+import { useAuthStore } from '@musetrip360/auth-system';
 import {
   Avatar,
   AvatarFallback,
@@ -13,7 +14,7 @@ import {
   SidebarTrigger,
 } from '@musetrip360/ui-core';
 import { Bell, ChevronRight, LogOut, Settings, User } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const getBreadcrumb = (pathname: string) => {
   const paths = {
@@ -29,7 +30,13 @@ const getBreadcrumb = (pathname: string) => {
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPage = getBreadcrumb(location.pathname);
+
+  const handleLogout = () => {
+    useAuthStore.getState().resetStore();
+    navigate('/login');
+  };
 
   return (
     <header className="flex h-16 shrink-0 items-center justify-between px-4 border-b bg-secondary/20">
@@ -79,7 +86,7 @@ export default function Header() {
               <span>Cài đặt</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Đăng xuất</span>
             </DropdownMenuItem>
