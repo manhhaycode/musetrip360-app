@@ -1,7 +1,11 @@
-import React from 'react';
+import { ArtifactDataTable, mockArtifacts } from '@musetrip360/artifact-management/ui';
 
 const MuseumArtifactPage = () => {
-  return <div>MuseumArtifactPage</div>;
+  return (
+    <>
+      <ArtifactDataTable artifacts={mockArtifacts} />
+    </>
+  );
 };
 
 export default MuseumArtifactPage;
