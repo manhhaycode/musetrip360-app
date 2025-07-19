@@ -1,1 +1,1 @@
-export * from './museums';
+export * from './artifacts';
