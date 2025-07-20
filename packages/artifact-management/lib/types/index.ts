@@ -5,6 +5,8 @@
  * exhibitions, and devices.
  */
 
+import { Pagination } from '@musetrip360/query-foundation';
+
 // Museum management types
 export interface Artifact {
   id: string;
@@ -27,6 +29,7 @@ export interface ArtifactMetadata {
   material: string;
   discoveryLocation: string;
 }
+
 /**
  * Artifact request types based on swagger.json
  */
@@ -51,12 +54,9 @@ export interface ArtifactUpdateDto {
 /**
  * Query parameters for artifact list endpoints
  */
-export interface ArtifactListParams {
-  SearchKeyword?: string;
-  Page?: number;
-  PageSize?: number;
-}
+export type ArtifactListParams = Pagination;
 
-export interface ArtifactAdminListParams extends ArtifactListParams {
-  IsActive?: boolean;
+export interface ArtifactMuseumSearchParams extends Pagination {
+  museumId: string;
+  HistoricalPeriods?: string[];
 }

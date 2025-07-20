@@ -4,8 +4,14 @@
  * API endpoints for artifact management operations.
  */
 
-import { ArtifactAdminListParams, ArtifactCreateDto, ArtifactListParams, ArtifactUpdateDto } from '@/types';
-import { getHttpClient, APIResponse } from '@musetrip360/query-foundation';
+import {
+  Artifact,
+  ArtifactCreateDto,
+  ArtifactListParams,
+  ArtifactMuseumSearchParams,
+  ArtifactUpdateDto,
+} from '@/types';
+import { getHttpClient, APIResponse, PaginatedResponse } from '@musetrip360/query-foundation';
 
 /**
  * Artifact API endpoints configuration
@@ -32,21 +38,16 @@ export const artifactEndpoints = {
  */
 export const getArtifacts = async (params?: ArtifactListParams): Promise<APIResponse<any>> => {
   const httpClient = getHttpClient();
-  const searchParams = new URLSearchParams();
 
-  if (params?.SearchKeyword) searchParams.append('SearchKeyword', params.SearchKeyword);
-  if (params?.Page) searchParams.append('Page', params.Page.toString());
-  if (params?.PageSize) searchParams.append('PageSize', params.PageSize.toString());
-
-  const url = `${artifactEndpoints.list}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-
-  return await httpClient.get<APIResponse<any>>(url);
+  return await httpClient.get<APIResponse<any>>(artifactEndpoints.list, {
+    params,
+  });
 };
 
 /**
  * Get a paginated list of all artifacts (including inactive) for admin purposes
  */
-export const getArtifactsAdmin = async (params?: ArtifactAdminListParams): Promise<APIResponse<any>> => {
+export const getArtifactsAdmin = async (params?: ArtifactListParams): Promise<APIResponse<any>> => {
   const httpClient = getHttpClient();
   const searchParams = new URLSearchParams();
 
@@ -103,9 +104,12 @@ export const deactivateArtifact = async (id: string): Promise<APIResponse<any>> 
 /**
  * Get all artifacts for a specific museum
  */
-export const getArtifactsByMuseum = async (museumId: string): Promise<APIResponse<any>> => {
+export const getArtifactsByMuseum = async ({
+  museumId,
+  ...params
+}: ArtifactMuseumSearchParams): Promise<PaginatedResponse<Artifact>['data']> => {
   const httpClient = getHttpClient();
-  return await httpClient.get<APIResponse<any>>(artifactEndpoints.listByMuseum(museumId));
+  return (await httpClient.get<PaginatedResponse<Artifact>>(artifactEndpoints.listByMuseum(museumId), { params })).data;
 };
 
 /**

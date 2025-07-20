@@ -6,7 +6,7 @@
  */
 
 import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
-import { ArtifactListParams, ArtifactAdminListParams } from '@/types';
+import { ArtifactListParams, ArtifactAdminListParams, ArtifactMuseumSearchParams } from '@/types';
 
 /**
  * Artifact Management cache keys
@@ -29,8 +29,8 @@ export class ArtifactManagementCacheKeys extends BaseCacheKeyFactory {
     return [this.prefix, 'artifact', id];
   }
 
-  byMuseum(museumId: string): QueryKey {
-    return [this.prefix, 'artifacts', 'byMuseum', museumId];
+  byMuseum(params: Partial<ArtifactMuseumSearchParams>): QueryKey {
+    return [this.prefix, 'artifacts', 'byMuseum', params.museumId, params];
   }
 
   // Mutation keys

@@ -13,6 +13,7 @@ import {
   CustomMutationOptions,
   APIError,
   APIResponse,
+  PaginatedResponse,
 } from '@musetrip360/query-foundation';
 import {
   getArtifacts,
@@ -26,7 +27,13 @@ import {
   createArtifactForMuseum,
   artifactErrorHandler,
 } from '../endpoints/artifacts';
-import { ArtifactCreateDto, ArtifactUpdateDto, ArtifactListParams, ArtifactAdminListParams } from '@/types';
+import {
+  ArtifactCreateDto,
+  ArtifactUpdateDto,
+  ArtifactListParams,
+  ArtifactMuseumSearchParams,
+  Artifact,
+} from '@/types';
 import { artifactCacheKeys } from '../cache/cacheKeys';
 
 /**
@@ -42,7 +49,7 @@ export function useArtifacts(params?: ArtifactListParams, options?: CustomQueryO
  * Hook for getting paginated list of all artifacts (admin)
  */
 export function useArtifactsAdmin(
-  params?: ArtifactAdminListParams,
+  params?: ArtifactListParams,
   options?: CustomQueryOptions<APIResponse<any>, APIError>
 ) {
   return useQuery(artifactCacheKeys.adminList(params), () => getArtifactsAdmin(params), {
@@ -63,9 +70,13 @@ export function useArtifact(id: string, options?: CustomQueryOptions<APIResponse
 /**
  * Hook for getting artifacts by museum
  */
-export function useArtifactsByMuseum(museumId: string, options?: CustomQueryOptions<APIResponse<any>, APIError>) {
-  return useQuery(artifactCacheKeys.byMuseum(museumId), () => getArtifactsByMuseum(museumId), {
-    enabled: !!museumId,
+export function useArtifactsByMuseum(
+  params: ArtifactMuseumSearchParams,
+  options?: CustomQueryOptions<PaginatedResponse<Artifact>['data'], APIError>
+) {
+  return useQuery(artifactCacheKeys.byMuseum(params), () => getArtifactsByMuseum(params), {
+    enabled: !!params.museumId,
+    placeholderData: (previousData: PaginatedResponse<Artifact>['data'] | undefined) => previousData,
     ...options,
   });
 }
@@ -87,7 +98,7 @@ export function useCreateArtifact(
         // Invalidate relevant queries
         queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
         queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
-        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum(variables.museumId) });
+        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum({ museumId: variables.museumId }) });
 
         onSuccess?.(data, variables, context);
       },

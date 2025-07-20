@@ -1,4 +1,4 @@
-import { flexRender, PaginationState, Table as TableProps } from '@tanstack/react-table';
+import { flexRender, Table as TableProps } from '@tanstack/react-table';
 import { Fragment } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table';
 import DataTableHeader from './data-table-header';
@@ -7,23 +7,21 @@ import { ScrollArea, ScrollBar } from '../scroll-area';
 
 export default function DataTable<T extends object>({
   table,
-  handlePagination,
-  pageIndex,
-  pageSize,
-  total,
   handleClickRow,
+  tableHeight = '500px',
+  children,
 }: {
   table: TableProps<T>;
-  handlePagination?: (pagination: PaginationState) => void;
-  pageIndex?: number;
-  pageSize?: number;
-  total?: number;
+  tableHeight?: string;
   handleClickRow?: (row: T) => void;
+  children?: React.ReactNode;
+  isLoading?: boolean;
 }) {
   return (
-    <>
-      <ScrollArea className="w-full h-[500px] relative">
-        <Table>
+    <div className="flex flex-1 flex-col gap-3">
+      {children}
+      <ScrollArea style={{ height: tableHeight }} className="w-full relative px-2">
+        <Table style={{ minHeight: tableHeight }} className="w-full">
           <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => {
               return (
@@ -46,6 +44,13 @@ export default function DataTable<T extends object>({
             })}
           </TableHeader>
           <TableBody>
+            {table.getRowModel().rows.length === 0 && (
+              <TableRow>
+                <TableCell colSpan={table.getAllColumns().length} className="text-center">
+                  No data available
+                </TableCell>
+              </TableRow>
+            )}
             {table.getRowModel().rows.map((row) => {
               return (
                 <TableRow
@@ -70,14 +75,9 @@ export default function DataTable<T extends object>({
         </Table>
         <ScrollBar orientation="horizontal" />
       </ScrollArea>
-      {handlePagination && pageIndex !== undefined && pageSize !== undefined && total !== undefined && (
-        <DataTablePagination
-          pageIndex={pageIndex}
-          pageSize={pageSize}
-          totalCount={total}
-          onPaginationChange={handlePagination}
-        />
+      {table.getState().pagination.pageIndex !== undefined && table.getState().pagination.pageSize !== undefined && (
+        <DataTablePagination table={table} />
       )}
-    </>
+    </div>
   );
 }
