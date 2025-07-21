@@ -11,8 +11,8 @@ import {
 import { useMemo } from 'react';
 import { UseDataTableState } from './use-data-table-state';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import '@tanstack/react-table'; //or vue, svelte, solid, qwik, etc.
+// The following import is required for side effects, such as extending @tanstack/react-table functionality.
+import '@tanstack/react-table'; // or vue, svelte, solid, qwik, etc.
 import { RowData } from '@tanstack/react-table';
 
 export interface Option {
