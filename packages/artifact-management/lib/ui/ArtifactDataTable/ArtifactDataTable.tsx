@@ -197,8 +197,8 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
 
   if (loadingArtifacts) {
     return (
-      <div className="flex items-center justify-center h-32">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="flex items-center justify-center flex-1">
+        <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-primary"></div>
       </div>
     );
   }

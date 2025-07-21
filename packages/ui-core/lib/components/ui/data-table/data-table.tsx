@@ -8,11 +8,9 @@ import { ScrollArea, ScrollBar } from '../scroll-area';
 export default function DataTable<T extends object>({
   table,
   handleClickRow,
-  tableHeight = '500px',
   children,
 }: {
   table: TableProps<T>;
-  tableHeight?: string;
   handleClickRow?: (row: T) => void;
   children?: React.ReactNode;
   isLoading?: boolean;
@@ -20,8 +18,8 @@ export default function DataTable<T extends object>({
   return (
     <div className="flex flex-1 flex-col gap-3">
       {children}
-      <ScrollArea style={{ height: tableHeight }} className="w-full relative px-2">
-        <Table style={{ minHeight: tableHeight }} className="w-full">
+      <ScrollArea style={{ flex: '1 0 0' }} className="relative px-2 min-h-0">
+        <Table>
           <TableHeader className="sticky top-0 z-10 bg-background">
             {table.getHeaderGroups().map((headerGroup) => {
               return (
@@ -73,7 +71,7 @@ export default function DataTable<T extends object>({
             })}
           </TableBody>
         </Table>
-        <ScrollBar orientation="horizontal" />
+        <ScrollBar style={{ position: 'sticky' }} orientation="horizontal" />
       </ScrollArea>
       {table.getState().pagination.pageIndex !== undefined && table.getState().pagination.pageSize !== undefined && (
         <DataTablePagination table={table} />
