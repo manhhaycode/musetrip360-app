@@ -9,7 +9,7 @@ export const defaultEditorConfig: InitialConfigType = {
   namespace: 'MuseTrip360RichEditor',
   nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode, CodeNode, CodeHighlightNode, AutoLinkNode, LinkNode],
   onError: (error: Error) => {
-    console.error('Lexical Error:', error);
+    throw error;
   },
   theme: {
     paragraph: 'mb-2',
