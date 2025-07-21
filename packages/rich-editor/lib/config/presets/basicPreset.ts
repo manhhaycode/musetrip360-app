@@ -1,6 +1,6 @@
 import type { ToolbarConfig } from '../../types/plugins';
 
-// Preset cơ bản cho editor đơn giản
+// Basic preset for a simple editor
 export const basicToolbarConfig: ToolbarConfig = {
   showBold: true,
   showItalic: true,
