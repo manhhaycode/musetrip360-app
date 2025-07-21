@@ -21,12 +21,7 @@ export interface Pagination {
 /**
  * Base search request interface
  */
-export interface SearchRequest extends Pagination {}
-
-/**
- * Detailed search request interface
- */
-export interface DetailedSearchRequest extends SearchRequest {
+export interface SearchRequest extends Pagination {
   Id: string;
   Name: string;
   Title: string;
