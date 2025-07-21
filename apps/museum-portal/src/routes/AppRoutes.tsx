@@ -7,6 +7,9 @@ import MuseumArtifactPage from '@/features/museum/pages/MuseumArtifactPage';
 import MuseumDetailPage from '@/features/museum/pages/MuseumDetailPage';
 import MuseumHomePage from '@/features/museum/pages/MuseumHomePage';
 import MuseumPolicyPage from '@/features/museum/pages/MuseumPolicyPage';
+import NotFound from '@/features/exception/NotFound';
+import ArtifactCreatePage from '@/features/artifacts/pages/ArtifactCreatePage';
+import ArtifactEditPage from '@/features/artifacts/pages/ArtifactEditPage';
 
 export default function AppRoutes() {
   return (
@@ -25,6 +28,10 @@ export default function AppRoutes() {
           <Route path="/museum/artifacts" element={<MuseumArtifactPage />} />
           <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
           <Route path="/museum/policy" element={<MuseumPolicyPage />} />
+
+          {/* Artifact Management */}
+          <Route path="/artifact/create" element={<ArtifactCreatePage />} />
+          <Route path="/artifact/edit/:id" element={<ArtifactEditPage />} />
 
           {/* Staff Management */}
           <Route path="/staff" element={<div>Danh sách nhân viên</div>} />
@@ -55,7 +62,7 @@ export default function AppRoutes() {
           <Route path="/logout" element={<div>Đăng xuất</div>} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
-        <Route path="*" element={<div>404</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
