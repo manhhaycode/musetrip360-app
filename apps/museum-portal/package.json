@@ -17,6 +17,7 @@
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/museum-management": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
+    "@musetrip360/rich-editor": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",

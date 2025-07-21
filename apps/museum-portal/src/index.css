@@ -2,9 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@source '../node_modules/@musetrip360/ui-core';
-@source '../node_modules/@musetrip360/auth-system';
-@source '../node_modules/@musetrip360/artifact-management';
+@source '../node_modules/@musetrip360/ui-core/dist/es';
+@source '../node_modules/@musetrip360/auth-system/dist/es';
+@source '../node_modules/@musetrip360/artifact-management/dist/es';
+@source '../node_modules/@musetrip360/rich-editor/dist/es';
 
 @custom-variant dark (&:is(.dark *));
 

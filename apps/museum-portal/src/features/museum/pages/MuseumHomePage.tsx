@@ -1,7 +1,10 @@
-import React from 'react';
-
+import { RichEditor } from '@musetrip360/rich-editor';
 const MuseumHomePage = () => {
-  return <div>MuseumHomePage</div>;
+  return (
+    <div className="flex flex-1">
+      <RichEditor showToolbar placeholder="Nhập nội dung..." />
+    </div>
+  );
 };
 
 export default MuseumHomePage;
