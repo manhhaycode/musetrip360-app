@@ -6,7 +6,7 @@
  */
 
 import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
-import { ArtifactListParams, ArtifactAdminListParams, ArtifactMuseumSearchParams } from '@/types';
+import { ArtifactListParams, ArtifactMuseumSearchParams } from '@/types';
 
 /**
  * Artifact Management cache keys
@@ -21,7 +21,7 @@ export class ArtifactManagementCacheKeys extends BaseCacheKeyFactory {
     return [this.prefix, 'artifacts', 'list', params];
   }
 
-  adminList(params?: ArtifactAdminListParams): QueryKey {
+  adminList(params?: ArtifactListParams): QueryKey {
     return [this.prefix, 'artifacts', 'adminList', params];
   }
 

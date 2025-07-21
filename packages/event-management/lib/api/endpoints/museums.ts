@@ -20,18 +20,8 @@ export const museumEndpoints = {
  */
 export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
   const httpClient = getHttpClient();
-  const searchParams = new URLSearchParams();
 
-  // Add search parameters
-  if (params.Name) searchParams.append('Name', params.Name);
-  if (params.Description) searchParams.append('Description', params.Description);
-  if (params.Page) searchParams.append('Page', params.Page.toString());
-  if (params.PageSize) searchParams.append('PageSize', params.PageSize.toString());
-  if (params.sortBy) searchParams.append('SortBy', params.sortBy);
-
-  const url = `${museumEndpoints.search}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-
-  return await httpClient.get<MuseumSearchResponse>(url);
+  return await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
 };
 
 /**
