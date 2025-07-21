@@ -18,7 +18,15 @@ export interface Pagination {
   sortList?: string[];
 }
 
-export interface SearchRequest extends Pagination {
+/**
+ * Base search request interface
+ */
+export interface SearchRequest extends Pagination {}
+
+/**
+ * Detailed search request interface
+ */
+export interface DetailedSearchRequest extends SearchRequest {
   Id: string;
   Name: string;
   Title: string;
