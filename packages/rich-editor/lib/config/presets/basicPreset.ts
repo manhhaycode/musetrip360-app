@@ -32,7 +32,7 @@ export const fullToolbarConfig: ToolbarConfig = {
   showBackground: false,
 };
 
-// Preset cho museum content
+// Preset for museum content
 export const museumToolbarConfig: ToolbarConfig = {
   showBold: true,
   showItalic: true,
