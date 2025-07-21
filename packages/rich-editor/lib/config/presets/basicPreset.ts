@@ -16,7 +16,7 @@ export const basicToolbarConfig: ToolbarConfig = {
   showBackground: false,
 };
 
-// Preset đầy đủ cho content creator
+// Full preset for content creators
 export const fullToolbarConfig: ToolbarConfig = {
   showBold: true,
   showItalic: true,
