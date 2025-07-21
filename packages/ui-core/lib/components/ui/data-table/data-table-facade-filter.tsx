@@ -1,7 +1,7 @@
 'use client';
 
 import type { Column } from '@tanstack/react-table';
-import { Check, PlusCircle, XCircle } from 'lucide-react';
+import { PlusCircle, XCircle } from 'lucide-react';
 import * as React from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Separator } from '@/components/ui/separator';
-import { cn } from '@/libs/utils';
+import { Checkbox } from '../checkbox';
 import type { Option } from './use-data-table';
 
 interface DataTableFacetedFilterProps<TData, TValue> {
@@ -122,14 +122,7 @@ export function DataTableFacetedFilter<TData, TValue>({
 
                 return (
                   <CommandItem key={option.value} onSelect={() => onItemSelect(option, isSelected)}>
-                    <div
-                      className={cn(
-                        'flex size-4 items-center justify-center rounded-sm border border-primary',
-                        isSelected ? 'bg-primary' : 'opacity-50 [&_svg]:invisible'
-                      )}
-                    >
-                      <Check />
-                    </div>
+                    <Checkbox checked={isSelected} onCheckedChange={() => onItemSelect(option, isSelected)} />
                     {option.icon && <option.icon />}
                     <span className="truncate">{option.label}</span>
                     {option.count && <span className="ml-auto font-mono text-xs">{option.count}</span>}
