@@ -10,12 +10,18 @@ export interface APIResponse<T> {
 /**
  * Pagination information
  */
-export interface Pagination extends Partial<SearchRequest> {
+export interface Pagination {
   Page: number;
   PageSize: number;
+  IsActive?: boolean;
+  SearchKeyword?: string;
+  sortList?: string[];
 }
 
-export interface SearchRequest {
+/**
+ * Base search request interface
+ */
+export interface SearchRequest extends Pagination {
   Id: string;
   Name: string;
   Title: string;

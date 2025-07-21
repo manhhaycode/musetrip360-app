@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@musetrip360/artifact-management": "workspace:*",
     "@musetrip360/auth-system": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/museum-management": "workspace:*",

@@ -222,6 +222,11 @@
       "import": "./dist/es/components/table.js",
       "require": "./dist/cjs/components/table.js"
     },
+    "./data-table": {
+      "types": "./dist/data-table.d.ts",
+      "import": "./dist/es/components/data-table.js",
+      "require": "./dist/cjs/components/data-table.js"
+    },
     "./tabs": {
       "types": "./dist/tabs.d.ts",
       "import": "./dist/es/components/tabs.js",
@@ -338,6 +343,7 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@tailwindcss/vite": "^4.1.8",
+    "@tanstack/react-table": "^8.21.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

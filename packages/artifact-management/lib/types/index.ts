@@ -5,32 +5,58 @@
  * exhibitions, and devices.
  */
 
-import type { PaginatedResponse, Pagination } from '@musetrip360/query-foundation';
+import { Pagination } from '@musetrip360/query-foundation';
 
 // Museum management types
-export interface Museum {
+export interface Artifact {
   id: string;
   name: string;
   description: string;
-  location: string;
-  contactEmail: string;
-  contactPhone: string;
+  historicalPeriod: string;
+  imageUrl: string;
+  model3DUrl: string;
   rating: number;
+  isActive: boolean;
+  museumId: string;
   createdBy: string;
-  status: MuseumStatus;
+  metadata: ArtifactMetadata;
   createdAt: string;
   updatedAt: string;
 }
 
-export enum MuseumStatus {
-  Active = 'Active',
-  Inactive = 'Inactive',
-  Pending = 'Pending',
-  Archived = 'Archived',
+export interface ArtifactMetadata {
+  type: string;
+  material: string;
+  discoveryLocation: string;
 }
 
-export interface MuseumSearchParams extends Pagination {
-  sortBy: 'name' | 'rating' | 'createdAt';
+/**
+ * Artifact request types based on swagger.json
+ */
+export interface ArtifactCreateDto {
+  name: string;
+  description: string;
+  historicalPeriod: string;
+  imageUrl: string;
+  model3DUrl: string;
+  metadata?: any;
 }
 
-export type MuseumSearchResponse = PaginatedResponse<Museum>;
+export interface ArtifactUpdateDto {
+  name?: string;
+  description?: string;
+  historicalPeriod?: string;
+  imageUrl?: string;
+  model3DUrl?: string;
+  metadata?: any;
+}
+
+/**
+ * Query parameters for artifact list endpoints
+ */
+export type ArtifactListParams = Pagination;
+
+export interface ArtifactMuseumSearchParams extends Pagination {
+  museumId: string;
+  HistoricalPeriods?: string[];
+}
