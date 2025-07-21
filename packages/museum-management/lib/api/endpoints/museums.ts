@@ -21,18 +21,8 @@ export const museumEndpoints = {
  */
 export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
   const httpClient = getHttpClient();
-  const searchParams = new URLSearchParams();
 
-  // Add search parameters
-  if (params.Name) searchParams.append('Name', params.Name);
-  if (params.Description) searchParams.append('Description', params.Description);
-  if (params.Page) searchParams.append('Page', params.Page.toString());
-  if (params.PageSize) searchParams.append('PageSize', params.PageSize.toString());
-  if (params.sortBy) searchParams.append('SortBy', params.sortBy);
-
-  const url = `${museumEndpoints.search}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`;
-
-  return await httpClient.get<MuseumSearchResponse>(url);
+  return await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
 };
 
 /**
@@ -50,6 +40,15 @@ export const getMuseumById = async (id: string): Promise<Museum> => {
 export const getUserMuseums = async (): Promise<Museum[]> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<Museum[]>>(museumEndpoints.getUserMuseums);
+  return response.data;
+};
+
+/**
+ * Update Museum
+ */
+export const updateMuseum = async (id: string, data: Partial<Museum>): Promise<Museum> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.put<APIResponse<Museum>>(museumEndpoints.getById(id), data);
   return response.data;
 };
 

@@ -10,23 +10,13 @@ if [ $? -ne 0 ]; then
 fi
 echo "✅ Dependencies check passed!"
 
-# Run linting
-echo "🔍 Running linting..."
-pnpm lint
+# Run lint-staged on staged files only
+echo "🔍 Running lint-staged on staged files..."
+pnpm lint-staged
 if [ $? -ne 0 ]; then
-  echo "❌ Linting failed. Please fix the issues before committing."
+  echo "❌ Lint-staged failed. Please fix the issues before committing."
   exit 1
 fi
-echo "✅ Linting passed!"
-
-# Run formatting
-echo "🔍 Checking formatting..."
-# Use format:check to run Prettier on staged files only
-pnpm format:check
-if [ $? -ne 0 ]; then
-  echo "❌ Formatting check failed. Please fix the issues before committing."
-  exit 1
-fi
-echo "✅ Formatting check passed!"
+echo "✅ Lint-staged passed!"
 
 echo "🎉 All checks passed! Proceeding with commit..."

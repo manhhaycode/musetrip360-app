@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core';
+import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { ArrowDownRight, ArrowUpRight, Building2, CheckCircle, Clock, TrendingUp } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';

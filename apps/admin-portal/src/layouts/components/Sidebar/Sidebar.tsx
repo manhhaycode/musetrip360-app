@@ -1,11 +1,12 @@
+import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+} from '@musetrip360/ui-core/dropdown-menu';
+import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
@@ -18,8 +19,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-} from '@musetrip360/ui-core';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
+} from '@musetrip360/ui-core/sidebar';
 import { Building2, ChevronDown, ChevronRight, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';

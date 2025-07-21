@@ -8,37 +8,24 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  CardContent,
+} from '@musetrip360/ui-core/alert-dialog';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from '@musetrip360/ui-core';
+} from '@musetrip360/ui-core/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
+import { Input } from '@musetrip360/ui-core/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { Switch } from '@musetrip360/ui-core/switch';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@musetrip360/ui-core/table';
+import { Textarea } from '@musetrip360/ui-core/textarea';
 import {
   ColumnDef,
   flexRender,

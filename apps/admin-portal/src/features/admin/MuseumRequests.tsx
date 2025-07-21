@@ -1,20 +1,8 @@
-import {
-  Badge,
-  Button,
-  Card,
-  CardContent,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@musetrip360/ui-core';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@musetrip360/ui-core/table';
 import {
   ColumnDef,
   ColumnFiltersState,

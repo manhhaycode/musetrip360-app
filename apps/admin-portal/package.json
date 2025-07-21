@@ -19,7 +19,7 @@
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
-    "@tanstack/react-table": "^8.20.5",
+    "@tanstack/react-table": "^8.21.3",
     "@types/js-cookie": "^3.0.6",
     "clsx": "^2.1.1",
     "history": "^5.3.0",
@@ -32,7 +32,7 @@
     "react-router": "^7.6.3",
     "react-router-dom": "^6.28.0",
     "recharts": "^2.15.3",
-    "tailwind-merge": "^3.3.0",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4",
     "zod": "^3.25.67"
   },

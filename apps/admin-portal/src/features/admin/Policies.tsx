@@ -8,36 +8,23 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  Badge,
-  Button,
-  Card,
-  CardContent,
+} from '@musetrip360/ui-core/alert-dialog';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-  Textarea,
-} from '@musetrip360/ui-core';
+} from '@musetrip360/ui-core/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
+import { Input } from '@musetrip360/ui-core/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@musetrip360/ui-core/table';
+import { Textarea } from '@musetrip360/ui-core/textarea';
 import {
   ColumnDef,
   flexRender,
@@ -47,7 +34,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { ArrowUpDown, Building2, Edit, Eye, FileText, Plus, Shield, Trash2, Users } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Policy, PolicyStatus, PolicyType } from '../types';
@@ -228,20 +215,23 @@ export default function Policies() {
   });
 
   // Handle actions
-  const handleEdit = (policy: Policy) => {
-    form.reset({
-      title: policy.title,
-      type: policy.type,
-      content: policy.content || '',
-      summary: policy.summary || '',
-      appliesTo: policy.appliesTo || [],
-      status: policy.status,
-      version: policy.version,
-      effectiveDate: policy.effectiveDate,
-      expiryDate: policy.expiryDate || '',
-    });
-    setEditModal({ open: true, policy });
-  };
+  const handleEdit = useCallback(
+    (policy: Policy) => {
+      form.reset({
+        title: policy.title,
+        type: policy.type,
+        content: policy.content || '',
+        summary: policy.summary || '',
+        appliesTo: policy.appliesTo || [],
+        status: policy.status,
+        version: policy.version,
+        effectiveDate: policy.effectiveDate,
+        expiryDate: policy.expiryDate || '',
+      });
+      setEditModal({ open: true, policy });
+    },
+    [form]
+  );
 
   // Define columns
   const columns = useMemo<ColumnDef<Policy>[]>(

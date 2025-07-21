@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { Input } from '@musetrip360/ui-core/input';
-import { Button } from '@musetrip360/ui-core/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
 import { Badge } from '@musetrip360/ui-core/badge';
-import { Search, MapPin, Filter, LayoutGrid, LayoutList } from 'lucide-react';
+import { Button } from '@musetrip360/ui-core/button';
+import { Input } from '@musetrip360/ui-core/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { LayoutGrid, LayoutList, MapPin, Search } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface SearchHeaderProps {
   searchQuery: string;

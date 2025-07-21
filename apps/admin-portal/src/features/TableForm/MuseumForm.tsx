@@ -1,25 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-  Textarea,
-} from '@musetrip360/ui-core';
+import { Button } from '@musetrip360/ui-core/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@musetrip360/ui-core/dialog';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
+import { Input } from '@musetrip360/ui-core/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Building2 } from 'lucide-react';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { MUSEUM_CATEGORIES } from '../types';

@@ -1,4 +1,5 @@
-import { Badge, Dialog, DialogContent, DialogHeader, DialogTitle } from '@musetrip360/ui-core';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@musetrip360/ui-core/dialog';
 import { Building2, FileText, UserCheck } from 'lucide-react';
 import { Museum, MUSEUM_CATEGORIES, MuseumRequest, User } from '../types';
 import { ViewModalProps } from './types';

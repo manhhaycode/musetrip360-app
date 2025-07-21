@@ -1,4 +1,5 @@
-import { Button, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@musetrip360/ui-core';
+import { Button } from '@musetrip360/ui-core/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@musetrip360/ui-core/dialog';
 import { AlertTriangle } from 'lucide-react';
 import { DeleteModalProps } from './types';
 

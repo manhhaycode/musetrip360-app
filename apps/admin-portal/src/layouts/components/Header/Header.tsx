@@ -1,18 +1,16 @@
 import { useAuthStore } from '@musetrip360/auth-system';
+import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Button } from '@musetrip360/ui-core/button';
 import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-  Badge,
-  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  SidebarTrigger,
-} from '@musetrip360/ui-core';
+} from '@musetrip360/ui-core/dropdown-menu';
+import { SidebarTrigger } from '@musetrip360/ui-core/sidebar';
 import { Bell, ChevronRight, LogOut, Settings, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 

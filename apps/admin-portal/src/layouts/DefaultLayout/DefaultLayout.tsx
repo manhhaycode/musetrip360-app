@@ -1,6 +1,6 @@
 // import { useModalStore } from '@/store/componentStore';
 import { useIsAuthenticated } from '@musetrip360/auth-system';
-import { SidebarInset, SidebarProvider } from '@musetrip360/ui-core';
+import { SidebarInset, SidebarProvider } from '@musetrip360/ui-core/sidebar';
 import { Navigate, Outlet } from 'react-router-dom';
 import Header from '../components/Header';
 import AppSidebar from '../components/Sidebar';

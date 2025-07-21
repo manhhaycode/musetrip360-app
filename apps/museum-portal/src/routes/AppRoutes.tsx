@@ -3,6 +3,10 @@ import { Routes, Route, BrowserRouter } from 'react-router';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import AuthPage from '@/features/auth/pages/AuthPage';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
+import MuseumArtifactPage from '@/features/museum/pages/MuseumArtifactPage';
+import MuseumDetailPage from '@/features/museum/pages/MuseumDetailPage';
+import MuseumHomePage from '@/features/museum/pages/MuseumHomePage';
+import MuseumPolicyPage from '@/features/museum/pages/MuseumPolicyPage';
 
 export default function AppRoutes() {
   return (
@@ -16,12 +20,11 @@ export default function AppRoutes() {
           <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />
 
           {/* Museum Management */}
-          <Route path="/museum" element={<div>Thông tin bảo tàng</div>} />
-          <Route path="/museum/basic-info" element={<div>Thông tin cơ bản</div>} />
-          <Route path="/museum/home-page" element={<div>Trang chủ bảo tàng</div>} />
-          <Route path="/museum/artifacts" element={<div>Danh sách hiện vật</div>} />
+          <Route path="/museum" element={<MuseumDetailPage />} />
+          <Route path="/museum/home-page" element={<MuseumHomePage />} />
+          <Route path="/museum/artifacts" element={<MuseumArtifactPage />} />
           <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
-          <Route path="/museum/policy" element={<div>Chính sách bảo tàng</div>} />
+          <Route path="/museum/policy" element={<MuseumPolicyPage />} />
 
           {/* Staff Management */}
           <Route path="/staff" element={<div>Danh sách nhân viên</div>} />
