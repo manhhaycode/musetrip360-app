@@ -14,6 +14,8 @@ import type {
   PaginatedResponse,
   IUser,
   UserRoleFormDto,
+  UserWithRole,
+  ApiResponse,
 } from '@/types';
 
 // API Base URLs
@@ -73,6 +75,22 @@ export const userEndpoints = {
   getUserPrivileges: async (): Promise<any> => {
     const client = getHttpClient();
     const response = await client.get<any>(`${API_BASE}/privileges`);
+    return response;
+  },
+
+  // GET /users/museum/{museumId}
+  getMuseumUsers: async (
+    params: UserSearchParams,
+    museumId: string
+  ): Promise<ApiResponse<PaginatedResponse<UserWithRole>>> => {
+    const client = getHttpClient();
+    const response = await client.get<ApiResponse<PaginatedResponse<UserWithRole>>>(`${API_BASE}/museum/${museumId}`, {
+      params: {
+        Search: params.search,
+        Page: params.page,
+        PageSize: params.pageSize,
+      },
+    });
     return response;
   },
 } as const;

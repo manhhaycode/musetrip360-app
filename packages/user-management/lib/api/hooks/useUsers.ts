@@ -15,6 +15,7 @@ import type {
   IUser,
   PaginatedResponse,
   UserRoleFormDto,
+  UserSearchParams,
 } from '@/types';
 import { userCacheKeys } from '../cache/cacheKeys';
 
@@ -30,6 +31,13 @@ export function useAdminUsers(params: UserAdminSearchParams) {
  */
 export function useUserRoles(userId: string) {
   return useQuery(userCacheKeys.roles(userId), () => userEndpoints.getUserRoles(userId));
+}
+
+/**
+ * Hook to fetch users for a museum
+ */
+export function useMuseumUsers(params: UserSearchParams, museumId: string) {
+  return useQuery(userCacheKeys.museumUsers(museumId), () => userEndpoints.getMuseumUsers(params, museumId));
 }
 
 /**
