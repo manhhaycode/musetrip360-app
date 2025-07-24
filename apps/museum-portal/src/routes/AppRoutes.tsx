@@ -10,6 +10,7 @@ import MuseumPolicyPage from '@/features/museum/pages/MuseumPolicyPage';
 import NotFound from '@/features/exception/NotFound';
 import ArtifactCreatePage from '@/features/artifacts/pages/ArtifactCreatePage';
 import ArtifactEditPage from '@/features/artifacts/pages/ArtifactEditPage';
+import StaffPage from '@/features/staff/pages/StaffPage';
 
 export default function AppRoutes() {
   return (
@@ -34,7 +35,7 @@ export default function AppRoutes() {
           <Route path="/artifact/edit/:id" element={<ArtifactEditPage />} />
 
           {/* Staff Management */}
-          <Route path="/staff" element={<div>Danh sách nhân viên</div>} />
+          <Route path="/staff" element={<StaffPage />} />
 
           {/* Event Management */}
           <Route path="/event" element={<div>Danh sách sự kiện</div>} />
