@@ -1,3 +1,3 @@
 export * from './editor';
-export * from './toolbar';
-export * from './ui';
+export * from '../plugins/ToolbarPlugin';
+// export * from './ui'; // TODO: Add UI components when needed

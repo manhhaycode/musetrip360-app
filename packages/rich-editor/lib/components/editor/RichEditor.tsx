@@ -2,6 +2,7 @@ import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { TRANSFORMERS } from '@lexical/markdown';
+import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -13,16 +14,29 @@ import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
+import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
-import { cn } from '@musetrip360/ui-core';
+import { cn } from '@musetrip360/ui-core/utils';
 import { forwardRef, useImperativeHandle } from 'react';
-import type { EditorRef, RichEditorProps } from '../../types/editor';
-import { Toolbar } from '../toolbar';
+import type { EditorRef, RichEditorProps } from '@/types/editor';
+import { ToolbarPlugin } from '@/plugins/ToolbarPlugin';
 
 const createInitialConfig = (onError?: (error: Error) => void) => ({
   namespace: 'MuseTrip360RichEditor',
-  nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode, CodeNode, CodeHighlightNode, AutoLinkNode, LinkNode],
+  nodes: [
+    HeadingNode,
+    ListNode,
+    ListItemNode,
+    QuoteNode,
+    CodeNode,
+    CodeHighlightNode,
+    AutoLinkNode,
+    LinkNode,
+    TableNode,
+    TableCellNode,
+    TableRowNode,
+  ],
   onError: (error: Error) => {
     console.error('Lexical Error:', error);
     onError?.(error);
@@ -56,6 +70,9 @@ const createInitialConfig = (onError?: (error: Error) => void) => ({
     },
     quote: 'border-l-4 border-gray-300 pl-4 italic my-4',
     code: 'bg-gray-100 rounded p-4 font-mono text-sm overflow-x-auto mb-4',
+    table: 'border-collapse border border-gray-300 my-4',
+    tableCell: 'border border-gray-300 px-3 py-2 text-left',
+    tableCellHeader: 'border border-gray-300 px-3 py-2 text-left font-bold bg-gray-50',
   },
 });
 
@@ -86,10 +103,14 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
     return (
       <div className={cn('flex flex-1 flex-col', className)}>
         <LexicalComposer initialConfig={initialConfig}>
-          {showToolbar && <Toolbar config={toolbarConfig} className={cn(toolbarClassName, 'border rounded-t-lg')} />}
-          <div className="relative flex flex-1">
+          {showToolbar && (
+            <ToolbarPlugin config={toolbarConfig} className={cn(toolbarClassName, 'border rounded-t-lg')} />
+          )}
+          <div style={{ flex: '1 0 0' }} className="relative py-4 border rounded-b-lg min-h-0">
             <RichTextPlugin
-              contentEditable={<ContentEditable className="p-4 border rounded-b-lg outline-none resize-none flex-1" />}
+              contentEditable={
+                <ContentEditable className="px-4 outline-none resize-none h-full w-full overflow-y-auto" />
+              }
               placeholder={<div className="absolute top-4 left-4 text-gray-400 pointer-events-none">{placeholder}</div>}
               ErrorBoundary={LexicalErrorBoundary}
             />
@@ -99,6 +120,7 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
           <ListPlugin />
           <LinkPlugin />
           <CheckListPlugin />
+          <TablePlugin />
           <TabIndentationPlugin />
           <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
           {onChange && (

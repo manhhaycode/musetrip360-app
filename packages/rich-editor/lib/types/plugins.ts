@@ -1,18 +1,38 @@
 import type { LexicalEditor } from 'lexical';
 
 export interface ToolbarConfig {
+  // Text Formatting Plugin
   showBold?: boolean;
   showItalic?: boolean;
   showUnderline?: boolean;
   showStrikethrough?: boolean;
-  showCode?: boolean;
-  showLink?: boolean;
+
+  // Block Formatting Plugin
+  showHeadings?: boolean;
   showList?: boolean;
   showQuote?: boolean;
-  showHeadings?: boolean;
+
+  // Insert Plugin
+  showLink?: boolean;
+  showImage?: boolean;
+  showTable?: boolean;
+
+  // Alignment Plugin
   showAlignment?: boolean;
+
+  // Font Styling Plugin
+  showFontSize?: boolean;
+  showFontFamily?: boolean;
+  showFontWeight?: boolean;
+
+  // Color Plugin
   showColor?: boolean;
   showBackground?: boolean;
+
+  // Code Plugin (for future use)
+  showCode?: boolean;
+
+  // Custom functionality
   customButtons?: ToolbarButton[];
 }
 
@@ -33,4 +53,4 @@ export interface CollaborationConfig {
   websocketUrl?: string;
 }
 
-export type FormatType = 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | 'subscript' | 'superscript';
+export type FormatType = 'bold' | 'italic' | 'underline' | 'strikethrough' | 'subscript' | 'superscript';

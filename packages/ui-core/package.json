@@ -13,7 +13,7 @@
       "require": "./dist/cjs/index.js"
     },
     "./utils": {
-      "types": "./dist/libs/utils.d.ts",
+      "types": "./dist/utils.d.ts",
       "import": "./dist/es/utils.js",
       "require": "./dist/cjs/utils.js"
     },
