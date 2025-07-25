@@ -15,19 +15,23 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { Artifact } from '../../types';
+import { Link, useNavigate } from 'react-router';
 
 const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: Artifact[] = useMemo(() => [], []);
+  const navigate = useNavigate();
   const handleAction = useCallback(
     () => ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onView: (data: any) => {},
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onEdit: (data: any) => {},
+
+      onEdit: (data: any) => {
+        navigate(`/artifact/edit/${data.id}`);
+      },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onDelete: (data: any) => {},
     }),
-    []
+    [navigate]
   );
 
   const columns = useMemo<ColumnDef<Artifact>[]>(
@@ -206,9 +210,11 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
-        <Button variant="default" size="sm" className="ml-2">
-          Add Artifact
-        </Button>
+        <Link to="/artifact/create">
+          <Button variant="default" size="sm" className="ml-2">
+            Add Artifact
+          </Button>
+        </Link>
       </DataTableToolbar>
     </DataTable>
   );

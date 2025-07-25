@@ -46,7 +46,7 @@ export interface PaginatedResponse<T> {
   data: T[];
   page: number;
   pageSize: number;
-  totalCount: number;
+  total: number;
   totalPages: number;
 }
 
@@ -96,6 +96,19 @@ export interface IUser {
   status: 'Active';
   lastLogin: '2025-06-29T04:01:28.673817Z';
 }
+
+export type UserWithRole = {
+  userId: string;
+  roleId: string;
+  museumId: string;
+  user: IUser;
+  role: {
+    id: string;
+    name: string;
+    description: string;
+    isActive: boolean;
+  };
+};
 
 // Configuration Types
 export interface UserManagementConfig {
