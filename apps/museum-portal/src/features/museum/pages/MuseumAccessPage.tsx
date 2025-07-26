@@ -3,12 +3,27 @@
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { MuseTrip360Logo } from '@/assets/svg';
-import { Building2, Plus, UserPlus } from 'lucide-react';
+import { Building2, Plus, UserPlus, Clock, CheckCircle, XCircle, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import PublicHeader from '@/layouts/components/Header/PublicHeader';
+import { MuseumRequestStatus, useGetUserMuseumRequests } from '@musetrip360/museum-management';
+import { Badge } from '@musetrip360/ui-core/badge';
+import get from 'lodash.get';
 
 const MuseumAccessPage = () => {
   const navigate = useNavigate();
+
+  // Fetch user's existing museum requests
+  const { data: userRequestsData, isLoading: loadingRequests } = useGetUserMuseumRequests({
+    Page: 1,
+    PageSize: 50,
+  });
+
+  const userRequests = get(userRequestsData, 'list', []);
+  const requestsList = Array.isArray(userRequests) ? userRequests : [];
+  const hasPendingRequest = requestsList.some(
+    (request: any) => request.status === MuseumRequestStatus.Draft || request.status === MuseumRequestStatus.Pending
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -27,6 +42,66 @@ const MuseumAccessPage = () => {
               Để bắt đầu sử dụng hệ thống, bạn cần được cấp quyền truy cập bảo tàng
             </p>
           </div>
+
+          {/* Existing Requests Section */}
+          {loadingRequests ? (
+            <Card className="mb-8">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-3"></div>
+                  <span className="text-gray-600">Đang tải yêu cầu hiện có...</span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : requestsList.length > 0 ? (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5 text-blue-600" />
+                  Yêu cầu đăng ký của bạn
+                </CardTitle>
+                <CardDescription>Dưới đây là danh sách các yêu cầu đăng ký bảo tàng bạn đã gửi</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {requestsList.map((request: any) => (
+                    <div key={request.id} className="border rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-gray-900 mb-1">{request.museumName}</h3>
+                          <p className="text-sm text-gray-600 mb-2">{request.location}</p>
+                          <p className="text-sm text-gray-500 line-clamp-2">{request.museumDescription}</p>
+                        </div>
+                        <div className="ml-4 flex flex-col items-end gap-2">
+                          {request.status === 'pending' && (
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                              <Clock className="h-3 w-3 mr-1" />
+                              Đang xử lý
+                            </Badge>
+                          )}
+                          {request.status === 'approved' && (
+                            <Badge variant="secondary" className="bg-green-100 text-green-800">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Đã phê duyệt
+                            </Badge>
+                          )}
+                          {request.status === 'rejected' && (
+                            <Badge variant="secondary" className="bg-red-100 text-red-800">
+                              <XCircle className="h-3 w-3 mr-1" />
+                              Bị từ chối
+                            </Badge>
+                          )}
+                          <span className="text-xs text-gray-500">
+                            {new Date(request.createdAt).toLocaleDateString('vi-VN')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          ) : null}
 
           {/* Main Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -67,10 +142,19 @@ const MuseumAccessPage = () => {
                   <p>• Quy trình xét duyệt 3-5 ngày làm việc</p>
                   <p>• Cần cung cấp đầy đủ thông tin chi tiết</p>
                 </div>
-                <Button className="w-full gap-2" onClick={() => navigate('/museums/request')}>
-                  <Building2 className="h-4 w-4" />
-                  Đăng ký bảo tàng
-                </Button>
+
+                {hasPendingRequest ? (
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                    <p className="text-sm text-yellow-800 font-medium">
+                      Bạn đã có yêu cầu đang chờ xử lý. Vui lòng chờ phản hồi trước khi gửi yêu cầu mới.
+                    </p>
+                  </div>
+                ) : (
+                  <Button className="w-full gap-2" onClick={() => navigate('/museums/request')}>
+                    <Building2 className="h-4 w-4" />
+                    Đăng ký bảo tàng
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
