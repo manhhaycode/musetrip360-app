@@ -11,6 +11,10 @@ import NotFound from '@/features/exception/NotFound';
 import ArtifactCreatePage from '@/features/artifacts/pages/ArtifactCreatePage';
 import ArtifactEditPage from '@/features/artifacts/pages/ArtifactEditPage';
 import StaffPage from '@/features/staff/pages/StaffPage';
+import MuseumCreateReqPage from '@/features/museum/pages/MuseumCreateReqPage';
+import MuseumAccessPage from '@/features/museum/pages/MuseumAccessPage';
+import SimpleLayout from '@/layouts/SimpleLayout';
+import DashboardPage from '@/features/dashboard/DashboardPage';
 
 export default function AppRoutes() {
   return (
@@ -18,7 +22,20 @@ export default function AppRoutes() {
       <ScrollToTop />
       <Routes>
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/welcome" element={<MuseumAccessPage />} />
+        <Route
+          path="/museums/request"
+          element={
+            <SimpleLayout>
+              <MuseumCreateReqPage />
+            </SimpleLayout>
+          }
+        />
+
         <Route path="/" element={<DefaultLayout />}>
+          {/* Default route for users with museums */}
+          <Route index element={<DashboardPage />} />
+
           {/* Statistics */}
           <Route path="/statistics" element={<div>Statistics</div>} />
           <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />
