@@ -1,4 +1,4 @@
-import { useMuseumUsers, UserWithRole } from '@musetrip360/user-management';
+import { useMuseumUsers, useRemoveUserRole, UserWithRole } from '@musetrip360/user-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
@@ -8,38 +8,59 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, Trash2, UserPlus } from 'lucide-react';
-import { useCallback, useMemo } from 'react';
+import { MoreHorizontal, Trash2, UserPlus } from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
 
 import get from 'lodash.get';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core';
+import AddStaffMember from './AddStaffMember';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const StaffDataTable = () => {
   const { selectedMuseum } = useMuseumStore();
+  const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
+
+  const tableState = useDataTableState({
+    defaultPerPage: 10,
+    defaultSort: [{ id: 'user.fullName', desc: false }],
+  });
+
+  const {
+    data: staffData,
+    isLoading: loadingStaff,
+    refetch: refetchStaff,
+  } = useMuseumUsers(
+    {
+      page: tableState.pagination.pageIndex + 1,
+      pageSize: tableState.pagination.pageSize,
+    },
+    selectedMuseum?.id ?? ''
+  );
+
+  const { mutate: deleteUserRole } = useRemoveUserRole({
+    onSuccess: () => {
+      toast.success('Staff member removed successfully');
+      refetchStaff();
+    },
+    onError: () => {
+      toast.error('Failed to remove staff member');
+    },
+  });
 
   const handleAction = useCallback(
     () => ({
-      onView: (data: UserWithRole) => {
-        // TODO: Implement view staff details
-        console.log('View staff:', data);
-      },
-
-      onEdit: (data: UserWithRole) => {
-        // TODO: Implement edit staff
-        console.log('Edit staff:', data);
-      },
-
       onDelete: (data: UserWithRole) => {
-        // TODO: Implement delete/remove staff
-        console.log('Delete staff:', data);
+        deleteUserRole({
+          userId: data.userId,
+          roleId: data.roleId,
+          museumId: selectedMuseum?.id ?? '',
+        });
       },
     }),
-    []
+    [deleteUserRole, selectedMuseum?.id]
   );
 
   const columns = useMemo<ColumnDef<UserWithRole>[]>(
@@ -79,7 +100,7 @@ const StaffDataTable = () => {
       },
       {
         accessorKey: 'user.fullName',
-        header: 'Full Name',
+        header: 'Tên',
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.user.fullName || 'N/A'}</div>,
       },
@@ -93,7 +114,7 @@ const StaffDataTable = () => {
       },
       {
         accessorKey: 'user.phoneNumber',
-        header: 'Phone Number',
+        header: 'Số điện thoại',
         enableSorting: true,
         cell: ({ row }) => (
           <div className="text-sm max-w-60 truncate text-muted-foreground">
@@ -103,7 +124,7 @@ const StaffDataTable = () => {
       },
       {
         accessorKey: 'role.name',
-        header: 'Role',
+        header: 'Vai trò',
         enableSorting: true,
         cell: ({ row }) => (
           <Badge variant="outline" className="font-medium">
@@ -113,7 +134,7 @@ const StaffDataTable = () => {
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: '',
         enableSorting: false,
         cell: ({ row }) => (
           <DropdownMenu>
@@ -124,19 +145,9 @@ const StaffDataTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Edit Role
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
                 <Trash2 className="mr-2 h-4 w-4" />
-                Remove from Museum
+                Xoá
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -144,19 +155,6 @@ const StaffDataTable = () => {
       },
     ],
     [handleAction]
-  );
-
-  const tableState = useDataTableState({
-    defaultPerPage: 10,
-    defaultSort: [{ id: 'user.fullName', desc: false }],
-  });
-
-  const { data: staffData, isLoading: loadingStaff } = useMuseumUsers(
-    {
-      page: tableState.pagination.pageIndex + 1,
-      pageSize: tableState.pagination.pageSize,
-    },
-    selectedMuseum?.id ?? ''
   );
 
   const { table } = useDataTable<UserWithRole, string>({
@@ -188,14 +186,26 @@ const StaffDataTable = () => {
   }
 
   return (
-    <DataTable table={table}>
-      <DataTableToolbar table={table}>
-        <Button variant="default" size="sm" className="ml-2">
-          <UserPlus className="mr-2 h-4 w-4" />
-          Add Staff Member
-        </Button>
-      </DataTableToolbar>
-    </DataTable>
+    <>
+      <DataTable table={table}>
+        <DataTableToolbar table={table}>
+          <Button variant="default" size="sm" className="ml-2" onClick={() => setIsAddStaffModalOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Thêm
+          </Button>
+        </DataTableToolbar>
+      </DataTable>
+
+      <AddStaffMember
+        isOpen={isAddStaffModalOpen}
+        onClose={() => setIsAddStaffModalOpen(false)}
+        onSuccess={() => {
+          refetchStaff();
+          setIsAddStaffModalOpen(false);
+          toast.success('Staff member added successfully');
+        }}
+      />
+    </>
   );
 };
 

@@ -5,8 +5,8 @@
  * Handles role assignment, removal, and permission checking.
  */
 
-import { getHttpClient } from '@musetrip360/query-foundation';
-import type { UserRoleFormDto } from '@/types';
+import { getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
+import type { ApiResponse, Role, RoleParams, UserRoleFormDto } from '@/types';
 
 // API Base URLs
 const ROLES_API_BASE = '/users/roles';
@@ -39,6 +39,13 @@ export const roleEndpoints = {
   getCurrentUserPrivileges: async (): Promise<any> => {
     const client = getHttpClient();
     const response = await client.get<any>('/users/privileges');
+    return response;
+  },
+
+  // GET /rolebase/roles
+  getRoles: async (params: RoleParams): Promise<ApiResponse<PaginatedResponse<Role>>> => {
+    const client = getHttpClient();
+    const response = await client.get<ApiResponse<PaginatedResponse<Role>>>('/rolebase/roles', { params });
     return response;
   },
 } as const;

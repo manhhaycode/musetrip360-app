@@ -26,9 +26,9 @@ const API_BASE = '/users';
  */
 export const userEndpoints = {
   // GET /users - Get paginated list of users
-  getUsers: async (params: UserSearchParams): Promise<PaginatedResponse<IUser>> => {
+  getUsers: async (params: UserSearchParams): Promise<ApiResponse<PaginatedResponse<IUser>>> => {
     const client = getHttpClient();
-    const response = await client.get<PaginatedResponse<IUser>>(API_BASE, {
+    const response = await client.get<ApiResponse<PaginatedResponse<IUser>>>(API_BASE, {
       params: {
         Search: params.search,
         Page: params.page,
@@ -100,9 +100,9 @@ export const userEndpoints = {
  */
 export const adminUserEndpoints = {
   // GET /users/admin - Get all users for admin (with additional filters)
-  getAllUsers: async (params: UserAdminSearchParams): Promise<PaginatedResponse<IUser>> => {
+  getAllUsers: async (params: UserAdminSearchParams): Promise<ApiResponse<PaginatedResponse<IUser>>> => {
     const client = getHttpClient();
-    const response = await client.get<PaginatedResponse<IUser>>(`${API_BASE}/admin`, {
+    const response = await client.get<ApiResponse<PaginatedResponse<IUser>>>(`${API_BASE}/admin`, {
       params: {
         IsActive: params.isActive,
         SearchKeyword: params.search,

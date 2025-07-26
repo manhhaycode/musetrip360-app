@@ -36,6 +36,7 @@ export interface SearchRequest extends Pagination {
  */
 export type PaginatedResponse<T> = APIResponse<{
   list: T[];
+  data: T[];
   total: number;
 }>;
 

@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@musetrip360/query-foundation';
+import { useQuery, useMutation, useQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
 import { userEndpoints, adminUserEndpoints, userApiErrorHandler } from '../endpoints/users';
 import type {
   UserAdminSearchParams,
@@ -91,11 +91,14 @@ export function useUpdateUser() {
 /**
  * Hook to add a role to a user
  */
-export function useAddUserRole() {
+export function useAddUserRole(options?: CustomMutationOptions<unknown, APIError, Partial<UserRoleFormDto>>) {
   const queryClient = useQueryClient();
 
   return useMutation((roleData: UserRoleFormDto) => userEndpoints.addUserRole(roleData), {
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables, context) => {
+      if (options) {
+        options.onSuccess?.(_, variables, context);
+      }
       // Invalidate user permissions query
       queryClient.invalidateQueries({
         queryKey: userCacheKeys.privileges(),
@@ -111,8 +114,11 @@ export function useAddUserRole() {
         queryKey: userCacheKeys.lists(),
       });
     },
-    onError: (error: any) => {
+    onError: (error: any, variables, context) => {
       console.error('Failed to add user role:', userApiErrorHandler.handleError(error));
+      if (options) {
+        options.onError?.(error, variables, context);
+      }
     },
   });
 }
@@ -120,11 +126,14 @@ export function useAddUserRole() {
 /**
  * Hook to remove a role from a user
  */
-export function useRemoveUserRole() {
+export function useRemoveUserRole(options?: CustomMutationOptions<unknown, APIError, Partial<UserRoleFormDto>>) {
   const queryClient = useQueryClient();
 
   return useMutation((roleData: UserRoleFormDto) => userEndpoints.removeUserRole(roleData), {
-    onSuccess: (_, variables) => {
+    onSuccess: (_, variables, context) => {
+      if (options) {
+        options.onSuccess?.(_, variables, context);
+      }
       // Invalidate user permissions query
       queryClient.invalidateQueries({
         queryKey: userCacheKeys.privileges(),
@@ -140,8 +149,11 @@ export function useRemoveUserRole() {
         queryKey: userCacheKeys.lists(),
       });
     },
-    onError: (error: any) => {
+    onError: (error: any, variables, context) => {
       console.error('Failed to remove user role:', userApiErrorHandler.handleError(error));
+      if (options) {
+        options.onError?.(error, variables, context);
+      }
     },
   });
 }
