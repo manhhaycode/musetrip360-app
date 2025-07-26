@@ -1,7 +1,7 @@
-import { useQuery as useReactQuery, QueryKey } from '@tanstack/react-query';
+import { QueryKey, useQuery as useReactQuery } from '@tanstack/react-query';
 import { getHttpClient } from '../client/httpClient';
-import type { CustomQueryOptions, APIError } from '../types/query-types';
 import type { RequestConfig } from '../types/api-types';
+import type { APIError, CustomQueryOptions } from '../types/query-types';
 
 /**
  * Enhanced useQuery hook with custom configuration
