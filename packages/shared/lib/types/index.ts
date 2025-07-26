@@ -7,3 +7,9 @@
 export interface UploadFile {
   name: string;
 }
+
+export type BaseParams = {
+  page: number;
+  pageSize: number;
+  search?: string;
+};

@@ -102,12 +102,7 @@ export type UserWithRole = {
   roleId: string;
   museumId: string;
   user: IUser;
-  role: {
-    id: string;
-    name: string;
-    description: string;
-    isActive: boolean;
-  };
+  role: Role;
 };
 
 // Configuration Types
@@ -161,3 +156,25 @@ export interface UserStore {
   // Hydration support
   hydrate: () => Promise<boolean>;
 }
+
+export type RoleParams = {
+  page: number;
+  pageSize: number;
+  search?: string;
+};
+
+export type Role = {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  permissions?: Permission[];
+};
+
+export type Permission = {
+  id: string;
+  name: string;
+  description?: string;
+  resourceGroup: string;
+  isActive: boolean;
+};
