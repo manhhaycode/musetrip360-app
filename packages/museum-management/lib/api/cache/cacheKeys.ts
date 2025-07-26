@@ -5,7 +5,7 @@
  * Follows the same pattern as user-management for consistency.
  */
 
-import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
+import { BaseCacheKeyFactory, Pagination, QueryKey } from '@musetrip360/query-foundation';
 import { MuseumSearchParams } from '@/types';
 
 /**
@@ -39,3 +39,26 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
  * Default cache keys instance
  */
 export const museumManagementCacheKeys = new MuseumManagementCacheKeys();
+
+/**
+ * Museum Request Management cache keys
+ */
+export class MuseumRequestManagementCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('museumRequestManagement');
+  }
+
+  museumRequest(id: string): QueryKey {
+    return [this.prefix, 'museumRequest', id];
+  }
+
+  museumRequests(params: Pagination): QueryKey {
+    return [this.prefix, 'museumRequests', params];
+  }
+
+  userMuseumRequests(params: Pagination): QueryKey {
+    return [this.prefix, 'userMuseumRequests', params];
+  }
+}
+
+export const museumRequestManagementCacheKeys = new MuseumRequestManagementCacheKeys();

@@ -13,9 +13,11 @@ import {
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from '@musetrip360/ui-core/sidebar';
 import { MuseTrip360Logo } from '@/assets/svg';
 import { useMuseumStore } from '@musetrip360/museum-management';
+import { useNavigate } from 'react-router';
 
 const MuseumSelect = () => {
   const { selectedMuseum, userMuseums, setSelectedMuseum } = useMuseumStore();
+  const navigate = useNavigate();
 
   return (
     <SidebarMenu>
@@ -51,7 +53,12 @@ const MuseumSelect = () => {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="gap-2 p-2">
+            <DropdownMenuItem
+              className="gap-2 p-2"
+              onClick={() => {
+                navigate('/museums/request');
+              }}
+            >
               <div className="flex size-6 items-center justify-center rounded-md border bg-transparent">
                 <Plus className="size-4" />
               </div>

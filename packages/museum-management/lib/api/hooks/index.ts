@@ -5,3 +5,4 @@
  */
 
 export * from './useMuseum';
+export * from './useMuseumRequest';

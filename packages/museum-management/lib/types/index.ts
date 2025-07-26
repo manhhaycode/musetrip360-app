@@ -44,3 +44,18 @@ export interface MuseumStore {
   setSelectedMuseum: (museum: Museum | null) => void;
   hydrate: () => Promise<boolean>;
 }
+
+export type MuseumRequest = {
+  id: string;
+  museumName: string;
+  museumDescription: string;
+  location: string;
+  contactEmail: string;
+  contactPhone: string;
+  status: string;
+  metadata: any; // TODO: add type for this
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
