@@ -46,7 +46,7 @@ export interface PaginatedResponse<T> {
   data: T[];
   page: number;
   pageSize: number;
-  totalCount: number;
+  total: number;
   totalPages: number;
 }
 
@@ -96,6 +96,14 @@ export interface IUser {
   status: 'Active';
   lastLogin: '2025-06-29T04:01:28.673817Z';
 }
+
+export type UserWithRole = {
+  userId: string;
+  roleId: string;
+  museumId: string;
+  user: IUser;
+  role: Role;
+};
 
 // Configuration Types
 export interface UserManagementConfig {
@@ -148,3 +156,25 @@ export interface UserStore {
   // Hydration support
   hydrate: () => Promise<boolean>;
 }
+
+export type RoleParams = {
+  page: number;
+  pageSize: number;
+  search?: string;
+};
+
+export type Role = {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  permissions?: Permission[];
+};
+
+export type Permission = {
+  id: string;
+  name: string;
+  description?: string;
+  resourceGroup: string;
+  isActive: boolean;
+};

@@ -41,6 +41,10 @@ export class UserCacheKeys extends BaseCacheKeyFactory {
   roles(userId?: string | number): QueryKey {
     return userId ? [this.prefix, 'roles', userId] : [this.prefix, 'roles'];
   }
+
+  museumUsers(museumId: string): QueryKey {
+    return [this.prefix, 'museumUsers', museumId];
+  }
 }
 
 export const userCacheKeys = new UserCacheKeys();

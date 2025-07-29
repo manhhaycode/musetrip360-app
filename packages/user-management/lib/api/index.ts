@@ -13,3 +13,4 @@ export * from './endpoints/roles';
 // React Query Hooks
 export * from './hooks/useUsers';
 export * from './hooks/useProfile';
+export * from './hooks/useRoles';
