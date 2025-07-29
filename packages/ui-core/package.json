@@ -13,7 +13,7 @@
       "require": "./dist/cjs/index.js"
     },
     "./utils": {
-      "types": "./dist/libs/utils.d.ts",
+      "types": "./dist/utils.d.ts",
       "import": "./dist/es/utils.js",
       "require": "./dist/cjs/utils.js"
     },
@@ -266,9 +266,9 @@
     "README.md"
   ],
   "scripts": {
-    "build": "vite build && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "build": "vite build",
     "build:watch": "vite build --watch",
-    "dev": "vite build --watch --emptyOutDir=false && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "vite build --watch --emptyOutDir=false",
     "type-check": "tsc --noEmit",
     "lint": "eslint lib --ext .ts,.tsx",
     "lint:fix": "eslint lib --ext .ts,.tsx --fix",

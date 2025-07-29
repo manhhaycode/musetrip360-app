@@ -115,12 +115,24 @@ export interface ResponseInterceptorContext {
 }
 
 /**
- * File upload progress
+ * Upload progress information
  */
 export interface UploadProgress {
   loaded: number;
   total: number;
   percentage: number;
+  status?: UploadStatus;
+}
+
+/**
+ * Upload status enumeration
+ */
+export enum UploadStatus {
+  IDLE = 'idle',
+  UPLOADING = 'uploading',
+  SUCCESS = 'success',
+  ERROR = 'error',
+  CANCELLED = 'cancelled',
 }
 
 /**

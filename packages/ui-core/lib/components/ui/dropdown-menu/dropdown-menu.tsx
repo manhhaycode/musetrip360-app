@@ -26,6 +26,7 @@ function DropdownMenuContent({
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
+        onCloseAutoFocus={(e) => e.preventDefault()}
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
         className={cn(
