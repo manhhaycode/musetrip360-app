@@ -1,10 +1,14 @@
 import { MuseTrip360Logo } from '@/assets/svg';
+import { useAuthStore } from '@musetrip360/auth-system';
+import { useMuseumStore } from '@musetrip360/museum-management';
+import { useUserStore } from '@musetrip360/user-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
 const PublicHeader = () => {
   const navigate = useNavigate();
+
   return (
     <div className="bg-white border-b border-gray-200 px-4 py-3">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -22,6 +26,19 @@ const PublicHeader = () => {
             <span>/</span>
             <span className="font-medium text-gray-900">Chào mừng</span>
           </nav>
+        </div>
+        <div className="flex gap-2 items-center flex-end">
+          <Button
+            variant={'default'}
+            onClick={() => {
+              useAuthStore.getState().resetStore();
+              useMuseumStore.getState().resetStore();
+              useUserStore.getState().resetStore();
+              navigate('/');
+            }}
+          >
+            Đăng xuất
+          </Button>
         </div>
       </div>
     </div>

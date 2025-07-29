@@ -37,6 +37,7 @@ export const useMuseumStore = create<MuseumStore>()(
         },
         resetStore: () =>
           set((state) => {
+            console.log('reset store');
             state.museums = [];
             state.userMuseums = [];
             state.selectedMuseum = null;
