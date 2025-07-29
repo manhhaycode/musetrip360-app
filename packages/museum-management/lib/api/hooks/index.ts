@@ -6,3 +6,4 @@
 
 export * from './useMuseum';
 export * from './useMuseumRequest';
+export * from './useMuseumPolicy';

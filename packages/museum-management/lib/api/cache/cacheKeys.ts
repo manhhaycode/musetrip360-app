@@ -62,3 +62,18 @@ export class MuseumRequestManagementCacheKeys extends BaseCacheKeyFactory {
 }
 
 export const museumRequestManagementCacheKeys = new MuseumRequestManagementCacheKeys();
+
+/**
+ * Museum Policy Management cache keys
+ */
+export class MuseumPolicyManagementCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('museumPolicyManagement');
+  }
+
+  museumPolicies(museumId: string, params: Pagination): QueryKey {
+    return [this.prefix, 'museumPolicies', museumId, params];
+  }
+}
+
+export const museumPolicyManagementCacheKeys = new MuseumPolicyManagementCacheKeys();
