@@ -1,6 +1,7 @@
 import { $patchStyleText } from '@lexical/selection';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { Button } from '@musetrip360/ui-core/button';
+import { Input } from '@musetrip360/ui-core/input';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,9 +9,16 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { $getSelection, $isRangeSelection } from 'lexical';
-import { ChevronDown, Type, Hash } from 'lucide-react';
-import { useCallback } from 'react';
+import { ChevronDown, Type, Plus, Minus, Check } from 'lucide-react';
+import { useCallback, useState, useEffect } from 'react';
 import { useSelectionState } from '@/hooks';
+import {
+  updateFontSizeInSelection,
+  UpdateFontSizeType,
+  MIN_ALLOWED_FONT_SIZE,
+  MAX_ALLOWED_FONT_SIZE,
+  calculateNextFontSize,
+} from './utils';
 
 export interface FontStylingConfig {
   showFontSize?: boolean;
@@ -21,17 +29,6 @@ export interface FontStylingConfig {
 interface FontStylingPluginProps {
   config?: FontStylingConfig;
 }
-
-const fontSizes = [
-  { label: '12px', value: '12px' },
-  { label: '14px', value: '14px' },
-  { label: '16px', value: '16px' },
-  { label: '18px', value: '18px' },
-  { label: '20px', value: '20px' },
-  { label: '24px', value: '24px' },
-  { label: '32px', value: '32px' },
-  { label: '48px', value: '48px' },
-];
 
 const fontFamilies = [
   { label: 'Default', value: '' },
@@ -54,6 +51,12 @@ const fontWeights = [
 export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) => {
   const [editor] = useLexicalComposerContext();
   const selectionState = useSelectionState();
+  const [fontSizeInput, setFontSizeInput] = useState('14');
+
+  useEffect(() => {
+    const numericSize = selectionState.fontSize.replace('px', '');
+    setFontSizeInput(numericSize);
+  }, [selectionState.fontSize]);
 
   const applyInlineStyle = useCallback(
     (property: string, value: string) => {
@@ -66,13 +69,6 @@ export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) 
       requestAnimationFrame(() => editor.focus()); // Ensure focus after applying styles
     },
     [editor]
-  );
-
-  const applyFontSize = useCallback(
-    (size: string) => {
-      applyInlineStyle('font-size', size);
-    },
-    [applyInlineStyle]
   );
 
   const applyFontFamily = useCallback(
@@ -89,35 +85,90 @@ export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) 
     [applyInlineStyle]
   );
 
+  const updateFontSizeByInputValue = useCallback(
+    (inputValueNumber: number) => {
+      let updatedFontSize = inputValueNumber;
+      if (inputValueNumber > MAX_ALLOWED_FONT_SIZE) {
+        updatedFontSize = MAX_ALLOWED_FONT_SIZE;
+      } else if (inputValueNumber < MIN_ALLOWED_FONT_SIZE) {
+        updatedFontSize = MIN_ALLOWED_FONT_SIZE;
+      }
+      setFontSizeInput(String(updatedFontSize));
+      updateFontSizeInSelection(editor, String(updatedFontSize) + 'px', null);
+    },
+    [editor]
+  );
+
+  const handleFontSizeIncrement = useCallback(() => {
+    const newSize = calculateNextFontSize(Number(fontSizeInput), UpdateFontSizeType.increment);
+    updateFontSizeByInputValue(newSize);
+  }, [updateFontSizeByInputValue, fontSizeInput]);
+
+  const handleFontSizeDecrement = useCallback(() => {
+    const newSize = calculateNextFontSize(Number(fontSizeInput), UpdateFontSizeType.decrement);
+    updateFontSizeByInputValue(newSize);
+  }, [updateFontSizeByInputValue, fontSizeInput]);
+
+  const handleInputBlur = useCallback(() => {
+    if (fontSizeInput) {
+      updateFontSizeByInputValue(Number(fontSizeInput));
+    }
+  }, [updateFontSizeByInputValue, fontSizeInput]);
+
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const inputValueNumber = Number(fontSizeInput);
+
+      if (e.key === 'Tab') {
+        return;
+      }
+      if (['e', 'E', '+', '-'].includes(e.key) || isNaN(inputValueNumber)) {
+        e.preventDefault();
+        setFontSizeInput('');
+        return;
+      }
+      if (e.key === 'Enter' || e.key === 'Escape') {
+        e.preventDefault();
+
+        updateFontSizeByInputValue(inputValueNumber);
+      }
+    },
+    [fontSizeInput, updateFontSizeByInputValue]
+  );
+
   return (
-    <div className="flex items-center gap-1 mx-2">
-      {/* Font Size Dropdown */}
+    <>
+      {/* Font Size Input with Plus/Minus */}
       {(config?.showFontSize ?? true) && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 min-w-[70px] justify-start">
-              <Hash className="h-3 w-3" />
-              <span className="text-sm">{selectionState.fontSize}</span>
-              <ChevronDown className="h-3 w-3 ml-auto" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-32">
-            {fontSizes.map((size) => (
-              <DropdownMenuItem key={size.value} onClick={() => applyFontSize(size.value)} className="gap-3">
-                <span style={{ fontSize: size.value }}>{size.label}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleFontSizeDecrement}>
+            <Minus className="h-3 w-3" />
+          </Button>
+
+          <Input
+            type="number"
+            value={fontSizeInput}
+            onChange={(e) => setFontSizeInput(e.target.value)}
+            onBlur={handleInputBlur}
+            onKeyDown={handleInputKeyDown}
+            className="h-8 w-12 px-1 text-center text-sm"
+            min={MIN_ALLOWED_FONT_SIZE}
+            max={MAX_ALLOWED_FONT_SIZE}
+          />
+
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleFontSizeIncrement}>
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
       )}
 
       {/* Font Family Dropdown */}
       {(config?.showFontFamily ?? true) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 min-w-[80px] justify-start">
+            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 w-35 justify-start">
               <Type className="h-3 w-3" />
-              <span className="text-sm">
+              <span className="text-sm truncate">
                 {selectionState.fontFamily
                   ? fontFamilies.find((f) => f.value === selectionState.fontFamily)?.label || 'Custom'
                   : 'Default'}
@@ -133,6 +184,7 @@ export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) 
                 className="gap-3"
               >
                 <span style={{ fontFamily: font.value || 'inherit' }}>{font.label}</span>
+                {font.value === selectionState.fontFamily && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -143,9 +195,9 @@ export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) 
       {(config?.showFontWeight ?? true) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 min-w-[85px] justify-start">
+            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 w-30 justify-start">
               <span className="text-sm font-bold">W</span>
-              <span className="text-sm">
+              <span className="text-sm truncate">
                 {fontWeights.find((w) => w.value === selectionState.fontWeight)?.label || 'Normal'}
               </span>
               <ChevronDown className="h-3 w-3 ml-auto" />
@@ -155,11 +207,12 @@ export const FontStylingPlugin: React.FC<FontStylingPluginProps> = ({ config }) 
             {fontWeights.map((weight) => (
               <DropdownMenuItem key={weight.value} onClick={() => applyFontWeight(weight.value)} className="gap-3">
                 <span style={{ fontWeight: weight.value }}>{weight.label}</span>
+                {weight.value === selectionState.fontWeight && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-    </div>
+    </>
   );
 };

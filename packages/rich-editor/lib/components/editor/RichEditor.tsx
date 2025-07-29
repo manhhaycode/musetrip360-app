@@ -1,8 +1,13 @@
+import { SelectionStateProvider } from '@/context';
+import { ImageNode } from '@/nodes/ImageNode';
+import { ImagePlugin } from '@/plugins/ImagePlugin';
+import { ToolbarPlugin } from '@/plugins/ToolbarPlugin';
+import { ValuePlugin } from '@/plugins/ValuePlugin';
+import type { EditorRef, RichEditorProps } from '@/types/editor';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { ListItemNode, ListNode } from '@lexical/list';
 import { TRANSFORMERS } from '@lexical/markdown';
-import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 import { CheckListPlugin } from '@lexical/react/LexicalCheckListPlugin';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
@@ -12,15 +17,15 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { LinkPlugin } from '@lexical/react/LexicalLinkPlugin';
 import { ListPlugin } from '@lexical/react/LexicalListPlugin';
 import { MarkdownShortcutPlugin } from '@lexical/react/LexicalMarkdownShortcutPlugin';
+import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { TabIndentationPlugin } from '@lexical/react/LexicalTabIndentationPlugin';
 import { TablePlugin } from '@lexical/react/LexicalTablePlugin';
-import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { HeadingNode, QuoteNode } from '@lexical/rich-text';
+import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
+import { BulkUploadProvider } from '@musetrip360/shared/contexts';
 import { cn } from '@musetrip360/ui-core/utils';
 import { forwardRef, useImperativeHandle } from 'react';
-import type { EditorRef, RichEditorProps } from '@/types/editor';
-import { ToolbarPlugin } from '@/plugins/ToolbarPlugin';
 
 const createInitialConfig = (onError?: (error: Error) => void) => ({
   namespace: 'MuseTrip360RichEditor',
@@ -36,6 +41,7 @@ const createInitialConfig = (onError?: (error: Error) => void) => ({
     TableNode,
     TableCellNode,
     TableRowNode,
+    ImageNode,
   ],
   onError: (error: Error) => {
     console.error('Lexical Error:', error);
@@ -43,7 +49,7 @@ const createInitialConfig = (onError?: (error: Error) => void) => ({
   },
   theme: {
     // Use TailwindCSS classes instead of custom theme
-    paragraph: 'mb-2',
+    paragraph: 'mb-4',
     heading: {
       h1: 'text-4xl font-bold mb-4',
       h2: 'text-3xl font-bold mb-3',
@@ -60,7 +66,7 @@ const createInitialConfig = (onError?: (error: Error) => void) => ({
       ul: 'list-disc list-inside mb-2',
       listitem: 'mb-1',
     },
-    link: 'text-blue-600 hover:text-blue-800 underline',
+    link: 'text-primary hover:text-primary/70 underline',
     text: {
       bold: 'font-bold',
       italic: 'italic',
@@ -73,6 +79,7 @@ const createInitialConfig = (onError?: (error: Error) => void) => ({
     table: 'border-collapse border border-gray-300 my-4',
     tableCell: 'border border-gray-300 px-3 py-2 text-left',
     tableCellHeader: 'border border-gray-300 px-3 py-2 text-left font-bold bg-gray-50',
+    image: 'my-4 mx-auto max-w-full',
   },
 });
 
@@ -82,10 +89,12 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
       className,
       placeholder = 'Nhập nội dung...',
       onChange,
+      onSave,
       onError,
       showToolbar = false,
       toolbarConfig,
       toolbarClassName,
+      value,
     },
     ref
   ) => {
@@ -102,36 +111,48 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
 
     return (
       <div className={cn('flex flex-1 flex-col', className)}>
-        <LexicalComposer initialConfig={initialConfig}>
-          {showToolbar && (
-            <ToolbarPlugin config={toolbarConfig} className={cn(toolbarClassName, 'border rounded-t-lg')} />
-          )}
-          <div style={{ flex: '1 0 0' }} className="relative py-4 border rounded-b-lg min-h-0">
-            <RichTextPlugin
-              contentEditable={
-                <ContentEditable className="px-4 outline-none resize-none h-full w-full overflow-y-auto" />
-              }
-              placeholder={<div className="absolute top-4 left-4 text-gray-400 pointer-events-none">{placeholder}</div>}
-              ErrorBoundary={LexicalErrorBoundary}
-            />
-          </div>
-          <HistoryPlugin />
-          <AutoFocusPlugin />
-          <ListPlugin />
-          <LinkPlugin />
-          <CheckListPlugin />
-          <TablePlugin />
-          <TabIndentationPlugin />
-          <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
-          {onChange && (
-            <OnChangePlugin
-              onChange={(editorState) => {
-                const jsonString = JSON.stringify(editorState.toJSON());
-                onChange(jsonString);
-              }}
-            />
-          )}
-        </LexicalComposer>
+        <BulkUploadProvider>
+          <LexicalComposer initialConfig={initialConfig}>
+            <SelectionStateProvider>
+              {showToolbar && (
+                <ToolbarPlugin
+                  config={toolbarConfig}
+                  className={cn(toolbarClassName, 'border rounded-t-lg')}
+                  onSave={onSave}
+                />
+              )}
+              <div style={{ flex: '1 0 0' }} className="relative py-4 border rounded-b-lg min-h-0">
+                <RichTextPlugin
+                  contentEditable={
+                    <ContentEditable className="px-4 outline-none resize-none h-full w-full overflow-y-auto" />
+                  }
+                  placeholder={
+                    <div className="absolute top-4 left-4 text-gray-400 pointer-events-none">{placeholder}</div>
+                  }
+                  ErrorBoundary={LexicalErrorBoundary}
+                />
+              </div>
+            </SelectionStateProvider>
+            <HistoryPlugin />
+            <AutoFocusPlugin />
+            <ValuePlugin value={value} />
+            <ListPlugin />
+            <LinkPlugin />
+            <CheckListPlugin />
+            <TablePlugin />
+            <TabIndentationPlugin />
+            <ImagePlugin />
+            <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
+            {onChange && (
+              <OnChangePlugin
+                onChange={(editorState) => {
+                  const jsonString = JSON.stringify(editorState.toJSON());
+                  onChange(jsonString);
+                }}
+              />
+            )}
+          </LexicalComposer>
+        </BulkUploadProvider>
       </div>
     );
   }

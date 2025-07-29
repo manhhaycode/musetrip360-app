@@ -29,6 +29,13 @@ export interface ToolbarConfig {
   showColor?: boolean;
   showBackground?: boolean;
 
+  // History Plugin
+  showUndo?: boolean;
+  showRedo?: boolean;
+
+  // Save Plugin
+  showSave?: boolean;
+
   // Code Plugin (for future use)
   showCode?: boolean;
 

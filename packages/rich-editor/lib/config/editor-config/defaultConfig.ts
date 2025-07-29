@@ -4,10 +4,21 @@ import { ListItemNode, ListNode } from '@lexical/list';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { AutoLinkNode, LinkNode } from '@lexical/link';
 import { TRANSFORMERS } from '@lexical/markdown';
+import { ImageNode } from '../../nodes/ImageNode';
 
 export const defaultEditorConfig: InitialConfigType = {
   namespace: 'MuseTrip360RichEditor',
-  nodes: [HeadingNode, ListNode, ListItemNode, QuoteNode, CodeNode, CodeHighlightNode, AutoLinkNode, LinkNode],
+  nodes: [
+    HeadingNode,
+    ListNode,
+    ListItemNode,
+    QuoteNode,
+    CodeNode,
+    CodeHighlightNode,
+    AutoLinkNode,
+    LinkNode,
+    ImageNode,
+  ],
   onError: (error: Error) => {
     throw error;
   },
@@ -39,6 +50,7 @@ export const defaultEditorConfig: InitialConfigType = {
     },
     quote: 'border-l-4 border-gray-300 pl-4 italic my-4 text-gray-700',
     code: 'bg-gray-100 rounded p-4 font-mono text-sm overflow-x-auto mb-4 border',
+    image: 'my-4 mx-auto max-w-full',
   },
 };
 

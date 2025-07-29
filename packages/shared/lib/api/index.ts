@@ -2,11 +2,11 @@
  * @fileoverview API Layer Exports
  *
  * Exports all API-related components including endpoints, hooks, and utilities
- * for user management operations.
+ * for upload operations.
  */
 
 // API Cache Keys
 export * from './cache/cacheKeys';
 
-// API Endpoints
-export * from './endpoints/upload';
+// API Hooks
+export * from './hooks/useUpload';

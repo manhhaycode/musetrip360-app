@@ -6,6 +6,7 @@
 @source '../node_modules/@musetrip360/auth-system/dist/es';
 @source '../node_modules/@musetrip360/artifact-management/dist/es';
 @source '../node_modules/@musetrip360/rich-editor/dist/es';
+@source '../node_modules/@musetrip360/shared/dist/es';
 
 @custom-variant dark (&:is(.dark *));
 

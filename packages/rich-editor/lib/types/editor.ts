@@ -5,8 +5,9 @@ import type { ToolbarConfig } from './plugins';
 export interface RichEditorProps {
   config?: Partial<EditorConfig>;
   placeholder?: string;
-  initialValue?: string;
+  value?: string;
   onChange?: (editorState: string) => void;
+  onSave?: (content: string) => void;
   onError?: (error: Error) => void;
   readOnly?: boolean;
   theme?: string;

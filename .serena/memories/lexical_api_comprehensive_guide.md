@@ -3,6 +3,7 @@
 ## Core Concepts
 
 ### Editor State Management
+
 - **Source of Truth**: Not the DOM, but an underlying state model
 - **Two Phases**: Mutable during updates, immutable after updates
 - **Core Elements**: Node tree + editor selection
@@ -10,12 +11,15 @@
 ### Key API Patterns
 
 #### 1. Editor Creation & Updates
+
 ```javascript
-import {createEditor} from 'lexical';
+import { createEditor } from 'lexical';
 
 const editor = createEditor({
   namespace: 'MyEditor',
-  theme: { /* optional theming */ }
+  theme: {
+    /* optional theming */
+  },
 });
 
 // Update pattern - CRITICAL for all modifications
@@ -29,13 +33,16 @@ editor.update(() => {
 ```
 
 #### 2. Selection Management
+
 **Selection Types:**
+
 - `RangeSelection`: Most common (anchor, focus, format properties)
 - `NodeSelection`: Multiple arbitrary nodes
 - `TableSelection`: Grid-like selections
 - `null`: No active selection
 
 **Key Selection APIs:**
+
 ```javascript
 // MUST be called within editor.update() or editor.read()
 const selection = $getSelection();
@@ -47,8 +54,9 @@ $createNodeSelection();
 ```
 
 #### 3. State Listeners
+
 ```javascript
-editor.registerUpdateListener(({editorState}) => {
+editor.registerUpdateListener(({ editorState }) => {
   editorState.read(() => {
     // Process state changes
     const selection = $getSelection();
@@ -58,6 +66,7 @@ editor.registerUpdateListener(({editorState}) => {
 ```
 
 #### 4. Command System
+
 ```javascript
 // Create custom commands
 const HELLO_WORLD_COMMAND = createCommand();
@@ -79,6 +88,7 @@ editor.registerCommand(
 ## React Integration Patterns
 
 ### Essential Setup
+
 ```jsx
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -87,16 +97,14 @@ import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 
 <LexicalComposer initialConfig={initialConfig}>
-  <RichTextPlugin
-    contentEditable={<ContentEditable />}
-    ErrorBoundary={LexicalErrorBoundary}
-  />
+  <RichTextPlugin contentEditable={<ContentEditable />} ErrorBoundary={LexicalErrorBoundary} />
   <HistoryPlugin />
   <AutoFocusPlugin />
-</LexicalComposer>
+</LexicalComposer>;
 ```
 
 ### Built-in React Plugins
+
 - **PlainTextPlugin**: Basic text editing
 - **RichTextPlugin**: Advanced formatting (bold, italic, etc.)
 - **HistoryPlugin**: Undo/redo functionality
@@ -109,6 +117,7 @@ import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
 ## Critical Rules for Plugin Development
 
 ### 1. $ Functions Must Be Called in Closures
+
 ```javascript
 // CORRECT - within editor.update()
 editor.update(() => {
@@ -121,6 +130,7 @@ const selection = $getSelection(); // ERROR!
 ```
 
 ### 2. Transforms for Efficient State Reactions
+
 ```javascript
 editor.registerNodeTransform(TextNode, (textNode) => {
   if (textNode.getTextContent() === 'blue') {
@@ -130,6 +140,7 @@ editor.registerNodeTransform(TextNode, (textNode) => {
 ```
 
 ### 3. Serialization/Deserialization
+
 ```javascript
 // JSON serialization
 const jsonState = JSON.stringify(editorState);

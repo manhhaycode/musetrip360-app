@@ -114,6 +114,8 @@ export const SelectionStateProvider: React.FC<SelectionStateProviderProps> = ({ 
       const textColor = $getSelectionStyleValueForProperty(selection, 'color', '#000000');
       const backgroundColor = $getSelectionStyleValueForProperty(selection, 'background-color', 'transparent');
 
+      console.log(fontSize);
+
       setSelectionState((prev) => ({
         ...prev,
         isBold,

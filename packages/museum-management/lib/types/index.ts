@@ -20,6 +20,20 @@ export interface Museum {
   status: MuseumStatus;
   createdAt: string;
   updatedAt: string;
+  metadata?: MuseumMetadata;
+}
+
+export interface MuseumMetadata {
+  logoUrl?: string;
+  coverImageUrl?: string;
+  socialLinks?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    website?: string;
+  };
+  contentHomePage?: string;
+  additionalInfo?: Record<string, any>;
 }
 
 export enum MuseumStatus {

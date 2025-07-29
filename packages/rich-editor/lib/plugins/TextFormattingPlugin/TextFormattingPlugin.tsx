@@ -28,7 +28,7 @@ export const TextFormattingPlugin: React.FC<TextFormattingPluginProps> = ({ conf
   );
 
   return (
-    <div className="flex items-center gap-0.5 mx-2">
+    <>
       {(config?.showBold ?? true) && (
         <Button
           variant={selectionState.isBold ? 'secondary' : 'ghost'}
@@ -72,6 +72,6 @@ export const TextFormattingPlugin: React.FC<TextFormattingPluginProps> = ({ conf
           <Strikethrough className="h-4 w-4" />
         </Button>
       )}
-    </div>
+    </>
   );
 };

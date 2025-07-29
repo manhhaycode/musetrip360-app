@@ -1,3 +1,11 @@
-// export * from './toolbar';
-// export * from './formatting';
-// export * from './collaboration';
+export * from './AlignmentPlugin';
+export * from './BlockFormattingPlugin';
+export * from './ColorPlugin';
+export * from './FontStylingPlugin';
+export * from './HistoryPlugin';
+export * from './ImagePlugin';
+export * from './InsertPlugin';
+export * from './SavePlugin';
+export * from './TextFormattingPlugin';
+export * from './ToolbarPlugin';
+export * from './ValuePlugin';

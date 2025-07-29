@@ -38,6 +38,8 @@ export default defineConfig({
         types: resolve(__dirname, './lib/types/index.ts'),
         ui: resolve(__dirname, './lib/ui/index.ts'),
         utils: resolve(__dirname, './lib/utils/index.ts'),
+        hooks: resolve(__dirname, './lib/hooks/index.ts'),
+        contexts: resolve(__dirname, './lib/contexts/index.ts'),
         // state: resolve(__dirname, './lib/state/index.ts'),
         // validation: resolve(__dirname, './lib/validation/index.ts'),
       },
@@ -80,6 +82,12 @@ export default defineConfig({
           }
           if (chunkInfo.name === 'utils') {
             return '[format]/utils/index.js';
+          }
+          if (chunkInfo.name === 'hooks') {
+            return '[format]/hooks/index.js';
+          }
+          if (chunkInfo.name === 'contexts') {
+            return '[format]/contexts/index.js';
           }
           // For other entries, use the default format
           // This allows for better tree-shaking and module resolution

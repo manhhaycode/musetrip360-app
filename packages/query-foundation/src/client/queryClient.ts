@@ -278,6 +278,12 @@ export class QueryClientManager {
         refetchOnWindowFocus: this.cacheConfig.refetchOnWindowFocus,
         refetchOnReconnect: this.cacheConfig.refetchOnReconnect,
       },
+      mutations: {
+        retry: (failureCount: number, error: any) => {
+          return failureCount < 1 && error.response?.data?.retry;
+        },
+        retryDelay: this.cacheConfig.retryDelay,
+      },
     };
 
     const queryCache = new QueryCache({

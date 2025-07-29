@@ -36,16 +36,16 @@ const textColors = [
 ];
 
 const backgroundColors = [
-  { label: 'None', value: 'transparent' },
-  { label: 'Light Gray', value: '#F3F4F6' },
-  { label: 'Light Red', value: '#FEE2E2' },
-  { label: 'Light Orange', value: '#FED7AA' },
-  { label: 'Light Yellow', value: '#FEF3C7' },
-  { label: 'Light Green', value: '#D1FAE5' },
-  { label: 'Light Blue', value: '#DBEAFE' },
-  { label: 'Light Indigo', value: '#E0E7FF' },
-  { label: 'Light Purple', value: '#E9D5FF' },
-  { label: 'Light Pink', value: '#FCE7F3' },
+  { label: 'None Light', value: 'transparent' },
+  { label: 'Gray Light', value: '#F3F4F6' },
+  { label: 'Red Light', value: '#FEE2E2' },
+  { label: 'Orange Light', value: '#FED7AA' },
+  { label: 'Yellow Light', value: '#FEF3C7' },
+  { label: 'Green Light', value: '#D1FAE5' },
+  { label: 'Blue Light', value: '#DBEAFE' },
+  { label: 'Indigo Light', value: '#E0E7FF' },
+  { label: 'Purple Light', value: '#E9D5FF' },
+  { label: 'Pink Light', value: '#FCE7F3' },
 ];
 
 export const ColorPlugin: React.FC<ColorPluginProps> = ({ config }) => {
@@ -101,7 +101,7 @@ export const ColorPlugin: React.FC<ColorPluginProps> = ({ config }) => {
   const currentBackgroundColor = getCurrentBackgroundColorInfo();
 
   return (
-    <div className="flex items-center gap-1 mx-2">
+    <>
       {/* Text Color Dropdown */}
       {(config?.showTextColor ?? true) && (
         <DropdownMenu>
@@ -137,10 +137,15 @@ export const ColorPlugin: React.FC<ColorPluginProps> = ({ config }) => {
       {(config?.showBackgroundColor ?? true) && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 min-w-[90px] justify-start">
-              <div className="flex items-center gap-2">
+            <Button
+              rightIcon={<ChevronDown className="h-3 w-3" />}
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 gap-2 w-30 justify-start"
+            >
+              <div style={{ flex: '1 0 0' }} className="flex items-center gap-2 min-w-0">
                 <div
-                  className="w-3 h-3 rounded border border-gray-300"
+                  className="w-3 h-3 flex-shrink-0 rounded border border-gray-300"
                   style={{
                     backgroundColor:
                       currentBackgroundColor.value === 'transparent' ? '#fff' : currentBackgroundColor.value,
@@ -153,9 +158,8 @@ export const ColorPlugin: React.FC<ColorPluginProps> = ({ config }) => {
                       currentBackgroundColor.value === 'transparent' ? '0 0, 0 3px, 3px -3px, -3px 0px' : 'auto',
                   }}
                 />
-                <span className="text-sm">{currentBackgroundColor.label}</span>
+                <span className="text-sm truncate">{currentBackgroundColor.label}</span>
               </div>
-              <ChevronDown className="h-3 w-3 ml-auto" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-44">
@@ -178,12 +182,12 @@ export const ColorPlugin: React.FC<ColorPluginProps> = ({ config }) => {
                   }}
                 />
                 <span>{color.label}</span>
-                {color.value === currentBackgroundColor.value && <Check className="h-3 w-3 ml-auto text-blue-600" />}
+                {color.value === currentBackgroundColor.value && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-    </div>
+    </>
   );
 };

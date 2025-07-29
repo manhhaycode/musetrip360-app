@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
-import { ChevronDown, Type, List, ListOrdered, Quote } from 'lucide-react';
+import { ChevronDown, Type, List, ListOrdered, Quote, Check } from 'lucide-react';
 import { useCallback } from 'react';
 import { useSelectionState } from '@/hooks';
 
@@ -78,12 +78,12 @@ export const BlockFormattingPlugin: React.FC<BlockFormattingPluginProps> = ({ co
   const currentBlockDisplay = getBlockFormatDisplay(selectionState.blockFormat);
 
   return (
-    <div className="flex items-center gap-1 mx-2">
+    <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 min-w-[100px] justify-start">
+          <Button variant="ghost" size="sm" className="h-8 px-3 gap-2 w-30 justify-start">
             {currentBlockDisplay.icon}
-            <span className="text-sm">{currentBlockDisplay.label}</span>
+            <span className="text-sm truncate">{currentBlockDisplay.label}</span>
             <ChevronDown className="h-3 w-3 ml-auto" />
           </Button>
         </DropdownMenuTrigger>
@@ -98,14 +98,17 @@ export const BlockFormattingPlugin: React.FC<BlockFormattingPluginProps> = ({ co
               <DropdownMenuItem onClick={() => formatBlockType('h1')} className="gap-3">
                 <span className="text-xl font-bold">H1</span>
                 <span>Heading 1</span>
+                {currentBlockDisplay.label === 'Heading 1' && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => formatBlockType('h2')} className="gap-3">
                 <span className="text-lg font-bold">H2</span>
                 <span>Heading 2</span>
+                {currentBlockDisplay.label === 'Heading 2' && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => formatBlockType('h3')} className="gap-3">
                 <span className="text-base font-bold">H3</span>
                 <span>Heading 3</span>
+                {currentBlockDisplay.label === 'Heading 3' && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             </>
           )}
@@ -115,10 +118,12 @@ export const BlockFormattingPlugin: React.FC<BlockFormattingPluginProps> = ({ co
               <DropdownMenuItem onClick={() => formatBlockType('ul')} className="gap-3">
                 <List className="h-4 w-4" />
                 <span>Bullet List</span>
+                {currentBlockDisplay.label === 'Bullet List' && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => formatBlockType('ol')} className="gap-3">
                 <ListOrdered className="h-4 w-4" />
                 <span>Numbered List</span>
+                {currentBlockDisplay.label === 'Numbered List' && <Check className="h-3 w-3 ml-auto text-primary" />}
               </DropdownMenuItem>
             </>
           )}
@@ -127,10 +132,11 @@ export const BlockFormattingPlugin: React.FC<BlockFormattingPluginProps> = ({ co
             <DropdownMenuItem onClick={() => formatBlockType('quote')} className="gap-3">
               <Quote className="h-4 w-4" />
               <span>Quote</span>
+              {currentBlockDisplay.label === 'Quote' && <Check className="h-3 w-3 ml-auto text-primary" />}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
-    </div>
+    </>
   );
 };

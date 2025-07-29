@@ -1,7 +1,7 @@
 import { useMutation as useReactMutation, useQueryClient, QueryKey } from '@tanstack/react-query';
 import { getHttpClient } from '../client/httpClient';
 import type { CustomMutationOptions, APIError } from '../types/query-types';
-import type { RequestConfig } from '../types/api-types';
+import type { RequestConfig, UploadProgress } from '../types/api-types';
 
 /**
  * Enhanced useMutation hook with custom configuration
@@ -108,7 +108,7 @@ export function useDeleteMutation<TData = unknown>(
  */
 export function useUploadMutation<TData = unknown>(
   url: string,
-  onProgress?: (progress: { loaded: number; total: number; percentage: number }) => void,
+  onProgress?: (progress: UploadProgress) => void,
   requestConfig?: RequestConfig,
   options?: Omit<CustomMutationOptions<TData, APIError, File>, 'requestConfig'>
 ) {
