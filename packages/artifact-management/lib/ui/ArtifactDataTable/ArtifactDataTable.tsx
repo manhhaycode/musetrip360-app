@@ -33,7 +33,7 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         uniquePeriods.add(artifact.historicalPeriod);
       }
     });
-    console.log('Unique Historical Periods:', Array.from(uniquePeriods));
+    // Debugging statement removed: console.log('Unique Historical Periods:', Array.from(uniquePeriods));
     return Array.from(uniquePeriods).map((period) => ({ label: period, value: period }));
   }, [filterOptions]);
 
