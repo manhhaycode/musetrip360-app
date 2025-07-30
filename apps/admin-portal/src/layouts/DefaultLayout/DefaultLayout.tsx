@@ -1,34 +1,29 @@
-// import { useModalStore } from '@/store/componentStore';
 import { useIsAuthenticated } from '@musetrip360/auth-system';
 import { SidebarInset, SidebarProvider } from '@musetrip360/ui-core/sidebar';
 import { Navigate, Outlet } from 'react-router-dom';
 import Header from '../components/Header';
-import AppSidebar from '../components/Sidebar';
-
-// const Modal = lazy(() => import('@/components/Modal'));
-// const PortalModal = lazy(() => import('@/components/Portal/PortalModal'));
+import AdminSidebar from '../components/Sidebar';
 
 export default function DefaultLayout() {
   const isAuthenticated = useIsAuthenticated();
 
-  // Redirect to login if not authenticated - this is the protected route
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace />; // Redirect to login if not authenticated
   }
 
   return (
     <SidebarProvider>
-      <div className="h-screen w-full flex overflow-hidden bg-secondary/10 gap-0">
-        <AppSidebar />
-        <SidebarInset className="flex flex-col flex-1 h-full overflow-hidden gap-0">
-          <Header />
-          <main className="flex-1 overflow-auto border-none bg-secondary/20">
-            <div className="w-full p-4">
+      <AdminSidebar variant="inset" />
+      <SidebarInset>
+        <Header />
+        <div className="flex flex-1 flex-col">
+          <div className="@container/main flex flex-1 flex-col gap-2">
+            <div className="flex flex-1 flex-col gap-4 p-4 md:gap-6 md:py-6">
               <Outlet />
             </div>
-          </main>
-        </SidebarInset>
-      </div>
+          </div>
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }

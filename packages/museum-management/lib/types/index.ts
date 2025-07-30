@@ -18,6 +18,7 @@ export interface Museum {
   rating: number;
   createdBy: string;
   status: MuseumStatus;
+  isActive: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -30,7 +31,20 @@ export enum MuseumStatus {
 }
 
 export interface MuseumSearchParams extends Pagination {
-  sortBy: 'name' | 'rating' | 'createdAt';
+  Search?: string;
+  Status?: string;
+  sortList?: string[];
+}
+
+export interface MuseumCreateDto {
+  name: string;
+  description: string;
+  location: string;
+  contactEmail: string;
+  contactPhone: string;
+  latitude: number;
+  longitude: number;
+  metadata: string;
 }
 
 export type MuseumSearchResponse = PaginatedResponse<Museum>;

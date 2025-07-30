@@ -1,6 +1,6 @@
 // Export components
 export { default as DeleteConfirmModal } from './DeleteConfirmModal';
-export { default as MuseumForm } from './MuseumForm';
+export { default as MuseumApiForm } from './MuseumApiForm';
 export { default as RequestForm } from './RequestForm';
 export { default as UserForm } from './UserForm';
 

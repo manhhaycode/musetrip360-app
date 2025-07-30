@@ -1,11 +1,6 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
+import routes from '@/config/routes';
+import { useAuthStore } from '@musetrip360/auth-system';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@musetrip360/ui-core/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -20,21 +15,22 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@musetrip360/ui-core/sidebar';
-import { Building2, ChevronDown, ChevronRight, FileText, Gavel, Home, Settings, Shield, Users } from 'lucide-react';
+import { Building2, ChevronRight, FileText, Gavel, Home, LogOutIcon, LucideIcon, Settings, Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { twMerge } from 'tailwind-merge';
 
 const sidebarButtonClasses =
   'hover:text-primary-foreground data-[active=true]:text-primary-foreground data-[active=true]:bg-primary/70 active:text-primary-foreground data-[state=close]:hover:text-primary-foreground data-[state=open]:hover:text-primary-foreground';
 
-export default function AppSidebar() {
+export default function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" variant="inset">
+    <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <div>
+              <Link to={routes.dashboard}>
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <Building2 className="size-4" />
                 </div>
@@ -42,109 +38,75 @@ export default function AppSidebar() {
                   <span className="truncate font-semibold">MuseTrip360</span>
                   <span className="truncate text-xs">Admin Portal</span>
                 </div>
-              </div>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-
       <SidebarContent>
         <SidebarGroupItem
-          groupLabel="📊 Tổng quan"
+          groupLabel="Quản lý chính"
           items={[
             {
               title: 'Dashboard',
-              url: '/',
+              url: routes.dashboard,
               icon: Home,
+              items: [],
             },
-          ]}
-        />
-
-        <SidebarGroupItem
-          groupLabel="🏛️ Quản lý Bảo tàng"
-          items={[
             {
-              title: 'Bảo tàng',
-              url: '/museums',
+              title: 'Quản lý bảo tàng',
+              url: routes.museums.list,
               icon: Building2,
               items: [
                 {
                   title: 'Danh sách bảo tàng',
-                  url: '/museums',
+                  url: routes.museums.list,
                   icon: Building2,
                 },
                 {
-                  title: 'Xét duyệt đăng ký',
-                  url: '/museums/requests',
-                  icon: FileText,
+                  title: 'Phê duyệt bảo tàng',
+                  url: routes.museums.approval,
+                  icon: Gavel,
                 },
               ],
             },
-          ]}
-        />
-
-        <SidebarGroupItem
-          groupLabel="⚙️ Quản lý Hệ thống"
-          items={[
             {
-              title: 'Hệ thống',
-              url: '/system',
+              title: 'Quản lý người dùng',
+              url: routes.users,
+              icon: Users,
+              items: [],
+            },
+            {
+              title: 'Chính sách',
+              url: routes.policies,
+              icon: FileText,
+              items: [],
+            },
+            {
+              title: 'Cài đặt',
+              url: routes.settings,
               icon: Settings,
-              items: [
-                {
-                  title: 'Người dùng',
-                  url: '/users',
-                  icon: Users,
-                },
-                {
-                  title: 'Chính sách',
-                  url: '/policies',
-                  icon: Gavel,
-                },
-                {
-                  title: 'Cài đặt',
-                  url: '/settings',
-                  icon: Settings,
-                },
-              ],
+              items: [],
             },
           ]}
         />
       </SidebarContent>
-
-      <SidebarFooter>
+      <SidebarFooter className="border-t-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton size="lg">
-                  <Avatar className="h-8 w-8 rounded-lg">
-                    <AvatarImage src="/avatars/admin.png" alt="Admin" />
-                    <AvatarFallback className="rounded-lg">QT</AvatarFallback>
-                  </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">Admin</span>
-                    <span className="truncate text-xs">admin@musetrip360.com</span>
-                  </div>
-                  <ChevronDown className="ml-auto size-4" />
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-                side="bottom"
-                align="end"
-                sideOffset={4}
-              >
-                <DropdownMenuItem>
-                  <Shield />
-                  Bảo mật
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <FileText />
-                  Nhật ký
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton className={twMerge(sidebarButtonClasses, 'font-medium')}>
+              <Settings />
+              <span>Cài đặt</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              className={twMerge(sidebarButtonClasses, 'font-medium')}
+              onClick={() => useAuthStore.getState().resetStore()}
+            >
+              <LogOutIcon />
+              <span>Đăng xuất</span>
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
@@ -160,17 +122,17 @@ export const SidebarGroupItem = ({
   items: {
     title: string;
     url: string;
-    icon?: any;
+    icon?: LucideIcon;
     items?: {
       title: string;
       url: string;
-      icon?: any;
+      icon?: LucideIcon;
     }[];
   }[];
 }) => {
   return (
     <SidebarGroup className="font-medium">
-      <SidebarGroupLabel className="text-sm font-semibold text-muted-foreground">{groupLabel}</SidebarGroupLabel>
+      <SidebarGroupLabel>{groupLabel}</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuGroupItem key={item.title} item={item} />
@@ -186,11 +148,11 @@ export const SidebarMenuGroupItem = ({
   item: {
     title: string;
     url: string;
-    icon?: any;
+    icon?: LucideIcon;
     items?: {
       title: string;
       url: string;
-      icon?: any;
+      icon?: LucideIcon;
     }[];
   };
 }) => {
@@ -202,16 +164,20 @@ export const SidebarMenuGroupItem = ({
       setIsOpen(true);
       return;
     }
-    if (item.items?.some((subItem) => location.pathname.includes(subItem.url))) {
+    if (item.items?.some((item) => location.pathname.includes(item.url))) {
       setIsOpen(true);
     }
   }, [location, item]);
 
-  // Nếu không có sub-items, render như menu item thông thường
+  // Nếu không có sub-items, chỉ render một link đơn giản
   if (!item.items || item.items.length === 0) {
     return (
       <SidebarMenuItem>
-        <SidebarMenuButton size="lg" isActive={location.pathname === item.url} className={sidebarButtonClasses} asChild>
+        <SidebarMenuButton
+          isActive={location.pathname === item.url}
+          className={twMerge(sidebarButtonClasses, 'font-medium')}
+          asChild
+        >
           <Link to={item.url}>
             {item.icon && <item.icon />}
             <span>{item.title}</span>

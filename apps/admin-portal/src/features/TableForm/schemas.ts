@@ -1,6 +1,18 @@
 import { z } from 'zod';
 
-// Museum form schema
+// Museum API form schema - khớp với API POST /api/v1/museums
+export const museumApiFormSchema = z.object({
+  name: z.string().min(1, 'Tên bảo tàng là bắt buộc'),
+  description: z.string().min(10, 'Mô tả phải có ít nhất 10 ký tự'),
+  location: z.string().min(1, 'Địa điểm là bắt buộc'),
+  contactEmail: z.string().email('Email liên hệ không hợp lệ'),
+  contactPhone: z.string().min(10, 'Số điện thoại liên hệ không hợp lệ'),
+  latitude: z.number().min(-90).max(90, 'Vĩ độ phải từ -90 đến 90'),
+  longitude: z.number().min(-180).max(180, 'Kinh độ phải từ -180 đến 180'),
+  metadata: z.string().min(1, 'Thông tin metadata là bắt buộc'),
+});
+
+// Museum form schema (cho UI form hiện tại)
 export const museumFormSchema = z.object({
   name: z.string().min(1, 'Tên bảo tàng là bắt buộc'),
   description: z.string().min(10, 'Mô tả phải có ít nhất 10 ký tự'),
@@ -44,6 +56,10 @@ export const museumRequestFormSchema = z.object({
 });
 
 // Export inferred types
+export type MuseumApiFormData = z.infer<typeof museumApiFormSchema>;
 export type MuseumFormData = z.infer<typeof museumFormSchema>;
 export type UserFormData = z.infer<typeof userFormSchema>;
 export type MuseumRequestFormData = z.infer<typeof museumRequestFormSchema>;
+
+// Backward compatibility (deprecated, use MuseumApiFormData instead)
+export type Museum = z.infer<typeof museumApiFormSchema>;

@@ -6,7 +6,7 @@
  */
 
 import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
-import { MuseumSearchParams } from '@/types';
+import { MuseumSearchParams } from '../../types';
 
 /**
  * Museum Management cache keys
@@ -23,6 +23,10 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
 
   museum(id: string): QueryKey {
     return [this.prefix, 'museum', id];
+  }
+
+  createMuseum(): QueryKey {
+    return [this.prefix, 'createMuseum'];
   }
 
   // Museum search keys

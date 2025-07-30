@@ -1,7 +1,8 @@
 import Error from '@/components/common';
 import ScrollToTop from '@/components/ScrollToTop';
-import { AdminDashboard, MuseumList, MuseumRequests, Policies, SystemSettings, UserManagement } from '@/features/admin';
+import { AdminDashboard, MuseumRequests, Policies, SystemSettings, UserManagement } from '@/features/admin';
 import AuthPage from '@/features/auth/AuthPage';
+import { MuseumsPage } from '@/features/museum';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -16,7 +17,7 @@ export default function AppRoutes() {
           <Route index element={<AdminDashboard />} />
 
           {/* Museum Management */}
-          <Route path="museums" element={<MuseumList />} />
+          <Route path="museums" element={<MuseumsPage />} />
           <Route path="museums/requests" element={<MuseumRequests />} />
 
           {/* System Management */}

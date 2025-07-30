@@ -3,30 +3,30 @@
   "version": "0.1.0",
   "description": "A comprehensive museum management system package for the MuseTrip360 system with domain logic, API integration, state management, and UI components",
   "type": "module",
-  "main": "./dist/es/index.js",
-  "module": "./dist/es/index.js",
+  "main": "./dist/lib/index.js",
+  "module": "./dist/lib/index.js",
   "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/types/index.d.ts",
-      "import": "./dist/es/index.js",
-      "require": "./dist/cjs/index.cjs"
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.js"
     },
     "./api": {
-      "types": "./dist/types/api.d.ts",
-      "import": "./dist/es/api/index.js"
+      "types": "./dist/types/api/index.d.ts",
+      "import": "./dist/lib/api/index.js"
     },
     "./state": {
-      "types": "./dist/types/state.d.ts",
-      "import": "./dist/es/state/index.js"
+      "types": "./dist/types/state/index.d.ts",
+      "import": "./dist/lib/state/index.js"
     },
     "./ui": {
-      "types": "./dist/types/ui.d.ts",
-      "import": "./dist/es/ui/index.js"
+      "types": "./dist/types/ui/index.d.ts",
+      "import": "./dist/lib/ui/index.js"
     },
-    "./domain": {
-      "types": "./dist/types/domain.d.ts",
-      "import": "./dist/es/domain/index.js"
+    "./types": {
+      "types": "./dist/types/types/index.d.ts",
+      "import": "./dist/lib/types/index.js"
     },
     "./package.json": "./package.json"
   },
