@@ -1,4 +1,6 @@
 import { useAuthStore } from '@musetrip360/auth-system';
+import { useMuseumStore } from '@musetrip360/museum-management';
+import { useUserStore } from '@musetrip360/user-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Separator } from '@musetrip360/ui-core/separator';
 import { SidebarTrigger } from '@musetrip360/ui-core/sidebar';
@@ -15,7 +17,11 @@ export default function Header() {
         <div className="ml-auto flex items-center gap-2">
           <Link to="/">
             <Button
-              onClick={() => useAuthStore.getState().resetStore()}
+              onClick={() => {
+                useAuthStore.getState().resetStore();
+                useMuseumStore.getState().resetStore();
+                useUserStore.getState().resetStore();
+              }}
               leftIcon={<LogOutIcon />}
               size="sm"
               className="hidden sm:flex"

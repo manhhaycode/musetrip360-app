@@ -7,6 +7,14 @@ import MuseumArtifactPage from '@/features/museum/pages/MuseumArtifactPage';
 import MuseumDetailPage from '@/features/museum/pages/MuseumDetailPage';
 import MuseumHomePage from '@/features/museum/pages/MuseumHomePage';
 import MuseumPolicyPage from '@/features/museum/pages/MuseumPolicyPage';
+import NotFound from '@/features/exception/NotFound';
+import ArtifactCreatePage from '@/features/artifacts/pages/ArtifactCreatePage';
+import ArtifactEditPage from '@/features/artifacts/pages/ArtifactEditPage';
+import StaffPage from '@/features/staff/pages/StaffPage';
+import MuseumCreateReqPage from '@/features/museum/pages/MuseumCreateReqPage';
+import MuseumAccessPage from '@/features/museum/pages/MuseumAccessPage';
+import SimpleLayout from '@/layouts/SimpleLayout';
+import DashboardPage from '@/features/dashboard/DashboardPage';
 
 export default function AppRoutes() {
   return (
@@ -14,7 +22,20 @@ export default function AppRoutes() {
       <ScrollToTop />
       <Routes>
         <Route path="/login" element={<AuthPage />} />
+        <Route path="/welcome" element={<MuseumAccessPage />} />
+        <Route
+          path="/museums/request"
+          element={
+            <SimpleLayout>
+              <MuseumCreateReqPage />
+            </SimpleLayout>
+          }
+        />
+
         <Route path="/" element={<DefaultLayout />}>
+          {/* Default route for users with museums */}
+          <Route index element={<DashboardPage />} />
+
           {/* Statistics */}
           <Route path="/statistics" element={<div>Statistics</div>} />
           <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />
@@ -26,8 +47,12 @@ export default function AppRoutes() {
           <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
           <Route path="/museum/policy" element={<MuseumPolicyPage />} />
 
+          {/* Artifact Management */}
+          <Route path="/artifact/create" element={<ArtifactCreatePage />} />
+          <Route path="/artifact/edit/:id" element={<ArtifactEditPage />} />
+
           {/* Staff Management */}
-          <Route path="/staff" element={<div>Danh sách nhân viên</div>} />
+          <Route path="/staff" element={<StaffPage />} />
 
           {/* Event Management */}
           <Route path="/event" element={<div>Danh sách sự kiện</div>} />
@@ -55,7 +80,7 @@ export default function AppRoutes() {
           <Route path="/logout" element={<div>Đăng xuất</div>} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
-        <Route path="*" element={<div>404</div>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

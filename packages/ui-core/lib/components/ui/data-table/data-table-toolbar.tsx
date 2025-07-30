@@ -18,11 +18,16 @@ interface DataTableToolbarFilterProps<TData> {
 export function DataTableToolbar<TData>({ table, children, className, ...props }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
-  const columns = React.useMemo(() => table.getAllColumns().filter((column) => column.getCanFilter()), [table]);
+  const columns = React.useMemo(
+    () => table.getAllColumns().filter((column) => column.getCanFilter()),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [table, table.getAllColumns()]
+  );
 
   const onReset = React.useCallback(() => {
     table.resetColumnFilters();
-  }, [table]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [table.getAllColumns()]);
 
   return (
     <div

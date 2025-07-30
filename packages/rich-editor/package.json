@@ -1,0 +1,109 @@
+{
+  "name": "@musetrip360/rich-editor",
+  "version": "0.1.0",
+  "description": "Rich text editor package for MuseTrip360 built on Lexical with custom nodes, plugins, and themes for museum content creation",
+  "type": "module",
+  "main": "./dist/es/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./nodes": {
+      "types": "./dist/types/nodes.d.ts",
+      "import": "./dist/es/nodes/index.js"
+    },
+    "./plugins": {
+      "types": "./dist/types/plugins.d.ts",
+      "import": "./dist/es/plugins/index.js"
+    },
+    "./themes": {
+      "types": "./dist/types/themes.d.ts",
+      "import": "./dist/es/themes/index.js"
+    },
+    "./config": {
+      "types": "./dist/types/config.d.ts",
+      "import": "./dist/es/config/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "build:watch": "vite build --watch",
+    "dev": "vite build --watch --emptyOutDir=false",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint lib --ext .ts,.tsx",
+    "lint:fix": "eslint lib --ext .ts,.tsx --fix",
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "dependencies": {
+    "@lexical/code": "^0.33.1",
+    "@lexical/html": "^0.33.1",
+    "@lexical/link": "^0.33.1",
+    "@lexical/list": "^0.33.1",
+    "@lexical/markdown": "^0.33.1",
+    "@lexical/react": "^0.33.1",
+    "@lexical/rich-text": "^0.33.1",
+    "@lexical/selection": "^0.33.1",
+    "@lexical/table": "^0.33.1",
+    "@lexical/utils": "^0.33.1",
+    "@musetrip360/shared": "workspace:*",
+    "@musetrip360/ui-core": "workspace:*",
+    "lexical": "^0.33.1",
+    "lucide-react": "^0.525.0",
+    "react-error-boundary": "^4.1.2"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@musetrip360/eslint-config": "workspace:*",
+    "@musetrip360/tsconfig": "workspace:*",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react-swc": "^3.9.0",
+    "eslint": "^9",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-scrollbar": "^4.0.2",
+    "typescript": "^5",
+    "typescript-eslint": "^8.32.0",
+    "vite": "^6.3.5",
+    "vite-plugin-dts": "^3.7.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.1.4"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-org/musetrip360-app.git",
+    "directory": "packages/rich-editor"
+  },
+  "keywords": [
+    "musetrip360",
+    "museum",
+    "rich-editor",
+    "lexical",
+    "wysiwyg",
+    "content-editor",
+    "react",
+    "typescript",
+    "text-editor"
+  ],
+  "author": "MuseTrip360 Team",
+  "license": "MIT"
+}

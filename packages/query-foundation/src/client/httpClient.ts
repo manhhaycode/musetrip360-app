@@ -239,9 +239,6 @@ export class HTTPClient {
    * Upload file with progress tracking
    */
   public async upload<T = any>(url: string, file: File, config?: UploadConfig): Promise<T> {
-    const formData = new FormData();
-    formData.append('file', file);
-
     const axiosConfig: AxiosRequestConfig = {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -258,7 +255,7 @@ export class HTTPClient {
       },
     };
 
-    const response = await this.client.post<T>(url, formData, axiosConfig);
+    const response = await this.client.post<T>(url, { file }, axiosConfig);
     return response.data;
   }
 

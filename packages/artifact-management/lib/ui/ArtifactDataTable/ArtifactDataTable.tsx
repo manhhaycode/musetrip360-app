@@ -2,7 +2,7 @@ import { useArtifactsByMuseum } from '@/api';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
-import { DataTable, DataTableToolbar, useDataTable, useDataTableState } from '@musetrip360/ui-core/data-table';
+import { DataTable, DataTableToolbar, useDataTable, useDataTableState, Option } from '@musetrip360/ui-core/data-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,19 +15,56 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { Artifact } from '../../types';
+import { Link, useNavigate } from 'react-router';
 
 const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: Artifact[] = useMemo(() => [], []);
+  const navigate = useNavigate();
+  const { data: filterOptions } = useArtifactsByMuseum({
+    Page: 1,
+    PageSize: 10000,
+    museumId: museumId || '',
+  });
+
+  const filteredHistoricalPeriods: Option[] = useMemo(() => {
+    const uniquePeriods = new Set<string>();
+    filterOptions?.list.forEach((artifact) => {
+      if (artifact.historicalPeriod) {
+        uniquePeriods.add(artifact.historicalPeriod);
+      }
+    });
+    // Debugging statement removed: console.log('Unique Historical Periods:', Array.from(uniquePeriods));
+    return Array.from(uniquePeriods).map((period) => ({ label: period, value: period }));
+  }, [filterOptions]);
+
+  const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
+
+  const { data: artifactsData, isLoading: loadingArtifacts } = useArtifactsByMuseum({
+    Page: tableState.pagination.pageIndex + 1,
+    PageSize: tableState.pagination.pageSize,
+    sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
+    SearchKeyword: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
+    IsActive: tableState.columnFilters.find((filter) => filter.id === 'isActive')?.value === 'true',
+    HistoricalPeriods:
+      (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
+    museumId: museumId || '',
+    // Page: 1,
+    // PageSize: 10000,
+    // museumId: museumId || '',
+  });
+
   const handleAction = useCallback(
     () => ({
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onView: (data: any) => {},
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onEdit: (data: any) => {},
+
+      onEdit: (data: any) => {
+        navigate(`/artifact/edit/${data.id}`);
+      },
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       onDelete: (data: any) => {},
     }),
-    []
+    [navigate]
   );
 
   const columns = useMemo<ColumnDef<Artifact>[]>(
@@ -84,17 +121,9 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
           label: 'Historical Period',
           isSortable: true,
           unit: '',
-          options: [
-            { label: 'Ancient', value: 'Ancient' },
-            { label: 'Medieval', value: 'Medieval' },
-            { label: 'Renaissance', value: 'Renaissance' },
-            { label: 'Modern', value: 'Modern' },
-            { label: 'Contemporary', value: 'Contemporary' },
-            { label: 'Prehistoric', value: 'Prehistoric' },
-            { label: 'Classical', value: 'Classical' },
-            { label: 'Industrial', value: 'Industrial' },
-          ],
+          options: filteredHistoricalPeriods,
         },
+        filterFn: 'arrIncludesSome',
         accessorKey: 'historicalPeriod',
         header: 'Historical Period',
         enableSorting: true,
@@ -170,21 +199,8 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         ),
       },
     ],
-    [handleAction]
+    [handleAction, filteredHistoricalPeriods]
   );
-
-  const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
-
-  const { data: artifactsData, isLoading: loadingArtifacts } = useArtifactsByMuseum({
-    Page: tableState.pagination.pageIndex + 1,
-    PageSize: tableState.pagination.pageSize,
-    sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    SearchKeyword: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    IsActive: tableState.columnFilters.find((filter) => filter.id === 'isActive')?.value === 'true',
-    HistoricalPeriods:
-      (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
-    museumId: museumId || '',
-  });
 
   const { table } = useDataTable<Artifact, string>({
     data: artifactsData?.list || initialData,
@@ -206,9 +222,11 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
-        <Button variant="default" size="sm" className="ml-2">
-          Add Artifact
-        </Button>
+        <Link to="/artifact/create">
+          <Button variant="default" size="sm" className="ml-2">
+            Add Artifact
+          </Button>
+        </Link>
       </DataTableToolbar>
     </DataTable>
   );
