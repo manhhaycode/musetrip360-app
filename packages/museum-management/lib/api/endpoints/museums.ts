@@ -5,15 +5,22 @@
  */
 
 import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
-import { MuseumSearchParams, MuseumSearchResponse, Museum } from '@/types';
+import { Museum, MuseumCreateDto, MuseumSearchParams, MuseumSearchResponse } from '../../types';
 
 /**
  * Museum API endpoints configuration
  */
 export const museumEndpoints = {
   search: 'museums',
+  create: 'museums',
   getById: (id: string) => `museums/${id}`,
   getUserMuseums: 'museums/user',
+
+  adminList: '/museums/admin',
+
+  // Museum-specific artifact endpoints
+  listByMuseum: (museumId: string) => `/museums/${museumId}`,
+  createForMuseum: (museumId: string) => `/museums/${museumId}`,
 } as const;
 
 /**
@@ -23,6 +30,24 @@ export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumS
   const httpClient = getHttpClient();
 
   return await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
+};
+
+/**
+ * Get museums with filters and pagination
+ */
+export const getMuseums = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
+  return response;
+};
+
+/**
+ * Create a new museum
+ */
+export const createMuseum = async (data: MuseumCreateDto): Promise<Museum> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.post<{ data: Museum; code: number; message: string }>(museumEndpoints.create, data);
+  return response.data;
 };
 
 /**
