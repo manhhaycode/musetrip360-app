@@ -1,8 +1,9 @@
-import { useArtifactsByMuseum } from '@/api';
+import { useArtifactsByMuseum, useActivateArtifact, useDeactivateArtifact } from '@/api';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { DataTable, DataTableToolbar, useDataTable, useDataTableState, Option } from '@musetrip360/ui-core/data-table';
+import { toast } from '@musetrip360/ui-core/sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Edit, MoreHorizontal, Power, PowerOff } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { Artifact } from '../../types';
 import { Link, useNavigate } from 'react-router';
@@ -20,10 +21,40 @@ import { Link, useNavigate } from 'react-router';
 const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: Artifact[] = useMemo(() => [], []);
   const navigate = useNavigate();
-  const { data: filterOptions } = useArtifactsByMuseum({
-    Page: 1,
-    PageSize: 10000,
-    museumId: museumId || '',
+  const { data: filterOptions, refetch } = useArtifactsByMuseum(
+    {
+      Page: 1,
+      PageSize: 10000,
+      museumId: museumId || '',
+    },
+    {
+      refetchOnWindowFocus: true,
+    }
+  );
+
+  // Activate/Deactivate mutations
+  const { mutate: activateArtifact } = useActivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact activated successfully');
+      refetch();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to activate artifact');
+    },
+  });
+
+  const { mutate: deactivateArtifact } = useDeactivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact deactivated successfully');
+      refetch();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to deactivate artifact');
+    },
   });
 
   const filteredHistoricalPeriods: Option[] = useMemo(() => {
@@ -55,16 +86,19 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
 
   const handleAction = useCallback(
     () => ({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onView: (data: any) => {},
-
       onEdit: (data: any) => {
         navigate(`/artifact/edit/${data.id}`);
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onDelete: (data: any) => {},
+
+      onActivate: (data: any) => {
+        activateArtifact(data.id);
+      },
+
+      onDeactivate: (data: any) => {
+        deactivateArtifact(data.id);
+      },
     }),
-    [navigate]
+    [navigate, activateArtifact, deactivateArtifact]
   );
 
   const columns = useMemo<ColumnDef<Artifact>[]>(
@@ -182,18 +216,21 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {row.original.isActive ? (
+                <DropdownMenuItem onClick={() => handleAction().onDeactivate(row.original)} className="text-orange-600">
+                  <PowerOff className="mr-2 h-4 w-4" />
+                  Deactivate
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => handleAction().onActivate(row.original)} className="text-green-600">
+                  <Power className="mr-2 h-4 w-4" />
+                  Activate
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),

@@ -20,6 +20,7 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
+import { Switch } from '@musetrip360/ui-core/switch';
 import Divider from '@/components/Divider';
 import MultipleImageUpload from '@/components/MultipleImageUpload';
 
@@ -30,6 +31,7 @@ const artifactSchema = z.object({
   historicalPeriod: z.string().min(1, 'Thời kỳ lịch sử là bắt buộc'),
   imageUrl: z.string(),
   model3DUrl: z.string(),
+  isActive: z.boolean(),
   // Metadata fields
   type: z.string(),
   material: z.string(),
@@ -106,6 +108,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
         historicalPeriod: artifact.historicalPeriod,
         imageUrl: artifact.imageUrl,
         model3DUrl: artifact.model3DUrl,
+        isActive: artifact.isActive,
         type: artifact.metadata?.type || '',
         material: artifact.metadata?.material || '',
         discoveryLocation: artifact.metadata?.discoveryLocation || '',
@@ -121,6 +124,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
       historicalPeriod: '',
       imageUrl: '',
       model3DUrl: '',
+      isActive: true,
       type: '',
       material: '',
       discoveryLocation: '',
@@ -179,6 +183,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
           historicalPeriod: artifact.historicalPeriod,
           imageUrl: artifact.imageUrl,
           model3DUrl: artifact.model3DUrl,
+          isActive: artifact.isActive,
           type: artifact.metadata?.type || '',
           material: artifact.metadata?.material || '',
           discoveryLocation: artifact.metadata?.discoveryLocation || '',
@@ -220,6 +225,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
         historicalPeriod: data.historicalPeriod,
         imageUrl: finalImageUrl,
         model3DUrl: data.model3DUrl,
+        isActive: data.isActive,
         metadata: {
           type: data.type,
           material: data.material,
@@ -385,6 +391,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                 )}
               />
 
+              {/* Fourth Row - Active Switch */}
               <FormField
                 control={form.control}
                 name="description"
@@ -400,6 +407,25 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                       />
                     </FormControl>
                     <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Active Status Toggle */}
+              <FormField
+                control={form.control}
+                name="isActive"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-gray-600">Trạng thái</FormLabel>
+                      <p className="text-sm text-gray-500">Hiện vật có hoạt động không?</p>
+                    </div>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      disabled={(mode === 'edit' && !isEditing) || isPending}
+                    />
                   </FormItem>
                 )}
               />
