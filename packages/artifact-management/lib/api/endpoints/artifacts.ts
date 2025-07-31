@@ -22,6 +22,8 @@ export const artifactEndpoints = {
   getById: (id: string) => `/artifacts/${id}`,
   update: (id: string) => `/artifacts/${id}`,
   delete: (id: string) => `/artifacts/${id}`,
+  activate: (id: string) => `/artifacts/${id}/activate`,
+  deactivate: (id: string) => `/artifacts/${id}/deactivate`,
 
   // Admin artifact endpoints
   adminList: '/artifacts/admin',
@@ -80,7 +82,7 @@ export const updateArtifact = async (id: string, data: ArtifactUpdateDto): Promi
  */
 export const activateArtifact = async (id: string): Promise<APIResponse<any>> => {
   const httpClient = getHttpClient();
-  return await httpClient.put<APIResponse<any>>(artifactEndpoints.update(id), { isActive: true });
+  return await httpClient.patch<APIResponse<any>>(artifactEndpoints.activate(id));
 };
 
 /**
@@ -88,7 +90,7 @@ export const activateArtifact = async (id: string): Promise<APIResponse<any>> =>
  */
 export const deactivateArtifact = async (id: string): Promise<APIResponse<any>> => {
   const httpClient = getHttpClient();
-  return await httpClient.put<APIResponse<any>>(artifactEndpoints.update(id), { isActive: false });
+  return await httpClient.patch<APIResponse<any>>(artifactEndpoints.deactivate(id));
 };
 
 /**

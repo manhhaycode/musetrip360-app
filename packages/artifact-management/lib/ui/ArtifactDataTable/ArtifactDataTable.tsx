@@ -21,7 +21,7 @@ import { Link, useNavigate } from 'react-router';
 const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: Artifact[] = useMemo(() => [], []);
   const navigate = useNavigate();
-  const { data: filterOptions, refetch } = useArtifactsByMuseum(
+  const { data: filterOptions } = useArtifactsByMuseum(
     {
       Page: 1,
       PageSize: 10000,
@@ -31,31 +31,6 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
       refetchOnWindowFocus: true,
     }
   );
-
-  // Activate/Deactivate mutations
-  const { mutate: activateArtifact } = useActivateArtifact({
-    onSuccess: () => {
-      // Success message could be shown here
-      toast.success('Artifact activated successfully');
-      refetch();
-    },
-    onError: (error) => {
-      console.log('Err', error);
-      toast.error('Failed to activate artifact');
-    },
-  });
-
-  const { mutate: deactivateArtifact } = useDeactivateArtifact({
-    onSuccess: () => {
-      // Success message could be shown here
-      toast.success('Artifact deactivated successfully');
-      refetch();
-    },
-    onError: (error) => {
-      console.log('Err', error);
-      toast.error('Failed to deactivate artifact');
-    },
-  });
 
   const filteredHistoricalPeriods: Option[] = useMemo(() => {
     const uniquePeriods = new Set<string>();
@@ -70,18 +45,46 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
 
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
 
-  const { data: artifactsData, isLoading: loadingArtifacts } = useArtifactsByMuseum({
+  const {
+    data: artifactsData,
+    isLoading: loadingArtifacts,
+    refetch: refetchArtifacts,
+  } = useArtifactsByMuseum({
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
     SearchKeyword: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    IsActive: tableState.columnFilters.find((filter) => filter.id === 'isActive')?.value === 'true',
     HistoricalPeriods:
       (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
     museumId: museumId || '',
     // Page: 1,
     // PageSize: 10000,
     // museumId: museumId || '',
+  });
+
+  // Activate/Deactivate mutations
+  const { mutate: activateArtifact } = useActivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact activated successfully');
+      refetchArtifacts();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to activate artifact');
+    },
+  });
+
+  const { mutate: deactivateArtifact } = useDeactivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact deactivated successfully');
+      refetchArtifacts();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to deactivate artifact');
+    },
   });
 
   const handleAction = useCallback(
