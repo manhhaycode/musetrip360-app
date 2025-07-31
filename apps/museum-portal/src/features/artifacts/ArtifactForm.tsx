@@ -15,23 +15,27 @@ import {
   useUpdateArtifact,
 } from '@musetrip360/artifact-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
+import { useFileUpload, MediaType, FormDropZone } from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import Divider from '@/components/Divider';
+import MultipleImageUpload from '@/components/MultipleImageUpload';
 
 // Validation schema for artifact form
 const artifactSchema = z.object({
   name: z.string().min(1, 'Tên hiện vật là bắt buộc').min(3, 'Tên hiện vật phải có ít nhất 3 ký tự'),
   description: z.string().min(1, 'Mô tả là bắt buộc').min(10, 'Mô tả phải có ít nhất 10 ký tự'),
   historicalPeriod: z.string().min(1, 'Thời kỳ lịch sử là bắt buộc'),
-  imageUrl: z.string().min(1, 'URL hình ảnh là bắt buộc').url('URL hình ảnh không hợp lệ'),
-  model3DUrl: z.string().min(1, 'URL mô hình 3D là bắt buộc').url('URL mô hình 3D không hợp lệ'),
+  imageUrl: z.string(),
+  model3DUrl: z.string(),
   // Metadata fields
   type: z.string(),
   material: z.string(),
   discoveryLocation: z.string(),
+  images: z.array(z.string()).optional(),
+  mainImageUpload: z.any().optional(),
 });
 
 type ArtifactFormData = z.infer<typeof artifactSchema>;
@@ -51,9 +55,14 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
   const [isEditing, setIsEditing] = useState(mode === 'create');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [localFiles, setLocalFiles] = useState<File[]>([]);
 
   // Use defaultValues if provided, no need to fetch from API
   const artifact = defaultValues;
+
+  // File upload mutation for images
+  const uploadFileMutation = useFileUpload();
 
   // Mutations
   const { mutate: createArtifact, isPending: isCreating } = useCreateArtifact({
@@ -77,13 +86,16 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
       setIsEditing(false);
       setError(null);
       onSuccess?.();
+      setTimeout(() => {
+        navigate('/museum/artifacts');
+      }, 2000);
     },
     onError: () => {
       setError('Có lỗi xảy ra khi cập nhật hiện vật. Vui lòng thử lại.');
     },
   });
 
-  const isPending = isCreating || isUpdating;
+  const isPending = isCreating || isUpdating || isUploadingImages;
 
   // Form setup with default values
   const getFormDefaultValues = (): ArtifactFormData => {
@@ -97,6 +109,8 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
         type: artifact.metadata?.type || '',
         material: artifact.metadata?.material || '',
         discoveryLocation: artifact.metadata?.discoveryLocation || '',
+        images: artifact.metadata?.images || [],
+        mainImageUpload: null,
       };
     }
 
@@ -110,6 +124,8 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
       type: '',
       material: '',
       discoveryLocation: '',
+      images: [],
+      mainImageUpload: null,
     };
   };
 
@@ -166,6 +182,8 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
           type: artifact.metadata?.type || '',
           material: artifact.metadata?.material || '',
           discoveryLocation: artifact.metadata?.discoveryLocation || '',
+          images: artifact.metadata?.images || [],
+          mainImageUpload: null,
         });
       }
     }
@@ -174,18 +192,39 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
   const handleSubmit = async (data: ArtifactFormData) => {
     try {
       setError(null);
+      setIsUploadingImages(true);
+
+      // Upload main image first if provided via FormDropZone
+      let finalImageUrl = data.imageUrl;
+      if (data.mainImageUpload?.file && data.mainImageUpload.file instanceof File) {
+        const mainImageResult = await uploadFileMutation.mutateAsync(data.mainImageUpload.file);
+        finalImageUrl = mainImageResult.data.url;
+      }
+
+      // Upload local files for additional images
+      let uploadedImageUrls: string[] = [];
+      if (localFiles.length > 0) {
+        const uploadPromises = localFiles.map((file) => uploadFileMutation.mutateAsync(file));
+
+        const uploadResults = await Promise.all(uploadPromises);
+        uploadedImageUrls = uploadResults.map((result) => result.data.url);
+      }
+
+      // Combine existing images with newly uploaded images
+      const finalImages = [...(data.images || []), ...uploadedImageUrls];
 
       // Prepare the payload
       const payload = {
         name: data.name,
         description: data.description,
         historicalPeriod: data.historicalPeriod,
-        imageUrl: data.imageUrl,
+        imageUrl: finalImageUrl,
         model3DUrl: data.model3DUrl,
         metadata: {
           type: data.type,
           material: data.material,
           discoveryLocation: data.discoveryLocation,
+          images: finalImages,
         },
       };
 
@@ -203,6 +242,8 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
     } catch (error) {
       setError('Có lỗi xảy ra. Vui lòng thử lại.');
       console.error('Form submission error:', error);
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
@@ -344,21 +385,55 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                 )}
               />
 
-              {/* Fourth Row - URLs */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-600">Mô tả</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Nhập mô tả chi tiết về hiện vật"
+                        rows={4}
+                        disabled={(mode === 'edit' && !isEditing) || isPending}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Fourth Row - Main Image Upload and 3D Model URL */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
                 <FormField
                   control={form.control}
                   name="imageUrl"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-600">URL hình ảnh</FormLabel>
+                      <FormLabel className="text-gray-600">Thumbnail</FormLabel>
                       <FormControl>
-                        <Input
-                          type="url"
-                          placeholder="https://example.com/image.jpg"
-                          disabled={(mode === 'edit' && !isEditing) || isPending}
-                          {...field}
-                        />
+                        <div className="space-y-3">
+                          {/* URL Input (for existing images or manual URLs) */}
+                          <Input
+                            type="url"
+                            placeholder="https://example.com/image.jpg"
+                            disabled={(mode === 'edit' && !isEditing) || isPending}
+                            {...field}
+                          />
+
+                          {/* File Upload */}
+                          <div className="text-sm text-gray-500">Hoặc tải lên file:</div>
+                          <FormDropZone
+                            name="mainImageUpload"
+                            control={form.control}
+                            mediaType={MediaType.IMAGE}
+                            label=""
+                            description=""
+                            manualUpload={true}
+                            className="min-h-[100px]"
+                          />
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -372,12 +447,16 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                     <FormItem>
                       <FormLabel className="text-gray-600">URL mô hình 3D</FormLabel>
                       <FormControl>
-                        <Input
-                          type="url"
-                          placeholder="https://example.com/model.glb"
-                          disabled={(mode === 'edit' && !isEditing) || isPending}
-                          {...field}
-                        />
+                        <div className="space-y-3 h-full">
+                          <Input
+                            type="url"
+                            placeholder="https://example.com/model.glb"
+                            disabled={(mode === 'edit' && !isEditing) || isPending}
+                            {...field}
+                          />
+                          <div className="text-sm text-gray-500">Preview</div>
+                          <div className="w-full h-auto bg-gray-100 rounded-md"></div>
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -385,19 +464,19 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                 />
               </div>
 
-              {/* Fifth Row - Description (Full Width) */}
+              {/* Fifth Row - Multiple Images Upload */}
               <FormField
                 control={form.control}
-                name="description"
+                name="images"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-gray-600">Mô tả</FormLabel>
+                    <FormLabel className="text-gray-600">Hình ảnh bổ sung</FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder="Nhập mô tả chi tiết về hiện vật"
-                        rows={4}
+                      <MultipleImageUpload
+                        value={field.value || []}
+                        onChange={field.onChange}
+                        onLocalFilesChange={setLocalFiles}
                         disabled={(mode === 'edit' && !isEditing) || isPending}
-                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
