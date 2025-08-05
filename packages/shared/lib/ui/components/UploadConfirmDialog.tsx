@@ -1,13 +1,13 @@
+import { Button } from '@musetrip360/ui-core/button';
 import {
-  Button,
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  ScrollArea,
-} from '@musetrip360/ui-core';
+  DialogDescription,
+  DialogFooter,
+} from '@musetrip360/ui-core/dialog';
+import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { FileText, Image, Upload, Video } from 'lucide-react';
 
 interface UploadConfirmDialogProps {
@@ -54,26 +54,24 @@ export function UploadConfirmDialog({ open, onClose, onConfirm, files }: UploadC
           <DialogDescription>Bạn có chắc chắn muốn tải lên {files.length} tệp tin không?</DialogDescription>
         </DialogHeader>
 
-        <div className="my-6">
-          <ScrollArea className="max-h-64">
-            <div className="space-y-3 pr-4">
-              {files.map(({ id, file }) => (
-                <div
-                  key={id}
-                  className="flex items-center gap-4 p-3 rounded-xl border bg-muted/30 transition-all duration-200"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-background rounded-xl border flex items-center justify-center shadow-sm">
-                    {getFileIcon(file)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate mb-1">{file.name}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{formatFileSize(file.size)}</p>
-                  </div>
+        <ScrollArea className="max-h-72 my-4">
+          <div className="space-y-3 pr-2">
+            {files.map(({ id, file }) => (
+              <div
+                key={id}
+                className="flex items-center gap-4 p-3 rounded-xl border bg-muted/30 transition-all duration-200"
+              >
+                <div className="flex-shrink-0 w-12 h-12 bg-background rounded-xl border flex items-center justify-center shadow-sm">
+                  {getFileIcon(file)}
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate mb-1">{file.name}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{formatFileSize(file.size)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
 
         <div className="bg-muted rounded-lg p-4 border">
           <div className="flex items-center justify-between text-sm">

@@ -262,6 +262,8 @@ export function DropZoneWithPreview({
     onRemove?.();
   };
 
+  console.log(value, 'DropZoneWithPreview value');
+
   // Show preview if we have a file
   if (value) {
     return (

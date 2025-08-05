@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect } from 'react';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Edit, Save, X, Plus } from 'lucide-react';
@@ -15,14 +15,13 @@ import {
   useUpdateArtifact,
 } from '@musetrip360/artifact-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
-import { useFileUpload, MediaType, FormDropZone } from '@musetrip360/shared';
+import { useFileUpload, MediaType, FormDropZone, DropZoneWithPreview } from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Switch } from '@musetrip360/ui-core/switch';
 import Divider from '@/components/Divider';
-import MultipleImageUpload from '@/components/MultipleImageUpload';
 
 // Validation schema for artifact form
 const artifactSchema = z.object({
@@ -36,7 +35,7 @@ const artifactSchema = z.object({
   type: z.string(),
   material: z.string(),
   discoveryLocation: z.string(),
-  images: z.array(z.string()).optional(),
+  images: z.array(z.union([z.string(), z.any()])).optional(),
   mainImageUpload: z.any().optional(),
 });
 
@@ -58,7 +57,6 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [localFiles, setLocalFiles] = useState<File[]>([]);
 
   // Use defaultValues if provided, no need to fetch from API
   const artifact = defaultValues;
@@ -138,6 +136,28 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
     defaultValues: getFormDefaultValues(),
   });
 
+  const { control } = form;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'images',
+  });
+  const watchedImages = useWatch({ control, name: 'images' });
+  const mainImageUpload = useWatch({ control, name: 'mainImageUpload' });
+
+  useEffect(() => {
+    if (fields.length === 0) {
+      append('');
+    }
+  }, [fields.length, append]);
+
+  // Auto-append new field if all are filled
+  useEffect(() => {
+    const allHaveValue = watchedImages?.every((img) => !!img);
+    if (fields.length > 0 && allHaveValue) {
+      append('');
+    }
+  }, [watchedImages, fields, append]);
+
   // Check if museum is selected
   if (!selectedMuseum?.id) {
     return (
@@ -194,29 +214,31 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
     }
   };
 
-  const handleSubmit = async (data: ArtifactFormData) => {
+  const onSubmit = async (data: ArtifactFormData) => {
     try {
       setError(null);
       setIsUploadingImages(true);
 
-      // Upload main image first if provided via FormDropZone
+      // Upload main image if provided via FormDropZone
       let finalImageUrl = data.imageUrl;
       if (data.mainImageUpload?.file && data.mainImageUpload.file instanceof File) {
         const mainImageResult = await uploadFileMutation.mutateAsync(data.mainImageUpload.file);
         finalImageUrl = mainImageResult.data.url;
       }
 
-      // Upload local files for additional images
-      let uploadedImageUrls: string[] = [];
-      if (localFiles.length > 0) {
-        const uploadPromises = localFiles.map((file) => uploadFileMutation.mutateAsync(file));
-
-        const uploadResults = await Promise.all(uploadPromises);
-        uploadedImageUrls = uploadResults.map((result) => result.data.url);
+      // Handle multiple images: filter out empty fields, upload files, and collect URLs
+      const validImages = (data.images || []).filter(Boolean).map((img) => img.file);
+      console.log('Valid images:', validImages);
+      const uploadedImageUrls: string[] = [];
+      for (const img of validImages) {
+        if (typeof img === 'object' && img !== null && 'name' in img && 'type' in img) {
+          const result = await uploadFileMutation.mutateAsync(img as File);
+          console.log('Uploaded image result:', result);
+          uploadedImageUrls.push(result.data.url);
+        } else if (typeof img === 'string') {
+          uploadedImageUrls.push(img);
+        }
       }
-
-      // Combine existing images with newly uploaded images
-      const finalImages = [...(data.images || []), ...uploadedImageUrls];
 
       // Prepare the payload
       const payload = {
@@ -230,7 +252,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
           type: data.type,
           material: data.material,
           discoveryLocation: data.discoveryLocation,
-          images: finalImages,
+          images: uploadedImageUrls,
         },
       };
 
@@ -292,7 +314,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
       {/* Form - Expanded to fill remaining space */}
       <div className="flex-1 flex flex-col">
         <Form {...form}>
-          <form id="artifact-form" onSubmit={form.handleSubmit(handleSubmit)} className="flex-1 flex flex-col">
+          <form id="artifact-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 flex flex-col">
             <div className="flex-1 space-y-6">
               {/* First Row - Name and Historical Period */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -450,12 +472,35 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
 
                           {/* File Upload */}
                           <div className="text-sm text-gray-500">Hoặc tải lên file:</div>
-                          <FormDropZone
+                          {/* <FormDropZone
                             name="mainImageUpload"
                             control={form.control}
                             mediaType={MediaType.IMAGE}
                             label=""
                             description=""
+                            manualUpload={true}
+                            className="min-h-[100px]"
+                          /> */}
+                          <DropZoneWithPreview
+                            uploadId="mainImageUpload"
+                            autoRegister={true}
+                            value={
+                              mainImageUpload && mainImageUpload.file ? mainImageUpload.file : defaultValues?.imageUrl
+                            }
+                            onChange={(newValue) => {
+                              if (!newValue) {
+                                form.setValue('mainImageUpload', null);
+                                return;
+                              }
+                              form.setValue('mainImageUpload', {
+                                file: newValue,
+                                mediaType: MediaType.IMAGE,
+                                fileName: newValue instanceof File ? newValue.name : '',
+                              });
+                            }}
+                            onRemove={() => form.setValue('mainImageUpload', null)}
+                            mediaType={MediaType.IMAGE}
+                            disabled={(mode === 'edit' && !isEditing) || isPending}
                             manualUpload={true}
                             className="min-h-[100px]"
                           />
@@ -490,25 +535,39 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                 />
               </div>
 
-              {/* Fifth Row - Multiple Images Upload */}
-              <FormField
-                control={form.control}
-                name="images"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-gray-600">Hình ảnh bổ sung</FormLabel>
-                    <FormControl>
-                      <MultipleImageUpload
-                        value={field.value || []}
-                        onChange={field.onChange}
-                        onLocalFilesChange={setLocalFiles}
-                        disabled={(mode === 'edit' && !isEditing) || isPending}
+              {/* Multiple Images Upload (Dynamic) */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">Hình ảnh bổ sung</FormLabel>
+                  <span className="text-sm text-muted-foreground">
+                    Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
+                      <FormDropZone
+                        name={`images.${index}`}
+                        control={control}
+                        mediaType={MediaType.IMAGE}
+                        label={''}
+                        description={''}
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => remove(index)}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                        >
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </form>
         </Form>
