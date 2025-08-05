@@ -178,3 +178,22 @@ export type Permission = {
   resourceGroup: string;
   isActive: boolean;
 };
+
+export type TourGuide = {
+  id: string;
+  name: string;
+  bio?: string;
+  isAvailable: boolean;
+  museumId: string;
+  userId: string;
+  metadata?: any;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  user: IUser; // User details associated with the tour guide
+};
+
+export type TourGuideCreateDto = Omit<TourGuide, 'id' | 'createdAt' | 'updatedAt' | 'user' | 'isAvailable'>;
+
+export type TourGuideUpdateDto = Partial<TourGuideCreateDto> & {
+  id: string; // Required for updates
+};

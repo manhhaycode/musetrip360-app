@@ -15,6 +15,7 @@ import MuseumCreateReqPage from '@/features/museum/pages/MuseumCreateReqPage';
 import MuseumAccessPage from '@/features/museum/pages/MuseumAccessPage';
 import SimpleLayout from '@/layouts/SimpleLayout';
 import DashboardPage from '@/features/dashboard/DashboardPage';
+import TourGuidePage from '@/features/staff/pages/TourGuidePage';
 
 export default function AppRoutes() {
   return (
@@ -53,6 +54,7 @@ export default function AppRoutes() {
 
           {/* Staff Management */}
           <Route path="/staff" element={<StaffPage />} />
+          <Route path="/tour-guides" element={<TourGuidePage />} />
 
           {/* Event Management */}
           <Route path="/event" element={<div>Danh sách sự kiện</div>} />

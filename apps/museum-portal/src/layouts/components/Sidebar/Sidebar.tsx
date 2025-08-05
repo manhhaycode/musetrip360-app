@@ -35,6 +35,7 @@ import {
   StarIcon,
   TicketIcon,
   UsersIcon,
+  TicketsPlaneIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -108,6 +109,11 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                   title: 'Danh sách nhân viên',
                   url: '/staff',
                   icon: BookUserIcon,
+                },
+                {
+                  title: 'Danh sách hướng dẫn viên',
+                  url: '/tour-guides',
+                  icon: TicketsPlaneIcon,
                 },
               ],
             },
