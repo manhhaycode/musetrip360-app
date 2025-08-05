@@ -228,12 +228,10 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
 
       // Handle multiple images: filter out empty fields, upload files, and collect URLs
       const validImages = (data.images || []).filter(Boolean).map((img) => img.file);
-      console.log('Valid images:', validImages);
       const uploadedImageUrls: string[] = [];
       for (const img of validImages) {
         if (typeof img === 'object' && img !== null && 'name' in img && 'type' in img) {
           const result = await uploadFileMutation.mutateAsync(img as File);
-          console.log('Uploaded image result:', result);
           uploadedImageUrls.push(result.data.url);
         } else if (typeof img === 'string') {
           uploadedImageUrls.push(img);

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Send, RotateCcw } from 'lucide-react';
@@ -13,6 +13,7 @@ import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import Divider from '@/components/Divider';
 import PublicHeader from '@/layouts/components/Header/PublicHeader';
+import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
 
 // Validation schema for museum request creation
 const museumRequestSchema = z.object({
@@ -21,7 +22,7 @@ const museumRequestSchema = z.object({
   location: z.string().min(1, 'Địa chỉ là bắt buộc').min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
   contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
-  metadata: z.any().optional(),
+  documents: z.array(z.union([z.string(), z.any()])).optional(),
 });
 
 type MuseumRequestFormData = z.infer<typeof museumRequestSchema>;
@@ -29,8 +30,11 @@ type MuseumRequestFormData = z.infer<typeof museumRequestSchema>;
 const MuseumCreateReqPage = () => {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isUploadingDocs, setIsUploadingDocs] = useState(false);
 
-  const { mutate: createMuseumRequest, isPending } = useCreateMuseumRequest({
+  const uploadFileMutation = useFileUpload();
+
+  const { mutate: createMuseumRequest, isPending: isCreating } = useCreateMuseumRequest({
     onSuccess: () => {
       setSuccessMessage(
         'Yêu cầu tạo bảo tàng đã được gửi thành công! Chúng tôi sẽ xem xét và phản hồi trong thời gian sớm nhất.'
@@ -52,14 +56,52 @@ const MuseumCreateReqPage = () => {
       location: '',
       contactEmail: '',
       contactPhone: '',
-      metadata: {},
+      documents: [],
     },
   });
+
+  const { control } = form;
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'documents',
+  });
+
+  const watchedDocuments = useWatch({ control, name: 'documents' });
+
+  useEffect(() => {
+    if (fields.length === 0) {
+      append('');
+    }
+  }, [fields.length, append]);
+
+  // Auto-append new field if all are filled
+  useEffect(() => {
+    const allHaveValue = watchedDocuments?.every((doc) => !!doc);
+    if (fields.length > 0 && allHaveValue) {
+      append('');
+    }
+  }, [watchedDocuments, fields, append]);
+
+  const isPending = isCreating || isUploadingDocs;
 
   const handleSubmit = async (data: MuseumRequestFormData) => {
     try {
       setSubmitError(null);
       setSuccessMessage(null);
+      setIsUploadingDocs(true);
+
+      const validDocs = (data.documents || []).filter(Boolean).map((doc) => doc.file);
+
+      const uploadedDocUrls: string[] = [];
+      for (const doc of validDocs) {
+        if (typeof doc === 'object' && doc !== null && 'name' in doc && 'type' in doc) {
+          const result = await uploadFileMutation.mutateAsync(doc as File);
+          console.log('Uploaded image result:', result);
+          uploadedDocUrls.push(result.data.url);
+        } else if (typeof doc === 'string') {
+          uploadedDocUrls.push(doc);
+        }
+      }
 
       createMuseumRequest({
         museumName: data.museumName,
@@ -67,11 +109,15 @@ const MuseumCreateReqPage = () => {
         location: data.location,
         contactEmail: data.contactEmail,
         contactPhone: data.contactPhone,
-        metadata: data.metadata || {},
+        metadata: {
+          documents: uploadedDocUrls,
+        },
       });
     } catch (error) {
       setSubmitError('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại.');
       console.error('Submit error:', error);
+    } finally {
+      setIsUploadingDocs(false);
     }
   };
 
@@ -251,6 +297,39 @@ const MuseumCreateReqPage = () => {
                   </FormItem>
                 )}
               />
+
+              {/* Multiple Documents Upload (Dynamic) */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">
+                    Thêm các tài liệu cần thiết để quy trình duyệt nhanh chóng minh bạch
+                  </FormLabel>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
+                      <FormDropZone
+                        name={`documents.${index}`}
+                        control={control}
+                        mediaType={MediaType.DOCUMENT}
+                        label={''}
+                        description={''}
+                      />
+                      {fields.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => remove(index)}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                        >
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 pt-6">
