@@ -18,6 +18,8 @@ import DashboardPage from '@/features/dashboard/DashboardPage';
 import TourGuidePage from '@/features/staff/pages/TourGuidePage';
 import ProfilePage from '@/features/settings/pages/ProfilePage';
 import ChangePasswordPage from '@/features/settings/pages/ChangePasswordPage';
+import VirtualTourManagement from '@/features/virtual-tour/pages/VirtualTourManagement';
+import VirtualTourInfo from '@/features/virtual-tour/pages/VirtualTourStudio';
 
 export default function AppRoutes() {
   return (
@@ -34,6 +36,9 @@ export default function AppRoutes() {
             </SimpleLayout>
           }
         />
+
+        <Route path="/virtual-tour/studio/create" element={<VirtualTourInfo />} />
+        <Route path="/virtual-tour/studio/:id" element={<VirtualTourInfo />} />
 
         <Route path="/" element={<DefaultLayout />}>
           {/* Default route for users with museums */}
@@ -71,11 +76,10 @@ export default function AppRoutes() {
           <Route path="/event-ticket" element={<div>Danh sách vé sự kiện</div>} />
 
           {/* 360 Tour Management */}
-          <Route path="/360-tour" element={<div>Danh sách tour ảo 360</div>} />
-          <Route path="/360-tour/create" element={<div>Tạo tour ảo 360 mới</div>} />
+          <Route path="/virtual-tour" element={<VirtualTourManagement />} />
 
           {/* 360 Tour Settings */}
-          <Route path="/360-tour/settings" element={<div>Cài đặt tour ảo 360</div>} />
+          <Route path="/virtual-tour/settings" element={<div>Cài đặt tour ảo 360</div>} />
 
           {/* Settings */}
           <Route path="/settings" element={<div>Cài đặt</div>} />

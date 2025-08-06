@@ -177,33 +177,33 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
           ]}
         />
         <SidebarGroupItem
-          groupLabel="Quản lý nội dung tour ảo 360"
+          groupLabel="Quản lý nội dung tour ảo"
           items={[
             {
-              title: 'Quản lý tour ảo 360',
-              url: '/360-tour',
+              title: 'Quản lý tour ảo',
+              url: '/virtual-tour',
               icon: GlobeIcon,
               items: [
                 {
-                  title: 'Danh sách tour ảo 360',
-                  url: '/360-tour',
+                  title: 'Danh sách tour ảo',
+                  url: '/virtual-tour',
                   icon: ListChecksIcon,
                 },
                 {
-                  title: 'Tạo tour ảo 360 mới',
-                  url: '/360-tour/create',
+                  title: 'Tạo tour ảo mới',
+                  url: '/virtual-tour/studio/create',
                   icon: PlusIcon,
                 },
               ],
             },
             {
-              title: 'Cài đặt tour ảo 360',
-              url: '/360-tour/settings',
+              title: 'Cài đặt tour ảo',
+              url: '/virtual-tour/settings',
               icon: SettingsIcon,
               items: [
                 {
                   title: 'Cài đặt chung',
-                  url: '/360-tour/settings',
+                  url: '/virtual-tour/settings',
                   icon: SettingsIcon,
                 },
               ],
