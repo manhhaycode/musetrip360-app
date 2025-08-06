@@ -13,7 +13,7 @@ import { config, getEnvironment, getEnvVar } from '@musetrip360/infras';
  * Default API client configuration
  */
 const DEFAULT_CONFIG: APIClientConfig = {
-  timeout: 30000, // 30 seconds
+  timeout: 50000, // 50 seconds
   retries: 0,
   retryDelay: 1000, // 1 second
   maxRetryDelay: 10000, // 10 seconds

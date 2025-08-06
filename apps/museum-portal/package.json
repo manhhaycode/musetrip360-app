@@ -21,6 +21,7 @@
     "@musetrip360/shared": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
+    "@musetrip360/virtual-tour": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "lodash.get": "^4.4.2",
     "react": "^19.0.0",
