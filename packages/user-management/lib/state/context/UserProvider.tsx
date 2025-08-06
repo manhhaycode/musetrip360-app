@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
 import { useUserStore } from '../store/user.store';
 import { IUser } from '@/types';
-import { getQueryClient } from '@musetrip360/query-foundation';
-import { userCacheKeys } from '@/api/cache/cacheKeys';
+// import { getQueryClient } from '@musetrip360/query-foundation';
+// import { userCacheKeys } from '@/api/cache/cacheKeys';
 import { useIsAuthenticated } from '@musetrip360/auth-system/state';
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {

@@ -25,9 +25,10 @@ export interface Artifact {
 }
 
 export interface ArtifactMetadata {
-  type: string;
-  material: string;
-  discoveryLocation: string;
+  type?: string;
+  material?: string;
+  discoveryLocation?: string;
+  images?: string[];
 }
 
 /**

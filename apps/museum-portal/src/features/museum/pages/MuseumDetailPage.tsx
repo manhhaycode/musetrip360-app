@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useState, useEffect } from 'react';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Loader2, Edit, Save, X } from 'lucide-react';
@@ -13,6 +13,7 @@ import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import Divider from '@/components/Divider';
 import { MuseumStatusBadge } from '../MuseumStatusBadge';
+import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
 
 // Validation schema
 const museumUpdateSchema = z.object({
@@ -21,6 +22,7 @@ const museumUpdateSchema = z.object({
   location: z.string().min(1, 'Địa chỉ là bắt buộc').min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
   contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
+  images: z.array(z.union([z.string(), z.any()])).optional(),
 });
 
 type MuseumUpdateFormData = z.infer<typeof museumUpdateSchema>;
@@ -36,7 +38,7 @@ const MuseumDetailPage = () => {
     enabled: !!selectedMuseum?.id,
   });
 
-  const { mutate: updateMuseum, isPending } = useUpdateMuseum({
+  const { mutate: updateMuseum, isPending: isUpdating } = useUpdateMuseum({
     onSuccess: () => {
       setSuccessMessage('Cập nhật thông tin bảo tàng thành công!');
       setIsEditing(false);
@@ -50,6 +52,11 @@ const MuseumDetailPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
+
+  const uploadFileMutation = useFileUpload();
+
+  const isPending = isUpdating || isUploadingImages;
 
   const form = useForm<MuseumUpdateFormData>({
     resolver: zodResolver(museumUpdateSchema),
@@ -59,8 +66,35 @@ const MuseumDetailPage = () => {
       location: '',
       contactEmail: '',
       contactPhone: '',
+      images: [],
     },
   });
+
+  const { control } = form;
+  const {
+    fields: imageFields,
+    append: appendImage,
+    remove: removeImage,
+  } = useFieldArray({
+    control,
+    name: 'images',
+  });
+
+  const watchedImages = useWatch({ control, name: 'images' });
+
+  useEffect(() => {
+    if (imageFields.length === 0) {
+      appendImage('');
+    }
+  }, [imageFields.length, appendImage]);
+
+  // Auto-append new field if all are filled
+  useEffect(() => {
+    const allImagesHaveValue = watchedImages?.every((img) => !!img);
+    if (imageFields.length > 0 && allImagesHaveValue) {
+      appendImage('');
+    }
+  }, [watchedImages, imageFields, appendImage]);
 
   // Update form values when museum data is loaded
   React.useEffect(() => {
@@ -71,6 +105,7 @@ const MuseumDetailPage = () => {
         location: museum.location,
         contactEmail: museum.contactEmail,
         contactPhone: museum.contactPhone,
+        images: museum.metadata?.images || [],
       });
     }
   }, [museum, form]);
@@ -122,20 +157,44 @@ const MuseumDetailPage = () => {
       location: museum.location,
       contactEmail: museum.contactEmail,
       contactPhone: museum.contactPhone,
+      images: museum.metadata?.images || [],
     });
   };
 
   const handleSubmit = async (data: MuseumUpdateFormData) => {
     try {
       setUpdateError(null);
+      setIsUploadingImages(true);
+
+      const validImages = (data.images || []).filter(Boolean).map((img) => img.file);
+      const uploadedImageUrls: string[] = [];
+      for (const img of validImages) {
+        if (typeof img === 'object' && img !== null && 'name' in img && 'type' in img) {
+          const result = await uploadFileMutation.mutateAsync(img as File);
+          console.log('Uploaded image result:', result);
+          uploadedImageUrls.push(result.data.url);
+        } else if (typeof img === 'string') {
+          uploadedImageUrls.push(img);
+        }
+      }
 
       updateMuseum({
         id: museum.id,
-        ...data,
+        name: data.name,
+        description: data.description,
+        location: data.location,
+        contactEmail: data.contactEmail,
+        contactPhone: data.contactPhone,
+        metadata: {
+          ...museum.metadata,
+          images: uploadedImageUrls,
+        },
       });
     } catch (error) {
       setUpdateError('Có lỗi xảy ra khi cập nhật thông tin. Vui lòng thử lại.');
       console.error('Update error:', error);
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
@@ -275,9 +334,71 @@ const MuseumDetailPage = () => {
                 </FormItem>
               )}
             />
+
+            {/* Multiple Images Upload (Dynamic) */}
+            {isEditing && (
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">Hình ảnh bảo tàng</FormLabel>
+                  <span className="text-sm text-muted-foreground">
+                    Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {imageFields.map((field, index) => (
+                    <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
+                      <FormDropZone
+                        name={`images.${index}`}
+                        control={control}
+                        mediaType={MediaType.IMAGE}
+                        label={''}
+                        description={''}
+                      />
+                      {imageFields.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                          disabled={isPending}
+                        >
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </form>
         </Form>
       </div>
+
+      {/* Display existing images when not editing */}
+      {!isEditing && museum.metadata?.images && museum.metadata.images.length > 0 && (
+        <>
+          <Divider />
+          <div className="mt-8 mb-8">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Hình ảnh bảo tàng</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {museum.metadata.images.map((imageUrl: string, index: number) => (
+                <div key={index} className="border rounded-lg p-2">
+                  <img
+                    src={imageUrl}
+                    alt={`Museum image ${index + 1}`}
+                    className="w-full h-32 object-cover rounded"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/placeholder-image.jpg';
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
       <Divider />
       <div className="mt-8">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Thông tin hệ thống</h3>

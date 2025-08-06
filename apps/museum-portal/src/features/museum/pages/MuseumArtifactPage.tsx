@@ -6,11 +6,7 @@ const MuseumArtifactPage = () => {
   if (!selectedMuseum) {
     return <div>Please select a museum to view artifacts.</div>;
   }
-  return (
-    <>
-      <ArtifactDataTable museumId={selectedMuseum?.id} />
-    </>
-  );
+  return <ArtifactDataTable museumId={selectedMuseum?.id} />;
 };
 
 export default MuseumArtifactPage;
