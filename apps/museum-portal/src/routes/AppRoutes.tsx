@@ -16,6 +16,8 @@ import MuseumAccessPage from '@/features/museum/pages/MuseumAccessPage';
 import SimpleLayout from '@/layouts/SimpleLayout';
 import DashboardPage from '@/features/dashboard/DashboardPage';
 import TourGuidePage from '@/features/staff/pages/TourGuidePage';
+import ProfilePage from '@/features/settings/pages/ProfilePage';
+import ChangePasswordPage from '@/features/settings/pages/ChangePasswordPage';
 
 export default function AppRoutes() {
   return (
@@ -77,6 +79,8 @@ export default function AppRoutes() {
 
           {/* Settings */}
           <Route path="/settings" element={<div>Cài đặt</div>} />
+          <Route path="/settings/profile" element={<ProfilePage />} />
+          <Route path="/settings/change-password" element={<ChangePasswordPage />} />
 
           {/* Logout */}
           <Route path="/logout" element={<div>Đăng xuất</div>} />
