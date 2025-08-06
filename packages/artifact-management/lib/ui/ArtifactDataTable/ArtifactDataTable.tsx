@@ -129,6 +129,25 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         },
       },
       {
+        accessorKey: 'imageUrl',
+        header: 'Thumbnail',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const thumbnailUrl = row.original.imageUrl;
+          return (
+            <div className="flex items-center justify-center">
+              {row.original.imageUrl ? (
+                <img src={thumbnailUrl} alt={row.original.name} className="w-16 h-12 object-cover rounded" />
+              ) : (
+                <div className="w-16 h-12 bg-gray-200 flex items-center justify-center rounded">
+                  <span className="text-xs text-muted-foreground">No Image</span>
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
         meta: {
           variant: 'text',
           placeholder: 'Search by name',
@@ -140,16 +159,6 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         header: 'Name',
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.name}</div>,
-      },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
-            {row.original.description}
-          </div>
-        ),
       },
       {
         meta: {

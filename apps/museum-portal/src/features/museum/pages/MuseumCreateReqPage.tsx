@@ -23,6 +23,7 @@ const museumRequestSchema = z.object({
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
   contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
   documents: z.array(z.union([z.string(), z.any()])).optional(),
+  images: z.array(z.union([z.string(), z.any()])).optional(),
 });
 
 type MuseumRequestFormData = z.infer<typeof museumRequestSchema>;
@@ -57,30 +58,53 @@ const MuseumCreateReqPage = () => {
       contactEmail: '',
       contactPhone: '',
       documents: [],
+      images: [],
     },
   });
 
   const { control } = form;
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: documentFields,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
     control,
     name: 'documents',
   });
 
+  const {
+    fields: imageFields,
+    append: appendImage,
+    remove: removeImage,
+  } = useFieldArray({
+    control,
+    name: 'images',
+  });
+
   const watchedDocuments = useWatch({ control, name: 'documents' });
+  const watchedImages = useWatch({ control, name: 'images' });
 
   useEffect(() => {
-    if (fields.length === 0) {
-      append('');
+    if (documentFields.length === 0) {
+      appendDocument('');
     }
-  }, [fields.length, append]);
+    if (imageFields.length === 0) {
+      appendImage('');
+    }
+  }, [documentFields.length, appendDocument, imageFields.length, appendImage]);
 
   // Auto-append new field if all are filled
   useEffect(() => {
-    const allHaveValue = watchedDocuments?.every((doc) => !!doc);
-    if (fields.length > 0 && allHaveValue) {
-      append('');
+    const allDocumentsHaveValue = watchedDocuments?.every((doc) => !!doc);
+    if (documentFields.length > 0 && allDocumentsHaveValue) {
+      appendDocument('');
     }
-  }, [watchedDocuments, fields, append]);
+
+    const allImagesHaveValue = watchedImages?.every((img) => !!img);
+    if (imageFields.length > 0 && allImagesHaveValue) {
+      appendImage('');
+    }
+  }, [watchedDocuments, documentFields, appendDocument, watchedImages, imageFields, appendImage]);
 
   const isPending = isCreating || isUploadingDocs;
 
@@ -91,15 +115,27 @@ const MuseumCreateReqPage = () => {
       setIsUploadingDocs(true);
 
       const validDocs = (data.documents || []).filter(Boolean).map((doc) => doc.file);
+      const validImages = (data.images || []).filter(Boolean).map((img) => img.file);
 
       const uploadedDocUrls: string[] = [];
       for (const doc of validDocs) {
         if (typeof doc === 'object' && doc !== null && 'name' in doc && 'type' in doc) {
           const result = await uploadFileMutation.mutateAsync(doc as File);
-          console.log('Uploaded image result:', result);
+          console.log('Uploaded document result:', result);
           uploadedDocUrls.push(result.data.url);
         } else if (typeof doc === 'string') {
           uploadedDocUrls.push(doc);
+        }
+      }
+
+      const uploadedImageUrls: string[] = [];
+      for (const img of validImages) {
+        if (typeof img === 'object' && img !== null && 'name' in img && 'type' in img) {
+          const result = await uploadFileMutation.mutateAsync(img as File);
+          console.log('Uploaded image result:', result);
+          uploadedImageUrls.push(result.data.url);
+        } else if (typeof img === 'string') {
+          uploadedImageUrls.push(img);
         }
       }
 
@@ -111,6 +147,7 @@ const MuseumCreateReqPage = () => {
         contactPhone: data.contactPhone,
         metadata: {
           documents: uploadedDocUrls,
+          images: uploadedImageUrls,
         },
       });
     } catch (error) {
@@ -298,6 +335,40 @@ const MuseumCreateReqPage = () => {
                 )}
               />
 
+              {/* Multiple Images Upload (Dynamic) */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">Hình ảnh bảo tàng</FormLabel>
+                  <span className="text-sm text-muted-foreground">
+                    Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {imageFields.map((field, index) => (
+                    <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
+                      <FormDropZone
+                        name={`images.${index}`}
+                        control={control}
+                        mediaType={MediaType.IMAGE}
+                        label={''}
+                        description={''}
+                      />
+                      {imageFields.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                        >
+                          Xóa
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               {/* Multiple Documents Upload (Dynamic) */}
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
@@ -306,7 +377,7 @@ const MuseumCreateReqPage = () => {
                   </FormLabel>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {fields.map((field, index) => (
+                  {documentFields.map((field, index) => (
                     <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
                       <FormDropZone
                         name={`documents.${index}`}
@@ -315,10 +386,10 @@ const MuseumCreateReqPage = () => {
                         label={''}
                         description={''}
                       />
-                      {fields.length > 1 && (
+                      {documentFields.length > 1 && (
                         <Button
                           type="button"
-                          onClick={() => remove(index)}
+                          onClick={() => removeDocument(index)}
                           variant="destructive"
                           size="sm"
                           className="absolute top-1 right-1"

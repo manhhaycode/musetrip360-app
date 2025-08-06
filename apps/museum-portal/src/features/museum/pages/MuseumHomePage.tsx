@@ -1,6 +1,4 @@
 import { useGetMuseumById, useMuseumStore, useUpdateMuseum } from '@musetrip360/museum-management';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { BulkUploadProvider, MultipleUploadExample } from '@musetrip360/shared';
 import React from 'react';
 const RichEditor = React.lazy(() =>
   import('@musetrip360/rich-editor').then((module) => ({

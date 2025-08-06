@@ -36,6 +36,7 @@ export interface MuseumMetadata {
   };
   contentHomePage?: string;
   additionalInfo?: Record<string, any>;
+  images?: string[];
 }
 
 export enum MuseumStatus {
@@ -91,6 +92,7 @@ export type MuseumRequest = {
 export type MuseumRequestMetadata = {
   documents?: string[];
   additionalInfo?: Record<string, any>;
+  images?: string[];
 };
 
 export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
