@@ -5,26 +5,35 @@ import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { DataTable, useDataTable, useDataTableState } from '@musetrip360/ui-core/data-table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
-import { useMemo } from 'react';
+import { MoreHorizontal, UserPlus } from 'lucide-react';
+import { useMemo, useState, useCallback } from 'react';
 
 import get from 'lodash.get';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core';
-// import AddTourGuideMember from './AddTourGuideMember';
+import AddTourGuide from './AddTourGuide';
+
 const TourGuideDataTable = () => {
   const { selectedMuseum } = useMuseumStore();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
     defaultSort: [{ id: 'user.fullName', desc: false }],
   });
 
-  const { data: tourGuideData, isLoading: loadingTourGuide } = useTourGuides(selectedMuseum?.id || '', {
+  const {
+    data: tourGuideData,
+    isLoading: loadingTourGuide,
+    refetch,
+  } = useTourGuides(selectedMuseum?.id || '', {
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
   });
 
-  // const handleAction = useCallback(() => ({}), []);
+  const handleAddTourGuideSuccess = useCallback(() => {
+    setIsAddModalOpen(false);
+    refetch();
+  }, [refetch]);
 
   const columns = useMemo<ColumnDef<TourGuide>[]>(
     () => [
@@ -131,7 +140,7 @@ const TourGuideDataTable = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <h2 className="text-xl font-semibold text-gray-600 mb-2">No Museum Selected</h2>
-          <p className="text-gray-500">Please select a museum to view tourGuide members.</p>
+          <p className="text-gray-500">Hãy chọn bảo tàng trước khi xem hướng dẫn viên.</p>
         </div>
       </div>
     );
@@ -147,7 +156,24 @@ const TourGuideDataTable = () => {
 
   return (
     <>
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">Hướng dẫn viên</h2>
+          <p className="text-gray-600">Quản lý hướng dẫn viên {selectedMuseum?.name}</p>
+        </div>
+        <Button onClick={() => setIsAddModalOpen(true)} className="flex items-center gap-2">
+          <UserPlus className="h-4 w-4" />
+          Thêm
+        </Button>
+      </div>
+
       <DataTable table={table} />
+
+      <AddTourGuide
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={handleAddTourGuideSuccess}
+      />
     </>
   );
 };
