@@ -20,7 +20,7 @@ import {
   getVirtualToursByMuseum,
   updateVirtualTour,
 } from '../endpoints/virtual-tour';
-import { IVirtualTour } from '../types';
+import { IVirtualTour, IVirtualTourScene } from '../types';
 import { virtualTourCacheKeys } from '../cache';
 
 /**
@@ -99,4 +99,28 @@ export function useDeleteVirtualTour(options?: CustomMutationOptions<void, APIEr
       options?.onSuccess?.(data, variables, context);
     },
   });
+}
+
+export function useCheckSceneExist(virtualTourId: string | null, listImage: string[]) {
+  return useQuery(
+    ['checkSceneExist', virtualTourId, ...listImage],
+    () =>
+      Promise.all(
+        listImage.map((image) =>
+          fetch(image, { method: 'HEAD' })
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(`File not found: ${image}`);
+              }
+              return image;
+            })
+            .catch(() => {
+              throw new Error(`File not found: ${image}`);
+            })
+        )
+      ),
+    {
+      enabled: !!virtualTourId && !!listImage,
+    }
+  );
 }

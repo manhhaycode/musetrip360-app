@@ -1,0 +1,7 @@
+{
+  "buildCommand": "turbo run build --filter=./apps/admin-portal",
+  "outputDirectory": "dist",
+  "framework": "vite",
+  "installCommand": "pnpm install",
+  "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }]
+}

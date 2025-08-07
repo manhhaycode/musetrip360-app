@@ -100,3 +100,37 @@ export interface CameraControllerProps {
   /** Callback when zoom level changes */
   onZoomChange?: (zoomLevel: number) => void;
 }
+
+// Hotspot types for interactive panorama elements
+export interface Hotspot {
+  /** Unique identifier for the hotspot */
+  id: string;
+  /** 3D position in space [x, y, z] */
+  position: [number, number, number];
+  /** Display title for the hotspot */
+  title: string;
+  /** Click handler function */
+  onClick: () => void;
+  /** Visual style type */
+  type?: 'info' | 'navigation' | 'action';
+}
+
+export interface HotspotStyleConfig {
+  /** Default colors for each hotspot type */
+  colors: {
+    info: { default: string; hover: string };
+    navigation: { default: string; hover: string };
+    action: { default: string; hover: string };
+    default: { default: string; hover: string };
+  };
+  /** Size configuration */
+  size: {
+    radius: number;
+    hoverScale: number;
+  };
+  /** Animation settings */
+  animation: {
+    duration: number;
+    easing: string;
+  };
+}
