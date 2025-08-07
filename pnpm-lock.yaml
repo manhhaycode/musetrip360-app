@@ -787,6 +787,9 @@ importers:
       '@musetrip360/query-foundation':
         specifier: workspace:*
         version: link:../query-foundation
+      '@musetrip360/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@musetrip360/ui-core':
         specifier: workspace:*
         version: link:../ui-core

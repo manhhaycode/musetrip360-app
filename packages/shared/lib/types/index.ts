@@ -117,3 +117,19 @@ export type FileData = {
   mediaType: MediaType; // Type of the file
   fileName?: string; // Optional file name
 };
+
+export type Category = {
+  id: string;
+  name: string;
+  description?: string;
+  metadata?: any;
+};
+
+export type HistoricalPeriod = {
+  id: string;
+  name: string;
+  description?: string;
+  startDate?: string; // ISO date string
+  endDate?: string; // ISO date string
+  metadata?: any;
+};

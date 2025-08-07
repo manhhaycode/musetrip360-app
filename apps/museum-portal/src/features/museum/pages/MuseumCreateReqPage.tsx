@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -13,7 +13,10 @@ import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import Divider from '@/components/Divider';
 import PublicHeader from '@/layouts/components/Header/PublicHeader';
-import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
+import { FormDropZone, MediaType, useCategory, useFileUpload } from '@musetrip360/shared';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
+import { X } from 'lucide-react';
 
 // Validation schema for museum request creation
 const museumRequestSchema = z.object({
@@ -24,6 +27,7 @@ const museumRequestSchema = z.object({
   contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
   documents: z.array(z.union([z.string(), z.any()])).optional(),
   images: z.array(z.union([z.string(), z.any()])).optional(),
+  categoryIds: z.array(z.string()).optional(),
 });
 
 type MuseumRequestFormData = z.infer<typeof museumRequestSchema>;
@@ -34,6 +38,7 @@ const MuseumCreateReqPage = () => {
   const [isUploadingDocs, setIsUploadingDocs] = useState(false);
 
   const uploadFileMutation = useFileUpload();
+  const { data: categories } = useCategory();
 
   const { mutate: createMuseumRequest, isPending: isCreating } = useCreateMuseumRequest({
     onSuccess: () => {
@@ -59,6 +64,7 @@ const MuseumCreateReqPage = () => {
       contactPhone: '',
       documents: [],
       images: [],
+      categoryIds: [],
     },
   });
 
@@ -149,6 +155,7 @@ const MuseumCreateReqPage = () => {
           documents: uploadedDocUrls,
           images: uploadedImageUrls,
         },
+        categoryIds: data.categoryIds || [],
       });
     } catch (error) {
       setSubmitError('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại.');
@@ -313,7 +320,84 @@ const MuseumCreateReqPage = () => {
                 />
               </div>
 
-              {/* Third Row - Description (Full Width) */}
+              {/* Third Row - Categories */}
+              <FormField
+                control={form.control}
+                name="categoryIds"
+                render={({ field }) => {
+                  const selectedCategories = (categories || []).filter((cat) => field.value?.includes(cat.id));
+                  const availableCategories = (categories || []).filter((cat) => !field.value?.includes(cat.id));
+
+                  return (
+                    <FormItem>
+                      <FormLabel className="text-gray-600">Danh mục</FormLabel>
+                      <div className="space-y-2">
+                        {/* Selected categories */}
+                        {selectedCategories.length > 0 && (
+                          <div className="flex flex-wrap gap-2">
+                            {selectedCategories.map((category) => (
+                              <Badge
+                                key={category.id}
+                                variant="secondary"
+                                className="flex items-center gap-1"
+                                onClick={() => {
+                                  const newValue = field.value?.filter((id: string) => id !== category.id) || [];
+                                  field.onChange(newValue);
+                                }}
+                              >
+                                {category.name}
+                                <X className="h-3 w-3 cursor-pointer hover:text-destructive" />
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Add category select */}
+                        {availableCategories.length > 0 && (
+                          <FormControl>
+                            <Select
+                              value=""
+                              onValueChange={(categoryId) => {
+                                if (categoryId) {
+                                  const newValue = [...(field.value || []), categoryId];
+                                  field.onChange(newValue);
+                                }
+                              }}
+                              disabled={isPending}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Chọn danh mục để thêm..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {availableCategories.map((category) => (
+                                  <SelectItem key={category.id} value={category.id}>
+                                    <div className="flex flex-col">
+                                      <span>{category.name}</span>
+                                      {category.description && (
+                                        <span className="text-xs text-muted-foreground">{category.description}</span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                        )}
+
+                        {/* Show message when no categories available */}
+                        {!categories || categories.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">Không có danh mục khả dụng</p>
+                        ) : availableCategories.length === 0 && selectedCategories.length > 0 ? (
+                          <p className="text-sm text-muted-foreground">Đã chọn tất cả danh mục khả dụng</p>
+                        ) : null}
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  );
+                }}
+              />
+
+              {/* Fourth Row - Description (Full Width) */}
               <FormField
                 control={form.control}
                 name="museumDescription"

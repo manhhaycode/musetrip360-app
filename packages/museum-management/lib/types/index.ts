@@ -7,6 +7,7 @@
 
 import type { PaginatedResponse, Pagination } from '@musetrip360/query-foundation';
 import { IUser } from 'node_modules/@musetrip360/auth-system/dist/types/types';
+import { Category } from '@musetrip360/shared';
 
 // Museum management types
 export interface Museum {
@@ -23,6 +24,8 @@ export interface Museum {
   createdAt: string;
   updatedAt: string;
   metadata?: MuseumMetadata;
+  categories?: Category[];
+  categoryIds?: string[];
 }
 
 export interface MuseumMetadata {
@@ -61,6 +64,7 @@ export interface MuseumCreateDto {
   latitude: number;
   longitude: number;
   metadata: string;
+  categoryIds?: string[];
 }
 
 export type MuseumSearchResponse = PaginatedResponse<Museum>;
@@ -83,6 +87,7 @@ export type MuseumRequest = {
   location: string;
   contactEmail: string;
   contactPhone: string;
+  categories?: Category[];
   status: MuseumRequestStatus;
   metadata: MuseumRequestMetadata;
   createdAt: string;
@@ -95,7 +100,9 @@ export type MuseumRequestMetadata = {
   images?: string[];
 };
 
-export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
+export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+  categoryIds?: string[];
+};
 export enum MuseumRequestStatus {
   Draft = 'Draft',
   Pending = 'Pending',
