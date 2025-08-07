@@ -25,7 +25,6 @@ import {
   deactivateArtifact,
   getArtifactsByMuseum,
   createArtifactForMuseum,
-  artifactErrorHandler,
 } from '../endpoints/artifacts';
 import {
   ArtifactCreateDto,
@@ -35,6 +34,7 @@ import {
   Artifact,
 } from '@/types';
 import { artifactCacheKeys } from '../cache/cacheKeys';
+import { artifactErrorHandler } from '../endpoints/artifacts';
 
 /**
  * Hook for getting paginated list of active artifacts
@@ -149,7 +149,7 @@ export function useDeleteArtifact(options?: CustomMutationOptions<APIResponse<an
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables) });
 
       onSuccess?.(data, variables, context);
     },
@@ -178,7 +178,7 @@ export function useActivateArtifact(options?: CustomMutationOptions<APIResponse<
       onSuccess?.(data, variables, context);
     },
     onError: (error: APIError) => {
-      console.error('Failed to activate artifact:', artifactErrorHandler.handleActivationError(error));
+      console.error('Failed to activate artifact:', artifactErrorHandler.handleUpdateError(error));
     },
     ...optionMutate,
   });
@@ -202,7 +202,7 @@ export function useDeactivateArtifact(options?: CustomMutationOptions<APIRespons
       onSuccess?.(data, variables, context);
     },
     onError: (error: APIError) => {
-      console.error('Failed to deactivate artifact:', artifactErrorHandler.handleActivationError(error));
+      console.error('Failed to deactivate artifact:', artifactErrorHandler.handleUpdateError(error));
     },
     ...optionMutate,
   });

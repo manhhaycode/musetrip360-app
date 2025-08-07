@@ -40,6 +40,9 @@ const MuseumHomePage = () => {
         showToolbar
         placeholder="Nhập nội dung..."
       />
+      {/* <BulkUploadProvider>
+        <MultipleUploadExample />
+      </BulkUploadProvider> */}
     </React.Suspense>
   );
 };

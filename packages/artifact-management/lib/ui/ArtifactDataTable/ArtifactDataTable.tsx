@@ -1,8 +1,9 @@
-import { useArtifactsByMuseum } from '@/api';
+import { useArtifactsByMuseum, useActivateArtifact, useDeactivateArtifact } from '@/api';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { DataTable, DataTableToolbar, useDataTable, useDataTableState, Option } from '@musetrip360/ui-core/data-table';
+import { toast } from '@musetrip360/ui-core/sonner';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Edit, MoreHorizontal, Power, PowerOff } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { Artifact } from '../../types';
 import { Link, useNavigate } from 'react-router';
@@ -20,11 +21,16 @@ import { Link, useNavigate } from 'react-router';
 const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: Artifact[] = useMemo(() => [], []);
   const navigate = useNavigate();
-  const { data: filterOptions } = useArtifactsByMuseum({
-    Page: 1,
-    PageSize: 10000,
-    museumId: museumId || '',
-  });
+  const { data: filterOptions } = useArtifactsByMuseum(
+    {
+      Page: 1,
+      PageSize: 10000,
+      museumId: museumId || '',
+    },
+    {
+      refetchOnWindowFocus: true,
+    }
+  );
 
   const filteredHistoricalPeriods: Option[] = useMemo(() => {
     const uniquePeriods = new Set<string>();
@@ -39,12 +45,15 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
 
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
 
-  const { data: artifactsData, isLoading: loadingArtifacts } = useArtifactsByMuseum({
+  const {
+    data: artifactsData,
+    isLoading: loadingArtifacts,
+    refetch: refetchArtifacts,
+  } = useArtifactsByMuseum({
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
     SearchKeyword: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    IsActive: tableState.columnFilters.find((filter) => filter.id === 'isActive')?.value === 'true',
     HistoricalPeriods:
       (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
     museumId: museumId || '',
@@ -53,18 +62,46 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
     // museumId: museumId || '',
   });
 
+  // Activate/Deactivate mutations
+  const { mutate: activateArtifact } = useActivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact activated successfully');
+      refetchArtifacts();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to activate artifact');
+    },
+  });
+
+  const { mutate: deactivateArtifact } = useDeactivateArtifact({
+    onSuccess: () => {
+      // Success message could be shown here
+      toast.success('Artifact deactivated successfully');
+      refetchArtifacts();
+    },
+    onError: (error) => {
+      console.log('Err', error);
+      toast.error('Failed to deactivate artifact');
+    },
+  });
+
   const handleAction = useCallback(
     () => ({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onView: (data: any) => {},
-
       onEdit: (data: any) => {
         navigate(`/artifact/edit/${data.id}`);
       },
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      onDelete: (data: any) => {},
+
+      onActivate: (data: any) => {
+        activateArtifact(data.id);
+      },
+
+      onDeactivate: (data: any) => {
+        deactivateArtifact(data.id);
+      },
     }),
-    [navigate]
+    [navigate, activateArtifact, deactivateArtifact]
   );
 
   const columns = useMemo<ColumnDef<Artifact>[]>(
@@ -92,6 +129,25 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         },
       },
       {
+        accessorKey: 'imageUrl',
+        header: 'Thumbnail',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const thumbnailUrl = row.original.imageUrl;
+          return (
+            <div className="flex items-center justify-center">
+              {row.original.imageUrl ? (
+                <img src={thumbnailUrl} alt={row.original.name} className="w-16 h-12 object-cover rounded" />
+              ) : (
+                <div className="w-16 h-12 bg-gray-200 flex items-center justify-center rounded">
+                  <span className="text-xs text-muted-foreground">No Image</span>
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
         meta: {
           variant: 'text',
           placeholder: 'Search by name',
@@ -103,16 +159,6 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         header: 'Name',
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.name}</div>,
-      },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
-            {row.original.description}
-          </div>
-        ),
       },
       {
         meta: {
@@ -182,18 +228,21 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {row.original.isActive ? (
+                <DropdownMenuItem onClick={() => handleAction().onDeactivate(row.original)} className="text-orange-600">
+                  <PowerOff className="mr-2 h-4 w-4" />
+                  Deactivate
+                </DropdownMenuItem>
+              ) : (
+                <DropdownMenuItem onClick={() => handleAction().onActivate(row.original)} className="text-green-600">
+                  <Power className="mr-2 h-4 w-4" />
+                  Activate
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),

@@ -6,6 +6,16 @@
 - If I am wrong, point it out bluntly.
 - I need honest feedback on my code.
 
+**BEFORE EVERY TOOL CALL**: Verify you're following the tool usage guidelines section:
+
+- Exploration/Context: Use Serena semantic tools
+- Implementation: Use Claude Code direct file tools (Edit, MultiEdit, Write), using the context provide by Serena
+- Planning: Use TodoWrite for complex tasks
+
+**VIOLATION CHECK**: If using Serena editing tools, confirm it's specifically requested or exploratory only.
+
+## PLEASE FOCUS!!!!
+
 # MuseTrip360 Project Analysis
 
 ## Project Overview
@@ -275,6 +285,34 @@ The backend API is fully documented using OpenAPI 3.0 specification. The complet
 
 **Reference**: Complete API specification available at `./swagger.json`
 
+## Tool Usage Guidelines
+
+### Code Exploration & Understanding
+
+- **Primary approach**: Use Serena's semantic tools (`get_symbols_overview`, `find_symbol`, `search_for_pattern`) for efficient code exploration
+- **Avoid**: Reading entire files unless absolutely necessary - use targeted symbol reading instead
+- **Pattern**: Overview → Symbol search → Targeted reading → Implementation
+
+### Task Planning & Management
+
+- **TodoWrite**: Use for complex multi-step tasks requiring planning and progress tracking
+- **When to use**: Tasks with 3+ steps, user-provided task lists, or complex implementations
+- **Best practice**: Create todos before starting, update status in real-time, mark completed immediately
+
+### Code Implementation
+
+- **Primary approach**: Use Claude Code's direct file tools (Edit, MultiEdit, Write) for ALL code implementation
+- **Reason**: Enables verification of changes before and after implementation
+- **Serena editing**: Use only when specifically requested or for exploratory changes
+- **Best practice**: Read code with Serena, implement changes with Claude Code tools
+
+### Workflow Efficiency
+
+- **Batch operations**: Use multiple tool calls in parallel when possible
+- **Context preservation**: Maintain understanding across tool contexts
+- **Progressive refinement**: Build understanding incrementally rather than reading everything upfront
+- **Workflow pattern**: Explore (Serena) → Plan (TodoWrite) → Implement (Claude Code tools)
+
 ## PLEASE FOCUS!!!!
 
 **MANDATORY**: ALL PROMPT MUST FOCUS THIS RULE
@@ -282,3 +320,13 @@ The backend API is fully documented using OpenAPI 3.0 specification. The complet
 - Be brutally honest, don't be a yes man.
 - If I am wrong, point it out bluntly.
 - I need honest feedback on my code.
+
+**BEFORE EVERY TOOL CALL**: Verify you're following the tool usage guidelines section:
+
+- Exploration/Context: Use Serena semantic tools
+- Implementation: Use Claude Code direct file tools (Edit, MultiEdit, Write), using the context provide by Serena
+- Planning: Use TodoWrite for complex tasks
+
+**VIOLATION CHECK**: If using Serena editing tools, confirm it's specifically requested or exploratory only.
+
+## PLEASE FOCUS!!!!

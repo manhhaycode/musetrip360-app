@@ -78,14 +78,6 @@ export const updateArtifact = async (id: string, data: ArtifactUpdateDto): Promi
 };
 
 /**
- * Delete an artifact
- */
-export const deleteArtifact = async (id: string): Promise<APIResponse<any>> => {
-  const httpClient = getHttpClient();
-  return await httpClient.delete<APIResponse<any>>(artifactEndpoints.delete(id));
-};
-
-/**
  * Activate an artifact
  */
 export const activateArtifact = async (id: string): Promise<APIResponse<any>> => {
@@ -99,6 +91,14 @@ export const activateArtifact = async (id: string): Promise<APIResponse<any>> =>
 export const deactivateArtifact = async (id: string): Promise<APIResponse<any>> => {
   const httpClient = getHttpClient();
   return await httpClient.patch<APIResponse<any>>(artifactEndpoints.deactivate(id));
+};
+
+/**
+ * Delete an artifact
+ */
+export const deleteArtifact = async (id: string): Promise<APIResponse<any>> => {
+  const httpClient = getHttpClient();
+  return await httpClient.delete<APIResponse<any>>(artifactEndpoints.delete(id));
 };
 
 /**

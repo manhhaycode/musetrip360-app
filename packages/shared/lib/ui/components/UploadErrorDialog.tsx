@@ -57,26 +57,24 @@ export function UploadErrorDialog({ open, onClose, files }: UploadErrorDialogPro
           </DialogDescription>
         </DialogHeader>
 
-        <div className="my-6">
-          <ScrollArea className="max-h-64">
-            <div className="space-y-3 pr-4">
-              {files.map(({ id, file }) => (
-                <div
-                  key={id}
-                  className="flex items-center gap-4 p-3 rounded-xl border bg-destructive/5 border-destructive/20 transition-all duration-200"
-                >
-                  <div className="flex-shrink-0 w-12 h-12 bg-background rounded-xl border border-destructive/20 flex items-center justify-center shadow-sm">
-                    {getFileIcon(file)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate mb-1">{file.name}</p>
-                    <p className="text-xs text-muted-foreground font-medium">{formatFileSize(file.size)}</p>
-                  </div>
+        <ScrollArea className="max-h-72 my-4">
+          <div className="space-y-3 pr-2">
+            {files.map(({ id, file }) => (
+              <div
+                key={id}
+                className="flex items-center gap-4 p-3 rounded-xl border bg-destructive/5 border-destructive/20 transition-all duration-200"
+              >
+                <div className="flex-shrink-0 w-12 h-12 bg-background rounded-xl border border-destructive/20 flex items-center justify-center shadow-sm">
+                  {getFileIcon(file)}
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate mb-1">{file.name}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{formatFileSize(file.size)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
 
         <div className="bg-destructive/5 rounded-lg p-4 border border-destructive/20">
           <div className="flex items-center justify-between text-sm">

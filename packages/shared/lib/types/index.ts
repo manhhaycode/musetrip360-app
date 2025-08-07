@@ -87,7 +87,7 @@ export interface FilePreview {
  */
 export const DEFAULT_VALIDATION_CONFIG: Record<MediaType, FileValidationConfig> = {
   [MediaType.IMAGE]: {
-    maxSize: 10 * 1024 * 1024, // 10MB
+    maxSize: 20 * 1024 * 1024, // 20MB
     allowedTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     allowedExtensions: ['.jpg', '.jpeg', '.png', '.webp', '.gif'],
     maxWidth: 4096,

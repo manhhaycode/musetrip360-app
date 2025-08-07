@@ -84,7 +84,7 @@ export const DEFAULT_CONFIG = {
     backgroundSync: true,
   },
   api: {
-    timeout: 30000,
+    timeout: 50000,
     retryDelay: 1000,
     maxRetryDelay: 10000,
   },
