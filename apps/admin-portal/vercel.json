@@ -1,7 +1,7 @@
 {
   "buildCommand": "turbo run build",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
+  "outputDirectory": "dist",
+  "framework": "vite",
   "installCommand": "pnpm install",
   "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }]
 }

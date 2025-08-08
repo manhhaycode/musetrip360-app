@@ -1,19 +1,54 @@
 'use client';
 
-import { Environment, OrbitControls } from '@react-three/drei';
+import { Environment } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import { Suspense, useMemo } from 'react';
+import { PanoramaControls } from '../canvas/PanoramaControls';
+import type { Hotspot } from '../canvas/types';
 import type { CubeMapLevel } from '../types/cubemap';
+import { InteractiveHotspot } from '@/canvas';
 
 export interface CubemapPreviewProps {
   cubeMapLevel: CubeMapLevel;
   className?: string;
+  hotspots?: Hotspot[];
 }
 
-export function CubemapPreview({ cubeMapLevel }: CubemapPreviewProps) {
+export function CubemapPreview({ cubeMapLevel, hotspots }: CubemapPreviewProps) {
+  // Demo hotspot for testing
+  const demoHotspots: Hotspot[] = useMemo(
+    () => [
+      {
+        id: 'demo-info',
+        position: [40, 15, 30], // Front-right, slightly up
+        title: 'Demo Information Point',
+        type: 'info',
+        onClick: () => alert('Demo hotspot clicked! This is an info point.'),
+      },
+      {
+        id: 'demo-nav',
+        position: [-25, 0, 45], // Front-left, center height
+        title: 'Navigation Point',
+        type: 'navigation',
+        onClick: () => console.log('Navigate to next scene'),
+      },
+      {
+        id: 'demo-action',
+        position: [0, -20, 35], // Front-center, lower
+        title: 'Action Button',
+        type: 'action',
+        onClick: () => alert('Action performed!'),
+      },
+    ],
+    []
+  );
+
+  // Combine demo hotspots with props hotspots
+  const allHotspots = useMemo(() => [...demoHotspots, ...(hotspots || [])], [demoHotspots, hotspots]);
+
   // Convert File objects to URLs for Environment component
   const cubeMapFiles = useMemo(() => {
-    // THREE.js cube texture face order: [px, nx, py, ny, pz, nz]
+    // Standard cube face order: [px, nx, py, ny, pz, nz]
     const faces = [
       cubeMapLevel.px, // Right (+X)
       cubeMapLevel.nx, // Left (-X)
@@ -33,12 +68,6 @@ export function CubemapPreview({ cubeMapLevel }: CubemapPreviewProps) {
 
   return (
     <Canvas
-      camera={{
-        position: [0, 0, 0],
-        fov: 75,
-        near: 0.01,
-        far: 1000,
-      }}
       style={{ background: '#000' }}
       gl={{
         antialias: true,
@@ -48,7 +77,7 @@ export function CubemapPreview({ cubeMapLevel }: CubemapPreviewProps) {
       dpr={[1, 2]}
     >
       <Suspense fallback={null}>
-        {/* Environment component handles cubemap as background */}
+        {/* Use Environment with FOV-based zoom */}
         <Environment
           files={cubeMapFiles}
           background={true}
@@ -56,20 +85,12 @@ export function CubemapPreview({ cubeMapLevel }: CubemapPreviewProps) {
           backgroundIntensity={1}
           environmentIntensity={1}
         />
-
-        {/* Orbit controls for panorama navigation */}
-        <OrbitControls
-          enablePan={false}
-          enableZoom={true}
-          enableRotate={true}
-          enableDamping={true}
-          dampingFactor={0.05}
-          minDistance={0.1}
-          maxDistance={10}
-          target={[0, 0, 0]}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={(5 * Math.PI) / 6}
-        />
+        {/* Render interactive hotspots */}
+        {allHotspots?.map((hotspot) => (
+          <InteractiveHotspot key={hotspot.id} hotspot={hotspot} />
+        ))}
+        {/* Panorama controls with FOV zoom and interactive hotspots */}
+        <PanoramaControls enableDamping={false} />
       </Suspense>
     </Canvas>
   );

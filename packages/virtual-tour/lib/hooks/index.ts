@@ -41,6 +41,8 @@ export type {
   UseZoomAdaptiveReturn,
 } from './useZoomAdaptiveLoader';
 
+export { useFOVZoom } from './useFOVZoom';
+
 // // Legacy hooks - will be implemented in future phases
 // export interface UsePanoramaReturn {
 //   // To be implemented
