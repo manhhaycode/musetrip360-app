@@ -54,7 +54,7 @@ export interface StudioActions {
   setSidebarCollapsed: (collapsed: boolean) => void;
 
   // Utility actions
-  reset: (tour: IVirtualTour) => void;
+  reset: () => void;
   markClean: () => void;
 }
 
@@ -65,6 +65,7 @@ const createInitialState = (tour: IVirtualTour): StudioState => ({
   selectedSceneId: null,
   propertiesSelection: 'tour',
   isDirty: false,
+  isSyncing: false,
   history: {
     past: [],
     future: [],
@@ -133,6 +134,7 @@ export const useStudioStore = create<StudioStore>()(
           sceneName: parentScene?.sceneName
             ? `Sub Scene ${parentScene.subScenes ? parentScene.subScenes.length + 1 : 1}`
             : `Scene ${state.virtualTour.metadata.scenes.length + 1}`,
+          ...(parentScene ? { parentId: parentScene.sceneId } : {}),
           sceneDescription: '',
         };
         if (parentScene) {
@@ -366,8 +368,18 @@ export const useStudioStore = create<StudioStore>()(
     },
 
     // Utility actions
-    reset: (tour) => {
-      set(() => createInitialState(tour));
+    reset: () => {
+      set(() =>
+        createInitialState({
+          id: '',
+          name: '',
+          description: '',
+          rating: 0,
+          isActive: false,
+          metadata: { scenes: [] },
+          tourContent: [],
+        })
+      );
     },
 
     markClean: () => {
@@ -384,7 +396,7 @@ export const useVirtualTour = () =>
       setVirtualTour: state.setVirtualTour,
     };
   });
-export const useSelectedScene = () => useStudioStore((state) => state.selectedSceneId);
+export const useSelectedScene = () => useStudioStore(useShallow((state) => state.getSelectedScene()));
 export const useSelectedSceneData = () =>
   useStudioStore(
     useShallow((state) => {

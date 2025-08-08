@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { config, getEnvironment, getEnvVar } from '@musetrip360/infras';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type {
   APIClientConfig,
   APIError,
@@ -7,7 +8,6 @@ import type {
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
-import { config, getEnvironment, getEnvVar } from '@musetrip360/infras';
 
 /**
  * Default API client configuration

@@ -184,9 +184,11 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
-        <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
-          Thêm Bảo Tàng
-        </Button>
+        {onAdd && (
+          <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
+            Thêm Bảo Tàng
+          </Button>
+        )}
       </DataTableToolbar>
     </DataTable>
   );

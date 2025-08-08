@@ -5,7 +5,7 @@
  */
 
 import { APIResponse, getHttpClient, PaginatedResponse, Pagination } from '@musetrip360/query-foundation';
-import { MuseumRequest, MuseumRequestCreate } from '@/types';
+import { MuseumRequest, MuseumRequestCreate, MuseumRequestSearchParams } from '../../types';
 
 /**
  * Museum Request API endpoints configuration
@@ -50,7 +50,7 @@ export const getMuseumRequestById = async (id: string) => {
   return response.data;
 };
 
-export const getMuseumRequests = async (params: Pagination) => {
+export const getMuseumRequests = async (params: MuseumRequestSearchParams) => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<PaginatedResponse<MuseumRequest>>>(
     museumRequestEndpoints.getRequests,

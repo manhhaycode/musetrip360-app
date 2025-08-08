@@ -83,16 +83,42 @@ export type MuseumRequest = {
   location: string;
   contactEmail: string;
   contactPhone: string;
+  submittedAt: string;
   status: MuseumRequestStatus;
+  createdBy: string;
+  createdByUser: {
+    id: string;
+    username: string;
+    fullName: string;
+    email: string;
+    phoneNumber?: string;
+    avatarUrl?: string;
+    birthDate?: string;
+    authType: string;
+    status: string;
+    lastLogin: string;
+  };
   metadata: MuseumRequestMetadata;
   createdAt: string;
   updatedAt: string;
+  categories: MuseumCategory[];
 };
 
 export type MuseumRequestMetadata = {
   documents?: string[];
   additionalInfo?: Record<string, any>;
   images?: string[];
+  specialty?: string;
+  openingHours?: string;
+};
+
+export type MuseumCategory = {
+  id: string;
+  name: string;
+  description: string;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
@@ -102,6 +128,14 @@ export enum MuseumRequestStatus {
   Approved = 'Approved',
   Rejected = 'Rejected',
 }
+
+export interface MuseumRequestSearchParams extends Pagination {
+  Search?: string;
+  Status?: string;
+  sortList?: string[];
+}
+
+export type MuseumRequestSearchResponse = PaginatedResponse<MuseumRequest>;
 
 export enum PolicyTypeEnum {
   TermsOfService = 'TermsOfService',

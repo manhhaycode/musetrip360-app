@@ -16,7 +16,7 @@ import { useBulkUpload } from '@musetrip360/shared';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { CubemapPreview } from '../CubemapPreview';
+import { PanoramaSphere } from '@/canvas';
 
 // Form schema for cube map upload
 export const sceneCubeMapUploadSchema = z
@@ -211,7 +211,7 @@ export function SceneCubeMapUploadForm({
         lazyChildren
       >
         <div className="flex-1 p-6">
-          <CubemapPreview
+          <PanoramaSphere
             cubeMapLevel={{
               px: watchedValues.px?.file || '',
               nx: watchedValues.nx?.file || '',
