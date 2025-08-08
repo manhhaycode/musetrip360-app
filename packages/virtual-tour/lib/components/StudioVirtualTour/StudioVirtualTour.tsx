@@ -49,11 +49,15 @@ export default function StudioVirtualTour({
       // Initialize the studio store with the fetched virtual tour data
       setVirtualTour(virtualTour);
     }
+    // No cleanup function here; resetStudioStore should only run on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [virtualTour]);
+
+  useEffect(() => {
     return () => {
       resetStudioStore();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [virtualTour]);
+  }, []);
 
   useEffect(() => {
     if (isDirty) {
