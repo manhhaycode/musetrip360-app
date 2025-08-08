@@ -5,7 +5,11 @@ import { BulkUploadProvider } from '@musetrip360/shared';
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { SceneCubeMapUploadForm } from '../forms';
-export default function SceneEditor() {
+import { EditorToolbarProvider, EditorToolbar, useEditorToolbar } from './EditorToolbar';
+import { cn } from '@musetrip360/ui-core/utils';
+
+function SceneEditorContent() {
+  const { selectedTool } = useEditorToolbar();
   const { selectedSceneId, getSelectedScene, isDirty } = useStudioStore(
     useShallow((state) => ({
       selectedSceneId: state.selectedSceneId,
@@ -13,6 +17,7 @@ export default function SceneEditor() {
       isDirty: state.isDirty,
     }))
   );
+
   const selectedScene = useMemo(() => {
     return getSelectedScene();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -27,6 +32,9 @@ export default function SceneEditor() {
   }, [selectedScene]);
 
   const { isLoading, isError } = useCheckSceneExist(selectedSceneId, listImages);
+
+  // Determine if panorama rotation should be enabled based on selected tool
+  const enableRotate = selectedTool === 'hand';
 
   if (!selectedScene) {
     return <div className="flex items-center justify-center flex-1">No scene selected</div>;
@@ -43,9 +51,29 @@ export default function SceneEditor() {
       </BulkUploadProvider>
     );
   }
+
   return (
-    <div className="flex-1">
-      <PanoramaSphere cubeMapLevel={selectedScene.data.cubeMaps[0]}></PanoramaSphere>
+    <div className="flex-1 flex relative">
+      <EditorToolbar className="absolute top-4 left-4 z-10" />
+      <div
+        className={cn(selectedTool === 'hand' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default', 'flex-1 flex')}
+      >
+        <PanoramaSphere cubeMapLevel={selectedScene.data.cubeMaps[0]} enableRotate={enableRotate} />
+      </div>
     </div>
+  );
+}
+
+export default function SceneEditor() {
+  return (
+    <EditorToolbarProvider
+      defaultTool="move"
+      onToolChange={(tool) => {
+        console.log('Tool changed to:', tool);
+        // Tool-specific logic can be added here in the future
+      }}
+    >
+      <SceneEditorContent />
+    </EditorToolbarProvider>
   );
 }

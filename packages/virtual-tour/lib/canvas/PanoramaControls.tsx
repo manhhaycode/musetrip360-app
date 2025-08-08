@@ -11,6 +11,7 @@ export interface PanoramaControlsProps {
   dampingFactor?: number;
   minPolarAngle?: number;
   maxPolarAngle?: number;
+  enableRotate?: boolean;
 }
 
 /**
@@ -23,6 +24,7 @@ export function PanoramaControls({
   dampingFactor = 0.02,
   minPolarAngle = Math.PI / 6,
   maxPolarAngle = (5 * Math.PI) / 6,
+  enableRotate = true,
 }: PanoramaControlsProps) {
   // Initialize FOV zoom functionality
   useFOVZoom();
@@ -32,7 +34,7 @@ export function PanoramaControls({
       <OrbitControls
         enablePan={false}
         enableZoom={false} // Disabled to use custom FOV zoom
-        enableRotate={true}
+        enableRotate={enableRotate}
         enableDamping={enableDamping}
         dampingFactor={dampingFactor}
         target={[0, 0, 0]}

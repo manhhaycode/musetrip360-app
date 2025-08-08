@@ -10,9 +10,10 @@ export interface PanoramaSphereProps {
   cubeMapLevel: CubeMapLevel;
   className?: string;
   children?: React.ReactNode;
+  enableRotate?: boolean;
 }
 
-export function PanoramaSphere({ cubeMapLevel, children }: PanoramaSphereProps) {
+export function PanoramaSphere({ cubeMapLevel, children, enableRotate = true }: PanoramaSphereProps) {
   // Convert File objects to URLs for Environment component
   const cubeMapFiles = useMemo(() => {
     // Standard cube face order: [px, nx, py, ny, pz, nz]
@@ -55,7 +56,7 @@ export function PanoramaSphere({ cubeMapLevel, children }: PanoramaSphereProps) 
           environmentIntensity={1}
         />
         {children}
-        <PanoramaControls enableDamping={false} />
+        <PanoramaControls enableDamping={false} enableRotate={enableRotate} />
       </Suspense>
     </Canvas>
   );
