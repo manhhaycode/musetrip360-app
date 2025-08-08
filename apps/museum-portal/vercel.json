@@ -1,5 +1,5 @@
 {
-  "buildCommand": "turbo run build --filter=./apps/museum-portal",
+  "buildCommand": "turbo run build",
   "outputDirectory": "dist",
   "framework": "vite",
   "installCommand": "pnpm install",

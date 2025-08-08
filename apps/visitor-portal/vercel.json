@@ -1,5 +1,5 @@
 {
-  "buildCommand": "turbo run build --filter=./apps/visitor-portal",
+  "buildCommand": "turbo run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "pnpm install",
