@@ -17,6 +17,8 @@ import { FormDropZone, MediaType, useCategory, useFileUpload } from '@musetrip36
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
 import { X } from 'lucide-react';
+import { toast } from '@musetrip360/ui-core';
+import get from 'lodash.get';
 
 // Validation schema for museum request creation
 const museumRequestSchema = z.object({
@@ -50,7 +52,7 @@ const MuseumCreateReqPage = () => {
     },
     onError: (error) => {
       setSubmitError('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại.');
-      console.error('Create museum request error:', error);
+      toast.error(get(error, 'error', 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.'));
     },
   });
 
@@ -159,7 +161,7 @@ const MuseumCreateReqPage = () => {
       });
     } catch (error) {
       setSubmitError('Có lỗi xảy ra khi gửi yêu cầu. Vui lòng thử lại.');
-      console.error('Submit error:', error);
+      toast.error(get(error, 'error', 'Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại sau.'));
     } finally {
       setIsUploadingDocs(false);
     }

@@ -36,6 +36,7 @@ import {
   TicketIcon,
   UsersIcon,
   TicketsPlaneIcon,
+  NewspaperIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -97,6 +98,11 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                   title: 'Chính sách bảo tàng',
                   url: '/museum/policy',
                   icon: ScaleIcon,
+                },
+                {
+                  title: 'Danh sách bài viết',
+                  url: '/museum/articles',
+                  icon: NewspaperIcon,
                 },
               ],
             },
