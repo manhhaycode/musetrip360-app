@@ -116,6 +116,7 @@ export function SceneCubeMapUploadForm({
   }, [selectedScene]);
 
   const handleSubmit = async () => {
+    if (!selectedScene?.data) return;
     setDisable(true);
     try {
       if (bulkUpload && bulkUpload?.getPendingFiles()?.length > 0) {
@@ -127,6 +128,7 @@ export function SceneCubeMapUploadForm({
       const formData = form.getValues();
       updateScene(selectedSceneId!, {
         data: {
+          ...selectedScene.data,
           cubeMaps: [
             {
               px: typeof formData.px?.file === 'string' ? formData.px?.file : '',

@@ -1,12 +1,13 @@
 'use client';
 
-import { FileText, MousePointer, Settings } from 'lucide-react';
+import { FileText, MousePointer, Settings, MapPin } from 'lucide-react';
 
-import { ScenePropertyForm } from '@/components/forms';
+import { ScenePropertyForm, HotspotPropertyForm } from '@/components/forms';
 import { VirtualTourForm } from '@/components/forms/VirtualTourForm';
 import { useStudioStore } from '@/store';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { useMemo } from 'react';
+import { useShallow } from 'zustand/shallow';
 
 interface PropertiesPanelProps {
   className?: string;
@@ -28,11 +29,12 @@ function EmptyState() {
 }
 
 export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
-  const { propertiesSelection: type, selectedSceneId, getSelectedScene } = useStudioStore();
-  const selectedScene = useMemo(() => {
-    return getSelectedScene();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSceneId, getSelectedScene]);
+  const { propertiesSelection: type } = useStudioStore(
+    useShallow((state) => ({
+      propertiesSelection: state.propertiesSelection,
+    }))
+  );
+
   const renderHeader = () => {
     const getIcon = () => {
       switch (type) {
@@ -40,6 +42,8 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
           return <Settings className="h-4 w-4" />;
         case 'tour':
           return <FileText className="h-4 w-4" />;
+        case 'hotspot':
+          return <MapPin className="h-4 w-4" />;
         default:
           return <MousePointer className="h-4 w-4" />;
       }
@@ -51,6 +55,8 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
           return 'Scene Properties';
         case 'tour':
           return 'Tour Properties';
+        case 'hotspot':
+          return 'Hotspot Properties';
         default:
           return 'Properties';
       }
@@ -67,10 +73,12 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
   const renderContent = () => {
     switch (type) {
       case 'scene':
-        return <ScenePropertyForm scene={selectedScene!} onUpdate={() => {}} />;
-
+        return <ScenePropertyForm />;
       case 'tour':
         return <VirtualTourForm mode="edit" museumId={museumId} />;
+
+      case 'hotspot':
+        return <HotspotPropertyForm />;
 
       default:
         return <EmptyState />;

@@ -109,10 +109,9 @@ export interface Hotspot {
   position: [number, number, number];
   /** Display title for the hotspot */
   title: string;
-  /** Click handler function */
-  onClick: () => void;
   /** Visual style type */
-  type?: 'info' | 'navigation' | 'action';
+  type: 'info' | 'navigation' | 'action';
+  sceneIdLink?: string; // Optional link to another scene
 }
 
 export interface HotspotStyleConfig {

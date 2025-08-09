@@ -4,3 +4,5 @@ import { CreateVirtualTourDialog } from './CreateVirtualTourDialog';
 import { VirtualTourStudioHeader } from './layout/VirtualTourStudioHeader';
 
 export { StudioVirtualTour, SceneListSidebar, CreateVirtualTourDialog, VirtualTourStudioHeader };
+
+export * from './EditorToolbar';
