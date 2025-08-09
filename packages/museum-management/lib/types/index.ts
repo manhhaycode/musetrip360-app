@@ -131,3 +131,40 @@ export type MuseumPolicy = {
 
 export type MuseumPolicyCreate = Omit<MuseumPolicy, 'id' | 'createdByUser' | 'createdBy' | 'isActive'>;
 export type MuseumPolicyUpdate = Omit<MuseumPolicy, 'createdByUser' | 'createdBy'>;
+
+export enum ArticleStatusEnum {
+  Draft = 'Draft',
+  Pending = 'Pending',
+  Published = 'Published',
+  Archived = 'Archived',
+}
+
+export enum DataEntityType {
+  Museum = 'Museum',
+  Event = 'Event',
+  Artifact = 'Artifact',
+  TourOnline = 'TourOnline',
+}
+
+export interface ArticleMetadata {
+  thumbnail?: string;
+  additionalInfo?: Record<string, any>;
+}
+
+export type Article = {
+  id: string;
+  title: string;
+  content: string;
+  status: ArticleStatusEnum;
+  publishedAt: string;
+  museumId: string;
+  createdBy: string;
+  dataEntityType: DataEntityType;
+  entityId: string;
+  metadata?: ArticleMetadata;
+  museum?: Museum;
+  createdByUser?: IUser;
+};
+
+export type ArticleCreate = Omit<Article, 'id' | 'createdBy' | 'museum' | 'createdByUser'>;
+export type ArticleUpdate = Omit<Article, 'createdBy' | 'museum' | 'createdByUser'>;

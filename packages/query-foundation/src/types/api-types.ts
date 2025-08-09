@@ -14,7 +14,7 @@ export interface Pagination {
   Page: number;
   PageSize: number;
   IsActive?: boolean;
-  SearchKeyword?: string;
+  Search?: string;
   sortList?: string[];
 }
 
