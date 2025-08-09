@@ -39,7 +39,7 @@ export default defineConfig({
         store: resolve(__dirname, 'lib/store/index.ts'),
         api: resolve(__dirname, 'lib/api/index.ts'),
         types: resolve(__dirname, 'lib/types/index.ts'),
-        cubemap: resolve(__dirname, 'lib/cubemap/index.ts'),
+        utils: resolve(__dirname, 'lib/utils/index.ts'),
       },
       name: 'VirtualTour',
       formats: ['es', 'cjs'],
