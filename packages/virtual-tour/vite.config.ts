@@ -39,7 +39,6 @@ export default defineConfig({
         store: resolve(__dirname, 'lib/store/index.ts'),
         api: resolve(__dirname, 'lib/api/index.ts'),
         types: resolve(__dirname, 'lib/types/index.ts'),
-        utils: resolve(__dirname, 'lib/utils/index.ts'),
         cubemap: resolve(__dirname, 'lib/cubemap/index.ts'),
       },
       name: 'VirtualTour',
@@ -89,9 +88,6 @@ export default defineConfig({
           }
           if (chunkInfo.name === 'utils') {
             return '[format]/utils/index.js';
-          }
-          if (chunkInfo.name === 'cubemap') {
-            return '[format]/cubemap/index.js';
           }
           // For other entries, use the default format
           // This allows for better tree-shaking and module resolution
