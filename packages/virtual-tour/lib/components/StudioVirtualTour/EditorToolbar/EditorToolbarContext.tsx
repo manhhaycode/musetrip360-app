@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 
-export type EditorTool = 'move' | 'hand' | 'hotspot' | 'pen';
+export type EditorTool = 'select' | 'hand' | 'drag' | 'hotspot' | 'pen';
 
 interface EditorToolbarContextValue {
   selectedTool: EditorTool;
@@ -24,7 +24,7 @@ const EditorToolbarContext = createContext<EditorToolbarContextValue | null>(nul
 
 export function EditorToolbarProvider({
   children,
-  defaultTool = 'move',
+  defaultTool = 'hand',
   onToolChange,
   disabled = false,
 }: EditorToolbarProviderProps) {

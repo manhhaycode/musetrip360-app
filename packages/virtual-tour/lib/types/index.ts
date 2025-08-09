@@ -45,9 +45,6 @@ export type {
   OnErrorCallback,
 } from './loading';
 
-// Re-export cubemap loader types from the actual implementation
-export type { HybridLoaderOptions, LoaderCallbacks } from '../cubemap/HybridCubemapLoader';
-
 export { createInitialFaceState, createInitialLoadingState, updateFaceState, calculateLoadingMetrics } from './loading';
 
 // // Legacy types (to be migrated or removed)

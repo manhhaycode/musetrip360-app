@@ -2,7 +2,6 @@
 
 import { OrbitControls } from '@react-three/drei';
 import { useFOVZoom } from '../hooks/useFOVZoom';
-import { InteractiveHotspot } from './InteractiveHotspot';
 import type { Hotspot } from './types';
 
 export interface PanoramaControlsProps {
@@ -19,7 +18,6 @@ export interface PanoramaControlsProps {
  * Handles camera controls, zoom functionality, and renders interactive hotspots
  */
 export function PanoramaControls({
-  hotspots,
   enableDamping = false,
   dampingFactor = 0.02,
   minPolarAngle = Math.PI / 6,

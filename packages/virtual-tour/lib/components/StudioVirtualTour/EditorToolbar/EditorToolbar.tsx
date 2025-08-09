@@ -4,7 +4,7 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { Button } from '@musetrip360/ui-core/button';
 import { Separator } from '@musetrip360/ui-core/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@musetrip360/ui-core/tooltip';
-import { MousePointer2, Hand, MapPin, PenTool } from 'lucide-react';
+import { MousePointer2, Hand, MapPin, PenTool, Move } from 'lucide-react';
 import { useEditorToolbar, EditorTool } from './EditorToolbarContext';
 
 interface EditorToolbarProps {
@@ -21,11 +21,11 @@ interface ToolItem {
 
 const toolbarItems: ToolItem[] = [
   {
-    id: 'move',
+    id: 'select',
     icon: MousePointer2,
-    label: 'Move Tool',
-    description: 'Select and move objects in the scene',
-    shortcut: 'V',
+    label: 'Select Tool',
+    description: 'Select objects in the scene',
+    shortcut: 'S',
   },
   {
     id: 'hand',
@@ -33,6 +33,13 @@ const toolbarItems: ToolItem[] = [
     label: 'Hand Tool',
     description: 'Pan and navigate around the scene',
     shortcut: 'H',
+  },
+  {
+    id: 'drag',
+    icon: Move,
+    label: 'Drag Tool',
+    description: 'Drag objects in the scene',
+    shortcut: 'D',
   },
 ];
 

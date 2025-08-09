@@ -1,15 +1,17 @@
+import { IVirtualTour, IVirtualTourScene } from '@/api';
+import type { Hotspot } from '@/canvas/types';
+import { v4 as uuid } from 'uuid';
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { IVirtualTour, IVirtualTourScene, updateVirtualTour, useUpdateVirtualTour } from '@/api';
-import { v4 as uuid } from 'uuid';
 import { useShallow } from 'zustand/shallow';
 
-export type SelectionType = 'scene' | 'tour' | 'none';
+export type SelectionType = 'scene' | 'tour' | 'hotspot' | 'none';
 
 export interface StudioState {
   // Current tour data
   virtualTour: IVirtualTour;
   selectedSceneId: string | null;
+  selectedHotspotId: string | null;
   propertiesSelection: SelectionType;
   isDirty: boolean;
   isSyncing?: boolean; // Flag to indicate if syncing is in progress
@@ -39,6 +41,14 @@ export interface StudioActions {
 
   getSelectedScene: () => IVirtualTourScene | null;
 
+  // Hotspot actions
+  addHotspot: (hotspot: Omit<Hotspot, 'id'>) => void;
+  updateHotspot: (hotspotId: string, updates: Partial<Hotspot>) => void;
+  deleteHotspot: (hotspotId: string) => void;
+  getSceneHotspots: (sceneId?: string) => Hotspot[];
+  getSelectedHotspot: () => Hotspot | null;
+  selectHotspot: (hotspotId: string | null) => void;
+
   // History actions
   undo: () => void;
   redo: () => void;
@@ -63,6 +73,7 @@ export type StudioStore = StudioState & StudioActions;
 const createInitialState = (tour: IVirtualTour): StudioState => ({
   virtualTour: tour,
   selectedSceneId: null,
+  selectedHotspotId: null,
   propertiesSelection: 'tour',
   isDirty: false,
   isSyncing: false,
@@ -96,6 +107,14 @@ export const useStudioStore = create<StudioStore>()(
       );
     },
 
+    getSelectedHotspot: () => {
+      const state = get();
+      if (!state.selectedHotspotId) return null;
+      return (
+        state.getSelectedScene()?.data?.hotspots?.find((hotspot) => hotspot.id === state.selectedHotspotId) || null
+      );
+    },
+
     // Tour actions
     updateTour: (updates) => {
       set((state) => {
@@ -126,6 +145,7 @@ export const useStudioStore = create<StudioStore>()(
 
     // Scene actions
     addScene: (parentScene) => {
+      get().saveToHistory();
       set((state) => {
         // Create a new scene with a unique ID
 
@@ -174,10 +194,10 @@ export const useStudioStore = create<StudioStore>()(
           isDirty: true,
         };
       });
-      get().saveToHistory();
     },
 
     updateScene: (sceneId, updates) => {
+      get().saveToHistory();
       set((state) => {
         const selectedScene = state.getSelectedScene();
         const parentId = selectedScene?.parentId;
@@ -219,10 +239,10 @@ export const useStudioStore = create<StudioStore>()(
           isDirty: true,
         };
       });
-      get().saveToHistory();
     },
 
     deleteScene: (sceneId, parentSceneId) => {
+      get().saveToHistory();
       set((state) => {
         if (parentSceneId) {
           // If parentSceneId is provided, remove from its subScenes
@@ -262,7 +282,6 @@ export const useStudioStore = create<StudioStore>()(
           isDirty: true,
         };
       });
-      get().saveToHistory();
     },
 
     selectScene: (sceneId) => {
@@ -270,6 +289,7 @@ export const useStudioStore = create<StudioStore>()(
     },
 
     reorderScenes: (scenes) => {
+      get().saveToHistory();
       set((state) => ({
         virtualTour: {
           ...state.virtualTour,
@@ -280,11 +300,89 @@ export const useStudioStore = create<StudioStore>()(
         },
         isDirty: true,
       }));
-      get().saveToHistory();
     },
 
     setPropertiesSelection: (type) => {
       set({ propertiesSelection: type });
+    },
+
+    // Hotspot actions
+    addHotspot: (hotspot) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const newHotspot: Hotspot = {
+        id: `hotspot_${uuid()}`,
+        ...hotspot,
+      };
+
+      const currentHotspots = selectedScene.data.hotspots || [];
+      const updatedHotspots = [...currentHotspots, newHotspot];
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          hotspots: updatedHotspots,
+        },
+      });
+      get().selectHotspot(newHotspot.id);
+    },
+
+    updateHotspot: (hotspotId, updates) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const currentHotspots = selectedScene.data.hotspots || [];
+      const updatedHotspots = currentHotspots.map((hotspot) =>
+        hotspot.id === hotspotId ? { ...hotspot, ...updates } : hotspot
+      );
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          hotspots: updatedHotspots,
+        },
+      });
+    },
+
+    deleteHotspot: (hotspotId) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const currentHotspots = selectedScene.data.hotspots || [];
+      const updatedHotspots = currentHotspots.filter((hotspot) => hotspot.id !== hotspotId);
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          hotspots: updatedHotspots,
+        },
+      });
+    },
+
+    getSceneHotspots: (sceneId?) => {
+      if (sceneId) {
+        const state = get();
+        const allScenes = [
+          ...state.virtualTour.metadata.scenes,
+          ...state.virtualTour.metadata.scenes.flatMap((s) => s.subScenes || []),
+        ];
+        const targetScene = allScenes.find((scene) => scene.sceneId === sceneId);
+        if (!targetScene || !targetScene.data) return [];
+        return targetScene.data.hotspots || [];
+      }
+
+      // Default to selected scene
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return [];
+      return selectedScene.data.hotspots || [];
+    },
+
+    selectHotspot: (hotspotId) => {
+      set({
+        selectedHotspotId: hotspotId,
+        propertiesSelection: hotspotId ? 'hotspot' : 'none',
+      });
     },
 
     // History actions
@@ -343,7 +441,7 @@ export const useStudioStore = create<StudioStore>()(
     canRedo: () => get().history.future.length > 0,
 
     clearHistory: () => {
-      set((state) => ({
+      set(() => ({
         history: { past: [], future: [] },
       }));
     },
@@ -404,7 +502,16 @@ export const useSelectedSceneData = () =>
       return state.virtualTour.metadata.scenes.find((scene) => scene.sceneId === state.selectedSceneId) || null;
     })
   );
-export const useScenes = () => useStudioStore((state) => state.virtualTour.metadata.scenes);
+
+export const useMainScenes = () => useStudioStore(useShallow((state) => state.virtualTour.metadata.scenes));
+
+export const useScenes = () =>
+  useStudioStore(
+    useShallow((state) => [
+      ...state.virtualTour.metadata.scenes,
+      ...state.virtualTour.metadata.scenes.flatMap((scene) => scene.subScenes || []),
+    ])
+  );
 export const useIsDirty = () => useStudioStore((state) => state.isDirty);
 export const useHistoryState = () =>
   useStudioStore(
