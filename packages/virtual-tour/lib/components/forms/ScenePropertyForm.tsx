@@ -7,13 +7,12 @@ import { z } from 'zod';
 import { useStudioStore } from '@/store';
 import { FormDropZone, useBulkUpload } from '@musetrip360/shared';
 import { MediaType } from '@musetrip360/shared/types';
+import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
-import { useEffect, useState } from 'react';
-import type { IVirtualTourScene } from '../../api/types';
+import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { Button } from '@musetrip360/ui-core/button';
 
 // Form schema for scene properties
 export const scenePropertyFormSchema = z.object({
@@ -24,34 +23,37 @@ export const scenePropertyFormSchema = z.object({
 
 export type ScenePropertyFormData = z.infer<typeof scenePropertyFormSchema>;
 
-export interface ScenePropertyFormProps {
-  scene: IVirtualTourScene;
-  onUpdate: (sceneId: string, data: Partial<IVirtualTourScene>) => void;
-  isLoading?: boolean;
-  className?: string;
-}
-
-export function ScenePropertyForm({ scene, isLoading = false }: ScenePropertyFormProps) {
+export function ScenePropertyForm() {
   const bulkUpload = useBulkUpload();
-  const { isSyncing, updateScene } = useStudioStore(
+  const { isSyncing, updateScene, selectedSceneId, getSelectedScene, isDirty } = useStudioStore(
     useShallow((state) => ({
       isSyncing: state.isSyncing,
       updateScene: state.updateScene,
+      selectedSceneId: state.selectedSceneId,
+      getSelectedScene: state.getSelectedScene,
+      isDirty: state.isDirty,
     }))
   );
+
+  const scene = useMemo(() => {
+    return getSelectedScene();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedSceneId, isDirty]);
+
   const [disabled, setDisabled] = useState(false);
 
   const form = useForm<ScenePropertyFormData>({
     disabled: disabled || isSyncing,
     resolver: zodResolver(scenePropertyFormSchema),
     defaultValues: {
-      sceneName: scene.sceneName || '',
-      sceneDescription: scene.sceneDescription || '',
-      thumbnail: typeof scene.thumbnail === 'string' ? { file: scene.thumbnail } : null,
+      sceneName: scene?.sceneName || '',
+      sceneDescription: scene?.sceneDescription || '',
+      thumbnail: typeof scene?.thumbnail === 'string' ? { file: scene.thumbnail } : null,
     },
   });
 
   const handleSubmit = async () => {
+    if (!scene) return;
     setDisabled(true);
     try {
       if (bulkUpload && bulkUpload?.getPendingFiles()?.length > 0) {
@@ -61,7 +63,7 @@ export function ScenePropertyForm({ scene, isLoading = false }: ScenePropertyFor
         }
       }
       const formData = form.getValues();
-      updateScene(scene.sceneId!, {
+      updateScene(scene.sceneId, {
         sceneName: formData.sceneName,
         sceneDescription: formData.sceneDescription,
         thumbnail: formData.thumbnail?.file,
@@ -89,6 +91,8 @@ export function ScenePropertyForm({ scene, isLoading = false }: ScenePropertyFor
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scene]);
 
+  if (!scene) return null;
+
   return (
     <div className="p-2 space-y-6">
       <div className="border-b border-border pb-2">
@@ -107,7 +111,7 @@ export function ScenePropertyForm({ scene, isLoading = false }: ScenePropertyFor
                   Scene Name {fieldState.error && <span className="text-destructive">*</span>}
                 </FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter scene name..." {...field} disabled={isLoading} className="h-8 text-sm" />
+                  <Input placeholder="Enter scene name..." {...field} className="h-8 text-sm" />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>
@@ -121,13 +125,7 @@ export function ScenePropertyForm({ scene, isLoading = false }: ScenePropertyFor
               <FormItem>
                 <FormLabel className="text-xs">Description</FormLabel>
                 <FormControl>
-                  <Textarea
-                    placeholder="Describe this scene..."
-                    rows={3}
-                    {...field}
-                    disabled={isLoading}
-                    className="text-sm resize-none"
-                  />
+                  <Textarea placeholder="Describe this scene..." rows={3} {...field} className="text-sm resize-none" />
                 </FormControl>
                 <FormMessage className="text-xs" />
               </FormItem>
