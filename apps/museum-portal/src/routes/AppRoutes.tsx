@@ -48,7 +48,7 @@ export default function AppRoutes() {
 
           {/* Statistics */}
           <Route path="/statistics" element={<div>Statistics</div>} />
-          <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />
+          <Route path="/statistics/overview" element={<DashboardPage />} />
 
           {/* Museum Management */}
           <Route path="/museum" element={<MuseumDetailPage />} />
