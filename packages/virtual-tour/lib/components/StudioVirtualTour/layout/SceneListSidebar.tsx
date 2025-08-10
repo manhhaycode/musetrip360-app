@@ -1,5 +1,5 @@
 import { IVirtualTourScene } from '@/api/types';
-import { useScenes, useStudioStore } from '@/store/studioStore';
+import { useMainScenes, useScenes, useStudioStore } from '@/store/studioStore';
 import { Button } from '@musetrip360/ui-core/button';
 import {
   Sidebar,
@@ -120,7 +120,7 @@ function SceneListItem({ scene }: SceneListItemProps) {
 }
 
 export default function SceneListSidebar({ onBackScreen }: { onBackScreen?: () => void }) {
-  const scenes = useScenes();
+  const scenes = useMainScenes();
   const { addScene } = useStudioStore();
 
   return (

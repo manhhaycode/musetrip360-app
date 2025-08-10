@@ -3,19 +3,22 @@
 import { Button } from '@musetrip360/ui-core/button';
 import { Separator } from '@musetrip360/ui-core/separator';
 import { SidebarTrigger } from '@musetrip360/ui-core/sidebar';
-import { Circle, Redo, SettingsIcon, Undo } from 'lucide-react';
+import { Circle, Eye, Redo, SettingsIcon, Undo } from 'lucide-react';
+import { PreviewModal } from '@musetrip360/shared/ui';
 
 import { useHistoryState, useIsDirty, useStudioStore } from '@/store/studioStore';
 import { cn } from '@musetrip360/ui-core/utils';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
+import { VirtualTourViewer } from '@/components/VirtualTourViewer';
 
 export function VirtualTourStudioHeader() {
-  const { setPropertiesSelection, getSelectedScene, selectedSceneId } = useStudioStore(
+  const { setPropertiesSelection, getSelectedScene, selectedSceneId, virtualTour } = useStudioStore(
     useShallow((state) => ({
       selectedSceneId: state.selectedSceneId,
       setPropertiesSelection: state.setPropertiesSelection,
       getSelectedScene: state.getSelectedScene,
+      virtualTour: state.virtualTour,
     }))
   );
   const isDirty = useIsDirty();
@@ -26,6 +29,15 @@ export function VirtualTourStudioHeader() {
   }, [isDirty, selectedSceneId]);
 
   const { canUndo, canRedo, undo, redo } = useHistoryState();
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const handleViewVirtualTour = () => {
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+  };
 
   return (
     <header className="flex h-(--header-height) py-3 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -72,6 +84,16 @@ export function VirtualTourStudioHeader() {
           <Separator orientation="vertical" className="mx-1 h-4" />
 
           <Button
+            leftIcon={<Eye className="h-4 w-4" />}
+            variant="default"
+            size="sm"
+            onClick={handleViewVirtualTour}
+            disabled={!virtualTour.metadata.scenes.length}
+          >
+            View Virtual Tour
+          </Button>
+
+          <Button
             leftIcon={<SettingsIcon className="h-4 w-4" />}
             variant="outline"
             size="sm"
@@ -81,6 +103,22 @@ export function VirtualTourStudioHeader() {
           </Button>
         </div>
       </div>
+
+      {/* Virtual Tour Preview Modal */}
+      <PreviewModal
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+        title="Virtual Scene Preview"
+        size="xl"
+        showBackButton
+        closeOnBackdropClick
+        closeOnEscape
+        lazyChildren
+      >
+        <div className="flex-1 p-6">
+          <VirtualTourViewer virtualTour={virtualTour} />
+        </div>
+      </PreviewModal>
     </header>
   );
 }

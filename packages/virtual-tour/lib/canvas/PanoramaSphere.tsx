@@ -1,18 +1,59 @@
 'use client';
 
 import type { CubeMapLevel } from '@/types/cubemap';
-import { Environment } from '@react-three/drei';
-import { Canvas } from '@react-three/fiber';
-import { Suspense, useMemo } from 'react';
+import { Box, useTexture } from '@react-three/drei';
+import { Canvas, ThreeEvent } from '@react-three/fiber';
+import { Suspense, useMemo, useRef } from 'react';
+import * as THREE from 'three';
 import { PanoramaControls } from './PanoramaControls';
-
 export interface PanoramaSphereProps {
   cubeMapLevel: CubeMapLevel;
   className?: string;
   children?: React.ReactNode;
+  enableRotate?: boolean;
+  onClick?: (event: ThreeEvent<MouseEvent>) => void;
 }
 
-export function PanoramaSphere({ cubeMapLevel, children }: PanoramaSphereProps) {
+function PanoramaContent({
+  cubeMapFiles,
+  children,
+  enableRotate,
+  onClick,
+}: {
+  cubeMapFiles: string[];
+  onClick?: (event: ThreeEvent<MouseEvent>) => void;
+  children?: React.ReactNode;
+  enableRotate: boolean;
+}) {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const textures = useTexture(cubeMapFiles);
+
+  // Configure all textures
+  textures.forEach((texture) => {
+    texture.generateMipmaps = false;
+    texture.minFilter = THREE.LinearFilter;
+    texture.magFilter = THREE.LinearFilter;
+  });
+
+  return (
+    <>
+      <ambientLight intensity={1} />
+      <directionalLight position={[0, 1, 0]} intensity={1} />
+
+      {/* Environment sphere */}
+      <Box onClick={onClick} ref={meshRef} args={[100, 100, 100]} scale={[-1, 1, 1]}>
+        {textures.map((texture, index) => (
+          <meshBasicMaterial key={index} map={texture} side={THREE.BackSide} attach={`material-${index}`} />
+        ))}
+      </Box>
+
+      {children}
+      <PanoramaControls enableDamping={false} enableRotate={enableRotate} />
+    </>
+  );
+}
+
+export function PanoramaSphere({ cubeMapLevel, children, enableRotate = true, onClick }: PanoramaSphereProps) {
   // Convert File objects to URLs for Environment component
   const cubeMapFiles = useMemo(() => {
     // Standard cube face order: [px, nx, py, ny, pz, nz]
@@ -44,18 +85,9 @@ export function PanoramaSphere({ cubeMapLevel, children }: PanoramaSphereProps) 
       dpr={[1, 2]}
     >
       <Suspense fallback={null}>
-        <ambientLight intensity={1} />
-        <directionalLight position={[0, 1, 0]} intensity={1} />
-        {/* Use Environment with FOV-based zoom */}
-        <Environment
-          files={cubeMapFiles}
-          background={true}
-          backgroundBlurriness={0}
-          backgroundIntensity={1}
-          environmentIntensity={1}
-        />
-        {children}
-        <PanoramaControls enableDamping={false} />
+        <PanoramaContent cubeMapFiles={cubeMapFiles} enableRotate={enableRotate} onClick={onClick}>
+          {children}
+        </PanoramaContent>
       </Suspense>
     </Canvas>
   );
