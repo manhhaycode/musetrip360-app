@@ -170,3 +170,14 @@ export type ArticleCreate = Omit<Article, 'id' | 'createdBy' | 'museum' | 'creat
 export type ArticleUpdate = Partial<Omit<Article, 'createdBy' | 'museum' | 'createdByUser'>> & {
   id: string;
 };
+
+export type AnalyticsOverview = {
+  totalVisitors: number;
+  totalArticles: number;
+  totalEvents: number;
+  totalTourOnlines: number;
+  averageRating: number;
+  totalFeedbacks: number;
+  totalRevenue: number;
+  totalArtifacts: number;
+};
