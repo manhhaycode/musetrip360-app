@@ -21,6 +21,7 @@ import ChangePasswordPage from '@/features/settings/pages/ChangePasswordPage';
 import VirtualTourManagement from '@/features/virtual-tour/pages/VirtualTourManagement';
 import VirtualTourInfo from '@/features/virtual-tour/pages/VirtualTourStudio';
 import MuseumArticlePage from '@/features/museum/pages/MuseumArticlePage';
+import { ArticleCreatePage, ArticleEditPage } from '@/features/article/pages';
 
 export default function AppRoutes() {
   return (
@@ -56,6 +57,8 @@ export default function AppRoutes() {
           <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
           <Route path="/museum/policy" element={<MuseumPolicyPage />} />
           <Route path="/museum/articles" element={<MuseumArticlePage />} />
+          <Route path="/museum/articles/create" element={<ArticleCreatePage />} />
+          <Route path="/museum/articles/edit/:id" element={<ArticleEditPage />} />
 
           {/* Artifact Management */}
           <Route path="/artifact/create" element={<ArtifactCreatePage />} />

@@ -19,6 +19,7 @@ import {
   ArticleStatusEnum,
   useDeleteArticle,
   useGetAdminArticlesByMuseum,
+  useUpdateArticle,
 } from '@musetrip360/museum-management';
 import get from 'lodash.get';
 
@@ -52,7 +53,6 @@ const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchiv
     },
     {
       enabled: !!museumId,
-      refetchOnWindowFocus: false,
     }
   );
 
@@ -67,19 +67,40 @@ const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchiv
     },
   });
 
+  const { mutate: updateArticle } = useUpdateArticle({
+    onSuccess: () => {
+      toast.success('Article updated successfully');
+      refetchArticles();
+    },
+    onError: (error) => {
+      toast.error('Failed to update article');
+      console.error('Update article error:', error);
+    },
+  });
+
   const handleAction = useCallback(
     () => ({
       onView: (data: Article) => onView?.(data),
       onEdit: (data: Article) => onEdit?.(data),
       onDelete: (data: Article) => {
-        if (window.confirm('Are you sure you want to delete this article?')) {
-          deleteArticle(data.id);
-        }
+        deleteArticle(data.id);
       },
-      onPublish: (data: Article) => onPublish?.(data),
-      onArchive: (data: Article) => onArchive?.(data),
+      onPublish: (data: Article) => {
+        updateArticle({
+          id: data.id,
+          status: ArticleStatusEnum.Published,
+        });
+        onPublish?.(data);
+      },
+      onArchive: (data: Article) => {
+        updateArticle({
+          id: data.id,
+          status: ArticleStatusEnum.Archived,
+        });
+        onArchive?.(data);
+      },
     }),
-    [onView, onEdit, onPublish, onArchive, deleteArticle]
+    [onView, onEdit, onPublish, onArchive, deleteArticle, updateArticle]
   );
 
   const statusOptions: Option[] = useMemo(
@@ -198,14 +219,15 @@ const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchiv
                 Edit
               </DropdownMenuItem>
 
-              {row.original.status === ArticleStatusEnum.Draft && onPublish && (
+              {(row.original.status === ArticleStatusEnum.Pending ||
+                row.original.status === ArticleStatusEnum.Archived) && (
                 <DropdownMenuItem onClick={() => handleAction().onPublish(row.original)} className="text-green-600">
                   <FileCheck className="mr-2 h-4 w-4" />
                   Publish
                 </DropdownMenuItem>
               )}
 
-              {row.original.status === ArticleStatusEnum.Published && onArchive && (
+              {row.original.status === ArticleStatusEnum.Published && (
                 <DropdownMenuItem onClick={() => handleAction().onArchive(row.original)} className="text-orange-600">
                   <Archive className="mr-2 h-4 w-4" />
                   Archive
@@ -222,7 +244,7 @@ const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchiv
         ),
       },
     ],
-    [handleAction, statusOptions, onPublish, onArchive]
+    [handleAction, statusOptions]
   );
 
   const { table } = useDataTable<Article, string>({

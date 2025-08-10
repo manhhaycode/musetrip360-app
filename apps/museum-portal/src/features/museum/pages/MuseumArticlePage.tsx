@@ -1,20 +1,20 @@
 import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@musetrip360/ui-core/dialog';
 import { Button } from '@musetrip360/ui-core/button';
 import { Article } from '@musetrip360/museum-management';
 import { useMuseumStore } from '@musetrip360/museum-management/state';
 import ArticleDataTable from '@/features/article/ArticleDataTable';
 import ArticleDetail from '@/features/article/ArticleDetail';
-import ArticleForm from '@/features/article/ArticleForm';
+import { useNavigate } from 'react-router';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
 const MuseumArticlePage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
-  const [showForm, setShowForm] = useState(false);
 
   const { selectedMuseum } = useMuseumStore();
+
+  const navigate = useNavigate();
 
   const handleView = (article: Article) => {
     setSelectedArticle(article);
@@ -22,25 +22,11 @@ const MuseumArticlePage = () => {
   };
 
   const handleEdit = (article: Article) => {
-    setSelectedArticle(article);
-    setShowForm(true);
+    navigate(`/museum/articles/edit/${article.id}`);
   };
 
   const handleAdd = () => {
-    setSelectedArticle(null);
-    setShowForm(true);
-  };
-
-  const handleFormSuccess = (article: Article) => {
-    setShowForm(false);
-    setSelectedArticle(null);
-    setViewMode('list');
-    console.log(`Article ${article.id} saved successfully`);
-  };
-
-  const handleFormCancel = () => {
-    setShowForm(false);
-    setSelectedArticle(null);
+    navigate('/museum/articles/create');
   };
 
   const handleBackToList = () => {
@@ -80,22 +66,6 @@ const MuseumArticlePage = () => {
   return (
     <>
       <ArticleDataTable museumId={selectedMuseum.id} onView={handleView} onEdit={handleEdit} onAdd={handleAdd} />
-
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{selectedArticle ? 'Edit Article' : 'Create New Article'}</DialogTitle>
-          </DialogHeader>
-
-          <ArticleForm
-            article={selectedArticle || undefined}
-            museumId={selectedMuseum.id}
-            onSuccess={handleFormSuccess}
-            onCancel={handleFormCancel}
-            className="py-4"
-          />
-        </DialogContent>
-      </Dialog>
     </>
   );
 };

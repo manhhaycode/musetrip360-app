@@ -19,8 +19,8 @@ import {
 import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
 
 const articleFormSchema = z.object({
-  title: z.string().min(1, 'Title is required').max(255, 'Title must be less than 255 characters'),
-  content: z.string().min(1, 'Content is required'),
+  title: z.string().min(1, 'Tiêu đề là bắt buộc').max(255, 'Tiêu đề phải có ít nhất 255 ký tự'),
+  content: z.string().min(1, 'Nội dung là bắt buộc'),
   imageUrl: z.string().optional(),
   mainImageUpload: z.any().optional(),
 });
@@ -56,23 +56,23 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
 
   const { mutate: createArticle, isPending: isCreating } = useCreateArticle({
     onSuccess: (data) => {
-      toast.success('Article saved successfully');
+      toast.success('Lưu bài viết thành công');
       onSuccess?.(data);
       form.reset();
     },
     onError: (error) => {
-      toast.error('Failed to save article');
+      toast.error('Lưu bài viết thất bại');
       console.error('Create article error:', error);
     },
   });
 
   const { mutate: updateArticle, isPending: isUpdating } = useUpdateArticle({
     onSuccess: (data) => {
-      toast.success('Article updated successfully');
+      toast.success('Cập nhật bài viết thành công');
       onSuccess?.(data);
     },
     onError: (error) => {
-      toast.error('Failed to update article');
+      toast.error('Cập nhật bài viết thất bại');
       console.error('Update article error:', error);
     },
   });
@@ -110,7 +110,7 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
         createArticle(articleData as ArticleCreate);
       }
     } catch (error) {
-      toast.error('Failed to upload image. Please try again.');
+      toast.error('Tải hình ảnh thất bại. Vui lòng thử lại.');
       console.error('Image upload error:', error);
     } finally {
       setIsUploadingImages(false);
@@ -137,9 +137,9 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
             name="title"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Title *</FormLabel>
+                <FormLabel className="text-gray-600">Tiêu đề *</FormLabel>
                 <FormControl>
-                  <Input placeholder="Enter article title" {...field} />
+                  <Input placeholder="Nhập tiêu đề bài viết" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -152,9 +152,9 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
             name="content"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Content *</FormLabel>
+                <FormLabel className="text-gray-600">Nội dung *</FormLabel>
                 <FormControl>
-                  <Textarea placeholder="Enter article content" className="min-h-[200px] resize-none" {...field} />
+                  <Textarea placeholder="Nhập nội dung bài viết" className="min-h-[200px] resize-none" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -167,14 +167,14 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
             name="imageUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Thumbnail</FormLabel>
+                <FormLabel className="text-gray-600">Hình thu nhỏ</FormLabel>
                 <FormControl>
                   <div className="space-y-3">
                     {/* URL Input (for existing images or manual URLs) */}
                     <Input type="url" placeholder="https://example.com/image.jpg" disabled={isPending} {...field} />
 
                     {/* File Upload */}
-                    <div className="text-sm text-gray-500">Or upload file:</div>
+                    <div className="text-sm text-gray-500">Hoặc tải lên file:</div>
                     <DropZoneWithPreview
                       uploadId="mainImageUpload"
                       autoRegister={true}
@@ -214,7 +214,7 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
               className="flex-1 sm:flex-initial"
             >
               <Save className="mr-2 h-4 w-4" />
-              Save as Draft
+              Lưu nháp
             </Button>
 
             <Button
@@ -224,7 +224,7 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
               className="flex-1 sm:flex-initial"
             >
               <Send className="mr-2 h-4 w-4" />
-              Submit for Approval
+              Gửi phê duyệt
             </Button>
 
             {onCancel && (
@@ -235,7 +235,7 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
                 disabled={isPending}
                 className="flex-1 sm:flex-initial"
               >
-                Cancel
+                Hủy
               </Button>
             )}
           </div>
