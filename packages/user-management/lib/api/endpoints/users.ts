@@ -105,7 +105,7 @@ export const adminUserEndpoints = {
     const response = await client.get<ApiResponse<PaginatedResponse<IUser>>>(`${API_BASE}/admin`, {
       params: {
         IsActive: params.isActive,
-        SearchKeyword: params.search,
+        Search: params.search,
         Page: params.page,
         PageSize: params.pageSize,
       },
