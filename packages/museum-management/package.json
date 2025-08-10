@@ -57,6 +57,7 @@
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
+    "@musetrip360/shared": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.81.5",
     "immer": "^10.1.1",
