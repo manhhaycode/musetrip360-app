@@ -167,4 +167,6 @@ export type Article = {
 };
 
 export type ArticleCreate = Omit<Article, 'id' | 'createdBy' | 'museum' | 'createdByUser'>;
-export type ArticleUpdate = Omit<Article, 'createdBy' | 'museum' | 'createdByUser'>;
+export type ArticleUpdate = Partial<Omit<Article, 'createdBy' | 'museum' | 'createdByUser'>> & {
+  id: string;
+};
