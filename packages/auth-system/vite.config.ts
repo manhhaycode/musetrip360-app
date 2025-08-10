@@ -94,6 +94,12 @@ export default defineConfig({
           }
           return 'assets/[name][extname]';
         },
+        banner: (chunk) => {
+          if (!chunk.fileName.includes('index')) {
+            return "'use client';\n";
+          }
+          return '';
+        },
       },
     },
     target: 'es2020',
