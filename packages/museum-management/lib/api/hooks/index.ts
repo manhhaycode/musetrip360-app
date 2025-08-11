@@ -7,3 +7,4 @@
 export * from './useMuseum';
 export * from './useMuseumRequest';
 export * from './useMuseumPolicy';
+export * from './useArticle';

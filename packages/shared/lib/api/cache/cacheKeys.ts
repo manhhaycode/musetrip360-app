@@ -45,6 +45,30 @@ export class UploadCacheKeys extends BaseCacheKeyFactory {
   }
 }
 
+export class CategoryCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('category');
+  }
+  /**
+   * Cache key for categories
+   */
+  categories(): QueryKey {
+    return [this.prefix, 'list'];
+  }
+}
+
+export class HistoricalPeriodCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('historical-period');
+  }
+  /**
+   * Cache key for historical periods
+   */
+  periods(): QueryKey {
+    return [this.prefix, 'periods'];
+  }
+}
+
 /**
  * Shared cache keys
  */
@@ -57,6 +81,8 @@ export class SharedCacheKeys extends BaseCacheKeyFactory {
    * Upload-specific cache keys
    */
   upload = new UploadCacheKeys();
+  category = new CategoryCacheKeys();
+  historicalPeriod = new HistoricalPeriodCacheKeys();
 }
 
 export const sharedCacheKeys = new SharedCacheKeys();

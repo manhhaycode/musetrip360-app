@@ -53,7 +53,7 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    SearchKeyword: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
+    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
     HistoricalPeriods:
       (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
     museumId: museumId || '',

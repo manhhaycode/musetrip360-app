@@ -20,6 +20,8 @@ import ProfilePage from '@/features/settings/pages/ProfilePage';
 import ChangePasswordPage from '@/features/settings/pages/ChangePasswordPage';
 import VirtualTourManagement from '@/features/virtual-tour/pages/VirtualTourManagement';
 import VirtualTourInfo from '@/features/virtual-tour/pages/VirtualTourStudio';
+import MuseumArticlePage from '@/features/museum/pages/MuseumArticlePage';
+import { ArticleCreatePage, ArticleEditPage } from '@/features/article/pages';
 
 export default function AppRoutes() {
   return (
@@ -46,7 +48,7 @@ export default function AppRoutes() {
 
           {/* Statistics */}
           <Route path="/statistics" element={<div>Statistics</div>} />
-          <Route path="/statistics/overview" element={<div>Báo cáo tổng quan</div>} />
+          <Route path="/statistics/overview" element={<DashboardPage />} />
 
           {/* Museum Management */}
           <Route path="/museum" element={<MuseumDetailPage />} />
@@ -54,6 +56,9 @@ export default function AppRoutes() {
           <Route path="/museum/artifacts" element={<MuseumArtifactPage />} />
           <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
           <Route path="/museum/policy" element={<MuseumPolicyPage />} />
+          <Route path="/museum/articles" element={<MuseumArticlePage />} />
+          <Route path="/museum/articles/create" element={<ArticleCreatePage />} />
+          <Route path="/museum/articles/edit/:id" element={<ArticleEditPage />} />
 
           {/* Artifact Management */}
           <Route path="/artifact/create" element={<ArtifactCreatePage />} />
