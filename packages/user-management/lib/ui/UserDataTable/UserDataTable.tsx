@@ -11,28 +11,28 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal } from 'lucide-react';
+import { Edit, Eye, MoreHorizontal, UserPlus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import { useMuseumsAdmin } from '../../api';
-import { Museum } from '../../types';
+import { useAdminUsers } from '../../api';
+import { IUser } from '../../types';
 
-interface MuseumDataTableProps {
-  onView?: (museum: Museum) => void;
-  onEdit?: (museum: Museum) => void;
+interface UserDataTableProps {
+  onView?: (user: IUser) => void;
+  onEdit?: (user: IUser) => void;
   onAdd?: () => void;
 }
 
-const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
-  const initialData: Museum[] = useMemo(() => [], []);
+const UserDataTable = ({ onView, onEdit, onAdd }: UserDataTableProps) => {
+  const initialData: IUser[] = useMemo(() => [], []);
   const handleAction = useCallback(
     () => ({
-      onView: (data: Museum) => onView?.(data),
-      onEdit: (data: Museum) => onEdit?.(data),
+      onView: (data: IUser) => onView?.(data),
+      onEdit: (data: IUser) => onEdit?.(data),
     }),
     [onView, onEdit]
   );
 
-  const columns = useMemo<ColumnDef<Museum>[]>(
+  const columns = useMemo<ColumnDef<IUser>[]>(
     () => [
       {
         id: 'select',
@@ -60,32 +60,56 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
         meta: {
           variant: 'text',
           placeholder: 'Tìm kiếm theo tên',
-          label: 'Name',
+          label: 'Full Name',
           isSortable: true,
           unit: '',
         },
-        accessorKey: 'name',
-        header: 'Name',
+        accessorKey: 'fullName',
+        header: 'Tên đầy đủ',
         enableSorting: true,
-        cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.name}</div>,
+        enableColumnFilter: true,
+        cell: ({ row }) => <div className="font-medium">{row.original.fullName || 'N/A'}</div>,
       },
       {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
-            {row.original.description}
-          </div>
-        ),
+        accessorKey: 'email',
+        header: 'Email',
+        enableSorting: true,
+        cell: ({ row }) => <div className="text-sm text-gray-600">{row.original.email}</div>,
       },
       {
-        accessorKey: 'location',
-        header: 'Location',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="text-sm max-w-40 whitespace-break-spaces line-clamp-2">{row.original.location}</div>
-        ),
+        accessorKey: 'username',
+        header: 'Username',
+        enableSorting: true,
+        cell: ({ row }) => <div className="text-sm font-mono">{row.original.username}</div>,
+      },
+      {
+        meta: {
+          variant: 'multiSelect',
+          placeholder: 'Filter auth type',
+          label: 'Auth Type',
+          isSortable: true,
+          unit: '',
+          options: [
+            { label: 'Email', value: 'Email' },
+            { label: 'Google', value: 'Google' },
+          ],
+        },
+        accessorKey: 'authType',
+        header: 'Loại đăng nhập',
+        enableSorting: true,
+        cell: ({ row }) => {
+          const getAuthTypeVariant = (authType: string) => {
+            switch (authType) {
+              case 'Google':
+                return 'outline';
+              case 'Email':
+                return 'secondary';
+              default:
+                return 'outline';
+            }
+          };
+          return <Badge variant={getAuthTypeVariant(row.original.authType)}>{row.original.authType}</Badge>;
+        },
       },
       {
         meta: {
@@ -97,53 +121,51 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
           options: [
             { label: 'Active', value: 'Active' },
             { label: 'Inactive', value: 'Inactive' },
-            { label: 'Pending', value: 'Pending' },
-            { label: 'Archived', value: 'Archived' },
-            { label: 'Not Verified', value: 'NotVerified' },
           ],
         },
         accessorKey: 'status',
-        header: 'Status',
+        header: 'Trạng thái',
         enableSorting: true,
-        enableColumnFilter: true,
         cell: ({ row }) => {
           const getStatusVariant = (status: string) => {
             switch (status) {
               case 'Active':
                 return 'default';
-              case 'NotVerified':
-                return 'destructive';
-              case 'Pending':
-                return 'outline';
-              default:
+              case 'Inactive':
                 return 'secondary';
+              default:
+                return 'outline';
             }
           };
-          return (
-            <Badge variant={getStatusVariant(row.original.status)}>
-              {row.original.status === 'NotVerified' ? 'Not Verified' : row.original.status}
-            </Badge>
-          );
+          return <Badge variant={getStatusVariant(row.original.status)}>{row.original.status}</Badge>;
         },
       },
       {
-        accessorKey: 'createdAt',
-        header: 'Created At',
+        accessorKey: 'lastLogin',
+        header: 'Đăng nhập lần cuối',
         enableSorting: true,
-        cell: ({ row }) => (
-          <div className="text-sm text-muted-foreground">{new Date(row.original.createdAt).toLocaleDateString()}</div>
-        ),
+        cell: ({ row }) => {
+          const formatDate = (dateString: string) => {
+            return new Date(dateString).toLocaleDateString('vi-VN', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+          };
+          return <div className="text-sm text-gray-600">{formatDate(row.original.lastLogin)}</div>;
+        },
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: 'Thao tác',
         enableSorting: false,
         cell: ({ row }) => (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
+              <Button variant="ghost" className="size-8 p-0">
+                <MoreHorizontal className="size-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -165,26 +187,28 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
     [handleAction]
   );
 
-  const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
+  const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'fullName', desc: false }] });
 
-  const { data: museumsData, isLoading: loadingMuseums } = useMuseumsAdmin({
-    Page: tableState.pagination.pageIndex + 1,
-    PageSize: tableState.pagination.pageSize,
-    sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || '',
+  const { data: usersData, isLoading: loadingUsers } = useAdminUsers({
+    search: (tableState.columnFilters.find((filter) => filter.id === 'fullName')?.value as string) || '',
+    page: tableState.pagination.pageIndex + 1,
+    pageSize: tableState.pagination.pageSize,
+    isActive:
+      (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) === 'Active'
+        ? true
+        : undefined,
   });
 
-  const { table } = useDataTable<Museum, string>({
-    data: museumsData?.data?.list || initialData,
+  const { table } = useDataTable<IUser, string>({
+    data: usersData?.data?.data || initialData,
     columns,
-    rowCount: museumsData?.data?.total,
+    rowCount: usersData?.data?.total,
     manualHandle: true,
     getRowId: (row) => row.id.toString(),
     ...tableState,
   });
 
-  if (loadingMuseums) {
+  if (loadingUsers) {
     return (
       <div className="flex items-center justify-center flex-1">
         <div className="animate-spin rounded-full h-20 w-20 border-b-4 border-primary"></div>
@@ -197,7 +221,8 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
       <DataTableToolbar table={table}>
         {onAdd && (
           <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
-            Thêm Bảo Tàng
+            <UserPlus className="h-4 w-4 mr-2" />
+            Thêm người dùng
           </Button>
         )}
       </DataTableToolbar>
@@ -205,4 +230,4 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
   );
 };
 
-export default MuseumDataTable;
+export default UserDataTable;

@@ -1,22 +1,20 @@
 import { Museum, MuseumDataTable } from '@musetrip360/museum-management';
-import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const MuseumsPage = () => {
+  const navigate = useNavigate();
+
   const handleView = (museum: Museum) => {
-    toast.info(`Xem chi tiết: ${museum.name}`);
+    navigate(`/museums/admin/${museum.id}`);
   };
 
   const handleEdit = (museum: Museum) => {
-    toast.info(`Chỉnh sửa: ${museum.name}`);
-  };
-
-  const handleDelete = (museum: Museum) => {
-    toast.warning(`Xóa bảo tàng: ${museum.name}`);
+    navigate(`/museums/admin/${museum.id}`);
   };
 
   return (
     <>
-      <MuseumDataTable onView={handleView} onEdit={handleEdit} onDelete={handleDelete} />
+      <MuseumDataTable onView={handleView} onEdit={handleEdit} />
     </>
   );
 };

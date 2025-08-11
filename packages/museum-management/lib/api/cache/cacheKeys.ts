@@ -21,6 +21,10 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
     return [this.prefix, 'museums'];
   }
 
+  museumsAdmin(params?: MuseumSearchParams): QueryKey {
+    return [this.prefix, 'museums', 'admin', params];
+  }
+
   museum(id: string): QueryKey {
     return [this.prefix, 'museum', id];
   }

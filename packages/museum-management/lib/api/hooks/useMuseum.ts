@@ -9,7 +9,14 @@ import {
 
 import { Museum, MuseumCreateDto, MuseumSearchParams, MuseumSearchResponse } from '../../types';
 import { museumManagementCacheKeys } from '../cache/cacheKeys';
-import { createMuseum, getMuseumById, getMuseums, getUserMuseums, updateMuseum } from '../endpoints/museums';
+import {
+  createMuseum,
+  getMuseumById,
+  getMuseums,
+  getMuseumsAdmin,
+  getUserMuseums,
+  updateMuseum,
+} from '../endpoints/museums';
 
 export function useGetUserMuseums(options?: CustomQueryOptions<Museum[]>) {
   return useQuery([museumManagementCacheKeys.userMuseums()], () => getUserMuseums(), {
@@ -21,6 +28,16 @@ export function useGetUserMuseums(options?: CustomQueryOptions<Museum[]>) {
 
 export function useMuseums(params: MuseumSearchParams, options?: CustomQueryOptions<MuseumSearchResponse>) {
   return useQuery([museumManagementCacheKeys.museums(), params], () => getMuseums(params), {
+    placeholderData: (previousData: MuseumSearchResponse | undefined) => previousData,
+    ...options,
+  });
+}
+
+/**
+ * Admin: list museums
+ */
+export function useMuseumsAdmin(params: MuseumSearchParams, options?: CustomQueryOptions<MuseumSearchResponse>) {
+  return useQuery(museumManagementCacheKeys.museumsAdmin(params), () => getMuseumsAdmin(params), {
     placeholderData: (previousData: MuseumSearchResponse | undefined) => previousData,
     ...options,
   });
@@ -43,6 +60,8 @@ export function useCreateMuseum(options?: CustomMutationOptions<Museum, APIError
     onSuccess: (data, variables, context) => {
       // Invalidate museums list to refresh the data
       queryClient.invalidateQueries({ queryKey: museumManagementCacheKeys.museums() });
+      // Also invalidate admin museums list
+      queryClient.invalidateQueries({ queryKey: museumManagementCacheKeys.museumsAdmin() });
 
       onSuccess?.(data, variables, context);
     },

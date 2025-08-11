@@ -1,8 +1,9 @@
 const routes = {
   dashboard: '/',
   museums: {
-    list: '/museums',
-    approval: '/museums/requests',
+    list: '/museums/admin',
+    detail: (id: string) => `/museums/admin/${id}`,
+    approval: '/museums/requests/admin',
   },
   users: '/users',
   settings: '/settings',

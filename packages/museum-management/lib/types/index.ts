@@ -17,12 +17,14 @@ export interface Museum {
   contactEmail: string;
   contactPhone: string;
   rating: number;
+  latitude: number;
+  longitude: number;
   createdBy: string;
   status: MuseumStatus;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
   metadata?: MuseumMetadata;
+  categories: MuseumCategory[];
 }
 
 export interface MuseumMetadata {
@@ -35,8 +37,9 @@ export interface MuseumMetadata {
     website?: string;
   };
   contentHomePage?: string;
-  additionalInfo?: Record<string, any>;
+  detail?: string;
   images?: string[];
+  additionalInfo?: Record<string, any>;
 }
 
 export enum MuseumStatus {
@@ -44,6 +47,7 @@ export enum MuseumStatus {
   Inactive = 'Inactive',
   Pending = 'Pending',
   Archived = 'Archived',
+  NotVerified = 'NotVerified',
 }
 
 export interface MuseumSearchParams extends Pagination {

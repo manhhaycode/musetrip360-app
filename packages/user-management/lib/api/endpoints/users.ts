@@ -5,18 +5,18 @@
  * Integrates with the MuseTrip360 backend API as defined in swagger.json
  */
 
-import { getHttpClient } from '@musetrip360/query-foundation';
 import type {
-  UserCreateDto,
-  UserUpdateDto,
-  UserSearchParams,
-  UserAdminSearchParams,
-  PaginatedResponse,
-  IUser,
-  UserRoleFormDto,
-  UserWithRole,
   ApiResponse,
+  IUser,
+  PaginatedResponse,
+  UserAdminSearchParams,
+  UserCreateDto,
+  UserRoleFormDto,
+  UserSearchParams,
+  UserUpdateDto,
+  UserWithRole,
 } from '@/types';
+import { getHttpClient } from '@musetrip360/query-foundation';
 
 // API Base URLs
 const API_BASE = '/users';
@@ -99,17 +99,34 @@ export const userEndpoints = {
  * Admin-specific user endpoints
  */
 export const adminUserEndpoints = {
-  // GET /users/admin - Get all users for admin (with additional filters)
+  // GET /users - Get all users for admin (with additional filters)
   getAllUsers: async (params: UserAdminSearchParams): Promise<ApiResponse<PaginatedResponse<IUser>>> => {
     const client = getHttpClient();
-    const response = await client.get<ApiResponse<PaginatedResponse<IUser>>>(`${API_BASE}/admin`, {
-      params: {
-        IsActive: params.isActive,
-        SearchKeyword: params.search,
-        Page: params.page,
-        PageSize: params.pageSize,
-      },
+
+    const requestParams = {
+      IsActive: params.isActive,
+      Search: params.search,
+      Page: params.page,
+      PageSize: params.pageSize,
+    };
+
+    const response = await client.get<ApiResponse<PaginatedResponse<IUser>>>(API_BASE, {
+      params: requestParams,
     });
+    return response;
+  },
+
+  // POST /users/admin - Create new user (admin)
+  createUser: async (data: UserCreateDto): Promise<ApiResponse<IUser>> => {
+    const client = getHttpClient();
+    const response = await client.post<ApiResponse<IUser>>(`${API_BASE}/admin`, data);
+    return response;
+  },
+
+  // PUT /users/admin/{id} - Update user (admin)
+  updateUser: async (id: string, data: Partial<UserCreateDto>): Promise<ApiResponse<IUser>> => {
+    const client = getHttpClient();
+    const response = await client.put<ApiResponse<IUser>>(`${API_BASE}/admin/${id}`, data);
     return response;
   },
 } as const;

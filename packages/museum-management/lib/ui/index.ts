@@ -5,5 +5,3 @@
  */
 
 export * from './MuseumDataTable';
-export * from './MuseumRequestDataTable';
-export * from './MuseumRequestDetailModal';

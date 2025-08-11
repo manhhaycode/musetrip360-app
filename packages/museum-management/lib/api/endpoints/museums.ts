@@ -16,7 +16,8 @@ export const museumEndpoints = {
   getById: (id: string) => `museums/${id}`,
   getUserMuseums: 'museums/user',
 
-  adminList: '/museums/admin',
+  // Admin endpoints
+  adminList: 'museums/admin',
 
   // Museum-specific artifact endpoints
   listByMuseum: (museumId: string) => `/museums/${museumId}`,
@@ -38,6 +39,12 @@ export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumS
 export const getMuseums = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
+  return response;
+};
+
+export const getMuseumsAdmin = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<MuseumSearchResponse>(museumEndpoints.adminList, { params });
   return response;
 };
 
