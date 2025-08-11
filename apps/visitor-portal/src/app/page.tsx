@@ -1,5 +1,3 @@
-'use client';
-
 import { FeaturedMuseums } from '@/components/sections/FeaturedMuseums';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { UpcomingEvents } from '@/components/sections/UpcomingEvents';

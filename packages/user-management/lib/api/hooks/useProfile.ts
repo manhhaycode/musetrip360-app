@@ -14,7 +14,6 @@ import { userCacheKeys } from '../cache/cacheKeys';
  * Hook to fetch current user profile
  */
 export function useCurrentProfile(options?: CustomQueryOptions) {
-  console.log('useCurrentProfile');
   return useQuery(userCacheKeys.profile(), () => profileEndpoints.getCurrentProfile(), {
     staleTime: Infinity,
     gcTime: Infinity,
