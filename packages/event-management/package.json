@@ -52,6 +52,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
+    "@musetrip360/auth-system": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
