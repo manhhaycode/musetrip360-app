@@ -2,7 +2,7 @@ import Error from '@/components/common';
 import ScrollToTop from '@/components/ScrollToTop';
 import { AdminDashboard } from '@/features/admin';
 import AuthPage from '@/features/auth/AuthPage';
-import { MuseumDetailPage, MuseumsPage } from '@/features/museum';
+import { MuseumDetailPage, MuseumRequestsPage, MuseumsPage } from '@/features/museum';
 import { UsersPage } from '@/features/users';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
@@ -20,6 +20,9 @@ export default function AppRoutes() {
           {/* Museum Management */}
           <Route path="museums/admin" element={<MuseumsPage />} />
           <Route path="museums/admin/:id" element={<MuseumDetailPage />} />
+
+          {/* Museum Request Management */}
+          <Route path="museums/requests" element={<MuseumRequestsPage />} />
 
           {/* User Management */}
           <Route path="users" element={<UsersPage />} />
