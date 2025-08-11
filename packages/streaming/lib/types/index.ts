@@ -4,6 +4,7 @@
  * TypeScript types for WebRTC streaming functionality
  */
 
+import { SignalRClient } from '@/api';
 import { z } from 'zod';
 
 // SignalR Connection Types
@@ -133,7 +134,7 @@ export interface UseSignalRReturn {
   joinRoom: (roomId: string, offer?: RTCSessionDescriptionInit) => Promise<void>;
   leaveRoom: () => Promise<void>;
   updateRoomState: (metadata: Record<string, any>) => Promise<void>;
-  getClient: () => any; // SignalRClient | null
+  getClient: () => SignalRClient | null; // SignalRClient | null
   error: StreamingError | null;
 }
 
@@ -189,6 +190,7 @@ export interface StreamingContextValue {
   roomState: RoomState | null;
   participants: Map<string, Participant>;
   currentRoomId: string | null;
+  isInRoom: boolean;
 
   // Actions
   joinRoom: (roomId: string, metadata?: Record<string, any>) => Promise<void>;

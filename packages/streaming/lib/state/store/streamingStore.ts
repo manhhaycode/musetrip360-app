@@ -14,10 +14,6 @@ interface StreamingState {
   webRTCState: ConnectionState;
   connectionId: string | null;
 
-  // Current Room
-  currentRoomId: string | null;
-  isInRoom: boolean;
-
   // Media State
   localStream: MediaStream | null;
   remoteStreams: Map<string, MediaStreamInfo>;
@@ -43,10 +39,6 @@ interface StreamingActions {
   setWebRTCState: (state: ConnectionState) => void;
   setConnectionId: (id: string | null) => void;
   setConfig: (config: SignalRConnectionConfig) => void;
-
-  // Room Actions
-  setCurrentRoomId: (roomId: string | null) => void;
-  setIsInRoom: (inRoom: boolean) => void;
 
   // Media Actions
   setLocalStream: (stream: MediaStream | null) => void;
@@ -80,8 +72,6 @@ const initialState: StreamingState = {
   signalRState: ConnectionState.Disconnected,
   webRTCState: ConnectionState.Disconnected,
   connectionId: null,
-  currentRoomId: null,
-  isInRoom: false,
   localStream: null,
   remoteStreams: new Map(),
   mediaState: { video: true, audio: true },
@@ -107,11 +97,6 @@ export const useStreamingStore = create<StreamingStore>()(
       setConnectionId: (id) => set({ connectionId: id }, false, 'setConnectionId'),
 
       setConfig: (config) => set({ config }, false, 'setConfig'),
-
-      // Room Actions
-      setCurrentRoomId: (roomId) => set({ currentRoomId: roomId }, false, 'setCurrentRoomId'),
-
-      setIsInRoom: (inRoom) => set({ isInRoom: inRoom }, false, 'setIsInRoom'),
 
       // Media Actions
       setLocalStream: (stream) => set({ localStream: stream }, false, 'setLocalStream'),
@@ -234,10 +219,6 @@ export const useStreamingSelectors = () => {
     isConnecting: store.isConnecting,
     connectionStatus: store.signalRState,
 
-    // Room selectors
-    isInRoom: store.isInRoom,
-    currentRoomId: store.currentRoomId,
-
     // Media selectors
     hasLocalStream: store.localStream !== null,
     remoteStreamCount: store.remoteStreams.size,
@@ -259,14 +240,6 @@ export const useStreamingSelectors = () => {
 // Subscription helpers
 export const subscribeToConnectionState = (callback: (state: ConnectionState) => void) => {
   return useStreamingStore.subscribe((state) => state.signalRState, callback);
-};
-
-export const subscribeToRoomState = (callback: (roomId: string | null, inRoom: boolean) => void) => {
-  return useStreamingStore.subscribe(
-    (state) => ({ roomId: state.currentRoomId, inRoom: state.isInRoom }),
-    ({ roomId, inRoom }) => callback(roomId, inRoom),
-    { equalityFn: (a, b) => a.roomId === b.roomId && a.inRoom === b.inRoom }
-  );
 };
 
 export const subscribeToMediaState = (callback: (mediaState: MediaState) => void) => {
@@ -309,16 +282,13 @@ export const streamingActions = {
    * Join room with error handling
    */
   async joinRoomSafely(roomId: string) {
-    const { setJoiningRoom, setCurrentRoomId, setIsInRoom, addError } = useStreamingStore.getState();
+    const { setJoiningRoom, addError } = useStreamingStore.getState();
 
     try {
       setJoiningRoom(true);
-      setCurrentRoomId(roomId);
 
       // Hooks will handle room joining logic
       console.log(`🚪 Joining room: ${roomId}`);
-
-      setIsInRoom(true);
     } catch (error) {
       addError({
         code: 'ROOM_JOIN_FAILED',
@@ -326,9 +296,6 @@ export const streamingActions = {
         details: error,
         timestamp: new Date(),
       });
-
-      setCurrentRoomId(null);
-      setIsInRoom(false);
     } finally {
       setJoiningRoom(false);
     }
@@ -338,12 +305,9 @@ export const streamingActions = {
    * Leave room and cleanup
    */
   async leaveRoomSafely() {
-    const { setIsInRoom, setCurrentRoomId, cleanup } = useStreamingStore.getState();
+    const { cleanup } = useStreamingStore.getState();
 
     try {
-      setIsInRoom(false);
-      setCurrentRoomId(null);
-
       // Hooks will handle leave room logic
       console.log('👋 Leaving room');
     } catch (error) {

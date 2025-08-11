@@ -26,7 +26,7 @@ export default function StreamLayout({ children }: { children: React.ReactNode }
         accessToken: accessToken.token,
       }}
     >
-      <div className="min-h-screen bg-gray-900">{children}</div>
+      <div className="min-h-screen bg-background">{children}</div>
     </StreamingProvider>
   );
 }
