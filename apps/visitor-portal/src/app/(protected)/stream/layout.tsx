@@ -6,8 +6,9 @@ import { envConfig } from '@/config';
 
 export default function StreamLayout({ children }: { children: React.ReactNode }) {
   const { accessToken } = useAuthStore();
+  console.log(accessToken);
   if (!accessToken) {
-    throw new Error('Access token is not available. Please log in first.');
+    return null;
   }
   if (!envConfig.TURN_SERVER_URL || !envConfig.SIGNALING_SERVER_URL) {
     throw new Error('Config streaming is not defined in the environment configuration.');

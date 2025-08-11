@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuthActionContext, useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Lock } from 'lucide-react';
 import { Button } from '@musetrip360/ui-core/button';
+import { useCurrentProfile } from '@musetrip360/user-management';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -56,17 +57,7 @@ function AuthRequiredScreen({ redirectTo }: { redirectTo?: string }) {
 
 export function ProtectedRoute({ children, fallback, redirectTo, requireAuth = true }: ProtectedRouteProps) {
   const isAuthenticated = useIsAuthenticated();
-  const [isClient, setIsClient] = useState(false);
-
-  // Handle hydration to prevent SSR mismatch
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Show nothing during hydration to prevent flash
-  if (!isClient) {
-    return null;
-  }
+  const { isLoading } = useCurrentProfile();
 
   // If authentication is not required, render children
   if (!requireAuth) {
@@ -79,6 +70,24 @@ export function ProtectedRoute({ children, fallback, redirectTo, requireAuth = t
       return <>{fallback}</>;
     }
     return <AuthRequiredScreen redirectTo={redirectTo} />;
+  }
+
+  if (isLoading) {
+    // Optionally show a loading state while the profile is being fetched
+    return (
+      <div className="w-full bg-background flex items-center justify-center p-4 animate-pulse">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-foreground">Đang tải...</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-center text-sm">
+              Vui lòng đợi trong khi chúng tôi tải thông tin của bạn.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   // User is authenticated, render-protected content

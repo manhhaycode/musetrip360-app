@@ -41,9 +41,9 @@ export default function RootLayout({
     <html lang="vi">
       <body className="min-h-screen bg-background">
         <AppProvider>
-          <ScrollArea className="h-screen">
+          <ScrollArea className="h-screen *:data-[slot=scroll-area-viewport]:!pr-0">
             <Header />
-            <main>{children}</main>
+            <main className="min-h-[calc(100vh-458px)]">{children}</main>
             <Footer />
           </ScrollArea>
         </AppProvider>
