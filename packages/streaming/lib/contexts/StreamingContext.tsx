@@ -14,6 +14,7 @@ import { useStreamingEvents } from '@/utils/eventBus';
 import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } from '@/types';
 import { generateRoomId } from '@/utils/webrtc';
 import { useSignalR } from '@/hooks';
+import { v4 as uuid } from 'uuid';
 
 const StreamingContext = createContext<StreamingContextValue | null>(null);
 
@@ -41,9 +42,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const { on } = useStreamingEvents();
 
   // Store selectors
-  const { currentRoomId, isInRoom, errors, clearErrors } = useStreamingStore();
+  const { errors, clearErrors } = useStreamingStore();
 
   const { currentRoom: roomState } = useRoomStore();
+
+  // Derived state from RoomStore (single source of truth)
+  const currentRoomId = roomState?.roomId || null;
+  const isInRoom = roomState !== null;
 
   const { participants: participantMap } = useParticipantStore();
 
@@ -111,7 +116,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         const connectionId = signalR.connectionId;
         if (connectionId && mediaStream.localStream) {
           participantActions.addParticipantWithStream({
-            id: connectionId,
+            id: uuid(),
             peerId: connectionId,
             streamId: mediaStream.localStream.id,
             connectionId,
@@ -213,22 +218,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   // Coordinate participant management via events
   useEffect(() => {
     // Handle peer joined from SignalR
-    on('signalr:peer-joined', async ({ userId, peerId }) => {
+    const unsubscribePeerJoined = on('signalr:peer-joined', async ({ userId, peerId }) => {
       try {
-        const client = signalR.getClient();
-        if (!client) return;
-
-        const streamId = await client.getStreamIdByPeerId(peerId);
-        participantActions.addParticipantWithStream({
-          id: userId,
-          peerId,
-          streamId,
-          connectionId: client.getConnectionId() || '',
-          isLocalUser: false,
-          mediaState: { video: true, audio: true },
-          joinedAt: new Date(),
-        });
-
         console.log(`✅ Participant ${userId} added via event coordination`);
       } catch (error) {
         console.error('Failed to handle peer joined:', error);
@@ -236,7 +227,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     });
 
     // Handle peer disconnected from SignalR
-    on('signalr:peer-disconnected', async ({ userId }) => {
+    const unsubscribePeerDisconnected = on('signalr:peer-disconnected', async ({ userId }) => {
       try {
         participantActions.removeParticipantWithCleanup(userId);
 
@@ -247,7 +238,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     });
 
     // Handle remote streams from WebRTC with peer ID resolution
-    on('webrtc:remote-stream', async ({ stream, peerId }) => {
+    const unsubscribeRemoteStream = on('webrtc:remote-stream', async ({ stream, peerId }) => {
       try {
         // Resolve actual peer ID from SignalR
         const client = signalR.getClient();
@@ -270,6 +261,16 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             video: stream.getVideoTracks().some((track) => track.enabled),
             audio: stream.getAudioTracks().some((track) => track.enabled),
           });
+        } else {
+          participantActions.addParticipantWithStream({
+            id: uuid(),
+            peerId: peerId || resolvedPeerId,
+            streamId: stream.id,
+            connectionId: client!.getConnectionId() || '',
+            isLocalUser: false,
+            mediaState: { video: true, audio: true },
+            joinedAt: new Date(),
+          });
         }
 
         console.log(`✅ Remote stream coordinated for peer ${resolvedPeerId}`);
@@ -277,6 +278,11 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         console.error('Failed to coordinate remote stream:', error);
       }
     });
+    return () => {
+      unsubscribeRemoteStream();
+      unsubscribePeerJoined();
+      unsubscribePeerDisconnected();
+    };
   }, [on, signalR, mediaStream]);
 
   // Handle remote stream events
@@ -288,11 +294,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (isInRoom) {
+      // Get fresh room state at cleanup time (avoid stale closure)
+      const { currentRoom } = useRoomStore.getState();
+      if (currentRoom) {
         leaveRoom().catch(console.error);
       }
     };
-  }, [isInRoom, leaveRoom]);
+  }, []); // Empty array = only run cleanup on unmount
 
   const contextValue: StreamingContextValue = {
     // Connection State
@@ -304,6 +312,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     roomState,
     participants: participantMap,
     currentRoomId,
+    isInRoom,
 
     // Actions
     joinRoom,
