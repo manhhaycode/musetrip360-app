@@ -30,20 +30,20 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-background via-accent/20 to-background">
       <div className="container mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <Link href="/stream">
-              <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Quay lại
               </Button>
             </Link>
             <div className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-blue-400" />
-              <h1 className="text-xl font-semibold text-white">Phòng: {roomId}</h1>
+              <Users className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-semibold text-foreground">Phòng: {roomId}</h1>
             </div>
           </div>
 
@@ -51,7 +51,7 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
             variant="outline"
             size="sm"
             onClick={handleCopyRoomId}
-            className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+            className="border-border text-muted-foreground hover:text-foreground hover:bg-accent"
           >
             <Copy className="h-4 w-4 mr-2" />
             Sao chép mã phòng
@@ -59,7 +59,7 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
         </div>
 
         {/* Streaming Room */}
-        <Card className="border-gray-700 bg-gray-800/50 backdrop-blur-sm">
+        <Card className="border-border bg-card/50 backdrop-blur-sm">
           <CardContent className="p-0">
             <StreamingRoom />
           </CardContent>
@@ -67,9 +67,9 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
 
         {/* Instructions */}
         <div className="mt-6 text-center">
-          <p className="text-gray-400 text-sm">
-            Chia sẻ mã phòng <span className="font-mono bg-gray-800 px-2 py-1 rounded text-blue-400">{roomId}</span> để
-            mời bạn bè tham gia
+          <p className="text-muted-foreground text-sm">
+            Chia sẻ mã phòng <span className="font-mono bg-muted px-2 py-1 rounded text-primary">{roomId}</span> để mời
+            bạn bè tham gia
           </p>
         </div>
       </div>
