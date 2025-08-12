@@ -43,8 +43,8 @@ const EventListPage = () => {
       <div className="flex items-center justify-center flex-1">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You need to be associated with a museum to manage events.</CardDescription>
+            <CardTitle>Truy cập bị từ chối</CardTitle>
+            <CardDescription>Bạn cần được liên kết với một bảo tàng để quản lý sự kiện.</CardDescription>
           </CardHeader>
         </Card>
       </div>

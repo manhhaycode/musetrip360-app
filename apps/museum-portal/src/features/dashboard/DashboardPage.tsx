@@ -8,12 +8,12 @@ import {
   ChartTooltip,
   ChartTooltipContent,
   Button,
-  Badge,
 } from '@musetrip360/ui-core';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { ArchiveIcon, CoinsIcon, CalendarDaysIcon, TicketsPlaneIcon } from 'lucide-react';
 import { useMuseumStore, useGetMuseumAnalyticsOverview } from '@musetrip360/museum-management';
 import get from 'lodash/get';
+import UpcomingEvent from '../event/UpcomingEvent';
 
 const revenueData = [
   { month: 'T1', revenue: 35000000, visitors: 850 },
@@ -22,41 +22,6 @@ const revenueData = [
   { month: 'T4', revenue: 51000000, visitors: 1100 },
   { month: 'T5', revenue: 48000000, visitors: 980 },
   { month: 'T6', revenue: 45780000, visitors: 1050 },
-];
-
-const upcomingEvents = [
-  {
-    id: 1,
-    title: 'Triển lãm Văn minh cổ đại',
-    date: '2025-08-15',
-    time: '10:00 SA',
-    attendees: 125,
-    status: 'confirmed',
-  },
-  {
-    id: 2,
-    title: 'Workshop Nghệ thuật Phục hưng',
-    date: '2025-08-20',
-    time: '2:00 CH',
-    attendees: 45,
-    status: 'pending',
-  },
-  {
-    id: 3,
-    title: 'Tour Bảo tàng Thực tế Ảo',
-    date: '2025-08-25',
-    time: '11:00 SA',
-    attendees: 78,
-    status: 'confirmed',
-  },
-  {
-    id: 4,
-    title: 'Hội thảo Lịch sử Trung cổ',
-    date: '2025-08-28',
-    time: '3:00 CH',
-    attendees: 92,
-    status: 'confirmed',
-  },
 ];
 
 const chartConfig = {
@@ -81,18 +46,6 @@ const DashboardPage = () => {
       style: 'currency',
       currency: 'VND',
     }).format(value);
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      pending: { label: 'Chờ xử lý', variant: 'default' as const },
-      confirmed: { label: 'Đã xác nhận', variant: 'default' as const },
-      under_review: { label: 'Đang xem xét', variant: 'secondary' as const },
-      draft: { label: 'Bản nháp', variant: 'outline' as const },
-    };
-
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.pending;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
   };
 
   return (
@@ -199,27 +152,7 @@ const DashboardPage = () => {
         </Card>
 
         {/* Upcoming Events */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Sự kiện sắp tới</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {upcomingEvents.slice(0, 4).map((event) => (
-                <div key={event.id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <h4 className="font-medium">{event.title}</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(event.date).toLocaleDateString('vi-VN')} lúc {event.time}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{event.attendees} người tham dự</p>
-                  </div>
-                  {getStatusBadge(event.status)}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <UpcomingEvent />
       </div>
     </div>
   );

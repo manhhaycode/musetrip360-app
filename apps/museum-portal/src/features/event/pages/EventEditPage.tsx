@@ -34,12 +34,12 @@ const EventEditPage = () => {
       <div className="flex items-center justify-center flex-1">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You need to be associated with a museum to edit events.</CardDescription>
+            <CardTitle>Truy cập bị từ chối</CardTitle>
+            <CardDescription>Bạn cần được liên kết với một bảo tàng để chỉnh sửa sự kiện.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate('/events')} variant="outline" className="w-full">
-              Back to Events
+              Quay lại Sự kiện
             </Button>
           </CardContent>
         </Card>
@@ -52,7 +52,7 @@ const EventEditPage = () => {
       <div className="flex items-center justify-center flex-1">
         <div className="flex items-center space-x-2">
           <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading event...</span>
+          <span>Đang tải sự kiện...</span>
         </div>
       </div>
     );
@@ -63,12 +63,12 @@ const EventEditPage = () => {
       <div className="flex items-center justify-center flex-1">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Error</CardTitle>
-            <CardDescription>{error || 'Event not found'}</CardDescription>
+            <CardTitle>Lỗi</CardTitle>
+            <CardDescription>{error || 'Không tìm thấy sự kiện'}</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate('/events')} variant="outline" className="w-full">
-              Back to Events
+              Quay lại Sự kiện
             </Button>
           </CardContent>
         </Card>
@@ -86,21 +86,13 @@ const EventEditPage = () => {
         </Button>
 
         <div className="border-l border-gray-200 pl-4">
-          <h1 className="text-2xl font-bold tracking-tight">Edit Event</h1>
-          <p className="text-muted-foreground">Update event information and tour online configurations.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Chỉnh sửa Sự kiện</h1>
+          <p className="text-muted-foreground">Cập nhật thông tin sự kiện và cấu hình tour trực tuyến.</p>
         </div>
       </div>
 
       {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Event Information</CardTitle>
-          <CardDescription>Update the event details and configure associated tour onlines.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EventForm event={event} museumId={museumId} onSuccess={handleEventUpdated} onCancel={handleCancel} />
-        </CardContent>
-      </Card>
+      <EventForm event={event} museumId={museumId} onSuccess={handleEventUpdated} onCancel={handleCancel} />
     </div>
   );
 };

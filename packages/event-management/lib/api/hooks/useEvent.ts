@@ -4,12 +4,11 @@ import {
   CustomMutationOptions,
   CustomQueryOptions,
   PaginatedResponse,
-  Pagination,
   useMutation,
   useQuery,
 } from '@musetrip360/query-foundation';
 
-import { Event, EventCreateDto, EventUpdateDto } from '@/types';
+import { Event, EventCreateDto, EventSearchParams, EventUpdateDto } from '@/types';
 
 import {
   createEventRequest,
@@ -27,7 +26,7 @@ import { eventManagementCacheKeys } from '../cache/cacheKeys';
 
 export function useGetEventsByMuseumId(
   museumId: string,
-  params: Pagination,
+  params: EventSearchParams,
   options?: CustomQueryOptions<PaginatedResponse<Event>>
 ) {
   return useQuery(

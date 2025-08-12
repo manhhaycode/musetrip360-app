@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, Plus, Send, X } from 'lucide-react';
+import { BadgeCheckIcon, Edit, Eye, MoreHorizontal, Plus, Send, X } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import {
   Event,
@@ -21,9 +21,11 @@ import {
   useSubmitEvent,
   useCancelEvent,
   EventStatusEnum,
+  useEvaluateEvent,
 } from '@musetrip360/event-management';
 
 import get from 'lodash.get';
+import { EventStatusName, EventTypeName } from '@/config/constants/event';
 
 interface EventDataTableProps {
   museumId: string;
@@ -34,6 +36,16 @@ interface EventDataTableProps {
   onSubmit?: (event: Event) => void;
   onCancel?: (event: Event) => void;
 }
+
+const statusOptions: Option[] = Object.entries(EventStatusName).map(([value, label]) => ({
+  label,
+  value: value as EventStatusEnum,
+}));
+
+const eventTypeOptions: Option[] = Object.entries(EventTypeName).map(([value, label]) => ({
+  label,
+  value: value as EventTypeEnum,
+}));
 
 const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }: EventDataTableProps) => {
   const initialData: Event[] = useMemo(() => [], []);
@@ -60,23 +72,34 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
 
   const { mutate: submitEvent } = useSubmitEvent({
     onSuccess: () => {
-      toast.success('Event submitted successfully');
+      toast.success('Gửi sự kiện thành công');
       refetchEvents();
     },
     onError: (error) => {
-      toast.error('Failed to submit event');
+      toast.error('Gửi sự kiện thất bại');
       console.error('Submit event error:', error);
     },
   });
 
   const { mutate: cancelEvent } = useCancelEvent({
     onSuccess: () => {
-      toast.success('Event cancelled successfully');
+      toast.success('Hủy sự kiện thành công');
       refetchEvents();
     },
     onError: (error) => {
-      toast.error('Failed to cancel event');
+      toast.error('Hủy sự kiện thất bại');
       console.error('Cancel event error:', error);
+    },
+  });
+
+  const { mutate: evaluateEvent } = useEvaluateEvent({
+    onSuccess: () => {
+      toast.success('Cập nhật sự kiện thành công');
+      refetchEvents();
+    },
+    onError: (error) => {
+      toast.error('Cập nhật sự kiện thất bại');
+      console.error('Evaluate event error:', error);
     },
   });
 
@@ -94,29 +117,6 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       },
     }),
     [onView, onEdit, onSubmit, onCancel, submitEvent, cancelEvent]
-  );
-
-  const statusOptions: Option[] = useMemo(
-    () => [
-      { label: 'Draft', value: EventStatusEnum.Draft },
-      { label: 'Pending', value: EventStatusEnum.Pending },
-      { label: 'Published', value: EventStatusEnum.Published },
-      { label: 'Cancelled', value: EventStatusEnum.Cancelled },
-      { label: 'Expired', value: EventStatusEnum.Expired },
-    ],
-    []
-  );
-
-  const eventTypeOptions: Option[] = useMemo(
-    () => [
-      { label: 'Exhibition', value: EventTypeEnum.Exhibition },
-      { label: 'Workshop', value: EventTypeEnum.Workshop },
-      { label: 'Lecture', value: EventTypeEnum.Lecture },
-      { label: 'Special Event', value: EventTypeEnum.SpecialEvent },
-      { label: 'Holiday Event', value: EventTypeEnum.HolidayEvent },
-      { label: 'Other', value: EventTypeEnum.Other },
-    ],
-    []
   );
 
   const getStatusVariant = (status: EventStatusEnum) => {
@@ -172,27 +172,27 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       {
         meta: {
           variant: 'text',
-          placeholder: 'Search by title',
-          label: 'Title',
+          placeholder: 'Tìm kiếm theo tiêu đề',
+          label: 'Tiêu đề',
           isSortable: true,
           unit: '',
         },
         accessorKey: 'title',
-        header: 'Title',
+        header: 'Tiêu đề',
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-60 truncate">{row.original.title}</div>,
       },
       {
         meta: {
           variant: 'multiSelect',
-          placeholder: 'Filter by event type',
-          label: 'Event Type',
+          placeholder: 'Lọc theo loại sự kiện',
+          label: 'Loại sự kiện',
           isSortable: true,
           unit: '',
           options: eventTypeOptions,
         },
         accessorKey: 'eventType',
-        header: 'Type',
+        header: 'Loại',
         enableSorting: true,
         enableColumnFilter: true,
         filterFn: 'arrIncludesSome',
@@ -203,22 +203,24 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       {
         meta: {
           variant: 'multiSelect',
-          placeholder: 'Filter by status',
-          label: 'Status',
+          placeholder: 'Lọc theo trạng thái',
+          label: 'Trạng thái',
           isSortable: true,
           unit: '',
           options: statusOptions,
         },
         accessorKey: 'status',
-        header: 'Status',
+        header: 'Trạng thái',
         enableSorting: true,
         enableColumnFilter: true,
         filterFn: 'arrIncludesSome',
-        cell: ({ row }) => <Badge variant={getStatusVariant(row.original.status)}>{row.original.status}</Badge>,
+        cell: ({ row }) => (
+          <Badge variant={getStatusVariant(row.original.status)}>{EventStatusName[row.original.status] ?? 'N/A'}</Badge>
+        ),
       },
       {
         accessorKey: 'startTime',
-        header: 'Start Time',
+        header: 'Thời gian bắt đầu',
         enableSorting: true,
         cell: ({ row }) => (
           <div className="text-sm">
@@ -234,13 +236,13 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       },
       {
         accessorKey: 'location',
-        header: 'Location',
+        header: 'Địa điểm',
         enableSorting: false,
         cell: ({ row }) => <div className="text-sm max-w-40 truncate">{row.original.location}</div>,
       },
       {
         accessorKey: 'capacity',
-        header: 'Capacity',
+        header: 'Quy mô',
         enableSorting: true,
         cell: ({ row }) => (
           <div className="text-sm">
@@ -250,13 +252,13 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       },
       {
         accessorKey: 'createdByUser.fullName',
-        header: 'Created By',
+        header: 'Người tạo',
         enableSorting: false,
         cell: ({ row }) => <div className="text-sm">{row.original.createdByUser?.fullName || 'Unknown'}</div>,
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: 'Hành động',
         enableSorting: false,
         cell: ({ row }) => (
           <DropdownMenu>
@@ -267,30 +269,43 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuLabel>Hành động</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
               <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
                 <Eye className="mr-2 h-4 w-4" />
-                View
+                Xem
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                Chỉnh sửa
               </DropdownMenuItem>
 
               {row.original.status === EventStatusEnum.Draft && (
                 <DropdownMenuItem onClick={() => handleAction().onSubmit(row.original)} className="text-blue-600">
                   <Send className="mr-2 h-4 w-4" />
-                  Submit for Review
+                  Gửi để duyệt
                 </DropdownMenuItem>
               )}
 
-              {(row.original.status === EventStatusEnum.Draft || row.original.status === EventStatusEnum.Pending) && (
+              {row.original.status === EventStatusEnum.Pending && (
+                <DropdownMenuItem
+                  onClick={() => evaluateEvent({ eventId: row.original.id, isApproved: true })}
+                  className="text-green-600"
+                >
+                  <BadgeCheckIcon className="mr-2 h-4 w-4" />
+                  Phê duyệt
+                </DropdownMenuItem>
+              )}
+
+              {(row.original.status === EventStatusEnum.Draft ||
+                row.original.status === EventStatusEnum.Pending ||
+                (row.original.status === EventStatusEnum.Published &&
+                  new Date(row.original.startTime) > new Date())) && (
                 <DropdownMenuItem onClick={() => handleAction().onCancel(row.original)} className="text-orange-600">
                   <X className="mr-2 h-4 w-4" />
-                  Cancel
+                  Hủy
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -298,7 +313,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
         ),
       },
     ],
-    [handleAction, statusOptions, eventTypeOptions]
+    [handleAction, evaluateEvent]
   );
 
   const { table } = useDataTable<Event, string>({
@@ -323,7 +338,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       <DataTableToolbar table={table}>
         <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Event
+          Thêm sự kiện
         </Button>
       </DataTableToolbar>
     </DataTable>

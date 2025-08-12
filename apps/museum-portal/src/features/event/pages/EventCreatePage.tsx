@@ -25,12 +25,12 @@ const EventCreatePage = () => {
       <div className="flex items-center justify-center flex-1">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>Access Denied</CardTitle>
-            <CardDescription>You need to be associated with a museum to create events.</CardDescription>
+            <CardTitle>Truy cập bị từ chối</CardTitle>
+            <CardDescription>Bạn cần được liên kết với một bảo tàng để tạo sự kiện.</CardDescription>
           </CardHeader>
           <CardContent>
             <Button onClick={() => navigate('/events')} variant="outline" className="w-full">
-              Back to Events
+              Quay lại Sự kiện
             </Button>
           </CardContent>
         </Card>
@@ -44,28 +44,19 @@ const EventCreatePage = () => {
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={handleCancel} className="shrink-0">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Events
+          Quay lại Sự kiện
         </Button>
 
         <div className="border-l border-gray-200 pl-4">
-          <h1 className="text-2xl font-bold tracking-tight">Create New Event</h1>
-          <p className="text-muted-foreground">Create a new event for your museum with tour online configurations.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Tạo Sự kiện Mới</h1>
+          <p className="text-muted-foreground">
+            Tạo một sự kiện mới cho bảo tàng của bạn với cấu hình tour trực tuyến.
+          </p>
         </div>
       </div>
 
       {/* Form Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Event Information</CardTitle>
-          <CardDescription>
-            Fill in the event details and configure associated tour onlines. You'll need to create the event first, then
-            configure the tour onlines.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <EventForm museumId={museumId} onSuccess={handleEventCreated} onCancel={handleCancel} />
-        </CardContent>
-      </Card>
+      <EventForm museumId={museumId} onSuccess={handleEventCreated} onCancel={handleCancel} />
     </div>
   );
 };
