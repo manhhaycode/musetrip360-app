@@ -5,7 +5,14 @@
  */
 
 import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
-import { AnalyticsOverview, Museum, MuseumCreateDto, MuseumSearchParams, MuseumSearchResponse } from '../../types';
+import {
+  AdminAnalyticsOverview,
+  AnalyticsOverview,
+  Museum,
+  MuseumCreateDto,
+  MuseumSearchParams,
+  MuseumSearchResponse,
+} from '../../types';
 
 /**
  * Museum API endpoints configuration
@@ -16,12 +23,14 @@ export const museumEndpoints = {
   getById: (id: string) => `museums/${id}`,
   getUserMuseums: 'museums/user',
 
-  adminList: '/museums/admin',
+  // Admin endpoints
+  adminList: 'museums/admin',
 
   // Museum-specific artifact endpoints
   listByMuseum: (museumId: string) => `/museums/${museumId}`,
   createForMuseum: (museumId: string) => `/museums/${museumId}`,
   analyticsOverview: (museumId: string) => `/analytics/overview/${museumId}`,
+  adminOverview: 'analytics/admin/overview',
 } as const;
 
 /**
@@ -39,6 +48,12 @@ export const searchMuseums = async (params: MuseumSearchParams): Promise<MuseumS
 export const getMuseums = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<MuseumSearchResponse>(museumEndpoints.search, { params });
+  return response;
+};
+
+export const getMuseumsAdmin = async (params: MuseumSearchParams): Promise<MuseumSearchResponse> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<MuseumSearchResponse>(museumEndpoints.adminList, { params });
   return response;
 };
 
@@ -81,6 +96,12 @@ export const updateMuseum = async (id: string, data: Partial<Museum>): Promise<M
 export const getAnalyticsOverview = async (museumId: string): Promise<any> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<AnalyticsOverview>>(museumEndpoints.analyticsOverview(museumId));
+  return response.data;
+};
+
+export const getAdminAnalyticsOverview = async (): Promise<AdminAnalyticsOverview> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<AdminAnalyticsOverview>>(museumEndpoints.adminOverview);
   return response.data;
 };
 

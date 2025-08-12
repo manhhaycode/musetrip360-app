@@ -33,7 +33,7 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
                   muted={participant.mediaState.audio}
                   key={participant.id}
                   stream={localStream!}
-                  className="w-32 h-24 rounded-lg border-2 border-primary shrink-0"
+                  className="w-40 h-30 rounded-lg border-2 border-primary shrink-0"
                   showControls={true}
                 />
               );
@@ -46,7 +46,7 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
                   key={participant.id + index}
                   stream={mediaStreamInfo.stream}
                   participant={participant}
-                  className="w-32 h-24 rounded-lg shrink-0"
+                  className="w-40 h-30 rounded-lg shrink-0"
                   showUserInfo={true}
                 />
               );

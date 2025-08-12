@@ -18,9 +18,10 @@ export interface Museum {
   contactEmail: string;
   contactPhone: string;
   rating: number;
+  latitude: number;
+  longitude: number;
   createdBy: string;
   status: MuseumStatus;
-  isActive: boolean;
   createdAt: string;
   updatedAt: string;
   metadata?: MuseumMetadata;
@@ -38,8 +39,9 @@ export interface MuseumMetadata {
     website?: string;
   };
   contentHomePage?: string;
-  additionalInfo?: Record<string, any>;
+  detail?: string;
   images?: string[];
+  additionalInfo?: Record<string, any>;
 }
 
 export enum MuseumStatus {
@@ -47,6 +49,7 @@ export enum MuseumStatus {
   Inactive = 'Inactive',
   Pending = 'Pending',
   Archived = 'Archived',
+  NotVerified = 'NotVerified',
 }
 
 export interface MuseumSearchParams extends Pagination {
@@ -87,8 +90,22 @@ export type MuseumRequest = {
   location: string;
   contactEmail: string;
   contactPhone: string;
+  submittedAt: string;
   categories?: Category[];
   status: MuseumRequestStatus;
+  createdBy: string;
+  createdByUser: {
+    id: string;
+    username: string;
+    fullName: string;
+    email: string;
+    phoneNumber?: string;
+    avatarUrl?: string;
+    birthDate?: string;
+    authType: string;
+    status: string;
+    lastLogin: string;
+  };
   metadata: MuseumRequestMetadata;
   createdAt: string;
   updatedAt: string;
@@ -98,9 +115,23 @@ export type MuseumRequestMetadata = {
   documents?: string[];
   additionalInfo?: Record<string, any>;
   images?: string[];
+  specialty?: string;
+  openingHours?: string;
 };
 
-export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+export type MuseumCategory = {
+  id: string;
+  name: string;
+  description: string;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MuseumRequestCreate = Omit<
+  MuseumRequest,
+  'id' | 'status' | 'createdAt' | 'updatedAt' | 'createdBy' | 'createdByUser' | 'categories' | 'submittedAt'
+> & {
   categoryIds?: string[];
 };
 export enum MuseumRequestStatus {
@@ -109,6 +140,14 @@ export enum MuseumRequestStatus {
   Approved = 'Approved',
   Rejected = 'Rejected',
 }
+
+export interface MuseumRequestSearchParams extends Pagination {
+  Search?: string;
+  Status?: string;
+  sortList?: string[];
+}
+
+export type MuseumRequestSearchResponse = PaginatedResponse<MuseumRequest>;
 
 export enum PolicyTypeEnum {
   TermsOfService = 'TermsOfService',
@@ -180,4 +219,16 @@ export type AnalyticsOverview = {
   totalFeedbacks: number;
   totalRevenue: number;
   totalArtifacts: number;
+};
+
+export type AdminAnalyticsOverview = {
+  totalMuseums: number;
+  totalPendingRequests: number;
+  totalUsers: number;
+  totalEvents: number;
+  totalTours: number;
+  museumsByCategory: {
+    category: string;
+    count: number;
+  }[];
 };

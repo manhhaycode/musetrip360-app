@@ -22,7 +22,7 @@ export interface SignalRConnectionConfig {
 export interface SignalREvents {
   ReceiveConnectionId: (connectionId: string) => void;
   PeerJoined: (userId: string, peerId: string) => void;
-  PeerDisconnected: (userId: string, peerId: string) => void;
+  PeerDisconnected: (userId: string, peerId: string, streamId: string) => void;
   ReceiveOffer: (connectionId: string, offerData: string) => void;
   ReceiveAnswer: (connectionId: string, answerData: string) => void;
   ReceiveIceCandidate: (connectionId: string, candidateData: string, isPub: boolean) => void;
