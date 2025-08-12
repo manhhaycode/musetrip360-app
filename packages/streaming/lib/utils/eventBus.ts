@@ -35,7 +35,7 @@ export interface StreamingEventPayload {
   'signalr:answer-received': { answer: RTCSessionDescriptionInit; connectionId: string };
   'signalr:ice-candidate-received': { candidate: RTCIceCandidateInit; isPub: boolean; connectionId: string };
   'signalr:peer-joined': { userId: string; peerId: string };
-  'signalr:peer-disconnected': { userId: string; peerId: string };
+  'signalr:peer-disconnected': { userId: string; peerId: string; streamId: string };
   'signalr:connection-state-change': { state: 'connected' | 'disconnected' | 'connecting' | 'failed' };
   'signalr:error': { error: Error; context: string };
 }

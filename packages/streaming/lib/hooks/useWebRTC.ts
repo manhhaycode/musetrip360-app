@@ -4,18 +4,17 @@
  * React hook for WebRTC peer connection management
  */
 
-import { useCallback, useEffect, useRef } from 'react';
 import { PeerConnectionManager } from '@/api/peer';
 import { useStreamingStore } from '@/state/store/streamingStore';
-import { useStreamingEvents } from '@/utils/eventBus';
 import { ConnectionState, MediaStreamInfo, StreamingErrorCode, UseWebRTCReturn } from '@/types';
+import { useStreamingEvents } from '@/utils/eventBus';
+import { useCallback, useEffect, useRef } from 'react';
 
 export const useWebRTC = (): UseWebRTCReturn => {
   const peerManagerRef = useRef<PeerConnectionManager | null>(null);
 
   // Store selectors
-  const { webRTCState, config, localStream, setWebRTCState, addError, addRemoteStream, removeRemoteStream } =
-    useStreamingStore();
+  const { config, localStream, setWebRTCState, addError, addRemoteStream, removeRemoteStream } = useStreamingStore();
 
   // Event bus integration
   const { on, emit } = useStreamingEvents();
@@ -245,7 +244,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
 
       throw error;
     }
-  }, [localStream, createPublisherConnection, addError, emit]);
+  }, [localStream, addError, emit]);
 
   /**
    * Cleanup peer connections

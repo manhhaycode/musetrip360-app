@@ -48,9 +48,9 @@ export const useSignalR = (): UseSignalRReturn => {
     });
 
     // Peer disconnected - emit event instead of direct handling
-    client.on('PeerDisconnected', async (userId, peerId) => {
+    client.on('PeerDisconnected', async (userId, peerId, streamId) => {
       console.log(`👋 Peer disconnected: ${peerId}`);
-      emit('signalr:peer-disconnected', { userId, peerId });
+      emit('signalr:peer-disconnected', { userId, peerId, streamId });
     });
 
     // WebRTC signaling events - emit to WebRTC hook
