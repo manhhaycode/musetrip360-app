@@ -40,7 +40,7 @@ export const approveMuseumRequest = async (id: string) => {
 
 export const rejectMuseumRequest = async (id: string) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.put<APIResponse<MuseumRequest>>(museumRequestEndpoints.rejectRequest(id));
+  const response = await httpClient.put<APIResponse<MuseumRequest>>(museumRequestEndpoints.rejectRequest(id), { id });
   return response.data;
 };
 

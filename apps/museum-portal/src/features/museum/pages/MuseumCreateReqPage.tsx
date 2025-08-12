@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Loader2, RotateCcw, Send } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
-import { Loader2, Send, RotateCcw } from 'lucide-react';
 
+import Divider from '@/components/Divider';
+import PublicHeader from '@/layouts/components/Header/PublicHeader';
 import { useCreateMuseumRequest } from '@musetrip360/museum-management';
+import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
-import Divider from '@/components/Divider';
-import PublicHeader from '@/layouts/components/Header/PublicHeader';
-import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
 
 // Validation schema for museum request creation
 const museumRequestSchema = z.object({
@@ -145,6 +145,18 @@ const MuseumCreateReqPage = () => {
         location: data.location,
         contactEmail: data.contactEmail,
         contactPhone: data.contactPhone,
+        submittedAt: new Date().toISOString(),
+        createdBy: '', // This will be set on the backend based on authenticated user
+        categories: [], // Empty categories initially
+        createdByUser: {
+          id: '',
+          username: '',
+          fullName: '',
+          email: '',
+          authType: '',
+          status: '',
+          lastLogin: '',
+        }, // This will be populated on the backend
         metadata: {
           documents: uploadedDocUrls,
           images: uploadedImageUrls,
