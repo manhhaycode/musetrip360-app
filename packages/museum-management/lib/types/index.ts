@@ -128,7 +128,10 @@ export type MuseumCategory = {
   updatedAt: string;
 };
 
-export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+export type MuseumRequestCreate = Omit<
+  MuseumRequest,
+  'id' | 'status' | 'createdAt' | 'updatedAt' | 'createdBy' | 'createdByUser' | 'categories' | 'submittedAt'
+> & {
   categoryIds?: string[];
 };
 export enum MuseumRequestStatus {
