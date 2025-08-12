@@ -1,17 +1,22 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Input } from '@musetrip360/ui-core/input';
 import { MessageCircle, Send, X, Bot, User } from 'lucide-react';
 import { cn } from '@musetrip360/ui-core';
+import { useChatWithAI, AIChatRelatedData } from '@musetrip360/ai-bot';
+import { MarkdownRenderer } from './MarkdownRenderer';
+import { RelatedDataPopover } from './RelatedDataPopover';
+import { useLocalStorage } from 'usehooks-ts';
 
 interface Message {
   id: string;
   content: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  relatedData?: AIChatRelatedData[];
 }
 
 const defaultPrompts = [
@@ -35,10 +40,66 @@ const botResponses = {
 
 export function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useLocalStorage<Message[]>('user-chatbot', []);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
+  const { mutate: chatWithAI } = useChatWithAI({
+    onSuccess: (response) => {
+      if (response && response.data) {
+        console.log('AI response:', response);
+        addBotMessage(response.data, response.relatedData);
+        setIsTyping(false);
+      }
+    },
+    onError: (error) => {
+      console.error('Error chatting with AI:', error);
+      addBotMessage(botResponses.default);
+      setIsTyping(false);
+    },
+  });
+
+  // Improved scroll to bottom function with multiple fallbacks
+  // eslint-disable-next-line no-undef
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
+    // Method 1: Using messagesEndRef
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior, block: 'nearest' });
+      return;
+    }
+
+    // Method 2: Using messagesContainerRef
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior,
+      });
+      return;
+    }
+
+    // Method 3: Find the messages container by class/selector
+    const messagesContainer = document.querySelector('[data-messages-container]');
+    if (messagesContainer) {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior,
+      });
+    }
+  }, []);
+
+  // Force scroll with multiple timing strategies
+  const forceScrollToBottom = useCallback(() => {
+    // Immediate scroll
+    scrollToBottom('auto');
+
+    // Delayed scrolls to handle DOM updates
+    setTimeout(() => scrollToBottom('smooth'), 10);
+    setTimeout(() => scrollToBottom('smooth'), 50);
+    setTimeout(() => scrollToBottom('smooth'), 100);
+  }, [scrollToBottom]);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -49,49 +110,61 @@ export function ChatBot() {
     }
   }, [isOpen, messages.length]);
 
+  // Enhanced useEffect for auto-scrolling
   useEffect(() => {
-    // Scroll to bottom when new messages are added
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
+    if (isOpen && (messages.length > 0 || isTyping)) {
+      forceScrollToBottom();
+    }
+  }, [messages, isTyping, isOpen, forceScrollToBottom]);
 
-  const addMessage = (content: string, sender: 'user' | 'bot') => {
+  // Additional effect to handle when chat opens
+  useEffect(() => {
+    if (isOpen) {
+      // Scroll to bottom when chat opens
+      setTimeout(() => forceScrollToBottom(), 100);
+    }
+  }, [isOpen, forceScrollToBottom]);
+
+  const addMessage = (content: string, sender: 'user' | 'bot', relatedData?: AIChatRelatedData[]) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       content,
       sender,
       timestamp: new Date(),
+      relatedData,
     };
-    setMessages((prev) => [...prev, newMessage]);
+    setMessages((prev) => {
+      const newMessages = [...prev, newMessage];
+      // Force scroll after state update
+      setTimeout(() => forceScrollToBottom(), 0);
+      return newMessages;
+    });
   };
 
-  const addBotMessage = (content: string) => {
+  const addBotMessage = (content: string, relatedData?: AIChatRelatedData[]) => {
     setIsTyping(true);
     setTimeout(
       () => {
-        addMessage(content, 'bot');
+        addMessage(content, 'bot', relatedData);
         setIsTyping(false);
+        // Extra scroll after typing stops
+        setTimeout(() => forceScrollToBottom(), 50);
       },
       1000 + Math.random() * 1000
-    ); // Random delay between 1-2 seconds
+    );
   };
 
   const getBotResponse = (userMessage: string) => {
     const message = userMessage.toLowerCase();
 
-    if (message.includes('bảo tàng') || message.includes('museum')) {
-      return botResponses.museums;
-    }
     if (message.includes('đặt') || message.includes('tour') || message.includes('booking')) {
       return botResponses.booking;
-    }
-    if (message.includes('vr') || message.includes('thực tế ảo')) {
-      return botResponses.vr;
     }
     if (message.includes('xin chào') || message.includes('hello') || message.includes('hi')) {
       return botResponses.greeting;
     }
 
-    return botResponses.default;
+    return null;
   };
 
   const handleSendMessage = () => {
@@ -102,14 +175,23 @@ export function ChatBot() {
 
     // Get bot response
     const response = getBotResponse(inputValue);
-    addBotMessage(response);
+    if (response) {
+      addBotMessage(response);
+    } else {
+      // Call AI chat API
+      setIsTyping(true);
+      chatWithAI({ prompt: inputValue, isVector: true });
+    }
 
     setInputValue('');
   };
 
   const handlePromptClick = (prompt: string) => {
     setInputValue(prompt);
-    handleSendMessage();
+    // Use setTimeout to ensure the input is set before sending
+    setTimeout(() => {
+      handleSendMessage();
+    }, 0);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -123,7 +205,7 @@ export function ChatBot() {
     <>
       {/* Chat Window */}
       {isOpen && (
-        <Card className="fixed bottom-24 right-4 w-96 h-[600px] shadow-2xl border-2 z-50 flex flex-col">
+        <Card className="fixed bottom-24 right-4 w-3xl h-[600px] shadow-2xl border-2 z-50 flex flex-col">
           <CardHeader className="pb-3 border-b">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -144,9 +226,14 @@ export function ChatBot() {
             </div>
           </CardHeader>
 
-          <CardContent className="flex-1 p-0 flex flex-col overflow-y-auto">
+          <CardContent className="flex-1 p-0 flex flex-col overflow-hidden">
             {/* Messages Area */}
-            <div className="flex-1 overflow-y-auto flex flex-col">
+            <div
+              ref={messagesContainerRef}
+              data-messages-container
+              className="flex-1 overflow-y-auto flex flex-col"
+              style={{ scrollBehavior: 'smooth' }}
+            >
               {messages.length === 0 ? (
                 <div className="flex-1 flex flex-col justify-end p-4 space-y-3">
                   <div className="text-center text-sm text-muted-foreground">
@@ -179,13 +266,22 @@ export function ChatBot() {
                             <Bot className="h-3 w-3 text-white" />
                           </div>
                         )}
-                        <div
-                          className={cn(
-                            'max-w-[80%] p-3 rounded-lg text-sm',
-                            message.sender === 'user' ? 'bg-primary text-primary-foreground ml-auto' : 'bg-muted'
+                        <div className="flex flex-col gap-2">
+                          <div
+                            className={cn(
+                              'max-w-[80%] rounded-lg',
+                              message.sender === 'user' ? 'bg-primary text-primary-foreground ml-auto p-3' : 'bg-muted'
+                            )}
+                          >
+                            {message.sender === 'bot' ? (
+                              <MarkdownRenderer content={message.content} className="p-3" />
+                            ) : (
+                              <div className="text-sm">{message.content}</div>
+                            )}
+                          </div>
+                          {message.sender === 'bot' && message.relatedData && (
+                            <RelatedDataPopover relatedData={message.relatedData} />
                           )}
-                        >
-                          {message.content}
                         </div>
                         {message.sender === 'user' && (
                           <div className="w-6 h-6 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
@@ -215,14 +311,15 @@ export function ChatBot() {
                         </div>
                       </div>
                     )}
-                    <div ref={messagesEndRef} />
+                    {/* Scroll anchor */}
+                    <div ref={messagesEndRef} style={{ height: '1px' }} />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Input Area */}
-            <div className="p-4 border-t">
+            <div className="p-4 border-t bg-background">
               <div className="flex space-x-2">
                 <Input
                   placeholder="Nhập tin nhắn..."

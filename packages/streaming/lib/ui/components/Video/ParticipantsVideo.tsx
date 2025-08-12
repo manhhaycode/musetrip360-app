@@ -38,11 +38,13 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
                 />
               );
             } else {
-              const mediaStreamInfo = remoteStreams?.get(participant.peerId);
+              const mediaStreamInfo = remoteStreams?.get(participant.streamId);
+              console.log(mediaStreamInfo);
+              if (!mediaStreamInfo?.stream) return null;
               return (
                 <RemoteVideo
                   key={participant.id + index}
-                  stream={mediaStreamInfo!.stream!}
+                  stream={mediaStreamInfo.stream}
                   participant={participant}
                   className="w-32 h-24 rounded-lg shrink-0"
                   showUserInfo={true}
