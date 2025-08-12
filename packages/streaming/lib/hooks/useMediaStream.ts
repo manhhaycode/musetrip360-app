@@ -25,6 +25,7 @@ export const useMediaStream = (): UseMediaStreamReturn => {
     removeRemoteStream,
     addError,
     setInitializingMedia,
+    isInitializingMedia,
     toggleVideo: storeToggleVideo,
     toggleAudio: storeToggleAudio,
   } = useStreamingStore();
@@ -390,6 +391,7 @@ export const useMediaStream = (): UseMediaStreamReturn => {
     mediaState,
     isInitialized: isMediaInitialized,
     initializeMedia,
+    isInitializingMedia,
     toggleVideo,
     toggleAudio,
     stopStream,

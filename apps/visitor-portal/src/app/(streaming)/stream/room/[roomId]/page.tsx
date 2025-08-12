@@ -12,12 +12,15 @@ interface StreamRoomPageProps {
 
 export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   const { roomId } = use(params);
-  const { joinRoom } = useStreamingContext();
+  const { isInRoom, currentRoomId } = useStreamingContext();
   const { data: virtualTour, isLoading } = useVirtualTourById('6821e06e-7195-4986-becc-ed571619d160');
 
+  // Redirect to setup if not in room or wrong room
   useEffect(() => {
-    joinRoom(roomId);
-  }, [roomId]);
+    if (!isInRoom || currentRoomId !== roomId) {
+      window.location.href = `/stream/setup/${roomId}`;
+    }
+  }, [isInRoom, currentRoomId, roomId]);
 
   return (
     <StreamingRoom>
