@@ -20,6 +20,7 @@ import {
   cancelEvent,
   addEventTourOnlines,
   removeEventTourOnlines,
+  getEventById,
 } from '../endpoints';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';
@@ -32,6 +33,18 @@ export function useGetEventsByMuseumId(
   return useQuery(
     [eventManagementCacheKeys.eventsByMuseum(museumId, params)],
     () => getEventsByMuseumId(museumId, params),
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
+      ...options,
+    }
+  );
+}
+
+export function useGetEventById(id: string, options?: CustomQueryOptions<Event>) {
+  return useQuery(
+    [eventManagementCacheKeys.event(id)],
+    () => getEventById(id), // Assuming the id is a museumId for this example
     {
       staleTime: 5 * 60 * 1000, // 5 minutes
       gcTime: 10 * 60 * 1000, // 10 minutes

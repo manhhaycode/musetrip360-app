@@ -19,12 +19,24 @@ export type Event = {
   availableSlots: number;
   bookingDeadline: string; // ISO date string
   museumId: string;
-  createdBy: string;
+  createdBy?: string;
   status: EventStatusEnum;
   metadata?: EventMetadata;
   createdByUser?: IUser;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
+  tourOnlines?: {
+    id: string;
+    name: string;
+    description: string;
+  }[];
+  artifacts?: {
+    id: string;
+    name: string;
+    description: string;
+    historicalPeriod: string;
+    imageUrl: string;
+  }[];
 };
 
 export type EventMetadata = {

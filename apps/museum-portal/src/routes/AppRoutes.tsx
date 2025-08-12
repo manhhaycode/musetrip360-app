@@ -22,6 +22,9 @@ import VirtualTourManagement from '@/features/virtual-tour/pages/VirtualTourMana
 import VirtualTourInfo from '@/features/virtual-tour/pages/VirtualTourStudio';
 import MuseumArticlePage from '@/features/museum/pages/MuseumArticlePage';
 import { ArticleCreatePage, ArticleEditPage } from '@/features/article/pages';
+import EventListPage from '@/features/event/pages/EventListPage';
+import EventCreatePage from '@/features/event/pages/EventCreatePage';
+import EventEditPage from '@/features/event/pages/EventEditPage';
 
 export default function AppRoutes() {
   return (
@@ -69,8 +72,9 @@ export default function AppRoutes() {
           <Route path="/tour-guides" element={<TourGuidePage />} />
 
           {/* Event Management */}
-          <Route path="/event" element={<div>Danh sách sự kiện</div>} />
-          <Route path="/event/create" element={<div>Tạo sự kiện mới</div>} />
+          <Route path="/event" element={<EventListPage />} />
+          <Route path="/event/create" element={<EventCreatePage />} />
+          <Route path="/event/edit/:id" element={<EventEditPage />} />
           <Route path="/event/evaluate" element={<div>Đánh giá sự kiện</div>} />
 
           {/* Schedule Management */}

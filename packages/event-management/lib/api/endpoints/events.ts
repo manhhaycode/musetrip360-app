@@ -11,22 +11,21 @@ import { Event, EventSearchParams, EventCreateDto, EventUpdateDto } from '@/type
  * Event API endpoints configuration
  */
 export const eventEndpoints = {
-  search: '/api/v1/events',
-  getById: (id: string) => `/api/v1/events/${id}`,
-  getByMuseumId: (museumId: string) => `/api/v1/museums/${museumId}/events`,
-  createEventRequest: (museumId: string) => `/api/v1/museums/${museumId}/events/request`,
-  addEventTourOnlines: (eventId: string) => `/api/v1/events/${eventId}/add-tour-onlines`,
-  removeEventTourOnlines: (eventId: string) => `/api/v1/events/${eventId}/remove-tour-onlines`,
-  submitEvent: (eventId: string) => `/api/v1/events/${eventId}/submit`,
-  cancelEvent: (eventId: string) => `/api/v1/events/${eventId}/cancel`,
-  evaluateEvent: (eventId: string, isApproved: boolean) =>
-    `/api/v1/events/${eventId}/evaluate?isApproved=${isApproved}`,
+  search: '/events',
+  getById: (id: string) => `/events/${id}`,
+  getByMuseumId: (museumId: string) => `/museums/${museumId}/events`,
+  createEventRequest: (museumId: string) => `/museums/${museumId}/events/request`,
+  addEventTourOnlines: (eventId: string) => `/events/${eventId}/add-tour-onlines`,
+  removeEventTourOnlines: (eventId: string) => `/events/${eventId}/remove-tour-onlines`,
+  submitEvent: (eventId: string) => `/events/${eventId}/submit`,
+  cancelEvent: (eventId: string) => `/events/${eventId}/cancel`,
+  evaluateEvent: (eventId: string, isApproved: boolean) => `/events/${eventId}/evaluate?isApproved=${isApproved}`,
 } as const;
 
 /**
  * Get event by ID
  */
-export const getMuseumById = async (id: string) => {
+export const getEventById = async (id: string) => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<Event>>(eventEndpoints.getById(id));
   return response.data;

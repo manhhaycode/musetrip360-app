@@ -3,30 +3,30 @@
   "version": "0.1.0",
   "description": "A comprehensive event management system package for the MuseTrip360 system with domain logic, API integration, state management, and UI components",
   "type": "module",
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/es/index.js",
+  "module": "./dist/es/index.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/es/index.js",
+      "require": "./dist/cjs/index.cjs"
     },
     "./api": {
-      "types": "./dist/api/index.d.ts",
-      "import": "./dist/api/index.js"
+      "types": "./dist/types/api.d.ts",
+      "import": "./dist/es/api/index.js"
     },
     "./state": {
-      "types": "./dist/state/index.d.ts",
-      "import": "./dist/state/index.js"
+      "types": "./dist/types/state.d.ts",
+      "import": "./dist/es/state/index.js"
     },
     "./ui": {
-      "types": "./dist/ui/index.d.ts",
-      "import": "./dist/ui/index.js"
+      "types": "./dist/types/ui.d.ts",
+      "import": "./dist/es/ui/index.js"
     },
     "./domain": {
-      "types": "./dist/domain/index.d.ts",
-      "import": "./dist/domain/index.js"
+      "types": "./dist/types/domain.d.ts",
+      "import": "./dist/es/domain/index.js"
     },
     "./package.json": "./package.json"
   },
@@ -39,8 +39,8 @@
     "build:watch": "vite build --watch",
     "dev": "vite build --watch --emptyOutDir=false",
     "type-check": "tsc --noEmit",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "lint": "eslint lib --ext .ts,.tsx",
+    "lint:fix": "eslint lib --ext .ts,.tsx --fix",
     "clean": "rm -rf dist",
     "test": "vitest",
     "test:ui": "vitest --ui",
@@ -52,7 +52,6 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
-    "@musetrip360/auth-system": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
