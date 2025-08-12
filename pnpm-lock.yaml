@@ -259,6 +259,9 @@ importers:
       '@musetrip360/auth-system':
         specifier: workspace:*
         version: link:../../packages/auth-system
+      '@musetrip360/event-management':
+        specifier: workspace:*
+        version: link:../../packages/event-management
       '@musetrip360/infras':
         specifier: workspace:*
         version: link:../../packages/infras

@@ -1,37 +1,36 @@
 /**
- * @fileoverview Museum Management Cache Keys
+ * @fileoverview Event Management Cache Keys
  *
- * Cache key definitions for museum management-related React Query operations.
+ * Cache key definitions for event management-related React Query operations.
  * Follows the same pattern as user-management for consistency.
  */
 
+import { EventSearchParams } from '@/types';
 import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
-import { MuseumSearchParams } from '@/types';
 
 /**
- * Museum Management cache keys
+ * Event Management cache keys
  */
-export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
+export class EventManagementCacheKeys extends BaseCacheKeyFactory {
   constructor() {
-    super('museumManagement');
+    super('eventManagement');
   }
 
   // Museum management keys
-  museums(): QueryKey {
-    return [this.prefix, 'museums'];
+  events(): QueryKey {
+    return [this.prefix, 'events'];
   }
 
-  museum(id: string): QueryKey {
-    return [this.prefix, 'museum', id];
+  event(id: string): QueryKey {
+    return [this.prefix, 'event', id];
   }
 
-  // Museum search keys
-  museumSearch(params: MuseumSearchParams): QueryKey {
-    return [this.prefix, 'museumSearch', params];
+  eventsByMuseum(museumId: string, params: EventSearchParams): QueryKey {
+    return [this.prefix, 'events', 'byMuseum', museumId, params.Page, params.PageSize, params.startDate, params.status];
   }
 }
 
 /**
  * Default cache keys instance
  */
-export const museumManagementCacheKeys = new MuseumManagementCacheKeys();
+export const eventManagementCacheKeys = new EventManagementCacheKeys();
