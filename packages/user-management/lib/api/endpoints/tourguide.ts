@@ -19,7 +19,7 @@ export const tourGuideEndpoints = {
         Page: params.Page,
         PageSize: params.PageSize,
         IsActive: params.IsActive,
-        SearchKeyword: params.SearchKeyword,
+        Search: params.Search,
         sortList: params.sortList,
       },
     });

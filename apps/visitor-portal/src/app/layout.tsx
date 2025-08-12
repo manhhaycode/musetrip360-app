@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 // import { Header } from '@/components/layout/Header';
 import './globals.css';
 // import Footer from '@/components/layout/Footter';
-import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import React from 'react';
+import AppProvider from '@/providers/AppProvider';
 
 export const metadata: Metadata = {
   title: 'MuseTrip360 - Nền tảng bảo tàng số',
@@ -37,11 +37,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className="min-h-screen bg-background">
-        <ScrollArea className="h-screen">
-          {/* <Header /> */}
-          <main>{children}</main>
-          {/* <Footer /> */}
-        </ScrollArea>
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );

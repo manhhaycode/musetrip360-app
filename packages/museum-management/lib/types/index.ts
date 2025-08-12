@@ -7,6 +7,7 @@
 
 import type { PaginatedResponse, Pagination } from '@musetrip360/query-foundation';
 import { IUser } from 'node_modules/@musetrip360/auth-system/dist/types/types';
+import { Category } from '@musetrip360/shared';
 
 // Museum management types
 export interface Museum {
@@ -24,7 +25,8 @@ export interface Museum {
   createdAt: string;
   updatedAt: string;
   metadata?: MuseumMetadata;
-  categories: MuseumCategory[];
+  categories?: Category[];
+  categoryIds?: string[];
 }
 
 export interface MuseumMetadata {
@@ -65,6 +67,7 @@ export interface MuseumCreateDto {
   latitude: number;
   longitude: number;
   metadata: string;
+  categoryIds?: string[];
 }
 
 export type MuseumSearchResponse = PaginatedResponse<Museum>;
@@ -88,6 +91,7 @@ export type MuseumRequest = {
   contactEmail: string;
   contactPhone: string;
   submittedAt: string;
+  categories?: Category[];
   status: MuseumRequestStatus;
   createdBy: string;
   createdByUser: {
@@ -105,7 +109,6 @@ export type MuseumRequest = {
   metadata: MuseumRequestMetadata;
   createdAt: string;
   updatedAt: string;
-  categories: MuseumCategory[];
 };
 
 export type MuseumRequestMetadata = {
@@ -125,7 +128,9 @@ export type MuseumCategory = {
   updatedAt: string;
 };
 
-export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'>;
+export type MuseumRequestCreate = Omit<MuseumRequest, 'id' | 'status' | 'createdAt' | 'updatedAt'> & {
+  categoryIds?: string[];
+};
 export enum MuseumRequestStatus {
   Draft = 'Draft',
   Pending = 'Pending',
@@ -162,3 +167,53 @@ export type MuseumPolicy = {
 
 export type MuseumPolicyCreate = Omit<MuseumPolicy, 'id' | 'createdByUser' | 'createdBy' | 'isActive'>;
 export type MuseumPolicyUpdate = Omit<MuseumPolicy, 'createdByUser' | 'createdBy'>;
+
+export enum ArticleStatusEnum {
+  Draft = 'Draft',
+  Pending = 'Pending',
+  Published = 'Published',
+  Archived = 'Archived',
+}
+
+export enum DataEntityType {
+  Museum = 'Museum',
+  Event = 'Event',
+  Artifact = 'Artifact',
+  TourOnline = 'TourOnline',
+}
+
+export interface ArticleMetadata {
+  thumbnail?: string;
+  additionalInfo?: Record<string, any>;
+}
+
+export type Article = {
+  id: string;
+  title: string;
+  content: string;
+  status: ArticleStatusEnum;
+  publishedAt: string;
+  museumId: string;
+  createdBy: string;
+  dataEntityType: DataEntityType;
+  entityId: string;
+  metadata?: ArticleMetadata;
+  museum?: Museum;
+  createdByUser?: IUser;
+};
+
+export type ArticleCreate = Omit<Article, 'id' | 'createdBy' | 'museum' | 'createdByUser'>;
+export type ArticleUpdate = Partial<Omit<Article, 'createdBy' | 'museum' | 'createdByUser'>> & {
+  id: string;
+};
+
+export type AnalyticsOverview = {
+  totalVisitors: number;
+  totalArticles: number;
+  totalEvents: number;
+  totalTourOnlines: number;
+  averageRating: number;
+  totalFeedbacks: number;
+  totalRevenue: number;
+  totalArtifacts: number;
+};

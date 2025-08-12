@@ -169,5 +169,3 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
     </div>
   );
 };
-
-export default VirtualTourViewer;

@@ -1,7 +1,6 @@
 /**
- * @fileoverview Museum Management Hooks Exports
+ * @fileoverview Event Management Hooks Exports
  *
- * Central export point for all museum management-related React Query hooks.
+ * Central export point for all event management-related React Query hooks.
  */
-
-// Museum management hooks
+export * from './useEvent';

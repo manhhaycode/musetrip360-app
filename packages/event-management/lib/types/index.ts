@@ -4,33 +4,96 @@
  * Type definitions for museum management operations including museums,
  * exhibitions, and devices.
  */
+import { Pagination } from '@musetrip360/query-foundation';
+import { IUser } from '@musetrip360/user-management/types';
 
-import type { PaginatedResponse, Pagination } from '@musetrip360/query-foundation';
-
-// Museum management types
-export interface Museum {
+export type Event = {
   id: string;
-  name: string;
+  title: string;
   description: string;
+  eventType: EventTypeEnum;
+  startTime: string; // ISO date string
+  endTime: string; // ISO date string
   location: string;
-  contactEmail: string;
-  contactPhone: string;
-  rating: number;
-  createdBy: string;
-  status: MuseumStatus;
-  createdAt: string;
-  updatedAt: string;
+  capacity: number;
+  availableSlots: number;
+  bookingDeadline: string; // ISO date string
+  museumId: string;
+  createdBy?: string;
+  status: EventStatusEnum;
+  metadata?: EventMetadata;
+  createdByUser?: IUser;
+  createdAt: string; // ISO date string
+  updatedAt: string; // ISO date string
+  tourOnlines?: {
+    id: string;
+    name: string;
+    description: string;
+  }[];
+  artifacts?: {
+    id: string;
+    name: string;
+    description: string;
+    historicalPeriod: string;
+    imageUrl: string;
+  }[];
+};
+
+export type EventMetadata = {
+  images?: string[];
+};
+
+export enum EventTypeEnum {
+  Exhibition = 'Exhibition',
+  Workshop = 'Workshop',
+  Lecture = 'Lecture',
+  SpecialEvent = 'SpecialEvent',
+  HolidayEvent = 'HolidayEvent',
+  Other = 'Other',
 }
 
-export enum MuseumStatus {
-  Active = 'Active',
-  Inactive = 'Inactive',
+export enum EventStatusEnum {
+  Draft = 'Draft',
   Pending = 'Pending',
-  Archived = 'Archived',
+  Published = 'Published',
+  Cancelled = 'Cancelled',
+  Expired = 'Expired',
 }
 
-export interface MuseumSearchParams extends Pagination {
-  sortBy: 'name' | 'rating' | 'createdAt';
-}
+export type EventSearchParams = {
+  museumId?: string;
+  eventType?: EventTypeEnum;
+  status?: EventStatusEnum;
+  startDate?: string; // ISO date string
+  endDate?: string; // ISO date string
+  startBookingDeadline?: string; // ISO date string
+  endBookingDeadline?: string; // ISO date string
+} & Pagination;
 
-export type MuseumSearchResponse = PaginatedResponse<Museum>;
+export type EventCreateDto = {
+  museumId: string;
+  title: string;
+  description: string;
+  eventType: EventTypeEnum;
+  startTime: string;
+  endTime: string;
+  location: string;
+  capacity: number;
+  availableSlots: number;
+  bookingDeadline: string;
+  metadata?: EventMetadata;
+};
+
+export type EventUpdateDto = {
+  title?: string;
+  description?: string;
+  eventType?: EventTypeEnum;
+  startTime?: string;
+  endTime?: string;
+  location?: string;
+  capacity?: number;
+  availableSlots?: number;
+  bookingDeadline?: string;
+  metadata?: EventMetadata;
+  status?: EventStatusEnum;
+};

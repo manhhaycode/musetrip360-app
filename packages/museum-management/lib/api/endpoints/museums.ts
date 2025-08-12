@@ -5,7 +5,7 @@
  */
 
 import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
-import { Museum, MuseumCreateDto, MuseumSearchParams, MuseumSearchResponse } from '../../types';
+import { AnalyticsOverview, Museum, MuseumCreateDto, MuseumSearchParams, MuseumSearchResponse } from '../../types';
 
 /**
  * Museum API endpoints configuration
@@ -22,6 +22,7 @@ export const museumEndpoints = {
   // Museum-specific artifact endpoints
   listByMuseum: (museumId: string) => `/museums/${museumId}`,
   createForMuseum: (museumId: string) => `/museums/${museumId}`,
+  analyticsOverview: (museumId: string) => `/analytics/overview/${museumId}`,
 } as const;
 
 /**
@@ -81,6 +82,12 @@ export const getUserMuseums = async (): Promise<Museum[]> => {
 export const updateMuseum = async (id: string, data: Partial<Museum>): Promise<Museum> => {
   const httpClient = getHttpClient();
   const response = await httpClient.put<APIResponse<Museum>>(museumEndpoints.getById(id), data);
+  return response.data;
+};
+
+export const getAnalyticsOverview = async (museumId: string): Promise<any> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<AnalyticsOverview>>(museumEndpoints.analyticsOverview(museumId));
   return response.data;
 };
 
