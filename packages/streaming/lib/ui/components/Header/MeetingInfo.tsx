@@ -148,5 +148,3 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({
     </div>
   );
 };
-
-export default MeetingInfo;

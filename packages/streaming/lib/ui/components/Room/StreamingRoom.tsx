@@ -199,5 +199,3 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
     </div>
   );
 };
-
-export default StreamingRoom;

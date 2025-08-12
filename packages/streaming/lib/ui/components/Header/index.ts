@@ -1,3 +1,3 @@
-export { default as HostInfo, HostInfo } from './HostInfo';
-export { default as MeetingInfo, MeetingInfo } from './MeetingInfo';
-export { default as StreamingHeader, StreamingHeader } from './StreamingHeader';
+export { HostInfo } from './HostInfo';
+export { MeetingInfo } from './MeetingInfo';
+export { StreamingHeader } from './StreamingHeader';

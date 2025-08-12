@@ -519,5 +519,3 @@ export const participantActions = {
     });
   },
 };
-
-export default useParticipantStore;

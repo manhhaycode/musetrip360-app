@@ -1,1 +1,1 @@
-export { default as StreamingSidebar, StreamingSidebar } from './StreamingSidebar';
+export { StreamingSidebar } from './StreamingSidebar';

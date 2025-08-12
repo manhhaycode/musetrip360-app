@@ -93,5 +93,3 @@ export const MediaControls: React.FC<MediaControlsProps> = ({
     </TooltipProvider>
   );
 };
-
-export default MediaControls;

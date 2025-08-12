@@ -118,5 +118,3 @@ export const RoomControls: React.FC<RoomControlsProps> = ({
     </div>
   );
 };
-
-export default RoomControls;
