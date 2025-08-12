@@ -156,6 +156,7 @@ export interface UseMediaStreamReturn {
   remoteStreams: Map<string, MediaStreamInfo>;
   mediaState: MediaState;
   isInitialized: boolean;
+  isInitializingMedia: boolean;
   initializeMedia: (constraints?: StreamConstraints) => Promise<MediaStream>;
   toggleVideo: () => void;
   toggleAudio: () => void;
