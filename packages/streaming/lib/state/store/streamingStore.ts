@@ -317,5 +317,3 @@ export const streamingActions = {
     }
   },
 };
-
-export default useStreamingStore;

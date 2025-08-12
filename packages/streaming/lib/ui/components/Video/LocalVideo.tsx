@@ -98,5 +98,3 @@ export const LocalVideo: React.FC<LocalVideoProps> = ({
     </div>
   );
 };
-
-export default LocalVideo;

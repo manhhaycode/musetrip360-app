@@ -7,8 +7,8 @@
 import type { MediaStreamInfo, Participant } from '@/types';
 import { ScrollArea, ScrollBar } from '@musetrip360/ui-core/scroll-area';
 import React from 'react';
-import LocalVideo from './LocalVideo';
-import RemoteVideo from './RemoteVideo';
+import { LocalVideo } from './LocalVideo';
+import { RemoteVideo } from './RemoteVideo';
 
 interface ParticipantThumbnailProps {
   participants: Participant[];
@@ -62,5 +62,3 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
     </div>
   );
 };
-
-export default ParticipantsVideo;

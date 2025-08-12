@@ -15,5 +15,3 @@ export const useStreamingState = () => {
     ...selectors,
   };
 };
-
-export default useStreamingState;

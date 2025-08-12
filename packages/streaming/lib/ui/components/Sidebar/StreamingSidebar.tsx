@@ -146,5 +146,3 @@ export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants
     </div>
   );
 };
-
-export default StreamingSidebar;

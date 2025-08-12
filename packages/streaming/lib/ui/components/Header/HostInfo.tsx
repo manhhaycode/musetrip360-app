@@ -104,5 +104,3 @@ export const HostInfo: React.FC<HostInfoProps> = ({
     </Card>
   );
 };
-
-export default HostInfo;

@@ -343,5 +343,3 @@ export const useStreamingContext = (): StreamingContextValue => {
 
   return context;
 };
-
-export default StreamingProvider;

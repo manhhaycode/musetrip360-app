@@ -105,5 +105,3 @@ export const StreamingHeader: React.FC<StreamingHeaderProps> = ({
     </div>
   );
 };
-
-export default StreamingHeader;
