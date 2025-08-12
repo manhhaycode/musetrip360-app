@@ -13,13 +13,15 @@ export type AIChatReq = {
 
 export type AIChatResp = {
   data: string;
-  relatedData: {
-    id: string;
-    type: DataEntityType;
-    name: string;
-    description: string;
-    similarityScore: number;
-  }[];
+  relatedData: AIChatRelatedData[];
 };
 
 export type DataEntityType = 'Artifact' | 'Event' | 'Museum' | 'TourOnline';
+
+export type AIChatRelatedData = {
+  id: string;
+  type: DataEntityType;
+  title: string;
+  description: string;
+  similarityScore: number;
+};
