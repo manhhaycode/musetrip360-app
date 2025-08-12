@@ -5,3 +5,4 @@
  */
 
 export * from './MuseumDataTable';
+export { default as MuseumRequestDataTable } from './MuseumRequestDataTable';

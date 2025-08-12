@@ -5,25 +5,39 @@
  * Integrates with the query-foundation package for consistent caching and offline support.
  */
 
-import { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
-import { userEndpoints, adminUserEndpoints, userApiErrorHandler } from '../endpoints/users';
 import type {
-  UserAdminSearchParams,
-  UserCreateDto,
-  UserUpdateDto,
+  ApiResponse,
   IUser,
   PaginatedResponse,
+  UserAdminSearchParams,
+  UserCreateDto,
   UserRoleFormDto,
   UserSearchParams,
+  UserUpdateDto,
 } from '@/types';
+import {
+  APIError,
+  CustomMutationOptions,
+  CustomQueryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@musetrip360/query-foundation';
+import { useEffect, useState } from 'react';
 import { userCacheKeys } from '../cache/cacheKeys';
+import { adminUserEndpoints, userApiErrorHandler, userEndpoints } from '../endpoints/users';
 
 /**
  * Hook to fetch all users for admin (with additional filters)
  */
-export function useAdminUsers(params: UserAdminSearchParams) {
-  return useQuery(userCacheKeys.list(params), () => adminUserEndpoints.getAllUsers(params));
+export function useAdminUsers(
+  params: UserAdminSearchParams,
+  options?: CustomQueryOptions<ApiResponse<PaginatedResponse<IUser>>>
+) {
+  return useQuery(userCacheKeys.list(params), () => adminUserEndpoints.getAllUsers(params), {
+    placeholderData: (previousData: ApiResponse<PaginatedResponse<IUser>> | undefined) => previousData,
+    ...options,
+  });
 }
 
 /**

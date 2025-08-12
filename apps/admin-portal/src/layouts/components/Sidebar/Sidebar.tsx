@@ -65,7 +65,7 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                 },
                 {
                   title: 'Phê duyệt bảo tàng',
-                  url: routes.museums.approval,
+                  url: routes.museums.requests,
                   icon: Gavel,
                 },
               ],
