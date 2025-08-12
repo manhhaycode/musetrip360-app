@@ -16,8 +16,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const hydrate = async () => {
-      const isHydrated = await useUserStore.getState().hydrate();
-      setIsHydrated(isHydrated);
+      await useUserStore.persist.rehydrate();
+      setIsHydrated(true);
     };
     hydrate();
   }, []);
