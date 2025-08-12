@@ -171,8 +171,8 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || '',
+    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || undefined,
+    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || undefined,
   });
 
   const { table } = useDataTable<Museum, string>({

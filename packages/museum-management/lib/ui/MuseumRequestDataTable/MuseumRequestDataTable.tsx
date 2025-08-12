@@ -195,10 +195,10 @@ const MuseumRequestDataTable = ({ onView }: MuseumRequestDataTableProps) => {
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'submittedAt', desc: true }] });
 
   const { data: requestsData, isLoading: loadingRequests } = useGetMuseumRequests({
-    Search: (tableState.columnFilters.find((filter) => filter.id === 'museumName')?.value as string) || '',
+    Search: (tableState.columnFilters.find((filter) => filter.id === 'museumName')?.value as string) || undefined,
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
-    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || '',
+    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || undefined,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
   });
 
