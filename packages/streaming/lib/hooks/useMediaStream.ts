@@ -93,19 +93,24 @@ export const useMediaStream = (): UseMediaStreamReturn => {
   /**
    * Toggle video track
    */
-  const toggleVideo = useCallback((): void => {
+  const toggleVideo = useCallback((): boolean => {
     const manager = mediaManagerRef.current;
 
     if (!manager) {
       console.warn('⚠️ Media manager not initialized');
-      return;
+      return false;
     }
 
     try {
       const isEnabled = manager.toggleVideo();
       storeToggleVideo();
 
+      // Get fresh state and force immediate sync
+      const currentState = manager.getMediaState();
+      setMediaState(currentState);
+
       console.log(`📹 Video ${isEnabled ? 'enabled' : 'disabled'}`);
+      return currentState.video;
     } catch (error) {
       console.error('❌ Failed to toggle video:', error);
 
@@ -115,8 +120,9 @@ export const useMediaStream = (): UseMediaStreamReturn => {
         details: error,
         timestamp: new Date(),
       });
+      return false;
     }
-  }, [storeToggleVideo, addError]);
+  }, [storeToggleVideo, addError, setMediaState]);
 
   /**
    * Toggle audio track
