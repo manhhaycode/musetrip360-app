@@ -371,6 +371,9 @@ importers:
       '@musetrip360/user-management':
         specifier: workspace:*
         version: link:../../packages/user-management
+      '@musetrip360/virtual-tour':
+        specifier: workspace:*
+        version: link:../../packages/virtual-tour
       '@next/env':
         specifier: ^15.4.6
         version: 15.4.6

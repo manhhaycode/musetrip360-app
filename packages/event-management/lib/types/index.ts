@@ -5,7 +5,7 @@
  * exhibitions, and devices.
  */
 import { Pagination } from '@musetrip360/query-foundation';
-import { IUser } from 'node_modules/@musetrip360/auth-system/dist/types/types';
+import { IUser } from '@musetrip360/user-management/types';
 
 export type Event = {
   id: string;

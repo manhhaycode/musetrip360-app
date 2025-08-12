@@ -6,6 +6,7 @@
 @source '../../node_modules/@musetrip360/ui-core';
 @source '../../node_modules/@musetrip360/user-management/lib';
 @source '../../node_modules/@musetrip360/streaming/lib';
+@source '../../node_modules/@musetrip360/virtual-tour/lib';
 
 @custom-variant dark (&:is(.dark *));
 

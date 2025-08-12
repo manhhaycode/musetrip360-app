@@ -18,12 +18,12 @@ export default function StreamLobbyPage() {
 
   const handleCreateRoom = () => {
     const newRoomId = generateRoomId();
-    router.push(`/stream/room/${newRoomId}`);
+    router.push(`/stream/setup/${newRoomId}`);
   };
 
   const handleJoinRoom = () => {
     if (roomId.trim()) {
-      router.push(`/stream/room/${roomId.trim()}`);
+      router.push(`/stream/setup/${roomId.trim()}`);
     }
   };
 
