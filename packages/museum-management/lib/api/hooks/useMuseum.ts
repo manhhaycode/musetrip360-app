@@ -17,6 +17,7 @@ import {
   getUserMuseums,
   updateMuseum,
   getAnalyticsOverview,
+  getAdminAnalyticsOverview,
 } from '../endpoints/museums';
 
 export function useGetUserMuseums(options?: CustomQueryOptions<Museum[]>) {
@@ -76,4 +77,8 @@ export function useGetMuseumAnalyticsOverview(museumId: string, options?: Custom
     () => getAnalyticsOverview(museumId),
     options
   );
+}
+
+export function useAdminAnalyticsOverview(options?: CustomQueryOptions<any>) {
+  return useQuery(museumManagementCacheKeys.adminOverview(), () => getAdminAnalyticsOverview(), options);
 }

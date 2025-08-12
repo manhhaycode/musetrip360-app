@@ -1,11 +1,28 @@
+import { useAdminAnalyticsOverview } from '@musetrip360/museum-management';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
-import { ArrowDownRight, ArrowUpRight, Building2, CheckCircle, Clock, TrendingUp } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { ArrowDownRight, ArrowUpRight, Building2, CheckCircle, Clock, Users } from 'lucide-react';
+import { useRef, useState, useMemo } from 'react';
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
 
+export type AdminAnalyticsOverview = {
+  totalMuseums: number;
+  totalPendingRequests: number;
+  totalUsers: number;
+  totalEvents: number;
+  totalTours: number;
+  museumsByCategory: {
+    category: string;
+    count: number;
+  }[];
+};
+
 export default function AdminDashboard() {
+  const { data, isLoading } = useAdminAnalyticsOverview();
+
+  const overviewData = data as AdminAnalyticsOverview | undefined;
+  console.log('Admin Dashboard Data:', data);
+
   const [selectedPeriod, setSelectedPeriod] = useState('3 tháng gần đây');
-  const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
   const donutRef = useRef<SVGSVGElement>(null);
 
@@ -44,23 +61,56 @@ export default function AdminDashboard() {
 
   const currentData = visitorTrends[selectedPeriod as keyof typeof visitorTrends];
 
-  // Danh mục bảo tàng với màu sắc sunset
-  const museumCategories = [
-    { name: 'Lịch sử', count: 42, color: '#FF6B35', percentage: 35.0 },
-    { name: 'Nghệ thuật', count: 35, color: '#F7931E', percentage: 29.2 },
-    { name: 'Khoa học', count: 25, color: '#FFB570', percentage: 20.8 },
-    { name: 'Dân tộc', count: 12, color: '#FFCC9A', percentage: 10.0 },
-    { name: 'Khác', count: 6, color: '#FFE0CC', percentage: 5.0 },
-  ];
+  // Process museum categories from API data
+  const museumCategories = useMemo(() => {
+    if (!overviewData?.museumsByCategory || overviewData.museumsByCategory.length === 0) {
+      return [
+        { name: 'Lịch sử', count: 0, color: '#FF6B35', percentage: 0 },
+        { name: 'Nghệ thuật', count: 0, color: '#F7931E', percentage: 0 },
+        { name: 'Khoa học', count: 0, color: '#FFB570', percentage: 0 },
+        { name: 'Dân tộc', count: 0, color: '#FFCC9A', percentage: 0 },
+        { name: 'Khác', count: 0, color: '#FFE0CC', percentage: 0 },
+      ];
+    }
 
-  // Dữ liệu khu vực
-  const regionData = [
-    { label: 'Hà Nội', value: 142, color: '#FF6B35', gradient: 'from-orange-500 to-orange-400' },
-    { label: 'TP.HCM', value: 118, color: '#F7931E', gradient: 'from-amber-500 to-amber-400' },
-    { label: 'Đà Nẵng', value: 95, color: '#FFB570', gradient: 'from-orange-400 to-orange-300' },
-    { label: 'Huế', value: 78, color: '#FFCC9A', gradient: 'from-amber-400 to-amber-300' },
-    { label: 'Khác', value: 45, color: '#FFE0CC', gradient: 'from-orange-300 to-orange-200' },
-  ];
+    const colors = ['#FF6B35', '#F7931E', '#FFB570', '#FFCC9A', '#FFE0CC'];
+    const totalMuseums = overviewData.totalMuseums || 0;
+    const categorizedCount = overviewData.museumsByCategory.reduce((sum, item) => sum + item.count, 0);
+
+    // Calculate "Khác" (Others) count
+    const othersCount = Math.max(0, totalMuseums - categorizedCount);
+
+    // Map API categories to display format
+    const apiCategories = overviewData.museumsByCategory.map((item, index) => ({
+      name: item.category,
+      count: item.count,
+      color: colors[index % colors.length] || '#FFE0CC',
+      percentage: totalMuseums > 0 ? (item.count / totalMuseums) * 100 : 0,
+    }));
+
+    // Add "Khác" category if there are uncategorized museums
+    const result = [...apiCategories];
+    if (othersCount > 0) {
+      result.push({
+        name: 'Khác',
+        count: othersCount,
+        color: colors[apiCategories.length % colors.length] || '#FFE0CC',
+        percentage: totalMuseums > 0 ? (othersCount / totalMuseums) * 100 : 0,
+      });
+    }
+
+    return result;
+  }, [overviewData?.museumsByCategory, overviewData?.totalMuseums]);
+
+  // Format numbers for display
+  const formatNumber = (num: number): string => {
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    } else if (num >= 1000) {
+      return `${(num / 1000).toFixed(1)}K`;
+    }
+    return num.toString();
+  };
 
   // Custom Tooltip cho AreaChart
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -80,7 +130,7 @@ export default function AdminDashboard() {
     return null;
   };
 
-  // Cải thiện biểu đồ donut với tương tác hover mạnh mẽ
+  // Generate donut chart paths
   const generateDonutPath = (data: typeof museumCategories) => {
     const radius = 85;
     const innerRadius = 60;
@@ -94,7 +144,6 @@ export default function AdminDashboard() {
       const startAngleRad = (startAngle * Math.PI) / 180;
       const endAngleRad = (endAngle * Math.PI) / 180;
 
-      // Main arc
       const x1 = 100 + radius * Math.cos(startAngleRad);
       const y1 = 100 + radius * Math.sin(startAngleRad);
       const x2 = 100 + radius * Math.cos(endAngleRad);
@@ -107,7 +156,6 @@ export default function AdminDashboard() {
 
       const largeArc = endAngle - startAngle > 180 ? 1 : 0;
 
-      // Hover path - slightly larger
       const hoverRadius = 90;
       const hx1 = 100 + hoverRadius * Math.cos(startAngleRad);
       const hy1 = 100 + hoverRadius * Math.sin(startAngleRad);
@@ -131,7 +179,7 @@ export default function AdminDashboard() {
 
   const donutPaths = generateDonutPath(museumCategories);
 
-  // Xử lý hover cho donut chart
+  // Handle donut chart hover
   const handleDonutMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
     if (!donutRef.current) return;
 
@@ -159,31 +207,44 @@ export default function AdminDashboard() {
     setHoveredSlice(null);
   };
 
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="rounded-2xl border bg-white shadow-sm">
+              <CardContent className="p-6">
+                <div className="animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-4"></div>
+                  <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Thẻ thống kê nhanh - Text màu đen */}
+      {/* Statistics Cards - Updated with real data */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-900">Tổng Lượt Thăm</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-900">Tổng Người Dùng</CardTitle>
             <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-orange-600" />
+              <Users className="h-4 w-4 text-orange-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">2.4M</div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(overviewData?.totalUsers || 0)}</div>
             <div className="flex items-center mt-2">
               <ArrowUpRight className="h-4 w-4 text-emerald-500" />
               <span className="text-sm font-medium text-emerald-600">+12.5%</span>
               <span className="text-sm ml-2 text-slate-600">tháng này</span>
             </div>
-            <div className="mt-3 w-full bg-orange-100 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: '75%' }}
-              ></div>
-            </div>
-            <p className="text-xs text-slate-600 mt-2">Lượt truy cập từ tất cả bảo tàng</p>
           </CardContent>
         </Card>
 
@@ -195,43 +256,29 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">142</div>
+            <div className="text-2xl font-bold text-slate-900">{overviewData?.totalMuseums || 0}</div>
             <div className="flex items-center mt-2">
               <ArrowUpRight className="h-4 w-4 text-emerald-500" />
               <span className="text-sm font-medium text-emerald-600">+8.2%</span>
               <span className="text-sm ml-2 text-slate-600">so với tháng trước</span>
             </div>
-            <div className="mt-3 w-full bg-amber-100 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-amber-400 to-amber-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: '85%' }}
-              ></div>
-            </div>
-            <p className="text-xs text-slate-600 mt-2">Đang vận hành bình thường</p>
           </CardContent>
         </Card>
 
         <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-900">Đã Phê Duyệt</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-900">Tour Ảo</CardTitle>
             <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center">
               <CheckCircle className="h-4 w-4 text-yellow-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">23</div>
+            <div className="text-2xl font-bold text-slate-900">{overviewData?.totalTours || 0}</div>
             <div className="flex items-center mt-2">
               <ArrowUpRight className="h-4 w-4 text-emerald-500" />
               <span className="text-sm font-medium text-emerald-600">+15.3%</span>
               <span className="text-sm ml-2 text-slate-600">tuần này</span>
             </div>
-            <div className="mt-3 w-full bg-yellow-100 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: '60%' }}
-              ></div>
-            </div>
-            <p className="text-xs text-slate-600 mt-2">Yêu cầu đăng ký mới</p>
           </CardContent>
         </Card>
 
@@ -243,26 +290,19 @@ export default function AdminDashboard() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">7</div>
+            <div className="text-2xl font-bold text-slate-900">{overviewData?.totalPendingRequests || 0}</div>
             <div className="flex items-center mt-2">
               <ArrowDownRight className="h-4 w-4 text-emerald-500" />
               <span className="text-sm font-medium text-emerald-600">-23.1%</span>
               <span className="text-sm ml-2 text-slate-600">giảm so với tuần trước</span>
             </div>
-            <div className="mt-3 w-full bg-orange-100 rounded-full h-2">
-              <div
-                className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full transition-all duration-500"
-                style={{ width: '30%' }}
-              ></div>
-            </div>
-            <p className="text-xs text-slate-600 mt-2">Cần xem xét và phê duyệt</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Lưới biểu đồ chính */}
+      {/* Main Chart Grid */}
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* Biểu đồ Tổng Lượt Thăm với nhiều điểm nhấp nhô */}
+        {/* Visitor Trends Chart */}
         <Card className="lg:col-span-7 rounded-3xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -313,7 +353,6 @@ export default function AdminDashboard() {
 
                     <Tooltip content={<CustomTooltip />} />
 
-                    {/* Direct Visit Area (bottom layer) */}
                     <Area
                       type="monotone"
                       dataKey="directVisit"
@@ -323,7 +362,6 @@ export default function AdminDashboard() {
                       fill="url(#directVisitGradient)"
                     />
 
-                    {/* Tour Virtual Area (top layer) */}
                     <Area
                       type="monotone"
                       dataKey="tourVirtual"
@@ -336,7 +374,6 @@ export default function AdminDashboard() {
                 </ResponsiveContainer>
               </div>
 
-              {/* Legend */}
               <div className="flex items-center gap-6 mt-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
@@ -357,7 +394,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        {/* Biểu đồ Donut với tương tác hover mạnh mẽ */}
+        {/* Museum Categories Donut Chart - Updated with real data */}
         <Card className="lg:col-span-5 rounded-3xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="text-xl font-semibold text-slate-900">Phân Loại Bảo Tàng</CardTitle>
@@ -408,12 +445,11 @@ export default function AdminDashboard() {
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center bg-white rounded-full p-4 shadow-lg border">
-                      <div className="text-3xl font-bold text-slate-900">142</div>
+                      <div className="text-3xl font-bold text-slate-900">{overviewData?.totalMuseums || 0}</div>
                       <div className="text-sm text-slate-600">Bảo tàng</div>
                     </div>
                   </div>
 
-                  {/* Hover tooltip cho donut */}
                   {hoveredSlice !== null && (
                     <div
                       className="absolute z-10 bg-slate-800 text-white rounded-lg px-3 py-2 pointer-events-none shadow-xl"
@@ -453,45 +489,6 @@ export default function AdminDashboard() {
                     <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>
                     <span className="text-xs text-slate-700">{category.name}</span>
                     <span className="text-xs font-medium text-slate-900">{category.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Biểu đồ Cột Ngang */}
-        <Card className="lg:col-span-12 rounded-3xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-xl font-semibold text-slate-900">Phân Bố Theo Khu Vực</CardTitle>
-            <p className="text-sm text-slate-600">Số lượng bảo tàng tại các thành phố lớn</p>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              <div className="space-y-4">
-                {regionData.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-20 text-sm text-slate-700 text-right font-medium">{item.label}</div>
-                    <div className="flex-1 relative">
-                      <div className="h-8 bg-orange-100 rounded-lg overflow-hidden">
-                        <div
-                          className={`h-full bg-gradient-to-r ${item.gradient} rounded-lg transition-all duration-500 hover:brightness-110 cursor-pointer relative overflow-hidden`}
-                          style={{
-                            width: `${(item.value / Math.max(...regionData.map((d) => d.value))) * 100}%`,
-                          }}
-                          onMouseEnter={() => setHoveredBarIndex(index)}
-                          onMouseLeave={() => setHoveredBarIndex(null)}
-                        >
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-full animate-pulse"></div>
-                        </div>
-                      </div>
-                      {hoveredBarIndex === index && (
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white text-sm font-bold drop-shadow-md">
-                          {item.value} bảo tàng
-                        </div>
-                      )}
-                    </div>
-                    <div className="w-12 text-sm text-slate-900 font-bold">{item.value}</div>
                   </div>
                 ))}
               </div>

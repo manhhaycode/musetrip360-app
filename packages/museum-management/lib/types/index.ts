@@ -220,3 +220,15 @@ export type AnalyticsOverview = {
   totalRevenue: number;
   totalArtifacts: number;
 };
+
+export type AdminAnalyticsOverview = {
+  totalMuseums: number;
+  totalPendingRequests: number;
+  totalUsers: number;
+  totalEvents: number;
+  totalTours: number;
+  museumsByCategory: {
+    category: string;
+    count: number;
+  }[];
+};

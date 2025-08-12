@@ -45,6 +45,10 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
   analyticsOverview(museumId: string): QueryKey {
     return [this.prefix, 'analyticsOverview', museumId];
   }
+
+  adminOverview(): QueryKey {
+    return [this.prefix, 'adminOverview'];
+  }
 }
 
 /**
