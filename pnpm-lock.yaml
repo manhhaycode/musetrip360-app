@@ -259,6 +259,9 @@ importers:
       '@musetrip360/auth-system':
         specifier: workspace:*
         version: link:../../packages/auth-system
+      '@musetrip360/event-management':
+        specifier: workspace:*
+        version: link:../../packages/event-management
       '@musetrip360/infras':
         specifier: workspace:*
         version: link:../../packages/infras
@@ -1157,6 +1160,9 @@ importers:
       lucide-react:
         specifier: ^0.525.0
         version: 0.525.0(react@19.1.0)
+      uuid:
+        specifier: ^11.1.0
+        version: 11.1.0
       zod:
         specifier: ^3.25.67
         version: 3.25.76

@@ -270,7 +270,7 @@ export class SignalRClient {
     // Handle peer joined
     this.connection.on('PeerJoined', (userId: string, peerId: string) => {
       console.log(`👥 Peer joined: ${peerId}`);
-      this.eventHandlers.PeerJoined?.(userId, peerId);
+      this.eventHandlers.PeerJoined?.('', userId);
     });
 
     // Handle peer disconnected

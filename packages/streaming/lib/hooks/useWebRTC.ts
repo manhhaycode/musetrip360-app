@@ -43,7 +43,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
         // Emit remote stream event with stream info
         const streamInfo: MediaStreamInfo = {
           streamId: stream.id,
-          peerId: 'unknown', // Will be resolved by coordinator
+          peerId: '', // Will be resolved by coordinator
           stream,
           type: 'remote',
           mediaState: {

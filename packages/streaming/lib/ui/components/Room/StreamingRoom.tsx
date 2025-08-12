@@ -4,13 +4,16 @@
  * Complete room interface combining all streaming components
  */
 
-import React from 'react';
-import { Card } from '@musetrip360/ui-core/card';
-import { cn } from '@musetrip360/ui-core/utils';
-import { VideoGrid } from '../Video/VideoGrid';
-import { MediaControls } from '../Controls/MediaControls';
-import { RoomControls } from '../Controls/RoomControls';
 import { useStreamingContext } from '@/contexts/StreamingContext';
+import { Avatar, AvatarFallback } from '@musetrip360/ui-core/avatar';
+import { Badge } from '@musetrip360/ui-core/badge';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
+import { cn } from '@musetrip360/ui-core/utils';
+import { Copy, Mic, MicOff, MoreHorizontal, PhoneOff, Settings, Users, Video, VideoOff } from 'lucide-react';
+import React from 'react';
+import { VideoGrid } from '../Video/VideoGrid';
 
 interface StreamingRoomProps {
   className?: string;
@@ -22,9 +25,10 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className }) => {
     roomState,
     participants,
     currentRoomId,
+    isInRoom,
 
     // Media state
-    mediaStream: { localStream, mediaState },
+    mediaStream: { localStream, mediaState, remoteStreams },
 
     // Actions
     joinRoom,
@@ -41,7 +45,8 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className }) => {
   } = useStreamingContext();
 
   const participantArray = Array.from(participants.values());
-  const isInRoom = currentRoomId !== null;
+  console.log(participantArray);
+
   const isConnecting = connectionState === 'connecting';
 
   const handleJoinRoom = async (roomId: string) => {
@@ -60,6 +65,12 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className }) => {
     }
   };
 
+  const handleCopyRoomId = () => {
+    if (currentRoomId) {
+      navigator.clipboard.writeText(currentRoomId);
+    }
+  };
+
   const handleLeaveRoom = async () => {
     try {
       await leaveRoom();
@@ -70,154 +81,198 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className }) => {
 
   if (!localStream) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-gray-500">No local stream available</span>
+      <div className="flex items-center justify-center h-full bg-background rounded-lg">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+            <Video className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium text-foreground">Camera not available</h3>
+            <p className="text-sm text-muted-foreground">Please allow camera access to start streaming</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!isInRoom || !currentRoomId) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <span className="text-gray-500">Not in a room</span>
+      <div className="flex items-center justify-center h-full bg-background rounded-lg">
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+            <Users className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-lg font-medium text-foreground">Join a room to start</h3>
+            <p className="text-sm text-muted-foreground">Create or join a room to begin video calling</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={cn('streaming-room w-full h-full flex flex-col gap-4', className)}>
-      {/* Connection Status */}
-      <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
-        <div className="flex items-center gap-2">
-          <div className={cn('w-3 h-3 rounded-full', isConnected ? 'bg-green-500' : 'bg-red-500')} />
-          <span className="text-sm font-medium">{isConnected ? 'Connected' : 'Disconnected'}</span>
+    <div className={cn('streaming-room w-full h-full flex flex-col bg-background', className)}>
+      {/* Header */}
+      <div className="flex items-center justify-between p-4 border-b bg-card">
+        <div className="flex items-center gap-4">
+          {/* Connection Status */}
+          <div className="flex items-center gap-2">
+            <div className={cn('w-2 h-2 rounded-full', isConnected ? 'bg-green-500' : 'bg-destructive')} />
+            <Badge variant={isConnected ? 'default' : 'destructive'} className="text-xs">
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </Badge>
+          </div>
+
+          {/* Room ID */}
+          {currentRoomId && (
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Room:</span>
+              <Badge variant="outline" className="font-mono text-xs">
+                {currentRoomId}
+              </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigator.clipboard.writeText(currentRoomId)}
+                className="h-6 w-6 p-0"
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
 
-        {currentRoomId && (
-          <div className="text-sm text-gray-600 dark:text-gray-400">
-            Room: <span className="font-mono">{currentRoomId}</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs">
+            <Users className="w-3 h-3 mr-1" />
+            {participantArray.length}
+          </Badge>
+          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Error Display */}
       {errors.length > 0 && (
-        <div
-          id="errorMessage" // Matching reference ID
-          className="bg-red-100 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 px-4 py-3 rounded-lg"
-        >
-          {errors[errors.length - 1]?.message}
+        <div className="bg-destructive/15 border-l-4 border-destructive text-destructive px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Error:</span>
+            <span className="text-sm">{errors[errors.length - 1]?.message}</span>
+          </div>
         </div>
       )}
 
-      <div className="flex-1 flex gap-4">
-        {/* Main Video Area */}
-        <div className="flex-1">
-          <Card className="h-full p-4">
-            {isInRoom ? (
-              <VideoGrid participants={participantArray} localStream={localStream} className="h-full" />
-            ) : (
-              <div className="h-full flex items-center justify-center text-gray-500">
-                <div className="text-center">
-                  <div className="text-xl font-medium mb-2">Ready to stream</div>
-                  <div className="text-sm">Join or create a room to start video calling</div>
-                </div>
-              </div>
-            )}
-          </Card>
+      {/* Main Content */}
+      <div className="flex-1 flex min-h-0">
+        {/* Video Area */}
+        <div className="flex-1 flex flex-col">
+          {/* Main Video */}
+          <div className="flex-1 p-4">
+            <Card className="h-full bg-muted/20">
+              <CardContent className="h-full p-0">
+                <VideoGrid participants={participantArray} localStream={localStream} className="h-full" />
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Bottom Toolbar */}
+          <div className="p-4 bg-card border-t">
+            <div className="flex items-center justify-center gap-2">
+              <Button
+                variant={mediaState.audio ? 'secondary' : 'destructive'}
+                size="lg"
+                onClick={toggleAudio}
+                disabled={!isConnected}
+                className="h-12 w-12 rounded-full p-0"
+              >
+                {mediaState.audio ? <Mic className="h-5 w-5" /> : <MicOff className="h-5 w-5" />}
+              </Button>
+
+              <Button
+                variant={mediaState.video ? 'secondary' : 'destructive'}
+                size="lg"
+                onClick={toggleVideo}
+                disabled={!isConnected}
+                className="h-12 w-12 rounded-full p-0"
+              >
+                {mediaState.video ? <Video className="h-5 w-5" /> : <VideoOff className="h-5 w-5" />}
+              </Button>
+
+              <Button
+                variant="destructive"
+                size="lg"
+                onClick={handleLeaveRoom}
+                disabled={!isConnected}
+                className="h-12 w-12 rounded-full p-0"
+              >
+                <PhoneOff className="h-5 w-5" />
+              </Button>
+
+              <Button variant="ghost" size="lg" className="h-12 w-12 rounded-full p-0">
+                <MoreHorizontal className="h-5 w-5" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        {/* Sidebar Controls */}
-        <div className="w-80 space-y-4">
-          {/* Room Controls */}
-          <Card className="p-4">
-            <h3 className="text-lg font-medium mb-4">Room</h3>
-            <RoomControls
-              currentRoomId={currentRoomId}
-              onJoinRoom={handleJoinRoom}
-              onCreateRoom={handleCreateRoom}
-              onLeaveRoom={handleLeaveRoom}
-              isConnecting={isConnecting}
-            />
-          </Card>
+        {/* Participants Sidebar */}
+        <div className="w-80 border-l bg-card/50">
+          <div className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-medium text-foreground">Participants</h3>
+              <Badge variant="secondary" className="text-xs">
+                {participantArray.length}
+              </Badge>
+            </div>
 
-          {/* Media Controls - Only show when in room */}
-          {isInRoom && (
-            <Card className="p-4">
-              <h3 className="text-lg font-medium mb-4">Media</h3>
-              <MediaControls
-                mediaState={mediaState}
-                onToggleVideo={toggleVideo}
-                onToggleAudio={toggleAudio}
-                onLeaveRoom={handleLeaveRoom}
-                disabled={!isConnected}
-              />
-            </Card>
-          )}
-
-          {/* Participants List */}
-          {isInRoom && participantArray.length > 0 && (
-            <Card className="p-4">
-              <h3 className="text-lg font-medium mb-4">Participants ({participantArray.length})</h3>
-              <div className="space-y-2 max-h-48 overflow-y-auto">
+            <ScrollArea className="h-[calc(100vh-200px)]">
+              <div className="space-y-2">
                 {participantArray.map((participant) => (
-                  <div
-                    key={participant.id}
-                    className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded"
-                  >
-                    <div className="flex items-center gap-2">
-                      <div
-                        className={cn('w-2 h-2 rounded-full', participant.isLocalUser ? 'bg-blue-500' : 'bg-green-500')}
-                      />
-                      <span className="text-sm font-medium">
-                        {participant.isLocalUser ? 'You' : `User ${participant.peerId}`}
-                      </span>
-                    </div>
+                  <div key={participant.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {participant.isLocalUser ? 'You' : participant?.peerId?.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
 
-                    <div className="flex gap-1">
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded text-xs flex items-center justify-center',
-                          participant.mediaState.video ? 'bg-green-500 text-white' : 'bg-gray-400'
-                        )}
-                      >
-                        📹
-                      </div>
-                      <div
-                        className={cn(
-                          'w-4 h-4 rounded text-xs flex items-center justify-center',
-                          participant.mediaState.audio ? 'bg-green-500 text-white' : 'bg-gray-400'
-                        )}
-                      >
-                        🎤
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">
+                        {participant.isLocalUser ? 'You' : `User ${participant.peerId}`}
+                      </p>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div
+                          className={cn(
+                            'w-3 h-3 rounded-full flex items-center justify-center',
+                            participant.mediaState.audio ? 'bg-green-500' : 'bg-muted'
+                          )}
+                        >
+                          {participant.mediaState.audio ? (
+                            <Mic className="w-2 h-2 text-white" />
+                          ) : (
+                            <MicOff className="w-2 h-2 text-muted-foreground" />
+                          )}
+                        </div>
+                        <div
+                          className={cn(
+                            'w-3 h-3 rounded-full flex items-center justify-center',
+                            participant.mediaState.video ? 'bg-green-500' : 'bg-muted'
+                          )}
+                        >
+                          {participant.mediaState.video ? (
+                            <Video className="w-2 h-2 text-white" />
+                          ) : (
+                            <VideoOff className="w-2 h-2 text-muted-foreground" />
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </Card>
-          )}
-
-          {/* Room Metadata */}
-          {isInRoom && roomState && (
-            <Card className="p-4">
-              <h3 className="text-lg font-medium mb-4">Room Info</h3>
-              <div className="space-y-2 text-sm">
-                <div>
-                  <span className="text-gray-600 dark:text-gray-400">Created:</span>
-                  <span className="ml-2">{new Date(roomState.createdAt).toLocaleTimeString()}</span>
-                </div>
-                {roomState.metadata && Object.keys(roomState.metadata).length > 0 && (
-                  <div>
-                    <span className="text-gray-600 dark:text-gray-400">Metadata:</span>
-                    <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-auto">
-                      {JSON.stringify(roomState.metadata, null, 2)}
-                    </pre>
-                  </div>
-                )}
-              </div>
-            </Card>
-          )}
+            </ScrollArea>
+          </div>
         </div>
       </div>
     </div>

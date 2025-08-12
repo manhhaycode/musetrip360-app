@@ -83,7 +83,7 @@ export const useRoomStore = create<RoomStore>()(
         ...initialState,
 
         // Room Management
-        setCurrentRoom: (room) => set({ currentRoom: room }, false, 'setCurrentRoom'),
+        setCurrentRoom: (room) => set({ currentRoom: room }),
 
         updateRoomMetadata: (metadata) =>
           set(

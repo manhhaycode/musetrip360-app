@@ -2,10 +2,7 @@ import type { Metadata } from 'next';
 // import { Header } from '@/components/layout/Header';
 import './globals.css';
 // import Footer from '@/components/layout/Footter';
-import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import React from 'react';
-import { Header } from '@/components/layout/Header';
-import Footer from '@/components/layout/Footter';
 import AppProvider from '@/providers/AppProvider';
 
 export const metadata: Metadata = {
@@ -40,13 +37,7 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className="min-h-screen bg-background">
-        <AppProvider>
-          <ScrollArea className="h-screen *:data-[slot=scroll-area-viewport]:!pr-0">
-            <Header />
-            <main className="min-h-[calc(100vh-458px)]">{children}</main>
-            <Footer />
-          </ScrollArea>
-        </AppProvider>
+        <AppProvider>{children}</AppProvider>
       </body>
     </html>
   );
