@@ -46,16 +46,23 @@ export const userEndpoints = {
   },
 
   // POST /users/admin - Create user (admin)
-  createUser: async (userData: UserCreateDto): Promise<IUser> => {
+  createUser: async (userData: UserCreateDto): Promise<ApiResponse<IUser>> => {
     const client = getHttpClient();
-    const response = await client.post<IUser>(`${API_BASE}/admin`, userData);
-    return response;
+    console.log('Creating user with data:', userData);
+    try {
+      const response = await client.post<ApiResponse<IUser>>(`${API_BASE}/admin`, userData);
+      console.log('Create user response:', response);
+      return response;
+    } catch (error) {
+      console.error('Create user error:', error);
+      throw error;
+    }
   },
 
   // PUT /users/admin/{id} - Update user (admin)
-  updateUser: async (id: string, userData: UserUpdateDto): Promise<IUser> => {
+  updateUser: async (id: string, userData: UserUpdateDto): Promise<ApiResponse<IUser>> => {
     const client = getHttpClient();
-    const response = await client.put<IUser>(`${API_BASE}/admin/${id}`, userData);
+    const response = await client.put<ApiResponse<IUser>>(`${API_BASE}/admin/${id}`, userData);
     return response;
   },
 
