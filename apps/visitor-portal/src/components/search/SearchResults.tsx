@@ -6,6 +6,8 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardHeader } from '@musetrip360/ui-core/card';
 import { ArrowRight, Heart, MapPin, Share2, Users, Clock, Star, Calendar, Eye } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import React from 'react';
 
 interface SearchResultsProps {
   results: SearchResultItem[];
@@ -14,6 +16,8 @@ interface SearchResultsProps {
 }
 
 export function SearchResults({ results, isLoading = false, error }: SearchResultsProps) {
+  const router = useRouter();
+
   const handleFavorite = (itemId: string) => {
     // TODO: Implement favorite functionality
     console.log('Toggle favorite for item:', itemId);
@@ -22,6 +26,21 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
   const handleShare = (itemId: string) => {
     // TODO: Implement share functionality
     console.log('Share item:', itemId);
+  };
+
+  const handleNavigateToDetail = (item: SearchResultItem) => {
+    if (item.type === 'Museum') {
+      router.push(`/museum/${item.id}`);
+    }
+    // TODO: Add navigation for other types when their detail pages are ready
+  };
+
+  const handleCardClick = (item: SearchResultItem, event: React.MouseEvent) => {
+    // Only navigate if the click is not on an interactive element
+    const target = event.target as HTMLElement;
+    if (!target.closest('button')) {
+      handleNavigateToDetail(item);
+    }
   };
 
   const getTypeIcon = (type: string) => {
@@ -129,7 +148,11 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
       {/* Results Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {results.map((item) => (
-          <Card key={item.id} className="group overflow-hidden hover:shadow-lg transition-shadow duration-300">
+          <Card
+            key={item.id}
+            className="group overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+            onClick={(e) => handleCardClick(item, e)}
+          >
             <div className="relative">
               {item.thumbnail ? (
                 <Image
@@ -151,7 +174,10 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
                   size="icon"
                   variant="secondary"
                   className="h-8 w-8 bg-white/80 backdrop-blur-sm hover:bg-white"
-                  onClick={() => handleFavorite(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleFavorite(item.id);
+                  }}
                 >
                   <Heart className="h-4 w-4" />
                 </Button>
@@ -159,7 +185,10 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
                   size="icon"
                   variant="secondary"
                   className="h-8 w-8 bg-white/80 backdrop-blur-sm hover:bg-white"
-                  onClick={() => handleShare(item.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare(item.id);
+                  }}
                 >
                   <Share2 className="h-4 w-4" />
                 </Button>
@@ -351,7 +380,14 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
                         <Heart className="h-4 w-4 mr-2" />
                         Yêu thích
                       </Button>
-                      <Button size="sm" className="flex-1">
+                      <Button
+                        size="sm"
+                        className="flex-1"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleNavigateToDetail(item);
+                        }}
+                      >
                         Xem chi tiết
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>

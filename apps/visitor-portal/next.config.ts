@@ -4,20 +4,21 @@ const nextConfig: NextConfig = {
   distDir: '.next',
   reactStrictMode: false,
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
         hostname: '**',
-        port: '',
         pathname: '/**',
       },
       {
         protocol: 'http',
         hostname: '**',
-        port: '',
         pathname: '/**',
       },
     ],
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 

@@ -5,7 +5,7 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Label } from '@musetrip360/ui-core/label';
 import { RadioGroup, RadioGroupItem } from '@musetrip360/ui-core/radio-group';
-import { Filter, RotateCcw, Search, Activity } from 'lucide-react';
+import { Filter, RotateCcw, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TYPE_OPTIONS, type SearchFilters as SearchFiltersType } from '../../types/search';
 
