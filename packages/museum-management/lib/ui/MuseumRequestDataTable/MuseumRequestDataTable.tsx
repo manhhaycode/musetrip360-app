@@ -103,11 +103,19 @@ const MuseumRequestDataTable = ({ onView }: MuseumRequestDataTableProps) => {
         ),
       },
       {
-        accessorKey: 'location',
-        header: 'Địa điểm',
+        accessorKey: 'contactEmail',
+        header: 'Email liên hệ',
         enableSorting: false,
         cell: ({ row }) => (
-          <div className="text-sm max-w-40 whitespace-break-spaces line-clamp-2">{row.original.location}</div>
+          <div className="text-sm max-w-40 whitespace-break-spaces line-clamp-2">{row.original.contactEmail}</div>
+        ),
+      },
+      {
+        accessorKey: 'contactPhone',
+        header: 'Sdt liên hệ',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="text-sm max-w-40 whitespace-break-spaces line-clamp-2">{row.original.contactPhone}</div>
         ),
       },
       {
