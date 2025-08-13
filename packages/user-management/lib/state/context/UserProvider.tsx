@@ -1,14 +1,13 @@
+import { userCacheKeys } from '@/api/cache/cacheKeys';
 import { useCurrentProfile } from '@/api/hooks/useProfile';
+import { useIsAuthenticated } from '@musetrip360/auth-system/state';
+import { getQueryClient } from '@musetrip360/query-foundation';
 import { useEffect, useState } from 'react';
 import { Fragment } from 'react/jsx-runtime';
-import { useUserStore } from '../store/user.store';
-import { IUser } from '@/types';
-import { useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { useShallow } from 'zustand/shallow';
-import { getQueryClient } from '@musetrip360/query-foundation';
-import { userCacheKeys, UserCacheKeys } from '@/api/cache/cacheKeys';
+import { useUserStore } from '../store/user.store';
 
-export const UserProvider = ({ children, strictMode = true }: { children: React.ReactNode; strictMode: boolean }) => {
+export const UserProvider = ({ children, strictMode = true }: { children: React.ReactNode; strictMode?: boolean }) => {
   const [isHydrated, setIsHydrated] = useState(false);
   const { hydrate, setUser } = useUserStore(
     useShallow((state) => ({ hydrate: state.hydrate, setUser: state.setUser }))
