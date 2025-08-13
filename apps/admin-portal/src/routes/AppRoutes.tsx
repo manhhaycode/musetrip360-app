@@ -1,8 +1,9 @@
 import Error from '@/components/common';
 import ScrollToTop from '@/components/ScrollToTop';
-import { AdminDashboard, MuseumRequests, Policies, SystemSettings, UserManagement } from '@/features/admin';
+import { AdminDashboard } from '@/features/admin';
 import AuthPage from '@/features/auth/AuthPage';
-import { MuseumsPage } from '@/features/museum';
+import { MuseumDetailPage, MuseumRequestDetailPage, MuseumRequestsPage, MuseumsPage } from '@/features/museum';
+import { UsersPage } from '@/features/users';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -17,13 +18,15 @@ export default function AppRoutes() {
           <Route index element={<AdminDashboard />} />
 
           {/* Museum Management */}
-          <Route path="museums" element={<MuseumsPage />} />
-          <Route path="museums/requests" element={<MuseumRequests />} />
+          <Route path="museums/admin" element={<MuseumsPage />} />
+          <Route path="museums/admin/:id" element={<MuseumDetailPage />} />
 
-          {/* System Management */}
-          <Route path="users" element={<UserManagement />} />
-          <Route path="policies" element={<Policies />} />
-          <Route path="settings" element={<SystemSettings />} />
+          {/* Museum Request Management */}
+          <Route path="museums/requests" element={<MuseumRequestsPage />} />
+          <Route path="museums/requests/:id" element={<MuseumRequestDetailPage />} />
+
+          {/* User Management */}
+          <Route path="users" element={<UsersPage />} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="*" element={<Error />} />

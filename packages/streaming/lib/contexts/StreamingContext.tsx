@@ -4,16 +4,16 @@
  * Main context provider orchestrating all streaming functionality
  */
 
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
-import { useWebRTC } from '@/hooks/useWebRTC';
-import { useMediaStream } from '@/hooks/useMediaStream';
-import { useStreamingStore } from '@/state/store/streamingStore';
-import { roomActions, useRoomStore } from '@/state/store/roomStore';
-import { participantActions, useParticipantStore } from '@/state/store/participantStore';
-import { useStreamingEvents } from '@/utils/eventBus';
-import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } from '@/types';
-import { generateRoomId } from '@/utils/webrtc';
 import { useSignalR } from '@/hooks';
+import { useMediaStream } from '@/hooks/useMediaStream';
+import { useWebRTC } from '@/hooks/useWebRTC';
+import { participantActions, useParticipantStore } from '@/state/store/participantStore';
+import { roomActions, useRoomStore } from '@/state/store/roomStore';
+import { useStreamingStore } from '@/state/store/streamingStore';
+import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } from '@/types';
+import { useStreamingEvents } from '@/utils/eventBus';
+import { generateRoomId } from '@/utils/webrtc';
+import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
 
 const StreamingContext = createContext<StreamingContextValue | null>(null);
@@ -218,7 +218,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   // Coordinate participant management via events
   useEffect(() => {
     // Handle peer joined from SignalR
-    const unsubscribePeerJoined = on('signalr:peer-joined', async ({ userId, peerId }) => {
+    const unsubscribePeerJoined = on('signalr:peer-joined', async ({ userId }) => {
       try {
         console.log(`✅ Participant ${userId} added via event coordination`);
       } catch (error) {
@@ -227,10 +227,10 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     });
 
     // Handle peer disconnected from SignalR
-    const unsubscribePeerDisconnected = on('signalr:peer-disconnected', async ({ userId }) => {
+    const unsubscribePeerDisconnected = on('signalr:peer-disconnected', async ({ userId, peerId, streamId }) => {
       try {
-        participantActions.removeParticipantWithCleanup(userId);
-
+        participantActions.removeParticipantWithCleanup(peerId);
+        mediaStream.removeRemoteStream(streamId);
         console.log(`✅ Participant ${userId} removed via event coordination`);
       } catch (error) {
         console.error('Failed to cleanup disconnected peer:', error);
@@ -263,8 +263,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
           });
         } else {
           participantActions.addParticipantWithStream({
-            id: uuid(),
-            peerId: peerId || resolvedPeerId,
+            id: resolvedPeerId,
+            peerId: resolvedPeerId,
             streamId: stream.id,
             connectionId: client!.getConnectionId() || '',
             isLocalUser: false,
@@ -343,5 +343,3 @@ export const useStreamingContext = (): StreamingContextValue => {
 
   return context;
 };
-
-export default StreamingProvider;

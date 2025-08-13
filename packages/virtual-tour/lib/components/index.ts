@@ -15,3 +15,4 @@
 
 export * from './VirtualTourDataTable';
 export * from './StudioVirtualTour';
+export * from './VirtualTourViewer';

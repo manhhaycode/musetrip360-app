@@ -164,5 +164,3 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
     </div>
   );
 };
-
-export default RemoteVideo;

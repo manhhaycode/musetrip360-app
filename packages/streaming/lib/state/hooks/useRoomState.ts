@@ -15,5 +15,3 @@ export const useRoomState = () => {
     ...selectors,
   };
 };
-
-export default useRoomState;

@@ -422,5 +422,3 @@ export const roomActions = {
     return remoteParticipant;
   },
 };
-
-export default useRoomStore;

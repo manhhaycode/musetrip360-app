@@ -274,9 +274,9 @@ export class SignalRClient {
     });
 
     // Handle peer disconnected
-    this.connection.on('PeerDisconnected', (userId: string, peerId: string) => {
+    this.connection.on('PeerDisconnected', (userId: string, peerId: string, streamId: string) => {
       console.log(`👋 Peer disconnected: ${peerId}`);
-      this.eventHandlers.PeerDisconnected?.(userId, peerId);
+      this.eventHandlers.PeerDisconnected?.(userId, peerId, streamId);
     });
 
     // Handle offers from SFU

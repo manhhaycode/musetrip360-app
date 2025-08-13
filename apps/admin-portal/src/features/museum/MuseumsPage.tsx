@@ -1,54 +1,20 @@
-import { Museum, MuseumDataTable, useCreateMuseum } from '@musetrip360/museum-management';
-import { useState } from 'react';
-import { toast } from 'sonner';
-import MuseumApiForm from '../TableForm/MuseumApiForm';
-import { MuseumApiFormData } from '../TableForm/schemas';
+import { Museum, MuseumDataTable } from '@musetrip360/museum-management';
+import { useNavigate } from 'react-router-dom';
 
 const MuseumsPage = () => {
-  const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
-
-  const createMuseumMutation = useCreateMuseum({
-    onSuccess: () => {
-      toast.success('Tạo bảo tàng thành công!');
-      setIsCreateFormOpen(false);
-    },
-    onError: (error: any) => {
-      toast.error(`Lỗi tạo bảo tàng: ${error.message}`);
-    },
-  });
+  const navigate = useNavigate();
 
   const handleView = (museum: Museum) => {
-    toast.info(`Xem chi tiết: ${museum.name}`);
+    navigate(`/museums/admin/${museum.id}`);
   };
 
   const handleEdit = (museum: Museum) => {
-    toast.info(`Chỉnh sửa: ${museum.name}`);
-  };
-
-  const handleDelete = (museum: Museum) => {
-    toast.warning(`Xóa bảo tàng: ${museum.name}`);
-  };
-
-  const handleAdd = () => {
-    setIsCreateFormOpen(true);
-  };
-
-  const handleSubmit = (data: MuseumApiFormData) => {
-    createMuseumMutation.mutate(data);
+    navigate(`/museums/admin/${museum.id}`);
   };
 
   return (
     <>
-      <MuseumDataTable onView={handleView} onEdit={handleEdit} onDelete={handleDelete} onAdd={handleAdd} />
-
-      <MuseumApiForm
-        mode="add"
-        title="Thêm Bảo Tàng Mới"
-        open={isCreateFormOpen}
-        onClose={() => setIsCreateFormOpen(false)}
-        onSubmit={handleSubmit}
-        isLoading={createMuseumMutation.isPending}
-      />
+      <MuseumDataTable onView={handleView} onEdit={handleEdit} />
     </>
   );
 };

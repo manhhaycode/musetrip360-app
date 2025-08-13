@@ -15,5 +15,3 @@ export const useParticipantState = () => {
     ...selectors,
   };
 };
-
-export default useParticipantState;
