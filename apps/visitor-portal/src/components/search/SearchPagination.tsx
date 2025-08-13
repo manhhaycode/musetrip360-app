@@ -6,10 +6,20 @@ import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-r
 interface SearchPaginationProps {
   currentPage: number;
   totalPages: number;
+  totalItems: number;
+  pageSize: number;
   onPageChange: (page: number) => void;
+  isLoading?: boolean;
 }
 
-export function SearchPagination({ currentPage, totalPages, onPageChange }: SearchPaginationProps) {
+export function SearchPagination({
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+  isLoading = false,
+}: SearchPaginationProps) {
   // Don't render pagination if there's only one page or no pages
   if (totalPages <= 1) return null;
 
@@ -59,76 +69,87 @@ export function SearchPagination({ currentPage, totalPages, onPageChange }: Sear
 
   const pageNumbers = getPageNumbers();
 
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+
   return (
-    <div className="flex items-center justify-center space-x-2">
-      {/* First Page Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onPageChange(1)}
-        disabled={currentPage === 1}
-        className="h-9 w-9 p-0"
-      >
-        <ChevronsLeft className="h-4 w-4" />
-      </Button>
-
-      {/* Previous Page Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onPageChange(currentPage - 1)}
-        disabled={currentPage === 1}
-        className="h-9 w-9 p-0"
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </Button>
-
-      {/* Page Numbers */}
-      <div className="flex items-center space-x-1">
-        {pageNumbers.map((page, index) => {
-          if (page === '...') {
-            return (
-              <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-muted-foreground">
-                ...
-              </span>
-            );
-          }
-
-          return (
-            <Button
-              key={page}
-              variant={currentPage === page ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onPageChange(page as number)}
-              className="h-9 w-9 p-0"
-            >
-              {page}
-            </Button>
-          );
-        })}
+    <div className="space-y-4">
+      {/* Pagination Info */}
+      <div className="text-center text-sm text-muted-foreground">
+        Hiển thị {startItem} - {endItem} của {totalItems} kết quả
       </div>
 
-      {/* Next Page Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="h-9 w-9 p-0"
-      >
-        <ChevronRight className="h-4 w-4" />
-      </Button>
+      <div className="flex items-center justify-center space-x-2">
+        {/* First Page Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(1)}
+          disabled={currentPage === 1 || isLoading}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronsLeft className="h-4 w-4" />
+        </Button>
 
-      {/* Last Page Button */}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onPageChange(totalPages)}
-        disabled={currentPage === totalPages}
-        className="h-9 w-9 p-0"
-      >
-        <ChevronsRight className="h-4 w-4" />
-      </Button>
+        {/* Previous Page Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage === 1 || isLoading}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        {/* Page Numbers */}
+        <div className="flex items-center space-x-1">
+          {pageNumbers.map((page, index) => {
+            if (page === '...') {
+              return (
+                <span key={`ellipsis-${index}`} className="px-2 py-1 text-sm text-muted-foreground">
+                  ...
+                </span>
+              );
+            }
+
+            return (
+              <Button
+                key={page}
+                variant={currentPage === page ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => onPageChange(page as number)}
+                disabled={isLoading}
+                className="h-9 w-9 p-0"
+              >
+                {page}
+              </Button>
+            );
+          })}
+        </div>
+
+        {/* Next Page Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage === totalPages || isLoading}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+
+        {/* Last Page Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onPageChange(totalPages)}
+          disabled={currentPage === totalPages || isLoading}
+          className="h-9 w-9 p-0"
+        >
+          <ChevronsRight className="h-4 w-4" />
+        </Button>
+      </div>
     </div>
   );
 }
