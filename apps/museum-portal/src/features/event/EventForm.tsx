@@ -20,6 +20,7 @@ import {
   useAddEventTourOnlines,
   useRemoveEventTourOnlines,
   useSubmitEvent,
+  useCreateEventRoom,
 } from '@musetrip360/event-management';
 import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
 import { useVirtualTourByMuseum } from '@musetrip360/virtual-tour/api';
@@ -158,6 +159,8 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
     },
   });
 
+  const { mutate: createEventRoom } = useCreateEventRoom();
+
   const updateEventTourOnlines = ({ eventId, tourOnlineIds }: { eventId: string; tourOnlineIds: string[] }) => {
     if (!eventId || !tourOnlineIds || tourOnlineIds.length === 0) {
       toast.error('Vui lòng chọn ít nhất một tour trực tuyến');
@@ -263,6 +266,12 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
     }
 
     submitEvent(eventId);
+    createEventRoom({
+      eventId,
+      name: 'Phòng live',
+      description: 'Phòng live của sự kiện',
+      status: 'Active',
+    });
   };
 
   const toggleTourOnlineSelection = (tourOnlineId: string) => {

@@ -28,6 +28,10 @@ export class EventManagementCacheKeys extends BaseCacheKeyFactory {
   eventsByMuseum(museumId: string, params: EventSearchParams): QueryKey {
     return [this.prefix, 'events', 'byMuseum', museumId, params.Page, params.PageSize, params.startDate, params.status];
   }
+
+  eventRooms(eventId: string): QueryKey {
+    return [this.prefix, 'eventRooms', eventId];
+  }
 }
 
 /**

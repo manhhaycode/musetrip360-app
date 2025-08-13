@@ -8,7 +8,7 @@ import {
   useQuery,
 } from '@musetrip360/query-foundation';
 
-import { Event, EventCreateDto, EventSearchParams, EventUpdateDto } from '@/types';
+import { Event, EventCreateDto, EventRoom, EventSearchParams, EventUpdateDto } from '@/types';
 
 import {
   createEventRequest,
@@ -20,6 +20,8 @@ import {
   addEventTourOnlines,
   removeEventTourOnlines,
   getEventById,
+  getEventRooms,
+  createEventRoom,
 } from '../endpoints';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';
@@ -91,4 +93,26 @@ export function useRemoveEventTourOnlines(
   options?: CustomMutationOptions<Event, APIError, { eventId: string; tourOnlineIds: string[] }>
 ) {
   return useMutation(({ eventId, tourOnlineIds }) => removeEventTourOnlines(eventId, tourOnlineIds), options);
+}
+
+export function useGetEventRooms(eventId: string, options?: CustomQueryOptions<EventRoom[]>) {
+  return useQuery([eventManagementCacheKeys.eventRooms(eventId)], () => getEventRooms(eventId), {
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes
+    ...options,
+  });
+}
+
+export function useCreateEventRoom(
+  options?: CustomMutationOptions<
+    EventRoom,
+    APIError,
+    { name: string; description?: string; status?: string; eventId: string }
+  >
+) {
+  return useMutation(
+    (data: { name: string; description?: string; status?: string; eventId: string }) =>
+      createEventRoom(data.eventId, data),
+    options
+  );
 }

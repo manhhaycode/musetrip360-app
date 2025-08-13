@@ -16,13 +16,14 @@ const EventEditPage = () => {
     data: event,
     isLoading,
     isError: error,
+    refetch,
   } = useGetEventById(id || '', {
     enabled: !!id && !!museumId,
   });
 
   const handleEventUpdated = (updatedEvent: Event) => {
     console.log('Event updated:', updatedEvent);
-    navigate(-1);
+    refetch(); // Refresh the event data after update
   };
 
   const handleCancel = () => {
