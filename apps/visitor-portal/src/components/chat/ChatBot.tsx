@@ -157,10 +157,10 @@ export function ChatBot() {
   const getBotResponse = (userMessage: string) => {
     const message = userMessage.toLowerCase();
 
-    if (message.includes('đặt') || message.includes('tour') || message.includes('booking')) {
+    if (message.includes(' đặt ') || message.includes(' tour ') || message.includes(' booking ')) {
       return botResponses.booking;
     }
-    if (message.includes('xin chào') || message.includes('hello') || message.includes('hi')) {
+    if (message.includes(' xin chào ') || message.includes(' hello ') || message.includes(' hi ')) {
       return botResponses.greeting;
     }
 
