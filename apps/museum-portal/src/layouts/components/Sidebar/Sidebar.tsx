@@ -33,7 +33,7 @@ import {
   ScaleIcon,
   SettingsIcon,
   StarIcon,
-  TicketIcon,
+  // TicketIcon,
   UsersIcon,
   TicketsPlaneIcon,
   NewspaperIcon,
@@ -168,18 +168,18 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                 },
               ],
             },
-            {
-              title: 'Quản lý vé sự kiện',
-              url: '/event-ticket',
-              icon: TicketIcon,
-              items: [
-                {
-                  title: 'Danh sách vé sự kiện',
-                  url: '/event-ticket',
-                  icon: ListChecksIcon,
-                },
-              ],
-            },
+            // {
+            //   title: 'Quản lý vé sự kiện',
+            //   url: '/event-ticket',
+            //   icon: TicketIcon,
+            //   items: [
+            //     {
+            //       title: 'Danh sách vé sự kiện',
+            //       url: '/event-ticket',
+            //       icon: ListChecksIcon,
+            //     },
+            //   ],
+            // },
           ]}
         />
         <SidebarGroupItem

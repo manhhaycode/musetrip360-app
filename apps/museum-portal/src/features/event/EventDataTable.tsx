@@ -22,6 +22,7 @@ import {
   useCancelEvent,
   EventStatusEnum,
   useEvaluateEvent,
+  useCreateEventRoom,
 } from '@musetrip360/event-management';
 
 import get from 'lodash.get';
@@ -54,6 +55,8 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
     defaultPerPage: 10,
     defaultSort: [{ id: 'createdAt', desc: true }],
   });
+
+  const { mutate: createEventRoom } = useCreateEventRoom();
 
   const {
     data: eventsData,
@@ -109,6 +112,12 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       onEdit: (data: Event) => onEdit?.(data),
       onSubmit: (data: Event) => {
         submitEvent(data.id);
+        createEventRoom({
+          eventId: data.id,
+          name: `Phòng sự kiện ${data.title}`,
+          description: `Phòng dành cho sự kiện ${data.title}`,
+          status: 'Active',
+        });
         onSubmit?.(data);
       },
       onCancel: (data: Event) => {
@@ -116,7 +125,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
         onCancel?.(data);
       },
     }),
-    [onView, onEdit, onSubmit, onCancel, submitEvent, cancelEvent]
+    [onView, onEdit, submitEvent, createEventRoom, onSubmit, cancelEvent, onCancel]
   );
 
   const getStatusVariant = (status: EventStatusEnum) => {
