@@ -95,6 +95,9 @@ const MuseumDetailPage = () => {
     }
   }, [imageFields.length, appendImage]);
 
+  console.log('Watched images:', watchedImages);
+  console.log('Image fields:', imageFields);
+
   // Auto-append new field if all are filled
   useEffect(() => {
     const allImagesHaveValue = watchedImages?.every((img) => !!img);
