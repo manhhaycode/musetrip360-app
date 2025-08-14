@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
-import {
-  useGetRoles,
-  useCreateRole,
-  useUpdateRole,
-  useUpdateRolePermissions,
-  useGetPermissions,
-} from '@musetrip360/rolebase-management/api';
+import { useNavigate } from 'react-router-dom';
+import { useGetRoles, useCreateRole, useUpdateRole } from '@musetrip360/rolebase-management/api';
 import { Role } from '@musetrip360/rolebase-management';
 import {
   Card,
@@ -14,7 +9,6 @@ import {
   CardTitle,
   Button,
   Input,
-  Label,
   Dialog,
   DialogContent,
   DialogHeader,
@@ -26,13 +20,7 @@ import {
   TableHead,
   TableBody,
   TableCell,
-  Badge,
   Textarea,
-  Checkbox,
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
   Form,
   FormControl,
   FormField,
@@ -46,7 +34,6 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import get from 'lodash/get';
-import { Permission } from '@musetrip360/user-management';
 
 const roleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -56,10 +43,10 @@ const roleFormSchema = z.object({
 type RoleFormData = z.infer<typeof roleFormSchema>;
 
 const RolePage = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isPermissionsSheetOpen, setIsPermissionsSheetOpen] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 
   const {
@@ -71,8 +58,6 @@ const RolePage = () => {
     PageSize: 100,
     Search: searchTerm,
   });
-
-  const { data: permissionsData } = useGetPermissions({ Page: 1, PageSize: 1000 });
 
   const createRoleMutation = useCreateRole({
     onSuccess: () => {
@@ -94,18 +79,6 @@ const RolePage = () => {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to update role');
-    },
-  });
-
-  const updateRolePermissionsMutation = useUpdateRolePermissions({
-    onSuccess: () => {
-      toast.success('Role permissions updated successfully');
-      setIsPermissionsSheetOpen(false);
-      setSelectedRole(null);
-      refetchRoles();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update role permissions');
     },
   });
 
@@ -133,7 +106,7 @@ const RolePage = () => {
   const handleEditRole = async (data: RoleFormData) => {
     if (!selectedRole) return;
     await updateRoleMutation.mutateAsync({
-      roleId: selectedRole.id,
+      id: selectedRole.id,
       ...data,
     });
     editForm.reset();
@@ -147,25 +120,10 @@ const RolePage = () => {
   };
 
   const handleManagePermissions = (role: Role) => {
-    setSelectedRole(role);
-    setIsPermissionsSheetOpen(true);
-  };
-
-  const handlePermissionsSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!selectedRole) return;
-
-    const formData = new FormData(event.currentTarget);
-    const selectedPermissionIds = Array.from(formData.getAll('permissions')).map(String);
-
-    await updateRolePermissionsMutation.mutateAsync({
-      roleId: selectedRole.id,
-      permissionIds: selectedPermissionIds,
-    });
+    navigate(`/rolebase/roles/${role.id}/permissions`);
   };
 
   const roles = get(rolesData, 'data', []) as Role[];
-  const permissions = get(permissionsData, 'data', []) as Permission[];
 
   return (
     <div className="container mx-auto py-6">
@@ -240,7 +198,7 @@ const RolePage = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Roles ({rolesData?.totalItems || 0})
+            Roles ({roles.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -255,7 +213,6 @@ const RolePage = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Permissions</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -264,9 +221,6 @@ const RolePage = () => {
                     <TableRow key={role.id}>
                       <TableCell className="font-medium">{role.name}</TableCell>
                       <TableCell className="text-muted-foreground">{role.description || 'No description'}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary">{role.permissions?.length || 0} permissions</Badge>
-                      </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button variant="outline" size="sm" onClick={() => handleEditClick(role)} className="gap-1">
@@ -337,54 +291,6 @@ const RolePage = () => {
           </Form>
         </DialogContent>
       </Dialog>
-
-      {/* Manage Permissions Sheet */}
-      <Sheet open={isPermissionsSheetOpen} onOpenChange={setIsPermissionsSheetOpen}>
-        <SheetContent className="w-[400px] sm:w-[540px]">
-          <SheetHeader>
-            <SheetTitle>Manage Permissions - {selectedRole?.name}</SheetTitle>
-          </SheetHeader>
-          <div className="mt-6">
-            <form onSubmit={handlePermissionsSubmit} className="space-y-4">
-              <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-                {permissions.map((permission) => {
-                  const isChecked = selectedRole?.permissions?.some((p) => p.id === permission.id) || false;
-
-                  return (
-                    <div key={permission.id} className="flex items-start space-x-3 p-3 border rounded-lg">
-                      <Checkbox
-                        id={permission.id}
-                        name="permissions"
-                        value={permission.id}
-                        defaultChecked={isChecked}
-                      />
-                      <div className="grid gap-1.5 leading-none">
-                        <Label
-                          htmlFor={permission.id}
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {permission.name}
-                        </Label>
-                        {permission.description && (
-                          <p className="text-xs text-muted-foreground">{permission.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button type="button" variant="outline" onClick={() => setIsPermissionsSheetOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={updateRolePermissionsMutation.isPending}>
-                  {updateRolePermissionsMutation.isPending ? 'Updating...' : 'Update Permissions'}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 };

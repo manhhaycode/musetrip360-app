@@ -5,6 +5,7 @@ import AuthPage from '@/features/auth/AuthPage';
 import { MuseumDetailPage, MuseumRequestDetailPage, MuseumRequestsPage, MuseumsPage } from '@/features/museum';
 import PermissionPage from '@/features/rolebase/PermissionPage';
 import RolePage from '@/features/rolebase/RolePage';
+import RolePermissionsPage from '@/features/rolebase/RolePermissionsPage';
 import { UsersPage } from '@/features/users';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
@@ -30,6 +31,7 @@ export default function AppRoutes() {
           {/* User Management */}
           <Route path="users" element={<UsersPage />} />
           <Route path="rolebase/roles" element={<RolePage />} />
+          <Route path="rolebase/roles/:roleId/permissions" element={<RolePermissionsPage />} />
           <Route path="rolebase/permissions" element={<PermissionPage />} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />

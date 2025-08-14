@@ -51,6 +51,7 @@ import get from 'lodash/get';
 const permissionFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
+  resourceGroup: z.string().min(1, 'Resource Group is required'),
 });
 
 type PermissionFormData = z.infer<typeof permissionFormSchema>;
@@ -114,6 +115,7 @@ const PermissionPage = () => {
     defaultValues: {
       name: '',
       description: '',
+      resourceGroup: '',
     },
   });
 
@@ -122,6 +124,7 @@ const PermissionPage = () => {
     defaultValues: {
       name: '',
       description: '',
+      resourceGroup: '',
     },
   });
 
@@ -133,7 +136,7 @@ const PermissionPage = () => {
   const handleEditPermission = async (data: PermissionFormData) => {
     if (!selectedPermission) return;
     await updatePermissionMutation.mutateAsync({
-      permissionId: selectedPermission.id,
+      id: selectedPermission.id,
       ...data,
     });
     editForm.reset();
@@ -162,7 +165,7 @@ const PermissionPage = () => {
   };
 
   const permissions = get(permissionsData, 'data', []) as Permission[];
-  const totalPages = Math.ceil((permissionsData?.totalItems || 0) / pageSize);
+  const totalPages = Math.ceil(get(permissionsData, 'total', 0) / pageSize);
 
   return (
     <div className="container mx-auto py-6">
@@ -210,6 +213,19 @@ const PermissionPage = () => {
                     </FormItem>
                   )}
                 />
+                <FormField
+                  control={createForm.control}
+                  name="resourceGroup"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Resource Group</FormLabel>
+                      <FormControl>
+                        <Textarea placeholder="Describe the resource group" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <div className="flex justify-end gap-2">
                   <Button type="button" variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                     Cancel
@@ -238,7 +254,7 @@ const PermissionPage = () => {
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="gap-1">
             <Key className="h-3 w-3" />
-            {permissionsData?.totalItems || 0} Total
+            {get(permissionsData, 'total', 0)} Total
           </Badge>
         </div>
       </div>
@@ -275,6 +291,7 @@ const PermissionPage = () => {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead>Resource Group</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
@@ -283,6 +300,13 @@ const PermissionPage = () => {
                   <TableBody>
                     {permissions.map((permission) => (
                       <TableRow key={permission.id}>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <code className="px-2 py-1 bg-muted rounded text-sm font-medium">
+                              {permission.resourceGroup}
+                            </code>
+                          </div>
+                        </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <code className="px-2 py-1 bg-muted rounded text-sm font-medium">{permission.name}</code>
@@ -323,8 +347,8 @@ const PermissionPage = () => {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, permissionsData?.totalItems || 0)}{' '}
-                    of {permissionsData?.totalItems || 0} permissions
+                    Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, get(permissionsData, 'total', 0))}{' '}
+                    of {get(permissionsData, 'total', 0)} permissions
                   </p>
                   <div className="flex items-center gap-2">
                     <Button
@@ -397,6 +421,19 @@ const PermissionPage = () => {
                     <FormLabel>Description</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Describe what this permission allows" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="resourceGroup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Resource Group</FormLabel>
+                    <FormControl>
+                      <Textarea placeholder="Describe the resource group" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
