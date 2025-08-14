@@ -28,8 +28,8 @@ export type CreatePermission = Omit<Permission, 'id' | 'isActive'>;
 export type UpdatePermission = Partial<CreatePermission> & { id: string };
 
 export type UpdateRolePermissions = {
-  addList: string[];
-  removeList: string[];
+  addList?: string[];
+  removeList?: string[];
 };
 
 export type UserPrivilege = {

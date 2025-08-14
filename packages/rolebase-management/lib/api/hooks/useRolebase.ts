@@ -56,8 +56,8 @@ export function useCreateRole(options?: CustomMutationOptions<Role, APIError, Cr
   return useMutation((data: CreateRole) => createRole(data), options);
 }
 
-export function useUpdateRole(options?: CustomMutationOptions<Role, APIError, UpdateRole & { roleId: string }>) {
-  return useMutation((data: UpdateRole & { roleId: string }) => updateRoleById(data.roleId, data), options);
+export function useUpdateRole(options?: CustomMutationOptions<Role, APIError, UpdateRole>) {
+  return useMutation((data: UpdateRole) => updateRoleById(data.id, data), options);
 }
 
 export function useGetPermissions(params: Pagination, options?: CustomQueryOptions<PaginatedResponse<Permission>>) {
@@ -80,13 +80,8 @@ export function useCreatePermission(options?: CustomMutationOptions<Permission, 
   return useMutation((data: CreatePermission) => createPermission(data), options);
 }
 
-export function useUpdatePermission(
-  options?: CustomMutationOptions<Permission, APIError, UpdatePermission & { permissionId: string }>
-) {
-  return useMutation(
-    (data: UpdatePermission & { permissionId: string }) => updatePermissionById(data.permissionId, data),
-    options
-  );
+export function useUpdatePermission(options?: CustomMutationOptions<Permission, APIError, UpdatePermission>) {
+  return useMutation((data: UpdatePermission) => updatePermissionById(data.id, data), options);
 }
 
 export function useDeletePermission(options?: CustomMutationOptions<void, APIError, string>) {
