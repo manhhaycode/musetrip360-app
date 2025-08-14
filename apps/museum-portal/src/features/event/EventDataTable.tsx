@@ -27,6 +27,7 @@ import {
 
 import get from 'lodash.get';
 import { EventStatusName, EventTypeName } from '@/config/constants/event';
+import { PERMISSION_EVENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 interface EventDataTableProps {
   museumId: string;
@@ -50,6 +51,7 @@ const eventTypeOptions: Option[] = Object.entries(EventTypeName).map(([value, la
 
 const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }: EventDataTableProps) => {
   const initialData: Event[] = useMemo(() => [], []);
+  const { hasPermission } = useRolebaseStore();
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
@@ -298,20 +300,21 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
                 </DropdownMenuItem>
               )}
 
-              {row.original.status === EventStatusEnum.Pending && (
-                <DropdownMenuItem
-                  onClick={() => evaluateEvent({ eventId: row.original.id, isApproved: true })}
-                  className="text-green-600"
-                >
-                  <BadgeCheckIcon className="mr-2 h-4 w-4" />
-                  Phê duyệt
-                </DropdownMenuItem>
-              )}
+              {row.original.status === EventStatusEnum.Pending &&
+                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) && (
+                  <DropdownMenuItem
+                    onClick={() => evaluateEvent({ eventId: row.original.id, isApproved: true })}
+                    className="text-green-600"
+                  >
+                    <BadgeCheckIcon className="mr-2 h-4 w-4" />
+                    Phê duyệt
+                  </DropdownMenuItem>
+                )}
 
               {(row.original.status === EventStatusEnum.Draft ||
                 row.original.status === EventStatusEnum.Pending ||
-                (row.original.status === EventStatusEnum.Published &&
-                  new Date(row.original.startTime) > new Date())) && (
+                (row.original.status === EventStatusEnum.Published && new Date(row.original.startTime) > new Date()) ||
+                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT)) && (
                 <DropdownMenuItem onClick={() => handleAction().onCancel(row.original)} className="text-orange-600">
                   <X className="mr-2 h-4 w-4" />
                   Hủy
@@ -322,7 +325,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
         ),
       },
     ],
-    [handleAction, evaluateEvent]
+    [hasPermission, museumId, handleAction, evaluateEvent]
   );
 
   const { table } = useDataTable<Event, string>({

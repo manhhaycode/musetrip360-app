@@ -19,9 +19,11 @@ import {
   ArticleStatusEnum,
   useDeleteArticle,
   useGetAdminArticlesByMuseum,
+  useMuseumStore,
   useUpdateArticle,
 } from '@musetrip360/museum-management';
 import get from 'lodash.get';
+import { PERMISSION_CONTENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 interface ArticleDataTableProps {
   museumId: string;
@@ -35,6 +37,9 @@ interface ArticleDataTableProps {
 
 const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchive }: ArticleDataTableProps) => {
   const initialData: Article[] = useMemo(() => [], []);
+  const { selectedMuseum } = useMuseumStore();
+
+  const { hasPermission } = useRolebaseStore();
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
@@ -213,38 +218,43 @@ const ArticleDataTable = ({ museumId, onView, onEdit, onAdd, onPublish, onArchiv
                 <Eye className="mr-2 h-4 w-4" />
                 View
               </DropdownMenuItem>
+              {hasPermission(selectedMuseum?.id || '', PERMISSION_CONTENT_MANAGEMENT) && (
+                <>
+                  {(row.original.status === ArticleStatusEnum.Pending ||
+                    row.original.status === ArticleStatusEnum.Archived) && (
+                    <DropdownMenuItem onClick={() => handleAction().onPublish(row.original)} className="text-green-600">
+                      <FileCheck className="mr-2 h-4 w-4" />
+                      Publish
+                    </DropdownMenuItem>
+                  )}
 
+                  {row.original.status === ArticleStatusEnum.Published && (
+                    <DropdownMenuItem
+                      onClick={() => handleAction().onArchive(row.original)}
+                      className="text-orange-600"
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      Archive
+                    </DropdownMenuItem>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </>
+              )}
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
-              </DropdownMenuItem>
-
-              {(row.original.status === ArticleStatusEnum.Pending ||
-                row.original.status === ArticleStatusEnum.Archived) && (
-                <DropdownMenuItem onClick={() => handleAction().onPublish(row.original)} className="text-green-600">
-                  <FileCheck className="mr-2 h-4 w-4" />
-                  Publish
-                </DropdownMenuItem>
-              )}
-
-              {row.original.status === ArticleStatusEnum.Published && (
-                <DropdownMenuItem onClick={() => handleAction().onArchive(row.original)} className="text-orange-600">
-                  <Archive className="mr-2 h-4 w-4" />
-                  Archive
-                </DropdownMenuItem>
-              )}
-
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ],
-    [handleAction, statusOptions]
+    [handleAction, hasPermission, selectedMuseum?.id, statusOptions]
   );
 
   const { table } = useDataTable<Article, string>({

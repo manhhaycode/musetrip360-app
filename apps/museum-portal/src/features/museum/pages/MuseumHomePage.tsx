@@ -1,4 +1,6 @@
 import { useGetMuseumById, useMuseumStore, useUpdateMuseum } from '@musetrip360/museum-management';
+import { PERMISSION_MUSEUM_DETAIL_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import { toast } from '@musetrip360/ui-core';
 import React from 'react';
 const RichEditor = React.lazy(() =>
   import('@musetrip360/rich-editor').then((module) => ({
@@ -10,6 +12,7 @@ const MuseumHomePage = () => {
   const { data: museum, refetch } = useGetMuseumById(selectedMuseum?.id ?? '', {
     enabled: !!selectedMuseum?.id,
   });
+  const { hasPermission } = useRolebaseStore();
   const updateMuseum = useUpdateMuseum({
     onSettled: () => {
       refetch();
@@ -28,6 +31,10 @@ const MuseumHomePage = () => {
       <RichEditor
         value={museum.metadata?.contentHomePage ?? ''}
         onSave={(content) => {
+          if (!hasPermission(selectedMuseum.id, PERMISSION_MUSEUM_DETAIL_MANAGEMENT)) {
+            toast.error('Bạn không có quyền thực hiện thao tác này.');
+            return;
+          }
           updateMuseum.mutate({
             ...museum,
             metadata: {
