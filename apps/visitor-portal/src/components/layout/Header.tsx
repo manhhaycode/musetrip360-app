@@ -54,6 +54,8 @@ export function Header() {
   const { modalControl: authController } = useAuthActionContext();
   const router = useRouter();
 
+  console.log(isAuthenticated, user);
+
   const handleLogout = () => {
     useAuthStore.getState().resetStore();
     resetUserStore();

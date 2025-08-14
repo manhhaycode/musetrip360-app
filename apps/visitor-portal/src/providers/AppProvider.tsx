@@ -42,9 +42,9 @@ function AuthModalWrapper({ children }: { children: React.ReactNode }) {
 export default function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={getQueryClient()}>
-      <AuthProvider>
+      <AuthProvider strictMode={false}>
         <AuthModalWrapper>
-          <UserProvider>{children}</UserProvider>
+          <UserProvider strictMode={false}>{children}</UserProvider>
         </AuthModalWrapper>
       </AuthProvider>
     </QueryClientProvider>

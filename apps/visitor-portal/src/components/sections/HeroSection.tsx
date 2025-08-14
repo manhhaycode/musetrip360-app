@@ -46,9 +46,8 @@ export function HeroSection() {
                     Khám phá{' '}
                     <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-yellow-600 bg-clip-text text-transparent">
                       Bảo tàng
-                    </span>
-                    <br />
-                    thế giới từ nhà
+                    </span>{' '}
+                    online
                   </h1>
 
                   <p className="text-lg text-muted-foreground lg:text-xl">

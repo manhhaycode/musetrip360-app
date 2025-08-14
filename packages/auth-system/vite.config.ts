@@ -100,7 +100,7 @@ export default defineConfig({
       },
     },
     target: 'es2020',
-    minify: false,
+    minify: true,
     sourcemap: true,
     // Emit CSS as separate files
     cssCodeSplit: false,

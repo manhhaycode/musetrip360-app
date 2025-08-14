@@ -7,7 +7,7 @@ import { Label } from '@musetrip360/ui-core/label';
 import { RadioGroup, RadioGroupItem } from '@musetrip360/ui-core/radio-group';
 import { Filter, RotateCcw, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { TYPE_OPTIONS, type SearchFilters as SearchFiltersType } from '../../types/search';
+import { TYPE_OPTIONS, type SearchFilters as SearchFiltersType } from '@/types/search';
 
 interface SearchFiltersProps {
   filters: SearchFiltersType;

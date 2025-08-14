@@ -35,7 +35,7 @@ export default function SearchPage() {
   const apiParams = useMemo(() => searchUtils.formatFiltersForAPI(filters), [filters]);
 
   // Search query
-  const { data: searchResponse, isLoading, error, refetch } = useGlobalSearch(apiParams, true);
+  const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
 
   // Calculate pagination
   const totalPages = useMemo(() => {
