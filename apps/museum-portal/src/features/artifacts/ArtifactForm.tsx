@@ -29,6 +29,8 @@ import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Switch } from '@musetrip360/ui-core/switch';
 import Divider from '@/components/Divider';
+import { PERMISSION_ARTIFACT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import { toast } from '@musetrip360/ui-core';
 
 // Validation schema for artifact form
 const artifactSchema = z.object({
@@ -58,6 +60,7 @@ interface ArtifactFormProps {
 const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultValues, onSuccess }) => {
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();
+  const { hasPermission } = useRolebaseStore();
 
   const { data: historicalPeriods } = useHistoricalPeriod();
 
@@ -229,6 +232,11 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
 
   const onSubmit = async (data: ArtifactFormData) => {
     try {
+      if (!hasPermission(selectedMuseum.id, PERMISSION_ARTIFACT_MANAGEMENT)) {
+        toast.error('Bạn không có quyền thực hiện thao tác này.');
+        return;
+      }
+
       setError(null);
       setIsUploadingImages(true);
 

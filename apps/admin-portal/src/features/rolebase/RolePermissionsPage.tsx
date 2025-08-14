@@ -1,7 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useGetRoleById, useGetPermissions, useUpdateRolePermissions } from '@musetrip360/rolebase-management';
-import { Permission } from '@musetrip360/user-management';
+import {
+  useGetRoleById,
+  useGetPermissions,
+  useUpdateRolePermissions,
+  Permission,
+} from '@musetrip360/rolebase-management';
 import {
   Card,
   CardHeader,
