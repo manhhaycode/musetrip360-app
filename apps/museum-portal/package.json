@@ -26,8 +26,8 @@
     "@musetrip360/virtual-tour": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "lodash.get": "^4.4.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-router": "^7.6.3",
     "tailwindcss": "^4"
   },
