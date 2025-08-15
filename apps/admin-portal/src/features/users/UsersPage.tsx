@@ -62,8 +62,8 @@ const UsersPage = () => {
               <Label htmlFor="editUsername">Username</Label>
               <Input
                 id="editUsername"
-                value={formData.username || ''}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                value={formData.fullName || ''}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 required
               />
             </div>
