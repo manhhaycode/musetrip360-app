@@ -5,10 +5,12 @@ import { useMuseumStore } from '@musetrip360/museum-management/state';
 import ArticleDataTable from '@/features/article/ArticleDataTable';
 import ArticleDetail from '@/features/article/ArticleDetail';
 import { useNavigate } from 'react-router';
+import withPermission from '@/hocs/withPermission';
+import { PERMISSION_CONTENT_MANAGEMENT } from '@musetrip360/rolebase-management';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
-const MuseumArticlePage = () => {
+const MuseumArticlePage = withPermission(() => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
 
@@ -68,6 +70,6 @@ const MuseumArticlePage = () => {
       <ArticleDataTable museumId={selectedMuseum.id} onView={handleView} onEdit={handleEdit} onAdd={handleAdd} />
     </>
   );
-};
+}, [PERMISSION_CONTENT_MANAGEMENT]);
 
 export default MuseumArticlePage;

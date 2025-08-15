@@ -5,8 +5,10 @@ import { Card, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-co
 import { Event } from '@musetrip360/event-management';
 import EventDataTable from '../EventDataTable';
 import { useMuseumStore } from '@musetrip360/museum-management';
+import withPermission from '@/hocs/withPermission';
+import { PERMISSION_EVENT_MANAGEMENT, PERMISSION_EVENT_VIEW } from '@musetrip360/rolebase-management';
 
-const EventListPage = () => {
+const EventListPage = withPermission(() => {
   const { selectedMuseum } = useMuseumStore();
   const museumId = selectedMuseum?.id || '';
 
@@ -62,6 +64,6 @@ const EventListPage = () => {
       onCancel={handleCancelEvent}
     />
   );
-};
+}, [PERMISSION_EVENT_VIEW, PERMISSION_EVENT_MANAGEMENT]);
 
 export default EventListPage;

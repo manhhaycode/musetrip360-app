@@ -18,10 +18,13 @@ import get from 'lodash.get';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core';
 import AddStaffMember from './AddStaffMember';
 import { toast } from '@musetrip360/ui-core/sonner';
+import { PERMISSION_USER_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const StaffDataTable = () => {
   const { selectedMuseum } = useMuseumStore();
   const [isAddStaffModalOpen, setIsAddStaffModalOpen] = useState(false);
+
+  const { hasPermission } = useRolebaseStore();
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
@@ -144,17 +147,19 @@ const StaffDataTable = () => {
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Xoá
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+            {hasPermission(selectedMuseum?.id || '', PERMISSION_USER_MANAGEMENT) && (
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Xoá
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            )}
           </DropdownMenu>
         ),
       },
     ],
-    [handleAction]
+    [handleAction, hasPermission, selectedMuseum?.id]
   );
 
   const { table } = useDataTable<UserWithRole, string>({
