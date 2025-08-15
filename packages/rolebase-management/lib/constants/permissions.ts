@@ -1,0 +1,17 @@
+export const PERMISSION_MUSEUM_DETAIL_MANAGEMENT = 'museums.detail.management';
+export const PERMISSION_MUSEUM_MANAGEMENT = 'museums.management';
+export const PERMISSION_MUSEUM_VIEW = 'museums.view';
+export const PERMISSION_MUSEUM_REQUEST_APPROVAL = 'museum_requests.approval';
+export const PERMISSION_EVENT_VIEW = 'events.view';
+export const PERMISSION_EVENT_CREATE = 'events.create';
+export const PERMISSION_EVENT_MANAGEMENT = 'events.management';
+export const PERMISSION_CONTENT_MANAGEMENT = 'content.management';
+export const PERMISSION_USER_VIEW = 'users.view';
+export const PERMISSION_USER_MANAGEMENT = 'users.management';
+export const PERMISSION_ARTIFACT_VIEW = 'artifacts.view';
+export const PERMISSION_ARTIFACT_MANAGEMENT = 'artifacts.management';
+export const PERMISSION_TOUR_VIEW = 'tours.view';
+export const PERMISSION_TOUR_CREATE = 'tours.create';
+export const PERMISSION_TOUR_MANAGEMENT = 'tours.management';
+export const PERMISSION_ROLE_MANAGEMENT = 'role.management';
+export const PERMISSION_PERMISSION_MANAGEMENT = 'permission.management';

@@ -39,7 +39,6 @@ const AddStaffMember: React.FC<AddStaffMemberProps> = ({ isOpen, onClose, onSucc
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<IUser | null>(null);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-
   const { data: roles } = useRoles({
     page: 1,
     pageSize: 1000,

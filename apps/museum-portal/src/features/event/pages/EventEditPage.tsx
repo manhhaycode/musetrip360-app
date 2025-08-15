@@ -5,8 +5,10 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Event, useGetEventById } from '@musetrip360/event-management';
 import EventForm from '../EventForm';
 import { useMuseumStore } from '@musetrip360/museum-management';
+import withPermission from '@/hocs/withPermission';
+import { PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
 
-const EventEditPage = () => {
+const EventEditPage = withPermission(() => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();
@@ -96,6 +98,6 @@ const EventEditPage = () => {
       <EventForm event={event} museumId={museumId} onSuccess={handleEventUpdated} onCancel={handleCancel} />
     </div>
   );
-};
+}, [PERMISSION_EVENT_MANAGEMENT]);
 
 export default EventEditPage;

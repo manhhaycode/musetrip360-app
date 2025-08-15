@@ -9,6 +9,10 @@ const routes = {
   users: '/users',
   settings: '/settings',
   policies: '/policies',
+  rolebase: {
+    roles: '/rolebase/roles',
+    permissions: '/rolebase/permissions',
+  },
 };
 
 export default routes;
