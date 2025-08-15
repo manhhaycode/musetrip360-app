@@ -67,11 +67,7 @@ export function useCreateUser(options?: CustomMutationOptions<ApiResponse<IUser>
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error: any, variables, context) => {
-      console.error('Raw create user error:', error);
-      console.error('Error response:', error.response);
-      console.error('Error data:', error.response?.data);
       const errorMessage = userApiErrorHandler.handleError(error);
-      console.error('Processed error message:', errorMessage);
       options?.onError?.(error, variables, context);
     },
   });
@@ -114,7 +110,7 @@ export function useUpdateUser(
         options?.onSuccess?.(response, variables, context);
       },
       onError: (error: any, variables, context) => {
-        console.error('Failed to update user:', userApiErrorHandler.handleError(error));
+        const errorMessage = userApiErrorHandler.handleError(error);
         options?.onError?.(error, variables, context);
       },
     }
