@@ -31,8 +31,8 @@
     "test:coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "devDependencies": {
     "@musetrip360/eslint-config": "workspace:*",
