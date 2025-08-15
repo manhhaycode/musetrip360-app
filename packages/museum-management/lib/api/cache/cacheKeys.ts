@@ -21,6 +21,10 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
     return [this.prefix, 'museums'];
   }
 
+  museumsAdmin(params?: MuseumSearchParams): QueryKey {
+    return [this.prefix, 'museums', 'admin', params];
+  }
+
   museum(id: string): QueryKey {
     return [this.prefix, 'museum', id];
   }
@@ -36,6 +40,14 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
 
   userMuseums(): QueryKey {
     return [this.prefix, 'userMuseums'];
+  }
+
+  analyticsOverview(museumId: string): QueryKey {
+    return [this.prefix, 'analyticsOverview', museumId];
+  }
+
+  adminOverview(): QueryKey {
+    return [this.prefix, 'adminOverview'];
   }
 }
 
@@ -81,3 +93,26 @@ export class MuseumPolicyManagementCacheKeys extends BaseCacheKeyFactory {
 }
 
 export const museumPolicyManagementCacheKeys = new MuseumPolicyManagementCacheKeys();
+
+/**
+ * Museum Article Management cache keys
+ */
+export class MuseumArticleManagementCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('museumArticleManagement');
+  }
+
+  museumArticles(museumId: string, params: Pagination): QueryKey {
+    return [this.prefix, 'museumArticles', museumId, params];
+  }
+
+  articlesByEntity(entityId: string, dataEntityType: string, params: Pagination): QueryKey {
+    return [this.prefix, 'articlesByEntity', entityId, dataEntityType, params];
+  }
+
+  article(id: string): QueryKey {
+    return [this.prefix, 'article', id];
+  }
+}
+
+export const museumArticleManagementCacheKeys = new MuseumArticleManagementCacheKeys();

@@ -94,6 +94,9 @@ export default defineConfig({
           }
           return 'assets/[name][extname]';
         },
+        banner: () => {
+          return "'use client';\n";
+        },
       },
     },
     target: 'es2020',

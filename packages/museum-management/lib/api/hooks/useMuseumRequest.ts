@@ -7,7 +7,8 @@ import {
   useMutation,
   useQuery,
 } from '@musetrip360/query-foundation';
-import { MuseumRequest, MuseumRequestCreate } from '@/types';
+import { MuseumRequest, MuseumRequestCreate, MuseumRequestSearchParams } from '../../types';
+import { museumRequestManagementCacheKeys } from '../cache/cacheKeys';
 import {
   approveMuseumRequest,
   createMuseumRequest,
@@ -17,7 +18,6 @@ import {
   rejectMuseumRequest,
   updateMuseumRequest,
 } from '../endpoints';
-import { museumRequestManagementCacheKeys } from '../cache/cacheKeys';
 
 export function useCreateMuseumRequest(options?: CustomMutationOptions<MuseumRequest, APIError, MuseumRequestCreate>) {
   return useMutation((data: MuseumRequestCreate) => createMuseumRequest(data), options);
@@ -40,7 +40,7 @@ export function useGetMuseumRequestById(id: string, options?: CustomQueryOptions
 }
 
 export function useGetMuseumRequests(
-  params: Pagination,
+  params: MuseumRequestSearchParams,
   options?: CustomQueryOptions<PaginatedResponse<MuseumRequest>>
 ) {
   return useQuery([museumRequestManagementCacheKeys.museumRequests(params)], () => getMuseumRequests(params), {

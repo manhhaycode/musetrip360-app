@@ -5,11 +5,12 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent } from '@musetrip360/ui-core/card';
 import { Globe, Play, Headset, Camera, Users, Star, MapPin, Clock, Eye } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { useRouter } from 'next/navigation';
 
 export function HeroSection() {
   const { ref: heroRef, isVisible: heroVisible } = useScrollAnimation({ threshold: 0.2 });
   const { ref: statsRef, isVisible: statsVisible } = useScrollAnimation({ threshold: 0.3 });
-
+  const route = useRouter();
   return (
     <>
       {/* Hero Section */}
@@ -45,9 +46,8 @@ export function HeroSection() {
                     Khám phá{' '}
                     <span className="bg-gradient-to-r from-amber-600 via-orange-600 to-yellow-600 bg-clip-text text-transparent">
                       Bảo tàng
-                    </span>
-                    <br />
-                    thế giới từ nhà
+                    </span>{' '}
+                    online
                   </h1>
 
                   <p className="text-lg text-muted-foreground lg:text-xl">
@@ -58,6 +58,7 @@ export function HeroSection() {
 
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <Button
+                    onClick={() => route.push('/search')}
                     size="lg"
                     className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
                   >
@@ -126,6 +127,7 @@ export function HeroSection() {
                         {/* Play Button Overlay */}
                         <div className="absolute inset-0 flex items-center justify-center">
                           <Button
+                            onClick={() => route.push('/search')}
                             size="lg"
                             className="rounded-full bg-white/90 text-amber-600 shadow-lg hover:bg-white hover:scale-110 transition-all duration-300"
                           >

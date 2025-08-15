@@ -18,11 +18,65 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@musetrip360/ui-core/sheet';
-import { Globe, Search, Menu, User, MapPin, Calendar, GraduationCap, Info, Phone, Home } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@musetrip360/ui-core/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
+import {
+  Calendar,
+  Globe,
+  GraduationCap,
+  Home,
+  Info,
+  LogOut,
+  MapPin,
+  Menu,
+  Phone,
+  Search,
+  User,
+  UserIcon,
+  Video,
+} from 'lucide-react';
 import Link from 'next/link';
 import { twMerge } from 'tailwind-merge';
+import { useUserStore } from '@musetrip360/user-management/state';
+import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetrip360/auth-system/state';
+import { cn } from '@musetrip360/ui-core/utils';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
+  const isAuthenticated = useIsAuthenticated();
+  const { user, resetStore: resetUserStore } = useUserStore();
+  const { modalControl: authController } = useAuthActionContext();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    useAuthStore.getState().resetStore();
+    resetUserStore();
+  };
+
+  const handleLogin = () => {
+    authController?.open('login');
+  };
+
+  const handleRegister = () => {
+    authController?.open('register');
+  };
+
+  const getInitials = (fullName?: string) => {
+    return (
+      fullName
+        ?.split(' ')
+        .map((n) => n.charAt(0))
+        .join('')
+        .toUpperCase() || 'U'
+    );
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 max-w-screen-2xl items-center justify-between px-6">
@@ -123,6 +177,15 @@ export function Header() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                <Link href="/stream">
+                  <Video className="mr-2 h-6 w-6 hover:text-primary" />
+                  Streaming
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
                 <Link href="/about">
                   <Info className="mr-2 h-6 w-6 hover:text-primary" />
                   Giới thiệu
@@ -146,7 +209,17 @@ export function Header() {
           {/* Search Input */}
           <div className="relative hidden md:block">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Tìm bảo tàng, sự kiện..." className="pl-8 w-64" />
+            <Input
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  router.push(`/search?q=${encodeURIComponent(e.currentTarget.value)}`);
+                  // Trigger search
+                }
+              }}
+              placeholder="Tìm bảo tàng, sự kiện..."
+              className="pl-8 w-64"
+            />
           </div>
 
           {/* Search Button for Mobile */}
@@ -155,9 +228,46 @@ export function Header() {
           </Button>
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center gap-2">
-            <Button leftIcon={<User className="h-4 w-4" />}>Đăng nhập</Button>
-          </div>
+          {isAuthenticated && user ? (
+            <div className="hidden md:flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatarUrl || ''} alt={user?.fullName} />
+                      <AvatarFallback>{getInitials(user?.fullName)}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium text-sm">{user.fullName ? user.fullName : user.email}</p>
+                      <p className="w-[200px] truncate text-xs text-muted-foreground">{user?.email}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile" className="cursor-pointer">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Thông tin cá nhân</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Đăng xuất</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center gap-2">
+              <Button onClick={handleLogin} leftIcon={<User className="h-4 w-4" />}>
+                Đăng nhập
+              </Button>
+            </div>
+          )}
 
           {/* Mobile Menu */}
           <Sheet>
@@ -188,6 +298,10 @@ export function Header() {
                     <GraduationCap className="mr-2 h-4 w-4" />
                     Giáo dục
                   </Button>
+                  <Link href="/stream" className={twMerge(buttonVariants({ variant: 'link' }), 'justify-start')}>
+                    <Video className="mr-2 h-4 w-4" />
+                    Streaming
+                  </Link>
                   <Button variant="link" className="justify-start">
                     <Info className="mr-2 h-4 w-4" />
                     Giới thiệu
@@ -198,11 +312,42 @@ export function Header() {
                   </Button>
                 </nav>
                 <div className="border-t pt-4 space-y-2">
-                  <Button variant="outline" className="w-full">
-                    <User className="mr-2 h-4 w-4" />
-                    Đăng nhập
-                  </Button>
-                  <Button className="w-full">Đăng ký</Button>
+                  {isAuthenticated && user ? (
+                    <>
+                      <div className="flex items-center gap-3 p-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={user.avatarUrl || ''} alt={user?.fullName} />
+                          <AvatarFallback>{getInitials(user?.fullName)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col space-y-1 leading-none">
+                          <p className="font-medium text-sm">{user.fullName ? user.fullName : user.email}</p>
+                          <p className="text-xs text-muted-foreground">{user?.email}</p>
+                        </div>
+                      </div>
+                      <Link href="/profile" className={cn(buttonVariants({ variant: 'outline' }), 'justify-start')}>
+                        <UserIcon className="mr-2 h-4 w-4" />
+                        Thông tin cá nhân
+                      </Link>
+                      <Button
+                        variant="outline"
+                        className="justify-start text-red-600 hover:text-red-600"
+                        onClick={handleLogout}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Đăng xuất
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="outline" className="w-full" onClick={handleLogin}>
+                        <User className="mr-2 h-4 w-4" />
+                        Đăng nhập
+                      </Button>
+                      <Button className="w-full" onClick={handleRegister}>
+                        Đăng ký
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

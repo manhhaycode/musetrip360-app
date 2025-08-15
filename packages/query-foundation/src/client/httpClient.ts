@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import type {
   APIClientConfig,
   APIError,
@@ -7,7 +7,7 @@ import type {
   UploadConfig,
   UploadProgress,
 } from '../types/api-types';
-import { config, getEnvironment, getEnvVar } from '@musetrip360/infras';
+import { config, getCurrentFramework, getEnvironment, getEnvVar } from '@musetrip360/infras';
 
 /**
  * Default API client configuration
@@ -41,10 +41,127 @@ export class HTTPClient {
     this.config.baseURL = config('API_URL');
     this.config.enableLogging = getEnvironment() === 'development' && getEnvVar('LOGGING_REQUEST') === 'true';
     if (!this.config.baseURL) {
-      throw new Error('API_URL is not set in the environment variables');
+      if (getCurrentFramework() === 'nextjs') {
+        console.warn(
+          'API_URL is not set in the environment variables. Please set it in your .env file or environment configuration.'
+        );
+      } else {
+        throw new Error('API_URL is not set in the environment variables');
+      }
     }
     this.client = this.createAxiosInstance();
     this.setupInterceptors();
+  }
+
+  /**
+   * Set authentication token
+   */
+  public setAuth(token: string): void {
+    this.authToken = token;
+  }
+
+  /**
+   * Clear authentication
+   */
+  public clearAuth(): void {
+    this.authToken = null;
+  }
+
+  /*
+  /**
+   * Make generic HTTP request
+   */
+  public async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
+    const response = await this.client.request<T>(config);
+    return response;
+  }
+
+  /**
+   * Make HTTP GET request
+   */
+  public async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.get<T>(url, config);
+    return response.data;
+  }
+
+  /**
+   * Make HTTP POST request
+   */
+  public async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.post<T>(url, data, config);
+    return response.data;
+  }
+
+  /**
+   * Make HTTP PUT request
+   */
+  public async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.put<T>(url, data, config);
+    return response.data;
+  }
+
+  /**
+   * Make HTTP PATCH request
+   */
+  public async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.patch<T>(url, data, config);
+    return response.data;
+  }
+
+  /**
+   * Make HTTP DELETE request
+   */
+  public async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
+    const response = await this.client.delete<T>(url, config);
+    return response.data;
+  }
+
+  /**
+   * Upload file with progress tracking
+   */
+  public async upload<T = any>(url: string, file: File, config?: UploadConfig): Promise<T> {
+    const axiosConfig: AxiosRequestConfig = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent: any) => {
+        if (config?.onProgress && progressEvent.total) {
+          const progress: UploadProgress = {
+            loaded: progressEvent.loaded,
+            total: progressEvent.total,
+            percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total),
+          };
+          config.onProgress(progress);
+        }
+      },
+    };
+
+    const response = await this.client.post<T>(url, { file }, axiosConfig);
+    return response.data;
+  }
+
+  /**
+   * Get the underlying Axios instance
+   */
+  public getAxiosInstance(): AxiosInstance {
+    return this.client;
+  }
+
+  public setErrorHandlers(handlers: (error: AxiosError) => Promise<any>): void {
+    this.responseErrorHandlers = handlers;
+  }
+
+  /**
+   * Update client configuration
+   */
+  public updateConfig(config: Partial<APIClientConfig>): void {
+    this.config = { ...this.config, ...config };
+
+    // Update Axios instance if base configuration changed
+    if (config.baseURL || config.timeout) {
+      this.client.defaults.baseURL = this.config.baseURL;
+      this.client.defaults.timeout = this.config.timeout;
+    }
   }
 
   /**
@@ -173,93 +290,6 @@ export class HTTPClient {
   }
 
   /**
-   * Set authentication token
-   */
-  public setAuth(token: string): void {
-    this.authToken = token;
-  }
-
-  /**
-   * Clear authentication
-   */
-  public clearAuth(): void {
-    this.authToken = null;
-  }
-
-  /*
-  /**
-   * Make generic HTTP request
-   */
-  public async request<T = any>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
-    const response = await this.client.request<T>(config);
-    return response;
-  }
-
-  /**
-   * Make HTTP GET request
-   */
-  public async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.get<T>(url, config);
-    return response.data;
-  }
-
-  /**
-   * Make HTTP POST request
-   */
-  public async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.post<T>(url, data, config);
-    return response.data;
-  }
-
-  /**
-   * Make HTTP PUT request
-   */
-  public async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.put<T>(url, data, config);
-    return response.data;
-  }
-
-  /**
-   * Make HTTP PATCH request
-   */
-  public async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.patch<T>(url, data, config);
-    return response.data;
-  }
-
-  /**
-   * Make HTTP DELETE request
-   */
-  public async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
-    const response = await this.client.delete<T>(url, config);
-    return response.data;
-  }
-
-  /**
-   * Upload file with progress tracking
-   */
-  public async upload<T = any>(url: string, file: File, config?: UploadConfig): Promise<T> {
-    const axiosConfig: AxiosRequestConfig = {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent: any) => {
-        if (config?.onProgress && progressEvent.total) {
-          const progress: UploadProgress = {
-            loaded: progressEvent.loaded,
-            total: progressEvent.total,
-            percentage: Math.round((progressEvent.loaded * 100) / progressEvent.total),
-          };
-          config.onProgress(progress);
-        }
-      },
-    };
-
-    const response = await this.client.post<T>(url, { file }, axiosConfig);
-    return response.data;
-  }
-
-  /**
    * Format error for consistent error handling
    */
   private formatError(error: AxiosError): APIError {
@@ -282,30 +312,6 @@ export class HTTPClient {
    */
   private generateRequestId(): string {
     return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  }
-
-  /**
-   * Get the underlying Axios instance
-   */
-  public getAxiosInstance(): AxiosInstance {
-    return this.client;
-  }
-
-  public setErrorHandlers(handlers: (error: AxiosError) => Promise<any>): void {
-    this.responseErrorHandlers = handlers;
-  }
-
-  /**
-   * Update client configuration
-   */
-  public updateConfig(config: Partial<APIClientConfig>): void {
-    this.config = { ...this.config, ...config };
-
-    // Update Axios instance if base configuration changed
-    if (config.baseURL || config.timeout) {
-      this.client.defaults.baseURL = this.config.baseURL;
-      this.client.defaults.timeout = this.config.timeout;
-    }
   }
 }
 

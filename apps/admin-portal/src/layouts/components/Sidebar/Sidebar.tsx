@@ -65,7 +65,7 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                 },
                 {
                   title: 'Phê duyệt bảo tàng',
-                  url: routes.museums.approval,
+                  url: routes.museums.requests,
                   icon: Gavel,
                 },
               ],
@@ -81,6 +81,23 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               url: routes.policies,
               icon: FileText,
               items: [],
+            },
+            {
+              title: 'Quản lý quyền',
+              url: routes.rolebase.roles,
+              icon: Gavel,
+              items: [
+                {
+                  title: 'Vai trò',
+                  url: routes.rolebase.roles,
+                  icon: Gavel,
+                },
+                {
+                  title: 'Quyền',
+                  url: routes.rolebase.permissions,
+                  icon: Gavel,
+                },
+              ],
             },
             {
               title: 'Cài đặt',

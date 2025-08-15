@@ -63,8 +63,8 @@
     "test:coverage": "vitest --coverage"
   },
   "peerDependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -96,8 +96,8 @@
     "@types/react-dom": "^19",
     "@vitejs/plugin-react-swc": "^3.9.0",
     "eslint": "^9",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "typescript": "^5",
     "typescript-eslint": "^8.32.0",
     "vite": "^6.3.5",

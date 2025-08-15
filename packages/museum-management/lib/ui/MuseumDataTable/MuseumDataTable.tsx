@@ -11,27 +11,25 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Edit, Eye, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import { useMuseums } from '../../api';
+import { useMuseumsAdmin } from '../../api';
 import { Museum } from '../../types';
 
 interface MuseumDataTableProps {
   onView?: (museum: Museum) => void;
   onEdit?: (museum: Museum) => void;
-  onDelete?: (museum: Museum) => void;
   onAdd?: () => void;
 }
 
-const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTableProps) => {
+const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
   const initialData: Museum[] = useMemo(() => [], []);
   const handleAction = useCallback(
     () => ({
       onView: (data: Museum) => onView?.(data),
       onEdit: (data: Museum) => onEdit?.(data),
-      onDelete: (data: Museum) => onDelete?.(data),
     }),
-    [onView, onEdit, onDelete]
+    [onView, onEdit]
   );
 
   const columns = useMemo<ColumnDef<Museum>[]>(
@@ -71,16 +69,16 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.name}</div>,
       },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
-            {row.original.description}
-          </div>
-        ),
-      },
+      // {
+      //   accessorKey: 'description',
+      //   header: 'Description',
+      //   enableSorting: false,
+      //   cell: ({ row }) => (
+      //     <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
+      //       {row.original.description}
+      //     </div>
+      //   ),
+      // },
       {
         accessorKey: 'location',
         header: 'Location',
@@ -101,15 +99,32 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
             { label: 'Inactive', value: 'Inactive' },
             { label: 'Pending', value: 'Pending' },
             { label: 'Archived', value: 'Archived' },
+            { label: 'Not Verified', value: 'NotVerified' },
           ],
         },
         accessorKey: 'status',
         header: 'Status',
         enableSorting: true,
         enableColumnFilter: true,
-        cell: ({ row }) => (
-          <Badge variant={row.original.status === 'Active' ? 'default' : 'secondary'}>{row.original.status}</Badge>
-        ),
+        cell: ({ row }) => {
+          const getStatusVariant = (status: string) => {
+            switch (status) {
+              case 'Active':
+                return 'default';
+              case 'NotVerified':
+                return 'destructive';
+              case 'Pending':
+                return 'outline';
+              default:
+                return 'secondary';
+            }
+          };
+          return (
+            <Badge variant={getStatusVariant(row.original.status)}>
+              {row.original.status === 'NotVerified' ? 'Not Verified' : row.original.status}
+            </Badge>
+          );
+        },
       },
       {
         accessorKey: 'createdAt',
@@ -142,10 +157,6 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleAction().onDelete(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -156,12 +167,12 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
 
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
 
-  const { data: museumsData, isLoading: loadingMuseums } = useMuseums({
+  const { data: museumsData, isLoading: loadingMuseums } = useMuseumsAdmin({
     Page: tableState.pagination.pageIndex + 1,
     PageSize: tableState.pagination.pageSize,
     sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || '',
+    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || undefined,
+    Status: (tableState.columnFilters.find((filter) => filter.id === 'status')?.value as string) || undefined,
   });
 
   const { table } = useDataTable<Museum, string>({
@@ -184,9 +195,11 @@ const MuseumDataTable = ({ onView, onEdit, onDelete, onAdd }: MuseumDataTablePro
   return (
     <DataTable table={table}>
       <DataTableToolbar table={table}>
-        <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
-          Thêm Bảo Tàng
-        </Button>
+        {onAdd && (
+          <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
+            Thêm Bảo Tàng
+          </Button>
+        )}
       </DataTableToolbar>
     </DataTable>
   );

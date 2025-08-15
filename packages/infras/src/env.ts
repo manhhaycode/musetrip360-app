@@ -1,4 +1,4 @@
-import type { Framework, Environment } from './types';
+import type { Environment, Framework } from './types';
 
 /**
  * Singleton class to manage environment variables with framework-specific prefixes
@@ -101,27 +101,6 @@ class EnvManager {
   }
 
   /**
-   * Get environment variable from direct access (fallback)
-   */
-  private getFromDirectAccess(keys: string[], framework: Framework): string | undefined {
-    for (const k of keys) {
-      if (typeof process !== 'undefined' && process.env[k]) {
-        return process.env[k];
-      }
-
-      // For Vite in browser
-      if (framework === 'vite' && typeof import.meta !== 'undefined' && import.meta.env) {
-        const value = import.meta.env[k];
-        if (typeof value === 'string') {
-          return value;
-        }
-      }
-    }
-
-    return undefined;
-  }
-
-  /**
    * Get all environment variables from direct access (fallback)
    */
   getAllEnvVarsFromDirectAccess(): Record<string, string> {
@@ -147,6 +126,27 @@ class EnvManager {
     }
 
     return env;
+  }
+
+  /**
+   * Get environment variable from direct access (fallback)
+   */
+  private getFromDirectAccess(keys: string[], framework: Framework): string | undefined {
+    for (const k of keys) {
+      if (typeof process !== 'undefined' && process.env[k]) {
+        return process.env[k];
+      }
+
+      // For Vite in browser
+      if (framework === 'vite' && typeof import.meta !== 'undefined' && import.meta.env) {
+        const value = import.meta.env[k];
+        if (typeof value === 'string') {
+          return value;
+        }
+      }
+    }
+
+    return undefined;
   }
 }
 
@@ -241,4 +241,11 @@ export function isEnvInitialized(): boolean {
  */
 export function getEnvKeys(): string[] {
   return EnvManager.getInstance().getKeys();
+}
+
+/**
+ * Get a framework currently in use
+ */
+export function getCurrentFramework(): Framework | null {
+  return EnvManager.getInstance().getFramework();
 }

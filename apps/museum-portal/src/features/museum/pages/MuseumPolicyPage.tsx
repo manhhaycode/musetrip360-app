@@ -67,6 +67,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 import Divider from '@/components/Divider';
 import get from 'lodash.get';
+import withPermission from '@/hocs/withPermission';
+import { PERMISSION_CONTENT_MANAGEMENT } from '@musetrip360/rolebase-management';
 
 // Policy type options for UI display
 const policyTypeOptions = [
@@ -91,7 +93,7 @@ const policySchema = z.object({
 
 type PolicyFormData = z.infer<typeof policySchema>;
 
-const MuseumPolicyPage = () => {
+const MuseumPolicyPage = withPermission(() => {
   const { selectedMuseum } = useMuseumStore();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPolicy, setEditingPolicy] = useState<MuseumPolicy | null>(null);
@@ -548,6 +550,6 @@ const MuseumPolicyPage = () => {
       </Card>
     </div>
   );
-};
+}, [PERMISSION_CONTENT_MANAGEMENT]);
 
 export default MuseumPolicyPage;

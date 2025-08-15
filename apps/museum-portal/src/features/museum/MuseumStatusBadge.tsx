@@ -10,6 +10,7 @@ const statusStyleMap: Record<MuseumStatus, string> = {
   [MuseumStatus.Inactive]: 'bg-gray-100 text-gray-700',
   [MuseumStatus.Pending]: 'bg-yellow-100 text-yellow-700',
   [MuseumStatus.Archived]: 'bg-red-100 text-red-700',
+  [MuseumStatus.NotVerified]: 'bg-orange-100 text-orange-700',
 };
 
 export const MuseumStatusBadge = ({ status }: MuseumStatusBadgeProps) => {

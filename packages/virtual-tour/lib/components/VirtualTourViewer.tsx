@@ -150,7 +150,7 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
       </div>
 
       {/* Navigation controls */}
-      <div className="absolute bottom-4 right-4 z-10 flex flex-col gap-2">
+      <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
         {virtualTour.metadata.scenes.map((scene) => (
           <button
             key={scene.sceneId}
@@ -169,5 +169,3 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
     </div>
   );
 };
-
-export default VirtualTourViewer;

@@ -5,7 +5,7 @@
  * profile updates, and password changes.
  */
 
-import { useQuery, useMutation, useQueryClient, CustomQueryOptions } from '@musetrip360/query-foundation';
+import { useQuery, useMutation, useQueryClient, CustomQueryOptions, APIError } from '@musetrip360/query-foundation';
 import { profileEndpoints, profileErrorHandler } from '../endpoints/profile';
 import type { UpdateProfileReq, ChangePasswordReq, IUser } from '@/types';
 import { userCacheKeys } from '../cache/cacheKeys';
@@ -13,11 +13,8 @@ import { userCacheKeys } from '../cache/cacheKeys';
 /**
  * Hook to fetch current user profile
  */
-export function useCurrentProfile(options?: CustomQueryOptions) {
-  console.log('useCurrentProfile');
+export function useCurrentProfile(options?: CustomQueryOptions<IUser, APIError>) {
   return useQuery(userCacheKeys.profile(), () => profileEndpoints.getCurrentProfile(), {
-    staleTime: Infinity,
-    gcTime: Infinity,
     ...options,
   });
 }

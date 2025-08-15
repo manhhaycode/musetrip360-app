@@ -52,7 +52,7 @@ export const getArtifactsAdmin = async (params?: ArtifactListParams): Promise<AP
   const searchParams = new URLSearchParams();
 
   if (params?.IsActive !== undefined) searchParams.append('IsActive', params.IsActive.toString());
-  if (params?.SearchKeyword) searchParams.append('SearchKeyword', params.SearchKeyword);
+  if (params?.Search) searchParams.append('Search', params.Search);
   if (params?.Page) searchParams.append('Page', params.Page.toString());
   if (params?.PageSize) searchParams.append('PageSize', params.PageSize.toString());
 

@@ -15,13 +15,22 @@ import {
   useUpdateArtifact,
 } from '@musetrip360/artifact-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
-import { useFileUpload, MediaType, FormDropZone, DropZoneWithPreview } from '@musetrip360/shared';
+import {
+  useFileUpload,
+  MediaType,
+  FormDropZone,
+  DropZoneWithPreview,
+  useHistoricalPeriod,
+  HistoricalPeriod,
+} from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Switch } from '@musetrip360/ui-core/switch';
 import Divider from '@/components/Divider';
+import { PERMISSION_ARTIFACT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import { toast } from '@musetrip360/ui-core';
 
 // Validation schema for artifact form
 const artifactSchema = z.object({
@@ -51,12 +60,19 @@ interface ArtifactFormProps {
 const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultValues, onSuccess }) => {
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();
+  const { hasPermission } = useRolebaseStore();
+
+  const { data: historicalPeriods } = useHistoricalPeriod();
+
+  console.log('Historical Periods:', historicalPeriods);
 
   // Form state
   const [isEditing, setIsEditing] = useState(mode === 'create');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredPeriods, setFilteredPeriods] = useState<HistoricalPeriod[]>([]);
 
   // Use defaultValues if provided, no need to fetch from API
   const artifact = defaultValues;
@@ -216,6 +232,11 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
 
   const onSubmit = async (data: ArtifactFormData) => {
     try {
+      if (!hasPermission(selectedMuseum.id, PERMISSION_ARTIFACT_MANAGEMENT)) {
+        toast.error('Bạn không có quyền thực hiện thao tác này.');
+        return;
+      }
+
       setError(null);
       setIsUploadingImages(true);
 
@@ -338,14 +359,70 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
                   control={form.control}
                   name="historicalPeriod"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="relative">
                       <FormLabel className="text-gray-600">Thời kỳ lịch sử</FormLabel>
                       <FormControl>
-                        <Input
-                          placeholder="Nhập thời kỳ lịch sử"
-                          disabled={(mode === 'edit' && !isEditing) || isPending}
-                          {...field}
-                        />
+                        <div className="relative">
+                          <Input
+                            placeholder="Nhập thời kỳ lịch sử"
+                            disabled={(mode === 'edit' && !isEditing) || isPending}
+                            {...field}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              field.onChange(value);
+
+                              if (value.length > 0 && historicalPeriods) {
+                                const filtered = historicalPeriods.filter(
+                                  (period: HistoricalPeriod) =>
+                                    period.name.toLowerCase().includes(value.toLowerCase()) ||
+                                    period.description?.toLowerCase().includes(value.toLowerCase())
+                                );
+                                setFilteredPeriods(filtered);
+                                setShowSuggestions(filtered.length > 0);
+                              } else {
+                                setShowSuggestions(false);
+                              }
+                            }}
+                            onFocus={() => {
+                              if (field.value && historicalPeriods) {
+                                const filtered = historicalPeriods.filter(
+                                  (period: HistoricalPeriod) =>
+                                    period.name.toLowerCase().includes(field.value.toLowerCase()) ||
+                                    period.description?.toLowerCase().includes(field.value.toLowerCase())
+                                );
+                                setFilteredPeriods(filtered);
+                                setShowSuggestions(filtered.length > 0);
+                              }
+                            }}
+                            onBlur={() => {
+                              // Delay hiding suggestions to allow clicking on them
+                              setTimeout(() => setShowSuggestions(false), 150);
+                            }}
+                          />
+
+                          {showSuggestions && filteredPeriods.length > 0 && (
+                            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                              {filteredPeriods.map((period: HistoricalPeriod) => (
+                                <div
+                                  key={period.id}
+                                  className="px-3 py-2 cursor-pointer hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault(); // Prevent onBlur from firing
+                                    field.onChange(period.name);
+                                    setShowSuggestions(false);
+                                  }}
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="text-sm font-medium">{period.name}</span>
+                                    {period.description && (
+                                      <span className="text-xs text-gray-500">{period.description}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </FormControl>
                       <FormMessage />
                     </FormItem>

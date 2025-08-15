@@ -3,5 +3,5 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "installCommand": "pnpm install",
-  "routes": [{ "src": "/[^.]+", "dest": "/", "status": 200 }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
 }
