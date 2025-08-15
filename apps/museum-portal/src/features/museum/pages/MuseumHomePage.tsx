@@ -1,3 +1,4 @@
+import withPermission from '@/hocs/withPermission';
 import { useGetMuseumById, useMuseumStore, useUpdateMuseum } from '@musetrip360/museum-management';
 import { PERMISSION_MUSEUM_DETAIL_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import { toast } from '@musetrip360/ui-core';
@@ -7,7 +8,7 @@ const RichEditor = React.lazy(() =>
     default: module.RichEditor,
   }))
 );
-const MuseumHomePage = () => {
+const MuseumHomePage = withPermission(() => {
   const { selectedMuseum } = useMuseumStore();
   const { data: museum, refetch } = useGetMuseumById(selectedMuseum?.id ?? '', {
     enabled: !!selectedMuseum?.id,
@@ -52,6 +53,6 @@ const MuseumHomePage = () => {
       </BulkUploadProvider> */}
     </React.Suspense>
   );
-};
+}, [PERMISSION_MUSEUM_DETAIL_MANAGEMENT]);
 
 export default MuseumHomePage;
