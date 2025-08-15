@@ -1,8 +1,13 @@
 'use client';
 
 import { getQueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
-import { AuthActionProvider, AuthModal, AuthProvider } from '@musetrip360/auth-system';
-import { useAuthController, useIsAuthenticated } from '@musetrip360/auth-system/state';
+import {
+  AuthActionProvider,
+  AuthModal,
+  AuthProvider,
+  useAuthController,
+  useIsAuthenticated,
+} from '@musetrip360/auth-system';
 import { UserProvider } from '@musetrip360/user-management';
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -37,9 +42,9 @@ function AuthModalWrapper({ children }: { children: React.ReactNode }) {
 export default function AppProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={getQueryClient()}>
-      <AuthProvider>
+      <AuthProvider strictMode={false}>
         <AuthModalWrapper>
-          <UserProvider>{children}</UserProvider>
+          <UserProvider strictMode={false}>{children}</UserProvider>
         </AuthModalWrapper>
       </AuthProvider>
     </QueryClientProvider>

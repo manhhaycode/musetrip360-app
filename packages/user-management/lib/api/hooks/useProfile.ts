@@ -15,8 +15,6 @@ import { userCacheKeys } from '../cache/cacheKeys';
  */
 export function useCurrentProfile(options?: CustomQueryOptions<IUser, APIError>) {
   return useQuery(userCacheKeys.profile(), () => profileEndpoints.getCurrentProfile(), {
-    staleTime: Infinity,
-    gcTime: Infinity,
     ...options,
   });
 }

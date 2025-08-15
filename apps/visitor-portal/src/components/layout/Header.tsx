@@ -46,11 +46,15 @@ import { twMerge } from 'tailwind-merge';
 import { useUserStore } from '@musetrip360/user-management/state';
 import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { cn } from '@musetrip360/ui-core/utils';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
   const isAuthenticated = useIsAuthenticated();
   const { user, resetStore: resetUserStore } = useUserStore();
   const { modalControl: authController } = useAuthActionContext();
+  const router = useRouter();
+
+  console.log(isAuthenticated, user);
 
   const handleLogout = () => {
     useAuthStore.getState().resetStore();
@@ -207,7 +211,17 @@ export function Header() {
           {/* Search Input */}
           <div className="relative hidden md:block">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Tìm bảo tàng, sự kiện..." className="pl-8 w-64" />
+            <Input
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  router.push(`/search?q=${encodeURIComponent(e.currentTarget.value)}`);
+                  // Trigger search
+                }
+              }}
+              placeholder="Tìm bảo tàng, sự kiện..."
+              className="pl-8 w-64"
+            />
           </div>
 
           {/* Search Button for Mobile */}

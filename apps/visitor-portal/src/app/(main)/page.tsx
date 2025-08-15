@@ -1,3 +1,4 @@
+import { ChatBot } from '@/components/chat/ChatBot';
 import { FeaturedMuseums } from '@/components/sections/FeaturedMuseums';
 import { HeroSection } from '@/components/sections/HeroSection';
 import { UpcomingEvents } from '@/components/sections/UpcomingEvents';
@@ -248,10 +249,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ChatBot Assistant */}
+      <ChatBot />
     </div>
   );
 }
-
-// export default function HomePage() {
-//   return <div>HomePage</div>;
-// }

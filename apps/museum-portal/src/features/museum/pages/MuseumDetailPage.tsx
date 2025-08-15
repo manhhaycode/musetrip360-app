@@ -17,6 +17,7 @@ import Divider from '@/components/Divider';
 import { MuseumStatusBadge } from '../MuseumStatusBadge';
 import { Category, FormDropZone, MediaType, useCategory, useFileUpload } from '@musetrip360/shared';
 import get from 'lodash.get';
+import { PERMISSION_MUSEUM_DETAIL_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 // Validation schema
 const museumUpdateSchema = z.object({
@@ -32,6 +33,7 @@ const museumUpdateSchema = z.object({
 type MuseumUpdateFormData = z.infer<typeof museumUpdateSchema>;
 
 const MuseumDetailPage = () => {
+  const { hasPermission, userPrivileges } = useRolebaseStore();
   const { selectedMuseum } = useMuseumStore();
   const {
     data: museum,
@@ -41,6 +43,8 @@ const MuseumDetailPage = () => {
   } = useGetMuseumById(selectedMuseum?.id ?? '', {
     enabled: !!selectedMuseum?.id,
   });
+
+  console.log('Uer', userPrivileges);
 
   const { data: categories } = useCategory();
 
@@ -94,6 +98,9 @@ const MuseumDetailPage = () => {
       appendImage('');
     }
   }, [imageFields.length, appendImage]);
+
+  console.log('Watched images:', watchedImages);
+  console.log('Image fields:', imageFields);
 
   // Auto-append new field if all are filled
   useEffect(() => {
@@ -215,7 +222,11 @@ const MuseumDetailPage = () => {
         <h2 className="text-2xl font-bold text-gray-900">Thông tin cơ bản</h2>
 
         {!isEditing ? (
-          <Button onClick={handleEdit} className="gap-2">
+          <Button
+            onClick={handleEdit}
+            className="gap-2"
+            disabled={!hasPermission(selectedMuseum.id, PERMISSION_MUSEUM_DETAIL_MANAGEMENT)}
+          >
             <Edit className="h-4 w-4" />
             Chỉnh sửa
           </Button>

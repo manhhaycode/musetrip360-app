@@ -17,6 +17,7 @@ import {
   ArticleCreate,
 } from '@musetrip360/museum-management';
 import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
+import { PERMISSION_CONTENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const articleFormSchema = z.object({
   title: z.string().min(1, 'Tiêu đề là bắt buộc').max(255, 'Tiêu đề phải có ít nhất 255 ký tự'),
@@ -38,6 +39,7 @@ interface ArticleFormProps {
 const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: ArticleFormProps) => {
   const isEditing = !!article;
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const { hasPermission } = useRolebaseStore();
 
   // File upload mutation for images
   const uploadFileMutation = useFileUpload();
@@ -79,6 +81,10 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
 
   const onSubmit = async (data: ArticleFormData, status: ArticleStatusEnum) => {
     try {
+      if (!hasPermission(museumId, PERMISSION_CONTENT_MANAGEMENT)) {
+        toast.error('Bạn không có quyền thực hiện thao tác này.');
+        return;
+      }
       setIsUploadingImages(true);
 
       // Upload main image if provided via FormDropZone

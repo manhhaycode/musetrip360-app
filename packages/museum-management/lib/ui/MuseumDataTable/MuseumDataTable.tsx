@@ -69,16 +69,16 @@ const MuseumDataTable = ({ onView, onEdit, onAdd }: MuseumDataTableProps) => {
         enableSorting: true,
         cell: ({ row }) => <div className="font-medium max-w-50 truncate">{row.original.name}</div>,
       },
-      {
-        accessorKey: 'description',
-        header: 'Description',
-        enableSorting: false,
-        cell: ({ row }) => (
-          <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
-            {row.original.description}
-          </div>
-        ),
-      },
+      // {
+      //   accessorKey: 'description',
+      //   header: 'Description',
+      //   enableSorting: false,
+      //   cell: ({ row }) => (
+      //     <div className="max-w-60 whitespace-break-spaces line-clamp-3 text-muted-foreground">
+      //       {row.original.description}
+      //     </div>
+      //   ),
+      // },
       {
         accessorKey: 'location',
         header: 'Location',

@@ -22,10 +22,12 @@ import {
   useCancelEvent,
   EventStatusEnum,
   useEvaluateEvent,
+  useCreateEventRoom,
 } from '@musetrip360/event-management';
 
 import get from 'lodash.get';
 import { EventStatusName, EventTypeName } from '@/config/constants/event';
+import { PERMISSION_EVENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 interface EventDataTableProps {
   museumId: string;
@@ -49,11 +51,14 @@ const eventTypeOptions: Option[] = Object.entries(EventTypeName).map(([value, la
 
 const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }: EventDataTableProps) => {
   const initialData: Event[] = useMemo(() => [], []);
+  const { hasPermission } = useRolebaseStore();
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
     defaultSort: [{ id: 'createdAt', desc: true }],
   });
+
+  const { mutate: createEventRoom } = useCreateEventRoom();
 
   const {
     data: eventsData,
@@ -109,6 +114,12 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       onEdit: (data: Event) => onEdit?.(data),
       onSubmit: (data: Event) => {
         submitEvent(data.id);
+        createEventRoom({
+          eventId: data.id,
+          name: `Phòng sự kiện ${data.title}`,
+          description: `Phòng dành cho sự kiện ${data.title}`,
+          status: 'Active',
+        });
         onSubmit?.(data);
       },
       onCancel: (data: Event) => {
@@ -116,7 +127,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
         onCancel?.(data);
       },
     }),
-    [onView, onEdit, onSubmit, onCancel, submitEvent, cancelEvent]
+    [onView, onEdit, submitEvent, createEventRoom, onSubmit, cancelEvent, onCancel]
   );
 
   const getStatusVariant = (status: EventStatusEnum) => {
@@ -289,20 +300,21 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
                 </DropdownMenuItem>
               )}
 
-              {row.original.status === EventStatusEnum.Pending && (
-                <DropdownMenuItem
-                  onClick={() => evaluateEvent({ eventId: row.original.id, isApproved: true })}
-                  className="text-green-600"
-                >
-                  <BadgeCheckIcon className="mr-2 h-4 w-4" />
-                  Phê duyệt
-                </DropdownMenuItem>
-              )}
+              {row.original.status === EventStatusEnum.Pending &&
+                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) && (
+                  <DropdownMenuItem
+                    onClick={() => evaluateEvent({ eventId: row.original.id, isApproved: true })}
+                    className="text-green-600"
+                  >
+                    <BadgeCheckIcon className="mr-2 h-4 w-4" />
+                    Phê duyệt
+                  </DropdownMenuItem>
+                )}
 
               {(row.original.status === EventStatusEnum.Draft ||
                 row.original.status === EventStatusEnum.Pending ||
-                (row.original.status === EventStatusEnum.Published &&
-                  new Date(row.original.startTime) > new Date())) && (
+                (row.original.status === EventStatusEnum.Published && new Date(row.original.startTime) > new Date()) ||
+                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT)) && (
                 <DropdownMenuItem onClick={() => handleAction().onCancel(row.original)} className="text-orange-600">
                   <X className="mr-2 h-4 w-4" />
                   Hủy
@@ -313,7 +325,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
         ),
       },
     ],
-    [handleAction, evaluateEvent]
+    [hasPermission, museumId, handleAction, evaluateEvent]
   );
 
   const { table } = useDataTable<Event, string>({

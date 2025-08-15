@@ -94,16 +94,13 @@ export default defineConfig({
           }
           return 'assets/[name][extname]';
         },
-        banner: (chunk) => {
-          if (!chunk.fileName.includes('index')) {
-            return "'use client';\n";
-          }
-          return '';
+        banner: () => {
+          return "'use client';\n";
         },
       },
     },
     target: 'es2020',
-    minify: 'esbuild',
+    minify: true,
     sourcemap: true,
     // Emit CSS as separate files
     cssCodeSplit: false,

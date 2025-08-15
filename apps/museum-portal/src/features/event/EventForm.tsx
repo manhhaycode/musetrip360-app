@@ -20,12 +20,14 @@ import {
   useAddEventTourOnlines,
   useRemoveEventTourOnlines,
   useSubmitEvent,
+  useCreateEventRoom,
 } from '@musetrip360/event-management';
 import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
 import { useVirtualTourByMuseum } from '@musetrip360/virtual-tour/api';
 import get from 'lodash.get';
 import { EventTypeName } from '@/config/constants/event';
 import { useMuseumStore } from '@musetrip360/museum-management';
+import { PERMISSION_EVENT_CREATE, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const eventFormSchema = z.object({
   title: z.string().min(1, 'Tiêu đề là bắt buộc').max(255, 'Tiêu đề phải ngắn hơn 255 ký tự'),
@@ -67,6 +69,7 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
   const [currentTab, setCurrentTab] = useState('event-info');
   const [createdEventId, setCreatedEventId] = useState<string | null>(event?.id || null);
   const { selectedMuseum } = useMuseumStore();
+  const { hasPermission } = useRolebaseStore();
 
   const { data } = useVirtualTourByMuseum({
     museumId,
@@ -158,6 +161,8 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
     },
   });
 
+  const { mutate: createEventRoom } = useCreateEventRoom();
+
   const updateEventTourOnlines = ({ eventId, tourOnlineIds }: { eventId: string; tourOnlineIds: string[] }) => {
     if (!eventId || !tourOnlineIds || tourOnlineIds.length === 0) {
       toast.error('Vui lòng chọn ít nhất một tour trực tuyến');
@@ -176,6 +181,11 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
 
   const onSubmitEventInfo = async (data: EventFormData) => {
     try {
+      if (!hasPermission(museumId, PERMISSION_EVENT_CREATE)) {
+        toast.error('Bạn không có quyền tạo sự kiện');
+        return;
+      }
+
       setIsUploadingImages(true);
 
       let finalImageUrls = data.imageUrls || [];
@@ -263,6 +273,12 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
     }
 
     submitEvent(eventId);
+    createEventRoom({
+      eventId,
+      name: 'Phòng live',
+      description: 'Phòng live của sự kiện',
+      status: 'Active',
+    });
   };
 
   const toggleTourOnlineSelection = (tourOnlineId: string) => {

@@ -97,3 +97,17 @@ export type EventUpdateDto = {
   metadata?: EventMetadata;
   status?: EventStatusEnum;
 };
+
+export type EventRoom = {
+  id: string;
+  name: string;
+  description: string;
+  status: string;
+  eventId: string;
+};
+
+export type EventRoomCreateDto = {
+  name: string;
+  description?: string;
+  status?: string;
+};
