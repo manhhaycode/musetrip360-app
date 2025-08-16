@@ -10,6 +10,8 @@ export interface UserCreateDto {
   email?: string | null;
   phoneNumber?: string | null;
   status?: string | null;
+  username?: string | null; // Added for server compatibility
+  password?: string | null; // Password might be required for user creation
 }
 
 export interface UserUpdateDto {
@@ -94,7 +96,12 @@ export interface IUser {
   birthDate: string | null;
   authType: 'Email';
   status: 'Active';
-  lastLogin: '2025-06-29T04:01:28.673817Z';
+  lastLogin: string;
+  isActive: boolean;
+  emailConfirmed: boolean;
+  roles?: string[];
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export type UserWithRole = {

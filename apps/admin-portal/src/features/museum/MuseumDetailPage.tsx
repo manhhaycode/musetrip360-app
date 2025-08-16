@@ -262,7 +262,7 @@ const MuseumDetailPage = () => {
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Danh mục bảo tàng</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {museum.categories.map((category) => (
+              {museum.categories.map((category: any) => (
                 <div key={category.id} className="border border-gray-200 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 mb-2">{category.name}</h4>
                   <p className="text-gray-600 text-sm">{category.description}</p>

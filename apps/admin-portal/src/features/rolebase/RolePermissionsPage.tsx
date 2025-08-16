@@ -1,25 +1,25 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
 import {
-  useGetRoleById,
-  useGetPermissions,
-  useUpdateRolePermissions,
   Permission,
+  useGetPermissions,
+  useGetRoleById,
+  useUpdateRolePermissions,
 } from '@musetrip360/rolebase-management';
 import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
+  Badge,
   Button,
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
   Checkbox,
   Label,
-  Badge,
   Separator,
 } from '@musetrip360/ui-core';
-import { ArrowLeft, Save, Shield, Users } from 'lucide-react';
-import { toast } from 'sonner';
 import get from 'lodash/get';
+import { ArrowLeft, Save, Shield, Users } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const RolePermissionsPage = () => {
   const { roleId } = useParams<{ roleId: string }>();
@@ -52,7 +52,7 @@ const RolePermissionsPage = () => {
 
   useEffect(() => {
     if (role?.permissions) {
-      const currentPermissionIds = new Set(role.permissions.map((p) => p.id));
+      const currentPermissionIds = new Set<string>(role.permissions.map((p: Permission) => p.id));
       setSelectedPermissions(currentPermissionIds);
       setInitialPermissions(currentPermissionIds);
     }

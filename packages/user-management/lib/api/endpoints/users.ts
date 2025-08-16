@@ -46,16 +46,16 @@ export const userEndpoints = {
   },
 
   // POST /users/admin - Create user (admin)
-  createUser: async (userData: UserCreateDto): Promise<IUser> => {
+  createUser: async (userData: UserCreateDto): Promise<ApiResponse<IUser>> => {
     const client = getHttpClient();
-    const response = await client.post<IUser>(`${API_BASE}/admin`, userData);
+    const response = await client.post<ApiResponse<IUser>>(`${API_BASE}/admin`, userData);
     return response;
   },
 
   // PUT /users/admin/{id} - Update user (admin)
-  updateUser: async (id: string, userData: UserUpdateDto): Promise<IUser> => {
+  updateUser: async (id: string, userData: UserUpdateDto): Promise<ApiResponse<IUser>> => {
     const client = getHttpClient();
-    const response = await client.put<IUser>(`${API_BASE}/admin/${id}`, userData);
+    const response = await client.put<ApiResponse<IUser>>(`${API_BASE}/admin/${id}`, userData);
     return response;
   },
 

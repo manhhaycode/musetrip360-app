@@ -11,9 +11,14 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Avatar, AvatarFallback, AvatarImage, toast } from '@musetrip360/ui-core';
-import { useCreateTourGuide, TourGuideCreateDto, useMuseumUsers, UserWithRole } from '@musetrip360/user-management';
+import {
+  useCreateTourGuide,
+  TourGuideCreateDto,
+  useMuseumUsers,
+  UserWithRole,
+  IUser,
+} from '@musetrip360/user-management';
 import get from 'lodash.get';
-import { IUser } from '@musetrip360/auth-system';
 
 const addTourGuideSchema = z.object({
   userId: z.string().min(1, 'Vui lòng chọn người dùng'),

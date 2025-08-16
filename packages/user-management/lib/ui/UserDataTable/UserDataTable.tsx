@@ -11,25 +11,23 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { Edit, Eye, MoreHorizontal, UserPlus } from 'lucide-react';
+import { Edit, MoreHorizontal, UserPlus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useAdminUsers } from '../../api';
 import { IUser } from '../../types';
 
 interface UserDataTableProps {
-  onView?: (user: IUser) => void;
   onEdit?: (user: IUser) => void;
   onAdd?: () => void;
 }
 
-const UserDataTable = ({ onView, onEdit, onAdd }: UserDataTableProps) => {
+const UserDataTable = ({ onEdit, onAdd }: UserDataTableProps) => {
   const initialData: IUser[] = useMemo(() => [], []);
   const handleAction = useCallback(
     () => ({
-      onView: (data: IUser) => onView?.(data),
       onEdit: (data: IUser) => onEdit?.(data),
     }),
-    [onView, onEdit]
+    [onEdit]
   );
 
   const columns = useMemo<ColumnDef<IUser>[]>(
@@ -171,13 +169,9 @@ const UserDataTable = ({ onView, onEdit, onAdd }: UserDataTableProps) => {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
-                <Eye className="mr-2 h-4 w-4" />
-                View Details
-              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                Chỉnh sửa
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

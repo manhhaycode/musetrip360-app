@@ -44,6 +44,7 @@ export function useGetMuseumRequests(
   options?: CustomQueryOptions<PaginatedResponse<MuseumRequest>>
 ) {
   return useQuery([museumRequestManagementCacheKeys.museumRequests(params)], () => getMuseumRequests(params), {
+    placeholderData: (previousData: PaginatedResponse<MuseumRequest> | undefined) => previousData,
     staleTime: 5 * 60 * 1000, // 5 minutes
     gcTime: 10 * 60 * 1000, // 10 minutes
     ...options,
