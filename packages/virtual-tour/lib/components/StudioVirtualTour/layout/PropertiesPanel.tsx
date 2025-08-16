@@ -1,12 +1,11 @@
 'use client';
 
-import { FileText, MousePointer, Settings, MapPin } from 'lucide-react';
+import { FileText, MapPin, MousePointer, Settings } from 'lucide-react';
 
-import { ScenePropertyForm, HotspotPropertyForm } from '@/components/forms';
+import { HotspotPropertyForm, ScenePropertyForm } from '@/components/forms';
 import { VirtualTourForm } from '@/components/forms/VirtualTourForm';
 import { useStudioStore } from '@/store';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
-import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 interface PropertiesPanelProps {

@@ -1,5 +1,5 @@
 import { IVirtualTourScene } from '@/api/types';
-import { useMainScenes, useScenes, useStudioStore } from '@/store/studioStore';
+import { useMainScenes, useStudioStore } from '@/store/studioStore';
 import { Button } from '@musetrip360/ui-core/button';
 import {
   Sidebar,
@@ -53,7 +53,7 @@ function SceneListItem({ scene }: SceneListItemProps) {
               <Eye className="w-4 h-4 !text-inherit" />
             )}
           </div>
-          <div className="flex-1 text-left">
+          <div className="flex-1 text-left overflow-hidden">
             <p className="text-sm font-medium truncate">{scene.sceneName}</p>
           </div>
           <Trash2
@@ -99,7 +99,7 @@ function SceneListItem({ scene }: SceneListItemProps) {
                     <Eye className="w-4 h-4 !text-inherit" />
                   )}
                 </div>
-                <div className="flex-1 text-left">
+                <div className="flex-1 text-left overflow-hidden">
                   <p className="text-sm font-medium truncate">{subItem.sceneName}</p>
                 </div>
                 <Button

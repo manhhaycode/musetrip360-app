@@ -1,5 +1,13 @@
 import { ReactNode } from 'react';
-import { Texture } from 'three';
+import { Texture, Vector3 } from 'three';
+
+export type Vector3Like =
+  | {
+      x: number;
+      y: number;
+      z: number;
+    }
+  | Vector3;
 
 export interface PanoramaViewerProps {
   /** URL or path to the panorama image */
@@ -112,6 +120,14 @@ export interface Hotspot {
   /** Visual style type */
   type: 'info' | 'navigation' | 'action';
   sceneIdLink?: string; // Optional link to another scene
+}
+
+export interface Polygon {
+  /** Unique identifier for the polygon */
+  id: string;
+  artifactIdLink: string; // Link to the associated artifact
+  /** Array of 3D points defining the polygon */
+  points: Vector3Like[];
 }
 
 export interface HotspotStyleConfig {
