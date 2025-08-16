@@ -1803,9 +1803,6 @@ importers:
       '@hookform/resolvers':
         specifier: ^5.1.1
         version: 5.1.1(react-hook-form@7.60.0(react@19.0.0))
-      '@musetrip360/artifact-management':
-        specifier: workspace:*
-        version: link:../artifact-management
       '@musetrip360/auth-system':
         specifier: workspace:*
         version: link:../auth-system
