@@ -1,17 +1,18 @@
 import { IVirtualTour, IVirtualTourScene } from '@/api';
-import type { Hotspot } from '@/canvas/types';
+import type { Hotspot, Polygon } from '@/canvas/types';
 import { v4 as uuid } from 'uuid';
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { useShallow } from 'zustand/shallow';
 
-export type SelectionType = 'scene' | 'tour' | 'hotspot' | 'none';
+export type SelectionType = 'scene' | 'tour' | 'hotspot' | 'polygon' | 'none';
 
 export interface StudioState {
   // Current tour data
   virtualTour: IVirtualTour;
   selectedSceneId: string | null;
   selectedHotspotId: string | null;
+  selectedPolygonId: string | null;
   propertiesSelection: SelectionType;
   isDirty: boolean;
   isSyncing?: boolean; // Flag to indicate if syncing is in progress
@@ -49,6 +50,14 @@ export interface StudioActions {
   getSelectedHotspot: () => Hotspot | null;
   selectHotspot: (hotspotId: string | null) => void;
 
+  // Polygon actions
+  addPolygon: (polygon: Omit<Polygon, 'id'>) => void;
+  updatePolygon: (polygonId: string, updates: Partial<Polygon>) => void;
+  deletePolygon: (polygonId: string) => void;
+  getScenePolygons: (sceneId?: string) => Polygon[];
+  getSelectedPolygon: () => Polygon | null;
+  selectPolygon: (polygonId: string | null) => void;
+
   // History actions
   undo: () => void;
   redo: () => void;
@@ -74,6 +83,7 @@ const createInitialState = (tour: IVirtualTour): StudioState => ({
   virtualTour: tour,
   selectedSceneId: null,
   selectedHotspotId: null,
+  selectedPolygonId: null,
   propertiesSelection: 'tour',
   isDirty: false,
   isSyncing: false,
@@ -112,6 +122,14 @@ export const useStudioStore = create<StudioStore>()(
       if (!state.selectedHotspotId) return null;
       return (
         state.getSelectedScene()?.data?.hotspots?.find((hotspot) => hotspot.id === state.selectedHotspotId) || null
+      );
+    },
+
+    getSelectedPolygon: () => {
+      const state = get();
+      if (!state.selectedPolygonId) return null;
+      return (
+        state.getSelectedScene()?.data?.polygons?.find((polygon) => polygon.id === state.selectedPolygonId) || null
       );
     },
 
@@ -382,6 +400,85 @@ export const useStudioStore = create<StudioStore>()(
       set({
         selectedHotspotId: hotspotId,
         propertiesSelection: hotspotId ? 'hotspot' : 'none',
+      });
+    },
+
+    // Polygon actions
+    addPolygon: (polygon) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const newPolygon: Polygon = {
+        id: `polygon_${uuid()}`,
+        ...polygon,
+      };
+
+      const currentPolygons = selectedScene.data.polygons || [];
+      const updatedPolygons = [...currentPolygons, newPolygon];
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          polygons: updatedPolygons,
+        },
+      });
+      get().selectPolygon(newPolygon.id);
+    },
+
+    updatePolygon: (polygonId, updates) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const currentPolygons = selectedScene.data.polygons || [];
+      const updatedPolygons = currentPolygons.map((polygon) =>
+        polygon.id === polygonId ? { ...polygon, ...updates } : polygon
+      );
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          polygons: updatedPolygons,
+        },
+      });
+    },
+
+    deletePolygon: (polygonId) => {
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return;
+
+      const currentPolygons = selectedScene.data.polygons || [];
+      const updatedPolygons = currentPolygons.filter((polygon) => polygon.id !== polygonId);
+
+      get().updateScene(selectedScene.sceneId, {
+        data: {
+          ...selectedScene.data,
+          polygons: updatedPolygons,
+        },
+      });
+    },
+
+    getScenePolygons: (sceneId?) => {
+      if (sceneId) {
+        const state = get();
+        const allScenes = [
+          ...state.virtualTour.metadata.scenes,
+          ...state.virtualTour.metadata.scenes.flatMap((s) => s.subScenes || []),
+        ];
+        const targetScene = allScenes.find((scene) => scene.sceneId === sceneId);
+        if (!targetScene || !targetScene.data) return [];
+        return targetScene.data.polygons || [];
+      }
+
+      // Default to selected scene
+      const selectedScene = get().getSelectedScene();
+      if (!selectedScene || !selectedScene.data) return [];
+      return selectedScene.data.polygons || [];
+    },
+
+    selectPolygon: (polygonId) => {
+      set({
+        selectedPolygonId: polygonId,
+        propertiesSelection: polygonId ? 'polygon' : 'none',
       });
     },
 

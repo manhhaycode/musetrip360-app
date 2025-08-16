@@ -5,7 +5,7 @@
  * supporting both URL and File sources with incremental loading.
  */
 
-import { Hotspot } from '@/canvas/types';
+import { Hotspot, Polygon } from '@/canvas/types';
 
 // Union type for maximum flexibility - support both URLs and File objects
 export type FaceSource = string | File;
@@ -31,6 +31,7 @@ export interface CubeMapData {
   /** Array of resolution levels (low to high) */
   cubeMaps: CubeMapLevel[];
   hotspots: Hotspot[];
+  polygons: Polygon[];
   /** Optional metadata */
   metadata?: {
     title?: string;
