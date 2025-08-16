@@ -71,7 +71,7 @@ function SceneEditorContent() {
   const enableRotate = selectedTool === 'hand';
   const isHotspotMode = selectedTool === 'hotspot';
   const isDragMode = selectedTool === 'drag';
-  const isPolygonMode = selectedTool === 'pen' || selectedTool === 'select';
+  const isPolygonMode = selectedTool === 'pen';
   const isEditing = isHotspotMode || selectedTool === 'select';
 
   console.log('SceneEditor: Tool states', {
@@ -127,7 +127,7 @@ function SceneEditorContent() {
   };
 
   const handlePolygonClick = (polygonIndex: number, points: Vector3Like[]) => {
-    if (!isPolygonMode) return;
+    if (selectedTool !== 'pen' && selectedTool !== 'select') return;
     console.log('SceneEditor: Polygon clicked', { polygonIndex, points });
     // Get the polygon from store and select it
     const polygon = polygons[polygonIndex];
