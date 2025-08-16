@@ -18,6 +18,7 @@ export type Event = {
   capacity: number;
   availableSlots: number;
   bookingDeadline: string; // ISO date string
+  price: number;
   museumId: string;
   createdBy?: string;
   status: EventStatusEnum;
