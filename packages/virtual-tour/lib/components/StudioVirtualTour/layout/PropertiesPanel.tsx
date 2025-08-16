@@ -1,12 +1,11 @@
 'use client';
 
-import { FileText, MousePointer, Settings, MapPin } from 'lucide-react';
+import { FileText, MapPin, MousePointer, Settings, Pentagon } from 'lucide-react';
 
-import { ScenePropertyForm, HotspotPropertyForm } from '@/components/forms';
+import { HotspotPropertyForm, PolygonPropertyForm, ScenePropertyForm } from '@/components/forms';
 import { VirtualTourForm } from '@/components/forms/VirtualTourForm';
 import { useStudioStore } from '@/store';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
-import { useMemo } from 'react';
 import { useShallow } from 'zustand/shallow';
 
 interface PropertiesPanelProps {
@@ -44,6 +43,8 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
           return <FileText className="h-4 w-4" />;
         case 'hotspot':
           return <MapPin className="h-4 w-4" />;
+        case 'polygon':
+          return <Pentagon className="h-4 w-4" />;
         default:
           return <MousePointer className="h-4 w-4" />;
       }
@@ -57,6 +58,8 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
           return 'Tour Properties';
         case 'hotspot':
           return 'Hotspot Properties';
+        case 'polygon':
+          return 'Polygon Properties';
         default:
           return 'Properties';
       }
@@ -79,6 +82,9 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
 
       case 'hotspot':
         return <HotspotPropertyForm />;
+
+      case 'polygon':
+        return <PolygonPropertyForm museumId={museumId} />;
 
       default:
         return <EmptyState />;

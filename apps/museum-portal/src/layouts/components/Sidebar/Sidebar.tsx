@@ -238,16 +238,16 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
               title: 'Quản lý tour ảo',
               url: '/virtual-tour',
               icon: GlobeIcon,
-              isHide: !hasAnyPermission(selectedMuseum?.id || '', [PERMISSION_TOUR_VIEW, PERMISSION_TOUR_MANAGEMENT]),
+              // isHide: !hasAnyPermission(selectedMuseum?.id || '', [PERMISSION_TOUR_VIEW, PERMISSION_TOUR_MANAGEMENT]),
               items: [
                 {
                   title: 'Danh sách tour ảo',
                   url: '/virtual-tour',
                   icon: ListChecksIcon,
-                  isHide: !hasAnyPermission(selectedMuseum?.id || '', [
-                    PERMISSION_TOUR_VIEW,
-                    PERMISSION_TOUR_MANAGEMENT,
-                  ]),
+                  // isHide: !hasAnyPermission(selectedMuseum?.id || '', [
+                  //   PERMISSION_TOUR_VIEW,
+                  //   PERMISSION_TOUR_MANAGEMENT,
+                  // ]),
                 },
                 {
                   title: 'Tạo tour ảo mới',

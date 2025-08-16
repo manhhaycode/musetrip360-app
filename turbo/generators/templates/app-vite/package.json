@@ -17,8 +17,8 @@
   "dependencies": {
     "@musetrip360/ui-core": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
     "@musetrip360/ui-core": "workspace:*",
     "tailwindcss": "^4",
     "@tailwindcss/vite": "^4.1.8"
