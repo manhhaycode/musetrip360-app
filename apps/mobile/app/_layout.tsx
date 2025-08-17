@@ -1,13 +1,14 @@
+import { AuthProvider } from '@musetrip360/auth-system/state';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AuthProvider } from '@musetrip360/auth-system/state';
 import 'react-native-reanimated';
 import '../global.css';
+//import {useArtifactsByMuseum} from '@musetrip360/artifact-management/api';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { initConfigApp } from '@/config';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 initConfigApp();
 
