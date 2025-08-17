@@ -131,6 +131,7 @@ export function SceneCubeMapUploadForm({
           ...(selectedScene.data || {
             cubeMaps: [],
             hotspots: [],
+            polygons: [],
           }),
           cubeMaps: [
             {
