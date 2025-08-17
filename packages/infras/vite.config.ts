@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
+import reactNativeWeb from 'vite-plugin-react-native-web';
 
 export default defineConfig({
   plugins: [
@@ -10,6 +11,7 @@ export default defineConfig({
       insertTypesEntry: true,
       exclude: ['**/*.test.*', '**/*.spec.*'],
     }),
+    reactNativeWeb(),
   ],
 
   build: {
