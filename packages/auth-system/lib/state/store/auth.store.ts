@@ -3,6 +3,7 @@ import { AuthToken } from '@/types';
 import { createJSONStorage, persist, subscribeWithSelector } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { AuthEndpoints } from '@/api';
+import { getStorageClient } from '@musetrip360/infras';
 
 export interface AuthStore {
   accessToken: AuthToken | null;
@@ -96,7 +97,7 @@ export const useAuthStore = create<AuthStore>()(
       })),
       {
         name: 'musetrip360-auth-store',
-        storage: createJSONStorage(() => localStorage),
+        storage: createJSONStorage(() => getStorageClient()),
         partialize: (state) => ({
           accessToken: state.accessToken,
           refreshToken: state.refreshToken,

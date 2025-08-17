@@ -6,7 +6,9 @@ export const AuthProvider = ({ children, strictMode = true }: { children: React.
   const [isHydrated, setIsHydrated] = useState(false);
   const { hydrate } = useAuthStore(useShallow((state) => ({ hydrate: state.hydrate })));
   useEffect(() => {
+    console.log('Hydrating auth store...');
     hydrate().then(() => {
+      console.log('Auth store hydrated');
       setIsHydrated(true);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
