@@ -17,9 +17,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
-import { Role, useAddUserRole, useRoles, useUserSearch } from '@musetrip360/user-management';
+import { Role, useAddUserRole, useRoles, useUserSearch, IUser } from '@musetrip360/user-management';
 import get from 'lodash.get';
-import { IUser } from '@musetrip360/auth-system';
 
 const addStaffSchema = z.object({
   userId: z.string().min(1, 'Vui lòng chọn người dùng'),
