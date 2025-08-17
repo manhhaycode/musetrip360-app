@@ -25,21 +25,17 @@ pnpm add @musetrip360/streaming
 import { StreamingProvider } from '@musetrip360/streaming';
 
 const config = {
-  serverUrl: "https://api.musetrip360.site/signaling",
-  turnServerUrl: "turn:34.87.114.164:3478",
+  serverUrl: 'https://api.musetrip360.site/signaling',
+  turnServerUrl: 'turn:34.87.114.164:3478',
   turnCredentials: {
-    username: "webrtc",
-    credential: "supersecret"
+    username: 'webrtc',
+    credential: 'supersecret',
   },
   accessToken: '', // From auth system
 };
 
 function App() {
-  return (
-    <StreamingProvider config={config}>
-      {/* Your app */}
-    </StreamingProvider>
-  );
+  return <StreamingProvider config={config}>{/* Your app */}</StreamingProvider>;
 }
 ```
 
@@ -50,7 +46,7 @@ import { StreamingRoom, useStreamingContext } from '@musetrip360/streaming';
 
 function VideoCall() {
   const { joinRoom, createRoom, toggleVideo } = useStreamingContext();
-  
+
   return <StreamingRoom />;
 }
 ```
@@ -77,14 +73,14 @@ function VideoCall() {
 
 ```typescript
 interface SignalRConnectionConfig {
-  serverUrl: string;           // SignalR hub URL
-  turnServerUrl: string;       // TURN server URL
+  serverUrl: string; // SignalR hub URL
+  turnServerUrl: string; // TURN server URL
   turnCredentials: {
     username: string;
     credential: string;
   };
-  accessToken?: string;        // Auth token
-  metadata?: string;           // Optional metadata
+  accessToken?: string; // Auth token
+  metadata?: string; // Optional metadata
 }
 ```
 
@@ -112,12 +108,7 @@ Requires MuseTrip360 .NET SignalR hub with these methods:
 ## Usage Example
 
 ```tsx
-import { 
-  StreamingProvider, 
-  useStreamingContext,
-  LocalVideo,
-  RemoteVideo 
-} from '@musetrip360/streaming';
+import { StreamingProvider, useStreamingContext, LocalVideo, RemoteVideo } from '@musetrip360/streaming';
 
 function MyVideoCall() {
   const {
@@ -125,26 +116,25 @@ function MyVideoCall() {
     participants,
     joinRoom,
     toggleVideo,
-    toggleAudio
+    toggleAudio,
   } = useStreamingContext();
 
   return (
     <div>
       {localStream && <LocalVideo stream={localStream} />}
-      
-      {Array.from(participants.values()).map(participant => 
-        !participant.isLocalUser && (
-          <RemoteVideo
-            key={participant.id}
-            participant={participant}
-            stream={/* get stream by participant.streamId */}
-          />
-        )
+
+      {Array.from(participants.values()).map(
+        (participant) =>
+          !participant.isLocalUser && (
+            <RemoteVideo
+              key={participant.id}
+              participant={participant}
+              stream={/* get stream by participant.streamId */}
+            />
+          )
       )}
-      
-      <button onClick={() => joinRoom('room123')}>
-        Join Room
-      </button>
+
+      <button onClick={() => joinRoom('room123')}>Join Room</button>
       <button onClick={toggleVideo}>Toggle Video</button>
       <button onClick={toggleAudio}>Toggle Audio</button>
     </div>
