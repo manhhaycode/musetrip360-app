@@ -1,5 +1,4 @@
 import { StorageClient } from './types';
-import { MMKV } from 'react-native-mmkv'; // Ensure this is installed in your React Native project
 
 // Web localStorage implementation
 class WebStorage implements StorageClient {
@@ -26,6 +25,8 @@ class MMKVStorage implements StorageClient {
 
   constructor() {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { MMKV } = require('react-native-mmkv'); // Import MMKV from react-native-mmkv
       this.mmkv = new MMKV();
       console.dir(this.mmkv, { depth: 10 });
     } catch (error) {
