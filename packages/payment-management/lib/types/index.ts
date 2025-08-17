@@ -12,7 +12,7 @@ export type Order = {
   totalAmount: number;
   status: PaymentStatusEnum;
   orderType: OrderTypeEnum;
-  metadata?: any;
+  metadata?: OrderMetadata;
   createdByUser: IUser;
   createdAt: Date;
   updatedAt: Date;
@@ -20,8 +20,8 @@ export type Order = {
 
 export enum PaymentStatusEnum {
   Pending = 'Pending',
-  Completed = 'Completed',
-  Failed = 'Failed',
+  Success = 'Success',
+  Canceled = 'Canceled',
 }
 
 export enum OrderTypeEnum {
@@ -34,9 +34,25 @@ export type CreateOrder = {
   orderType: OrderTypeEnum;
   metadata?: any;
   itemIds: string[];
+  returnUrl?: string;
+  cancelUrl?: string;
 };
 
 export type OrderSearchParams = {
   status?: PaymentStatusEnum;
   orderType?: OrderTypeEnum;
 } & Pagination;
+
+export type OrderMetadata = {
+  checkoutUrl: string;
+  orderCode: number;
+  expiredAt?: Date;
+  paymentLinkId?: string;
+  status?: string;
+  currency?: string;
+  amount: number;
+  description?: string;
+  bin?: string;
+  accountNumber?: string;
+  qrCode?: string;
+};

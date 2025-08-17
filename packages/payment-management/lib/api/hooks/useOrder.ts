@@ -8,9 +8,9 @@ import {
   useQuery,
 } from '@musetrip360/query-foundation';
 
-import { OrderSearchParams, CreateOrder, Order } from '@/types';
+import { OrderSearchParams, CreateOrder, Order, OrderMetadata } from '@/types';
 
-import { createOrder, getOrders, getAdminOrders, getOrderById } from '../endpoints';
+import { createOrder, getOrders, getAdminOrders, getOrderById, getOrderByCode } from '../endpoints';
 import { orderManagementCacheKeys } from '../cache/cacheKeys';
 
 export function useGetOrders(params: OrderSearchParams, options?: CustomQueryOptions<PaginatedResponse<Order>>) {
@@ -19,7 +19,7 @@ export function useGetOrders(params: OrderSearchParams, options?: CustomQueryOpt
   });
 }
 
-export function useCreateOrder(options?: CustomMutationOptions<Order, APIError, CreateOrder>) {
+export function useCreateOrder(options?: CustomMutationOptions<OrderMetadata, APIError, CreateOrder>) {
   return useMutation((data: CreateOrder) => createOrder(data), options);
 }
 
@@ -31,6 +31,12 @@ export function useGetAdminOrders(params: OrderSearchParams, options?: CustomQue
 
 export function useGetOrderById(id: string, options?: CustomQueryOptions<Order>) {
   return useQuery(orderManagementCacheKeys.detail(id), () => getOrderById(id), {
+    ...options,
+  });
+}
+
+export function useGetOrderByCode(code: string, options?: CustomQueryOptions<Order>) {
+  return useQuery(orderManagementCacheKeys.detail(code), () => getOrderByCode(code), {
     ...options,
   });
 }

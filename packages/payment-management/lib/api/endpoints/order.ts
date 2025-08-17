@@ -5,7 +5,7 @@
  */
 
 import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
-import { Order, CreateOrder, OrderSearchParams } from '@/types';
+import { Order, CreateOrder, OrderSearchParams, OrderMetadata } from '@/types';
 
 /**
  * Order API endpoints configuration
@@ -13,6 +13,7 @@ import { Order, CreateOrder, OrderSearchParams } from '@/types';
 export const orderEndpoints = {
   orders: '/orders',
   orderById: (id: string) => `/orders/${id}`,
+  orderByCode: (code: string) => `/orders/code/${code}`,
   admin: '/admin',
 } as const;
 
@@ -34,9 +35,15 @@ export const getOrderById = async (id: string) => {
   return response.data;
 };
 
+export const getOrderByCode = async (code: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<Order>>(orderEndpoints.orderByCode(code));
+  return response.data;
+};
+
 export const createOrder = async (data: CreateOrder) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.post<APIResponse<Order>>(orderEndpoints.orders, data);
+  const response = await httpClient.post<APIResponse<OrderMetadata>>(orderEndpoints.orders, data);
   return response.data;
 };
 

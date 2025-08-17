@@ -112,3 +112,21 @@ export type EventRoomCreateDto = {
   description?: string;
   status?: string;
 };
+
+export type EventParticipant = {
+  id: string;
+  eventId: string;
+  userId: string;
+  joinAt: string; // ISO date string
+  role: ParticipantRoleEnum;
+  status: string;
+  user?: IUser;
+  event?: Event;
+};
+
+export enum ParticipantRoleEnum {
+  Attendee = 'Attendee',
+  Organizer = 'Organizer',
+  TourGuide = 'TourGuide',
+  Guest = 'Guest',
+}

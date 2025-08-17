@@ -40,7 +40,7 @@ export default defineConfig({
         state: resolve(__dirname, './lib/state/index.ts'),
         validation: resolve(__dirname, './lib/validation/index.ts'),
       },
-      name: 'AIBot',
+      name: 'PaymentManagement',
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => {
         const ext = format === 'es' ? 'mjs' : 'js';

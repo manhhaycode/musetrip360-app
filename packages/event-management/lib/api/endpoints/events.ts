@@ -5,7 +5,15 @@
  */
 
 import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
-import { Event, EventSearchParams, EventCreateDto, EventUpdateDto, EventRoom, EventRoomCreateDto } from '@/types';
+import {
+  Event,
+  EventSearchParams,
+  EventCreateDto,
+  EventUpdateDto,
+  EventRoom,
+  EventRoomCreateDto,
+  EventParticipant,
+} from '@/types';
 
 /**
  * Event API endpoints configuration
@@ -22,6 +30,8 @@ export const eventEndpoints = {
   evaluateEvent: (eventId: string, isApproved: boolean) => `/events/${eventId}/evaluate?isApproved=${isApproved}`,
   createEventRoom: (eventId: string) => `/events/${eventId}/rooms`,
   getEventRooms: (eventId: string) => `/events/${eventId}/rooms`,
+  getEventParticipants: (eventId: string) => `/event-participants/event/${eventId}`,
+  getUserEventParticipants: (userId: string) => `/event-participants/user/${userId}`,
 } as const;
 
 /**
@@ -129,6 +139,26 @@ export const createEventRoom = async (eventId: string, roomData: EventRoomCreate
 export const getEventRooms = async (eventId: string) => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<EventRoom[]>>(eventEndpoints.getEventRooms(eventId));
+  return response.data;
+};
+
+/**
+ * Get event participants
+ */
+export const getEventParticipants = async (eventId: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<EventParticipant[]>>(eventEndpoints.getEventParticipants(eventId));
+  return response.data;
+};
+
+/**
+ * Get user event participants
+ */
+export const getUserEventParticipants = async (userId: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<EventParticipant[]>>(
+    eventEndpoints.getUserEventParticipants(userId)
+  );
   return response.data;
 };
 
