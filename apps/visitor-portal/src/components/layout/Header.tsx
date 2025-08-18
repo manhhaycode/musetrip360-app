@@ -37,6 +37,7 @@ import {
   Menu,
   Phone,
   Search,
+  ShoppingBag,
   User,
   UserIcon,
   Video,
@@ -201,6 +202,17 @@ export function Header() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+
+            {isAuthenticated && (
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
+                  <Link href="/orders">
+                    <ShoppingBag className="mr-2 h-6 w-6 hover:text-primary" />
+                    Đơn hàng
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -251,6 +263,12 @@ export function Header() {
                     <Link href="/profile" className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" />
                       <span>Thông tin cá nhân</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/orders" className="cursor-pointer">
+                      <ShoppingBag className="mr-2 h-4 w-4" />
+                      <span>Đơn hàng của tôi</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -327,6 +345,10 @@ export function Header() {
                       <Link href="/profile" className={cn(buttonVariants({ variant: 'outline' }), 'justify-start')}>
                         <UserIcon className="mr-2 h-4 w-4" />
                         Thông tin cá nhân
+                      </Link>
+                      <Link href="/orders" className={cn(buttonVariants({ variant: 'outline' }), 'justify-start')}>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        Đơn hàng của tôi
                       </Link>
                       <Button
                         variant="outline"
