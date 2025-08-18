@@ -3,10 +3,15 @@
 import { OrderStatusComponent } from '@/components/order/OrderStatusComponent';
 
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 
 export default function OrderSuccessPage() {
   const searchParams = useSearchParams();
   const orderCode = searchParams.get('orderCode');
 
-  return <OrderStatusComponent orderCode={orderCode} pageType="success" />;
+  return (
+    <Suspense>
+      <OrderStatusComponent orderCode={orderCode} pageType="success" />
+    </Suspense>
+  );
 }
