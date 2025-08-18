@@ -198,7 +198,12 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
   const isPast = endTime < now;
   const isFree = event.price === 0;
   const isSoldOut = event.availableSlots === 0;
-  const hasParticipated = userParticipants?.some((participant) => participant.eventId === eventId) || false;
+  const hasParticipated =
+    userParticipants?.some((participant) => participant.eventId === eventId) ||
+    eventParticipants?.some((participant) => participant.userId === userId) ||
+    false;
+
+  console.log(hasParticipated, userParticipants);
 
   return (
     <div className={cn('container mx-auto py-8', className)}>
