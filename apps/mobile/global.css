@@ -47,7 +47,6 @@
 
     /* Border radius */
     --radius: 10px;
-
   }
 
   .dark:root {
@@ -94,6 +93,5 @@
 
     /* Border radius */
     --radius: 10px;
-
   }
 }
