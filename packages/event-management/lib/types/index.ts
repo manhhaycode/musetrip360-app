@@ -117,7 +117,7 @@ export type EventParticipant = {
   id: string;
   eventId: string;
   userId: string;
-  joinAt: string; // ISO date string
+  joinedAt: string; // ISO date string
   role: ParticipantRoleEnum;
   status: string;
   user?: IUser;

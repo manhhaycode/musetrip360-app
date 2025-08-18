@@ -202,17 +202,6 @@ export function Header() {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
-
-            {isAuthenticated && (
-              <NavigationMenuItem>
-                <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
-                  <Link href="/orders">
-                    <ShoppingBag className="mr-2 h-6 w-6 hover:text-primary" />
-                    Đơn hàng
-                  </Link>
-                </NavigationMenuLink>
-              </NavigationMenuItem>
-            )}
           </NavigationMenuList>
         </NavigationMenu>
 
@@ -269,6 +258,12 @@ export function Header() {
                     <Link href="/orders" className="cursor-pointer">
                       <ShoppingBag className="mr-2 h-4 w-4" />
                       <span>Đơn hàng của tôi</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/events/user" className="cursor-pointer">
+                      <Calendar className="mr-2 h-4 w-4" />
+                      <span>Sự kiện của tôi</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
