@@ -14,7 +14,7 @@ export const orderEndpoints = {
   orders: '/orders',
   orderById: (id: string) => `/orders/${id}`,
   orderByCode: (code: string) => `/orders/code/${code}`,
-  admin: '/admin',
+  admin: '/orders/admin',
 } as const;
 
 export const getOrders = async (params: OrderSearchParams) => {

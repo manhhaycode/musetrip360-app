@@ -100,6 +100,18 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               ],
             },
             {
+              title: 'Quản lý thanh toán',
+              url: routes.payments.orders,
+              icon: Gavel,
+              items: [
+                {
+                  title: 'Danh sách đơn hàng',
+                  url: routes.payments.orders,
+                  icon: Gavel,
+                },
+              ],
+            },
+            {
               title: 'Cài đặt',
               url: routes.settings,
               icon: Settings,
