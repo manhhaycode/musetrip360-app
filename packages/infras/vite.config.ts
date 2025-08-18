@@ -2,6 +2,7 @@
 import { defineConfig } from 'vite';
 import dts from 'vite-plugin-dts';
 import { resolve } from 'path';
+import packageJson from './package.json';
 
 export default defineConfig({
   plugins: [
@@ -20,7 +21,8 @@ export default defineConfig({
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      // Externalize dependencies that shouldn't be bundled
+      external: [...new Set([...Object.keys(packageJson.dependencies)])].map((dep) => new RegExp(`^${dep}`)),
     },
     target: 'es2022',
     minify: 'esbuild',

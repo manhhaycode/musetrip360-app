@@ -5,7 +5,7 @@
       "mcp__serena__search_for_pattern",
       "mcp__serena__get_symbols_overview",
       "mcp__ide__getDiagnostics",
-      "Bash(pnpm run lint:*)"
+      "mcp__serena__find_file"
     ],
     "defaultMode": "acceptEdits"
   }

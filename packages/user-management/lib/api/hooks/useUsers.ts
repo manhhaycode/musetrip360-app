@@ -57,16 +57,18 @@ export function useMuseumUsers(params: UserSearchParams, museumId: string) {
 /**
  * Hook to create a new user (admin only)
  */
-export function useCreateUser() {
+export function useCreateUser(options?: CustomMutationOptions<ApiResponse<IUser>, APIError, UserCreateDto>) {
   const queryClient = useQueryClient();
 
   return useMutation((userData: UserCreateDto) => userEndpoints.createUser(userData), {
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
       // Invalidate users list to refetch with new user
       queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
+      options?.onSuccess?.(data, variables, context);
     },
-    onError: (error: any) => {
-      console.error('Failed to create user:', userApiErrorHandler.handleError(error));
+    onError: (error: any, variables, context) => {
+      const errorMessage = userApiErrorHandler.handleError(error);
+      options?.onError?.(error, variables, context);
     },
   });
 }
@@ -74,29 +76,42 @@ export function useCreateUser() {
 /**
  * Hook to update a user (admin only)
  */
-export function useUpdateUser() {
+export function useUpdateUser(
+  options?: CustomMutationOptions<ApiResponse<IUser>, APIError, { id: string; userData: UserUpdateDto }>
+) {
   const queryClient = useQueryClient();
 
   return useMutation(
     ({ id, userData }: { id: string; userData: UserUpdateDto }) => userEndpoints.updateUser(id, userData),
     {
-      onSuccess: (updatedUser: IUser) => {
-        // Update user in all relevant queries
-        queryClient.setQueryData<IUser>(userCacheKeys.detail(updatedUser.id), updatedUser);
+      onSuccess: (response, variables, context) => {
+        const updatedUser = response.data;
+        if (updatedUser) {
+          // Update user in all relevant queries
+          queryClient.setQueryData<IUser>(userCacheKeys.detail(updatedUser.id), updatedUser);
 
-        // Update user in lists
-        queryClient.setQueriesData<PaginatedResponse<IUser>>({ queryKey: userCacheKeys.lists() }, (oldData) => {
-          if (oldData) {
-            return {
-              ...oldData,
-              data: oldData.data.map((user) => (user.id === updatedUser.id ? updatedUser : user)),
-            };
-          }
-          return oldData;
-        });
+          // Update user in lists
+          queryClient.setQueriesData<ApiResponse<PaginatedResponse<IUser>>>(
+            { queryKey: userCacheKeys.lists() },
+            (oldData) => {
+              if (oldData?.data?.data) {
+                return {
+                  ...oldData,
+                  data: {
+                    ...oldData.data,
+                    data: oldData.data.data.map((user) => (user.id === updatedUser.id ? updatedUser : user)),
+                  },
+                };
+              }
+              return oldData;
+            }
+          );
+        }
+        options?.onSuccess?.(response, variables, context);
       },
-      onError: (error: any) => {
-        console.error('Failed to update user:', userApiErrorHandler.handleError(error));
+      onError: (error: any, variables, context) => {
+        const errorMessage = userApiErrorHandler.handleError(error);
+        options?.onError?.(error, variables, context);
       },
     }
   );
