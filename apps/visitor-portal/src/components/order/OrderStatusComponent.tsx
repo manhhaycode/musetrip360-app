@@ -20,16 +20,18 @@ import {
   X,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 interface OrderStatusComponentProps {
-  orderCode: string | null;
   pageType: 'success' | 'cancel';
   className?: string;
 }
 
-export function OrderStatusComponent({ orderCode, pageType, className }: OrderStatusComponentProps) {
+export function OrderStatusComponent({ pageType, className }: OrderStatusComponentProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const orderCode = searchParams.get('orderCode');
 
   const {
     data: order,
