@@ -30,6 +30,9 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
   },
+  "dependencies": {
+    "react-native-mmkv": "^3.3.0"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@musetrip360/eslint-config": "workspace:*",
