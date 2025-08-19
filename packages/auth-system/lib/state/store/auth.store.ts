@@ -1,8 +1,9 @@
-import { create } from 'zustand';
-import { AuthToken } from '@/types';
-import { createJSONStorage, persist, subscribeWithSelector } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
 import { AuthEndpoints } from '@/api';
+import { AuthToken } from '@/types';
+import { StorageClient, StorageFactory } from '@musetrip360/infras';
+import { create } from 'zustand';
+import { persist, subscribeWithSelector } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 export interface AuthStore {
   accessToken: AuthToken | null;
@@ -96,7 +97,7 @@ export const useAuthStore = create<AuthStore>()(
       })),
       {
         name: 'musetrip360-auth-store',
-        storage: createJSONStorage(() => localStorage),
+        storage: StorageFactory as unknown as StorageClient,
         partialize: (state) => ({
           accessToken: state.accessToken,
           refreshToken: state.refreshToken,

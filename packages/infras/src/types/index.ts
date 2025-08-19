@@ -8,3 +8,9 @@ export interface EnvConfig {
   environment: Environment;
   vars: Record<string, string>;
 }
+
+export interface StorageClient {
+  getItem: (name: string) => Promise<any>;
+  setItem: (name: string, newValue: any) => Promise<void>;
+  removeItem: (name: string) => Promise<void>;
+}

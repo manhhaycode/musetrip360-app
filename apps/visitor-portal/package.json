@@ -4,7 +4,7 @@
   "description": "A nextjs application for MuseTrip360 platform",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -16,6 +16,7 @@
     "@musetrip360/event-management": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/museum-management": "workspace:*",
+    "@musetrip360/payment-management": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/streaming": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
