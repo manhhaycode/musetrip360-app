@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useState } from 'react';
-import { useAuthStore } from '../store/auth.store';
 import { useShallow } from 'zustand/shallow';
+import { useAuthStore } from '../store/auth.store';
 
 export const AuthProvider = ({ children, strictMode = true }: { children: React.ReactNode; strictMode?: boolean }) => {
   const [isHydrated, setIsHydrated] = useState(false);
