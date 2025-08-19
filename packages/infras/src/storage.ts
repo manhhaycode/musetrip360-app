@@ -13,66 +13,84 @@ class WebStorage implements StorageClient {
   async removeItem(key: string): Promise<void> {
     localStorage.removeItem(key);
   }
-
-  async clear(): Promise<void> {
-    localStorage.clear();
-  }
 }
 
-// MMKV storage implementation for React Native
-class MMKVStorage implements StorageClient {
-  private mmkv: any;
+// Storage factory with configurable client
+export class StorageFactory {
+  private static instance: StorageClient | null = StorageFactory.createWebStorageClient();
+  public static getItem: (name: string) => Promise<any> = async (name: string) => {
+    return this.instance?.getItem(name);
+  };
+  public static setItem: (name: string, value: any) => Promise<void> = async (name: string, value: any) => {
+    return this.instance?.setItem(name, value);
+  };
+  public static removeItem: (name: string) => Promise<void> = async (name: string) => {
+    return this.instance?.removeItem(name);
+  };
 
-  constructor() {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { MMKV } = require('react-native-mmkv'); // Import MMKV from react-native-mmkv
-      this.mmkv = new MMKV();
-      console.dir(this.mmkv, { depth: 10 });
-    } catch (error) {
-      console.error('Failed to initialize MMKV:', error);
+  static setClient(client: StorageClient): void {
+    this.instance = createJSONStorage(() => client)!;
+    console.log('Storage client set:', this.instance);
+  }
+
+  static getClient(): StorageClient | null {
+    if (!this.instance) {
+      // Fallback to web storage for web environments
+      this.instance = this.createWebStorageClient();
     }
+    return this.instance;
   }
 
-  async getItem(key: string): Promise<string | null> {
-    return this.mmkv.getString(key) ?? null;
+  static getStorageClient(): StorageClient {
+    return {
+      getItem: this.getItem,
+      setItem: this.setItem,
+      removeItem: this.removeItem,
+    };
   }
 
-  async setItem(key: string, value: string): Promise<void> {
-    this.mmkv.set(key, value);
-  }
-
-  async removeItem(key: string): Promise<void> {
-    this.mmkv.delete(key);
-  }
-
-  async clear(): Promise<void> {
-    this.mmkv.clearAll();
-  }
-}
-
-// Simple platform detection
-function isReactNative(): boolean {
-  return typeof navigator !== 'undefined' && navigator.product === 'ReactNative';
-}
-
-// Main function to get storage client
-export function getStorageClient(): StorageClient {
-  if (isReactNative()) {
-    console.log('Using MMKV storage for React Native');
-    try {
-      return new MMKVStorage();
-    } catch {
-      throw new Error('MMKV not available in React Native environment');
+  static createWebStorageClient(): StorageClient | null {
+    if (typeof window !== 'undefined' && window.localStorage) {
+      return createJSONStorage(() => new WebStorage())!;
     }
+    return null;
+  }
+}
+
+// JSON Storage wrapper function
+function createJSONStorage(
+  getStorage: () => StorageClient | null,
+  options?: {
+    reviver?: (key: string, value: any) => any;
+    replacer?: (key: string, value: any) => any;
+  }
+) {
+  let storage: StorageClient | null;
+  try {
+    storage = getStorage();
+  } catch (e) {
+    return;
   }
 
-  console.log('Using WebStorage for web');
-  if (typeof window !== 'undefined' && window.localStorage) {
-    return new WebStorage();
+  if (!storage) {
+    return;
   }
 
-  throw new Error('No storage available for this platform');
+  const persistStorage = {
+    getItem: async (name: string) => {
+      const parse = (str: string | null) => {
+        if (str === null) {
+          return null;
+        }
+        return JSON.parse(str, options?.reviver);
+      };
+      const str = await storage!.getItem(name);
+      return parse(str);
+    },
+    setItem: async (name: string, newValue: any) => storage!.setItem(name, JSON.stringify(newValue, options?.replacer)),
+    removeItem: async (name: string) => storage!.removeItem(name),
+  };
+  return persistStorage;
 }
 
 export type { StorageClient };

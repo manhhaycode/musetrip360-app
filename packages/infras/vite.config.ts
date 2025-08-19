@@ -20,10 +20,6 @@ export default defineConfig({
       formats: ['es', 'cjs'],
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },
-    rollupOptions: {
-      // Externalize dependencies that shouldn't be bundled
-      external: [...new Set([...Object.keys(packageJson.dependencies)])].map((dep) => new RegExp(`^${dep}`)),
-    },
     target: 'es2022',
     minify: 'esbuild',
     sourcemap: true,
