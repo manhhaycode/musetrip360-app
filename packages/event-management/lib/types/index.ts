@@ -18,6 +18,7 @@ export type Event = {
   capacity: number;
   availableSlots: number;
   bookingDeadline: string; // ISO date string
+  price: number;
   museumId: string;
   createdBy?: string;
   status: EventStatusEnum;
@@ -111,3 +112,21 @@ export type EventRoomCreateDto = {
   description?: string;
   status?: string;
 };
+
+export type EventParticipant = {
+  id: string;
+  eventId: string;
+  userId: string;
+  joinedAt: string; // ISO date string
+  role: ParticipantRoleEnum;
+  status: string;
+  user?: IUser;
+  event?: Event;
+};
+
+export enum ParticipantRoleEnum {
+  Attendee = 'Attendee',
+  Organizer = 'Organizer',
+  TourGuide = 'TourGuide',
+  Guest = 'Guest',
+}

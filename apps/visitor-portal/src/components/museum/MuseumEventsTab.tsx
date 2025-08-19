@@ -69,7 +69,7 @@ const getEventTypeColor = (type: EventTypeEnum) => {
 };
 
 // Join Event Button Component
-const JoinEventButton = ({ eventId }: { eventId: string }) => {
+export const JoinEventButton = ({ eventId }: { eventId: string }) => {
   const router = useRouter();
   const { data: eventRooms, isLoading } = useGetEventRooms(eventId);
 
@@ -584,6 +584,7 @@ export function MuseumEventsTab({ museumId, className }: MuseumEventsTabProps) {
                                     ? 'border-l-4 border-l-blue-500 shadow-blue-100/50'
                                     : 'border-l-4 border-l-gray-300 shadow-gray-100/50'
                               )}
+                              onClick={() => router.push(`/event/${event.id}`)}
                             >
                               <div className="flex gap-4">
                                 {/* Event Image */}
@@ -644,14 +645,21 @@ export function MuseumEventsTab({ museumId, className }: MuseumEventsTabProps) {
                                       </div>
                                     </div>
 
-                                    {isOngoing ? (
-                                      <JoinEventButton eventId={event.id} />
-                                    ) : (
-                                      <Button size="sm" variant="outline" className="h-6 px-3 text-xs">
-                                        <Eye className="h-3 w-3 mr-1" />
-                                        Chi tiết
-                                      </Button>
-                                    )}
+                                    <div onClick={(e) => e.stopPropagation()}>
+                                      {isOngoing ? (
+                                        <JoinEventButton eventId={event.id} />
+                                      ) : (
+                                        <Button
+                                          size="sm"
+                                          variant="outline"
+                                          className="h-6 px-3 text-xs"
+                                          onClick={() => router.push(`/event/${event.id}`)}
+                                        >
+                                          <Eye className="h-3 w-3 mr-1" />
+                                          Chi tiết
+                                        </Button>
+                                      )}
+                                    </div>
                                   </div>
                                 </div>
                               </div>
