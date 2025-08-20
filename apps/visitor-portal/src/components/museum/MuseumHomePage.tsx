@@ -9,6 +9,7 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { MuseumIntroTab } from './MuseumIntroTab';
 import { MuseumArtifactsTab } from './MuseumArtifactsTab';
 import { MuseumEventsTab } from './MuseumEventsTab';
+import { MuseumArticlesTab } from './MuseumArticlesTab';
 import { MuseumFeedbackTab } from './MuseumFeedbackTab';
 
 interface MuseumHomePageProps {
@@ -84,7 +85,7 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
       <div className="space-y-6">
         {/* Main Content with Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5 lg:w-fit lg:grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6 lg:w-fit lg:grid-cols-6">
             <TabsTrigger value="intro" className="text-sm">
               Giới thiệu
             </TabsTrigger>
@@ -93,6 +94,9 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             </TabsTrigger>
             <TabsTrigger value="events" className="text-sm">
               Sự kiện
+            </TabsTrigger>
+            <TabsTrigger value="articles" className="text-sm">
+              Bài viết
             </TabsTrigger>
             <TabsTrigger value="tours" className="text-sm">
               Tour ảo
@@ -112,6 +116,10 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
 
           <TabsContent value="events" className="mt-6">
             <MuseumEventsTab museumId={museumId} />
+          </TabsContent>
+
+          <TabsContent value="articles" className="mt-6">
+            <MuseumArticlesTab museumId={museumId} />
           </TabsContent>
 
           <TabsContent value="tours" className="mt-6">
