@@ -9,6 +9,7 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { MuseumIntroTab } from './MuseumIntroTab';
 import { MuseumArtifactsTab } from './MuseumArtifactsTab';
 import { MuseumEventsTab } from './MuseumEventsTab';
+import { MuseumFeedbackTab } from './MuseumFeedbackTab';
 
 interface MuseumHomePageProps {
   museumId: string;
@@ -83,7 +84,7 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
       <div className="space-y-6">
         {/* Main Content with Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5 lg:w-fit lg:grid-cols-5">
             <TabsTrigger value="intro" className="text-sm">
               Giới thiệu
             </TabsTrigger>
@@ -95,6 +96,9 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             </TabsTrigger>
             <TabsTrigger value="tours" className="text-sm">
               Tour ảo
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="text-sm">
+              Đánh giá
             </TabsTrigger>
           </TabsList>
 
@@ -119,6 +123,10 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="feedback" className="mt-6">
+            <MuseumFeedbackTab museumId={museumId} museumName={museum.name} />
           </TabsContent>
         </Tabs>
       </div>
