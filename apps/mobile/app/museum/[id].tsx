@@ -1,29 +1,19 @@
-import React from 'react';
-import { ScrollView, View, TouchableOpacity, Dimensions, FlatList } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import {
-  ArrowLeft,
-  MapPin,
-  Star,
-  Clock,
-  Phone,
-  Globe,
-  Heart,
-  Share,
-  Calendar,
-  Users,
-  Play,
-  Info,
-} from 'lucide-react-native';
+import { StatusBar } from 'expo-status-bar';
+import { ArrowLeft, Calendar, Globe, Heart, MapPin, Phone, Share, Star } from 'lucide-react-native';
+import React from 'react';
+import { Dimensions, ScrollView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Text } from '@/components/core/ui/text';
-import { Card, CardContent, CardHeader } from '@/components/core/ui/card';
 import { Badge } from '@/components/core/ui/badge';
+import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
-import { Button } from '@/components/core/ui/button';
-import { featuredMuseums, featuredArtifacts, onlineTours, upcomingEvents } from '@/lib/mockData';
+import { Text } from '@/components/core/ui/text';
+import type { Artifact } from '@musetrip360/artifact-management';
+import { useArtifactsByMuseum } from '@musetrip360/artifact-management/api';
+import type { Event } from '@musetrip360/event-management';
+import { useGetEventsByMuseumId } from '@musetrip360/event-management/api';
+import { useGetMuseumById } from '@musetrip360/museum-management/api';
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,10 +25,47 @@ export default function MuseumDetailPage() {
   const { id, tab } = params;
   const [activeTab, setActiveTab] = React.useState<TabType>((tab as TabType) || 'intro');
 
-  const museum = featuredMuseums.find((m) => m.id === id);
-  const museumArtifacts = featuredArtifacts.filter((a) => a.museumId === id);
-  const museumTours = onlineTours.filter((t) => t.museumId === id);
-  const museumEvents = upcomingEvents.filter((e) => e.museumId === id);
+  // Fetch museum data
+  const { data: museum, isLoading: museumLoading } = useGetMuseumById(id as string, { enabled: !!id });
+
+  // Fetch artifacts for this museum
+  const { data: artifactsData, isLoading: artifactsLoading } = useArtifactsByMuseum(
+    { museumId: id as string, Page: 1, PageSize: 20 },
+    { enabled: !!id }
+  );
+
+  // Fetch events for this museum
+  const { data: eventsData, isLoading: eventsLoading } = useGetEventsByMuseumId(
+    id as string,
+    { Page: 1, PageSize: 20 },
+    { enabled: !!id }
+  );
+
+  // Handle artifacts data structure - useArtifactsByMuseum returns PaginatedResponse<Artifact>['data']
+  const museumArtifacts = React.useMemo(() => {
+    if (Array.isArray(artifactsData)) {
+      return artifactsData;
+    }
+    return [];
+  }, [artifactsData]);
+
+  // Handle events data structure - useGetEventsByMuseumId returns PaginatedResponse<Event>
+  const museumEvents = React.useMemo(() => {
+    if (Array.isArray(eventsData?.data)) {
+      return eventsData.data;
+    } else if (eventsData?.data && Array.isArray(eventsData.data)) {
+      return eventsData.data;
+    }
+    return [];
+  }, [eventsData]);
+
+  if (museumLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-background items-center justify-center">
+        <Text className="text-foreground">Đang tải...</Text>
+      </SafeAreaView>
+    );
+  }
 
   if (!museum) {
     return (
@@ -60,30 +87,23 @@ export default function MuseumDetailPage() {
       <Text className="text-lg font-bold text-foreground mb-3">Giới thiệu</Text>
       <Text className="text-muted-foreground text-sm leading-6 mb-4">{museum.description}</Text>
 
-      {museum.features.length > 0 && (
+      {museum.categories && museum.categories.length > 0 && (
         <View className="mb-4">
-          <Text className="text-base font-semibold text-foreground mb-3">Tiện ích</Text>
+          <Text className="text-base font-semibold text-foreground mb-3">Danh mục</Text>
           <View className="flex-row flex-wrap">
-            {museum.features.map((feature, index) => (
+            {museum.categories.map((category, index) => (
               <Badge key={index} variant="secondary" className="mr-2 mb-2">
-                <Text className="text-xs">{feature}</Text>
+                <Text className="text-xs">{category.name}</Text>
               </Badge>
             ))}
           </View>
         </View>
       )}
 
-      {museum.galleries.length > 0 && (
+      {museum.metadata?.detail && (
         <View>
-          <Text className="text-base font-semibold text-foreground mb-3">Phòng trưng bày</Text>
-          <View className="space-y-2">
-            {museum.galleries.map((gallery, index) => (
-              <View key={index} className="flex-row items-center">
-                <View className="w-2 h-2 bg-primary rounded-full mr-2" />
-                <Text className="text-muted-foreground text-sm">{gallery}</Text>
-              </View>
-            ))}
-          </View>
+          <Text className="text-base font-semibold text-foreground mb-3">Chi tiết</Text>
+          <Text className="text-muted-foreground text-sm leading-6">{museum.metadata.detail}</Text>
         </View>
       )}
     </View>
@@ -105,38 +125,42 @@ export default function MuseumDetailPage() {
             </View>
 
             <View className="flex-row items-start">
-              <Clock size={16} color="#6b7280" className="mt-1" />
-              <View className="flex-1 ml-3">
-                <Text className="text-xs text-muted-foreground">Giờ mở cửa</Text>
-                <Text className="text-sm text-foreground">{museum.openingHours}</Text>
-              </View>
-            </View>
-
-            <View className="flex-row items-start">
               <Phone size={16} color="#6b7280" className="mt-1" />
               <View className="flex-1 ml-3">
                 <Text className="text-xs text-muted-foreground">Điện thoại</Text>
-                <Text className="text-sm text-foreground">{museum.phone}</Text>
+                <Text className="text-sm text-foreground">{museum.contactPhone}</Text>
               </View>
             </View>
 
             <View className="flex-row items-start">
               <Globe size={16} color="#6b7280" className="mt-1" />
               <View className="flex-1 ml-3">
-                <Text className="text-xs text-muted-foreground">Website</Text>
-                <Text className="text-sm text-primary">{museum.website}</Text>
+                <Text className="text-xs text-muted-foreground">Email</Text>
+                <Text className="text-sm text-primary">{museum.contactEmail}</Text>
               </View>
             </View>
+
+            {museum.metadata?.socialLinks?.website && (
+              <View className="flex-row items-start">
+                <Globe size={16} color="#6b7280" className="mt-1" />
+                <View className="flex-1 ml-3">
+                  <Text className="text-xs text-muted-foreground">Website</Text>
+                  <Text className="text-sm text-primary">{museum.metadata.socialLinks.website}</Text>
+                </View>
+              </View>
+            )}
           </View>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="p-4">
-          <Text className="text-base font-semibold text-foreground mb-3">Giá vé</Text>
+          <Text className="text-base font-semibold text-foreground mb-3">Trạng thái</Text>
           <View className="flex-row items-center justify-between">
-            <Text className="text-muted-foreground text-sm">Vé người lớn</Text>
-            <Text className="text-lg font-bold text-primary">{museum.price}</Text>
+            <Text className="text-muted-foreground text-sm">Trạng thái hoạt động</Text>
+            <Badge variant={museum.status === 'Active' ? 'default' : 'secondary'}>
+              <Text className="text-xs">{museum.status}</Text>
+            </Badge>
           </View>
         </CardContent>
       </Card>
@@ -149,23 +173,30 @@ export default function MuseumDetailPage() {
 
       {museumArtifacts.length > 0 ? (
         <View className="space-y-3">
-          {museumArtifacts.map((artifact) => (
+          {museumArtifacts.map((artifact: Artifact) => (
             <Card key={artifact.id}>
               <CardContent className="p-0">
                 <View className="flex-row">
-                  <Image source={artifact.image} className="w-20 h-20 rounded-l-lg" />
+                  <Image
+                    source={artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'}
+                    className="w-20 h-20 rounded-l-lg"
+                  />
                   <View className="flex-1 p-3">
                     <Text className="font-bold text-sm text-foreground mb-1" numberOfLines={2}>
                       {artifact.name}
                     </Text>
                     <Text className="text-muted-foreground text-xs mb-2" numberOfLines={2}>
-                      {artifact.period} • {artifact.category}
+                      {artifact.historicalPeriod} • {artifact.metadata?.type || 'Hiện vật'}
                     </Text>
                     <View className="flex-row items-center justify-between">
-                      <Text className="text-muted-foreground text-xs">Phát hiện: {artifact.discovered}</Text>
+                      <Text className="text-muted-foreground text-xs">
+                        {artifact.metadata?.discoveryLocation
+                          ? `Phát hiện: ${artifact.metadata.discoveryLocation}`
+                          : 'Hiện vật bảo tàng'}
+                      </Text>
                       <View className="flex-row items-center">
                         <Star size={10} color="#fbbf24" fill="#fbbf24" />
-                        <Text className="text-foreground text-xs ml-1">{artifact.rating}</Text>
+                        <Text className="text-foreground text-xs ml-1">{artifact.rating.toFixed(1)}</Text>
                       </View>
                     </View>
                   </View>
@@ -189,11 +220,17 @@ export default function MuseumDetailPage() {
 
       {museumEvents.length > 0 ? (
         <View className="space-y-3">
-          {museumEvents.map((event) => (
+          {museumEvents.map((event: Event) => (
             <Card key={event.id}>
               <CardContent className="p-0">
                 <View className="flex-row">
-                  <Image source={event.image} className="w-20 h-20 rounded-l-lg" />
+                  <Image
+                    source={
+                      event.metadata?.images?.[0] ||
+                      'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400'
+                    }
+                    className="w-20 h-20 rounded-l-lg"
+                  />
                   <View className="flex-1 p-3">
                     <Text className="font-bold text-sm text-foreground mb-1" numberOfLines={2}>
                       {event.title}
@@ -201,13 +238,13 @@ export default function MuseumDetailPage() {
                     <View className="flex-row items-center mb-1">
                       <Calendar size={10} color="#6b7280" />
                       <Text className="text-muted-foreground text-xs ml-1">
-                        {new Date(event.date).toLocaleDateString('vi-VN')} • {event.time}
+                        {new Date(event.startTime).toLocaleDateString('vi-VN')}
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between">
                       <Text className="text-muted-foreground text-xs">{event.location}</Text>
-                      <Badge variant="outline">
-                        <Text className="text-xs">{event.price}</Text>
+                      <Badge variant={event.status === 'Published' ? 'default' : 'secondary'}>
+                        <Text className="text-xs">{event.eventType}</Text>
                       </Badge>
                     </View>
                   </View>
@@ -223,48 +260,7 @@ export default function MuseumDetailPage() {
         </View>
       )}
 
-      {/* Tours section */}
-      {museumTours.length > 0 && (
-        <View className="mt-6">
-          <Text className="text-base font-semibold text-foreground mb-3">Tour online</Text>
-          <View className="space-y-3">
-            {museumTours.map((tour) => (
-              <Card key={tour.id}>
-                <CardContent className="p-0">
-                  <View className="flex-row">
-                    <View className="relative">
-                      <Image source={tour.thumbnail} className="w-20 h-20 rounded-l-lg" />
-                      <View className="absolute inset-0 bg-black/30 rounded-l-lg items-center justify-center">
-                        <Play size={16} color="white" fill="white" />
-                      </View>
-                    </View>
-                    <View className="flex-1 p-3">
-                      <Text className="font-bold text-sm text-foreground mb-1" numberOfLines={2}>
-                        {tour.title}
-                      </Text>
-                      <View className="flex-row items-center mb-1">
-                        <Text className="text-muted-foreground text-xs">{tour.duration}</Text>
-                        <Text className="text-muted-foreground text-xs mx-1">•</Text>
-                        <Users size={10} color="#6b7280" />
-                        <Text className="text-muted-foreground text-xs ml-1">{tour.viewCount.toLocaleString()}</Text>
-                      </View>
-                      <View className="flex-row items-center justify-between">
-                        <View className="flex-row items-center">
-                          <Star size={10} color="#fbbf24" fill="#fbbf24" />
-                          <Text className="text-foreground text-xs ml-1">{tour.rating}</Text>
-                        </View>
-                        <Badge variant="outline">
-                          <Text className="text-xs">{tour.price}</Text>
-                        </Badge>
-                      </View>
-                    </View>
-                  </View>
-                </CardContent>
-              </Card>
-            ))}
-          </View>
-        </View>
-      )}
+      {/* TODO: Tours section - Need virtual tour API integration */}
     </View>
   );
 
@@ -289,7 +285,11 @@ export default function MuseumDetailPage() {
 
       {/* Hero Image with Header */}
       <View className="relative" style={{ height: height * 0.35 }}>
-        <Image source={museum.image} className="w-full h-full" resizeMode="cover" />
+        <Image
+          source={museum.metadata?.coverImageUrl || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400'}
+          className="w-full h-full"
+          resizeMode="cover"
+        />
 
         {/* Overlay */}
         <View className="absolute inset-0 bg-black/30" />
@@ -326,8 +326,8 @@ export default function MuseumDetailPage() {
                 </View>
                 <View className="flex-row items-center ml-4">
                   <Star size={14} color="#fbbf24" fill="#fbbf24" />
-                  <Text className="text-foreground text-sm ml-1 font-medium">{museum.rating}</Text>
-                  <Text className="text-muted-foreground text-sm ml-1">({museum.reviewCount})</Text>
+                  <Text className="text-foreground text-sm ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
+                  <Text className="text-muted-foreground text-sm ml-1">(50+)</Text>
                 </View>
               </View>
             </CardContent>
