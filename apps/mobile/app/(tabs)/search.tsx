@@ -1,8 +1,8 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { MapPin, Search, Star } from 'lucide-react-native';
-import React from 'react';
-import { FlatList, TouchableOpacity, View } from 'react-native';
+import { Filter, Search as SearchIcon } from 'lucide-react-native';
+import React, { useMemo, useState } from 'react';
+import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Badge } from '@/components/core/ui/badge';
@@ -10,295 +10,277 @@ import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
 import { Text } from '@/components/core/ui/text';
-import { Header } from '@/components/layout/Header';
-import type { Artifact } from '@musetrip360/artifact-management';
-import type { Museum } from '@musetrip360/museum-management';
-import { useArtifacts } from '../../hooks/useArtifacts';
-import { useMuseums } from '../../hooks/useMuseums';
+import { MuseumCard } from '@/components/MuseumCard';
+import { useMuseums } from '@/hooks/useMuseums';
+import type { SearchFilters } from '@/types/api';
+
+const SEARCH_TABS = [
+  { key: 'Museum', label: 'Bảo tàng', icon: '🏛️' },
+  { key: 'Artifact', label: 'Hiện vật', icon: '🏺' },
+  { key: 'Event', label: 'Sự kiện', icon: '📅' },
+  { key: 'TourOnline', label: 'Tour ảo', icon: '🌐' },
+] as const;
+
+type SearchTabKey = (typeof SEARCH_TABS)[number]['key'];
 
 export default function SearchPage() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const [searchQuery, setSearchQuery] = React.useState((params.q as string) || '');
-  const [selectedType, setSelectedType] = React.useState('all');
 
-  const searchTypes = [
-    { id: 'all', label: 'Tất cả', icon: '🔍' },
-    { id: 'museums', label: 'Bảo tàng', icon: '🏛️' },
-    { id: 'artifacts', label: 'Hiện vật', icon: '🏺' },
-    { id: 'tours', label: 'Tour VR', icon: '🎧' },
-    { id: 'events', label: 'Sự kiện', icon: '📅' },
-  ];
+  const [searchQuery, setSearchQuery] = useState((params.q as string) || '');
+  const [activeTab, setActiveTab] = useState<SearchTabKey>('Museum');
+  const [filters, setFilters] = useState<SearchFilters>({
+    query: (params.q as string) || '',
+    type: 'Museum',
+    page: 1,
+    pageSize: 12,
+  });
 
-  // Fetch data based on search query and type
-  const { data: museumsData, isLoading: museumsLoading } = useMuseums(
-    {
-      Page: 1,
-      PageSize: 20,
-      Search: searchQuery || undefined,
-    },
-    { enabled: selectedType === 'all' || selectedType === 'museums' }
-  );
+  // For now, only museums are working with real API
+  const {
+    data: museumsData,
+    isLoading: museumsLoading,
+    refetch: refetchMuseums,
+    error: museumsError,
+  } = useMuseums({
+    Page: 1,
+    PageSize: 20,
+    Search: filters.query || undefined,
+  });
 
-  const { data: artifactsData, isLoading: artifactsLoading } = useArtifacts();
+  // Debug API response
+  React.useEffect(() => {
+    console.log('Search Museums Data:', museumsData);
+    console.log('Search Museums Loading:', museumsLoading);
+    console.log('Search Museums Error:', museumsError);
+  }, [museumsData, museumsLoading, museumsError]);
 
-  const searchResults = React.useMemo(() => {
-    const results: any[] = [];
-
-    if (selectedType === 'all' || selectedType === 'museums') {
-      // Handle museums data structure (could be array or paginated response)
-      let museumsList: Museum[] = [];
-
-      if (Array.isArray(museumsData?.data)) {
-        museumsList = museumsData.data;
-      } else if (museumsData?.data?.data && Array.isArray(museumsData.data.data)) {
-        museumsList = museumsData.data.data;
-      } else if (museumsData?.data?.list && Array.isArray(museumsData.data.list)) {
-        museumsList = museumsData.data.list;
-      }
-
-      const museums = museumsList.map((museum: Museum) => ({
-        ...museum,
-        type: 'museum',
-        image: museum.metadata?.coverImageUrl || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400',
-        category: museum.categories?.[0]?.name || 'Bảo tàng',
-        categoryIcon: '🏛️',
+  const searchResults = useMemo(() => {
+    if (activeTab === 'Museum' && museumsData?.data?.list) {
+      return museumsData.data.list.map((museum) => ({
+        id: museum.id,
+        title: museum.name,
+        type: 'Museum' as const,
+        thumbnail: museum.metadata?.coverImageUrl,
+        description: museum.description,
+        location: museum.location,
+        rating: museum.rating,
+        reviewCount: 0, // Default value since this field doesn't exist in Museum type
       }));
-      results.push(...museums);
     }
 
-    if (selectedType === 'all' || selectedType === 'artifacts') {
-      // Handle artifacts data structure from custom hook
-      let artifactsList: Artifact[] = [];
-
-      if ((artifactsData as any)?.list && Array.isArray((artifactsData as any).list)) {
-        artifactsList = (artifactsData as any).list;
-      }
-
-      const artifacts = artifactsList.map((artifact: Artifact) => ({
-        ...artifact,
-        type: 'artifact',
-        image: artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-        period: artifact.historicalPeriod,
-        category: artifact.metadata?.type || 'Hiện vật cổ',
-      }));
-      results.push(...artifacts);
+    // Mock data for other tabs until APIs are implemented
+    if (activeTab === 'Artifact') {
+      return [
+        {
+          id: '1',
+          title: 'Trống đồng Ngọc Lũ',
+          type: 'Artifact' as const,
+          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+          description: 'Trống đồng thời Đông Sơn có niên đại từ thế kỷ III TCN',
+          location: 'Bảo tàng Lịch sử Việt Nam',
+        },
+        {
+          id: '2',
+          title: 'Kiếm đồng cổ',
+          type: 'Artifact' as const,
+          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+          description: 'Kiếm đồng thời Đông Sơn được phát hiện tại Đông Anh',
+          location: 'Bảo tàng Lịch sử quân sự',
+        },
+      ];
     }
 
-    // Filter by search query if provided
-    if (searchQuery) {
-      return results.filter(
-        (item) =>
-          item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+    if (activeTab === 'Event') {
+      return [
+        {
+          id: '1',
+          title: 'Triển lâm văn hóa Đông Sơn',
+          type: 'Event' as const,
+          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+          description: 'Triển lâm các hiện vật văn hóa Đông Sơn quý hiếm',
+          location: 'Bảo tàng Lịch sử Việt Nam',
+          startTime: '2025-09-01',
+        },
+      ];
     }
 
-    return results;
-  }, [museumsData, artifactsData, selectedType, searchQuery]);
-
-  const renderSearchResult = ({ item }: { item: any }) => {
-    switch (item.type) {
-      case 'museum':
-        return (
-          <TouchableOpacity onPress={() => router.push(`/museum/${item.id}`)} className="mobile-container mb-4">
-            <Card className="mobile-card-shadow">
-              <CardContent className="p-0">
-                <View className="flex-row">
-                  <Image source={item.image} className="w-24 h-24 rounded-l-lg" />
-                  <View className="flex-1 p-4">
-                    <View className="flex-row items-start justify-between mb-2">
-                      <Text className="font-bold text-mobile-sm text-foreground flex-1 mr-2" numberOfLines={2}>
-                        {item.name}
-                      </Text>
-                      <Badge variant="secondary">
-                        <Text className="text-mobile-xs">
-                          {item.categoryIcon} {item.category}
-                        </Text>
-                      </Badge>
-                    </View>
-
-                    <View className="flex-row items-center mb-2">
-                      <MapPin size={12} color="#6b7280" />
-                      <Text className="text-muted-foreground text-mobile-xs ml-1 flex-1" numberOfLines={1}>
-                        {item.location}
-                      </Text>
-                    </View>
-
-                    <View className="flex-row items-center justify-between">
-                      <View className="flex-row items-center">
-                        <Star size={12} color="#fbbf24" fill="#fbbf24" />
-                        <Text className="text-foreground text-mobile-xs ml-1">{item.rating.toFixed(1)}</Text>
-                        <Text className="text-muted-foreground text-mobile-xs ml-1">(50+)</Text>
-                      </View>
-                      <Badge variant="outline">
-                        <Text className="text-mobile-xs">Miễn phí</Text>
-                      </Badge>
-                    </View>
-                  </View>
-                </View>
-              </CardContent>
-            </Card>
-          </TouchableOpacity>
-        );
-
-      case 'artifact':
-        return (
-          <TouchableOpacity
-            onPress={() => router.push(`/museum/${item.museumId}?tab=artifacts`)}
-            className="mobile-container mb-4"
-          >
-            <Card className="mobile-card-shadow">
-              <CardContent className="p-0">
-                <View className="flex-row">
-                  <Image source={item.image} className="w-24 h-24 rounded-l-lg" />
-                  <View className="flex-1 p-4">
-                    <View className="flex-row items-start justify-between mb-2">
-                      <Text className="font-bold text-mobile-sm text-foreground flex-1 mr-2" numberOfLines={2}>
-                        {item.name}
-                      </Text>
-                      <Badge variant="secondary">
-                        <Text className="text-mobile-xs">🏺 Hiện vật</Text>
-                      </Badge>
-                    </View>
-
-                    <Text className="text-muted-foreground text-mobile-xs mb-2" numberOfLines={2}>
-                      {item.period} • {item.category}
-                    </Text>
-
-                    <View className="flex-row items-center justify-between">
-                      <Text className="text-muted-foreground text-mobile-xs">{item.museumName || 'Bảo tàng'}</Text>
-                      <View className="flex-row items-center">
-                        <Star size={12} color="#fbbf24" fill="#fbbf24" />
-                        <Text className="text-foreground text-mobile-xs ml-1">4.5</Text>
-                      </View>
-                    </View>
-                  </View>
-                </View>
-              </CardContent>
-            </Card>
-          </TouchableOpacity>
-        );
-
-      default:
-        return null;
+    if (activeTab === 'TourOnline') {
+      return [
+        {
+          id: '1',
+          title: 'Tour ảo Cung điện Hoàng gia',
+          type: 'TourOnline' as const,
+          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+          description: 'Khám phá cung điện hoàng gia qua công nghệ VR',
+          location: 'Bảo tàng Cung đình Huế',
+          duration: 45,
+        },
+      ];
     }
-  };
+
+    return [];
+  }, [activeTab, museumsData]);
 
   const handleSearch = () => {
-    // Search function already handled by useMemo searchResults
+    setFilters((prev) => ({ ...prev, query: searchQuery, page: 1 }));
+    if (activeTab === 'Museum') {
+      refetchMuseums();
+    }
   };
 
+  const handleTabChange = (tab: SearchTabKey) => {
+    setActiveTab(tab);
+    setFilters((prev) => ({ ...prev, type: tab, page: 1 }));
+  };
+
+  const renderSearchResult = ({ item }: { item: any }) => (
+    <TouchableOpacity
+      onPress={() => {
+        if (item.type === 'Museum') {
+          router.push(`/museum/${item.id}`);
+        }
+        // Handle other types when their detail pages are implemented
+      }}
+      className="mb-4"
+    >
+      <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+        <CardContent className="p-0">
+          <View className="flex-row">
+            <Image
+              source={item.thumbnail || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400'}
+              className="w-24 h-24"
+              resizeMode="cover"
+            />
+            <View className="flex-1 p-4">
+              <View className="flex-row items-start justify-between mb-2">
+                <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                  <Text className="text-xs">
+                    {SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}{' '}
+                    {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
+                  </Text>
+                </Badge>
+              </View>
+
+              <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
+                {item.description}
+              </Text>
+
+              {item.location && <Text className="text-gray-500 text-sm">📍 {item.location}</Text>}
+
+              {item.rating && (
+                <View className="flex-row items-center mt-1">
+                  <Text className="text-yellow-500">⭐</Text>
+                  <Text className="text-gray-900 text-sm ml-1 font-medium">{item.rating.toFixed(1)}</Text>
+                  {item.reviewCount && <Text className="text-gray-500 text-sm ml-1">({item.reviewCount})</Text>}
+                </View>
+              )}
+            </View>
+          </View>
+        </CardContent>
+      </Card>
+    </TouchableOpacity>
+  );
+
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-white">
       <StatusBar style="dark" />
 
-      <Header title="Tìm kiếm" showSearch={false} showNotification={true} showProfile={true} />
+      {/* Header */}
+      <View className="px-4 pt-4 pb-2 bg-white border-b border-gray-200">
+        <Text className="text-2xl font-bold text-gray-900 mb-4">Tìm kiếm</Text>
 
-      <View className="flex-1">
-        {/* Search Section */}
-        <View className="mobile-container mobile-section bg-card border-b border-border pb-4">
-          {/* Search Input */}
-          <View className="relative mb-4">
-            <Input
-              placeholder="Tìm kiếm bảo tàng, hiện vật, tour ảo..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-              className="pl-12 h-12 bg-background border-border text-mobile-base"
-            />
-            <Search size={20} color="#6b7280" className="absolute left-4 top-3" />
-          </View>
-
-          {/* Search Type Toggle */}
-          <View className="flex-row bg-muted rounded-lg p-1">
-            {searchTypes.slice(0, 3).map((type) => (
-              <TouchableOpacity
-                key={type.id}
-                onPress={() => setSelectedType(type.id)}
-                className={`flex-1 py-2 rounded-md ${selectedType === type.id ? 'bg-card shadow-sm' : ''}`}
-              >
-                <View className="flex-row items-center justify-center">
-                  <Text className="mr-1 text-mobile-sm">{type.icon}</Text>
-                  <Text
-                    className={`font-medium text-mobile-sm ${
-                      selectedType === type.id ? 'text-foreground' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {type.label}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-
-          {/* Extended Types */}
-          <View className="flex-row mt-3 space-x-2">
-            {searchTypes.slice(3).map((type) => (
-              <TouchableOpacity
-                key={type.id}
-                onPress={() => setSelectedType(type.id)}
-                className={`px-4 py-2 rounded-lg mr-2 touch-target ${selectedType === type.id ? 'bg-primary' : 'bg-muted'}`}
-              >
-                <View className="flex-row items-center">
-                  <Text className="mr-1 text-mobile-xs">{type.icon}</Text>
-                  <Text
-                    className={`text-mobile-xs font-medium ${
-                      selectedType === type.id ? 'text-primary-foreground' : 'text-muted-foreground'
-                    }`}
-                  >
-                    {type.label}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+        {/* Search Bar */}
+        <View className="relative mb-4">
+          <Input
+            placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+            className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-lg"
+          />
+          <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
+            <SearchIcon size={20} color="#6b7280" />
+          </TouchableOpacity>
+          <TouchableOpacity className="absolute right-4 top-3">
+            <Filter size={20} color="#6b7280" />
+          </TouchableOpacity>
         </View>
 
-        {/* Results Count */}
-        <View className="mobile-container py-3 bg-muted border-b border-border">
-          <Text className="text-muted-foreground text-mobile-sm">
-            {museumsLoading || artifactsLoading ? 'Đang tìm kiếm...' : `${searchResults.length} kết quả`}
+        {/* Search Tabs */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
+          <View className="flex-row space-x-2">
+            {SEARCH_TABS.map((tab) => (
+              <TouchableOpacity
+                key={tab.key}
+                onPress={() => handleTabChange(tab.key)}
+                className={`px-4 py-2 rounded-full border ${
+                  activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+                }`}
+              >
+                <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
+                  {tab.icon} {tab.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+
+      {/* Results */}
+      <View className="flex-1 px-4 py-4">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-lg font-semibold text-gray-900">
+            {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label}
           </Text>
+          <Text className="text-gray-600">{searchResults.length} kết quả</Text>
         </View>
 
-        {/* Search Results */}
-        <View className="flex-1">
-          {searchResults.length > 0 ? (
+        {activeTab === 'Museum' && museumsLoading ? (
+          <View className="space-y-4">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+                <CardContent className="p-0">
+                  <View className="flex-row">
+                    <View className="w-24 h-24 bg-gray-200" />
+                    <View className="flex-1 p-4">
+                      <View className="w-3/4 h-4 bg-gray-200 rounded mb-2" />
+                      <View className="w-1/2 h-3 bg-gray-200 rounded mb-2" />
+                      <View className="w-1/3 h-3 bg-gray-200 rounded" />
+                    </View>
+                  </View>
+                </CardContent>
+              </Card>
+            ))}
+          </View>
+        ) : searchResults.length > 0 ? (
+          activeTab === 'Museum' ? (
+            <View className="space-y-4">
+              {searchResults.map((museum: any) => (
+                <MuseumCard key={museum.id} museum={museum} />
+              ))}
+            </View>
+          ) : (
             <FlatList
               data={searchResults}
               renderItem={renderSearchResult}
-              keyExtractor={(item) => `${item.type}-${item.id}`}
-              contentContainerStyle={{
-                paddingTop: 16,
-                paddingBottom: 16,
-              }}
+              keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 100 }}
             />
-          ) : (
-            <View className="flex-1 items-center justify-center py-16 mobile-container">
-              {museumsLoading || artifactsLoading ? (
-                <>
-                  <Text className="text-4xl mb-4">⏳</Text>
-                  <Text className="text-mobile-lg font-bold text-foreground mb-2">Đang tìm kiếm...</Text>
-                  <Text className="text-muted-foreground text-center text-mobile-base">
-                    Vui lòng chờ trong giây lát
-                  </Text>
-                </>
-              ) : (
-                <>
-                  <Text className="text-4xl mb-4">🔍</Text>
-                  <Text className="text-mobile-lg font-bold text-foreground mb-2">Không tìm thấy kết quả</Text>
-                  <Text className="text-muted-foreground text-center text-mobile-base leading-6">
-                    {searchQuery
-                      ? `Không tìm thấy kết quả cho "${searchQuery}". Hãy thử với từ khóa khác.`
-                      : 'Nhập từ khóa để bắt đầu tìm kiếm bảo tàng, hiện vật hoặc tour ảo'}
-                  </Text>
-                </>
-              )}
-            </View>
-          )}
-        </View>
+          )
+        ) : (
+          <Card className="bg-white border border-gray-200 rounded-lg">
+            <CardContent className="p-8 items-center">
+              <Text className="text-4xl mb-3">🔍</Text>
+              <Text className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy kết quả</Text>
+              <Text className="text-gray-600 text-center">Thử tìm kiếm với từ khóa khác hoặc chọn tab khác</Text>
+            </CardContent>
+          </Card>
+        )}
       </View>
     </SafeAreaView>
   );

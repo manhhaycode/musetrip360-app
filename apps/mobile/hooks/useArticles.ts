@@ -1,20 +1,18 @@
-import { useArtifactsByMuseum } from '@musetrip360/artifact-management/api';
+import { useGetArticlesByMuseum } from '@musetrip360/museum-management/api';
 
-interface ArtifactSearchParams {
+interface ArticleSearchParams {
   Page?: number;
   PageSize?: number;
   museumId?: string;
-  HistoricalPeriods?: string[];
 }
 
-export const useArtifacts = (params?: ArtifactSearchParams) => {
+export const useArticles = (params?: ArticleSearchParams) => {
   // Use real API exactly like visitor-portal
-  const apiResult = useArtifactsByMuseum(
+  const apiResult = useGetArticlesByMuseum(
+    params?.museumId || '',
     {
       Page: params?.Page || 1,
       PageSize: params?.PageSize || 10,
-      museumId: params?.museumId || '',
-      HistoricalPeriods: params?.HistoricalPeriods,
     },
     {
       enabled: !!params?.museumId,

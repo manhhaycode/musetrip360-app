@@ -1,0 +1,31 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+import { initConfigApp } from '../../config';
+
+// Initialize app configuration
+initConfigApp();
+
+// Mobile-optimized QueryClient
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      retry: 3,
+      refetchOnWindowFocus: false, // Disable for mobile
+      networkMode: 'online', // Only fetch when online
+    },
+    mutations: {
+      retry: 1,
+      networkMode: 'online',
+    },
+  },
+});
+
+interface AppProviderProps {
+  children: React.ReactNode;
+}
+
+export function AppProvider({ children }: AppProviderProps) {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
