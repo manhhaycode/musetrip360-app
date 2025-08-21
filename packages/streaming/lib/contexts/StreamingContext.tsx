@@ -92,7 +92,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
    * Join streaming room
    */
   const joinRoom = useCallback(
-    async (roomId: string, metadata?: Record<string, any>): Promise<void> => {
+    async (roomId: string): Promise<void> => {
       try {
         console.log(`🚪 Joining room: ${roomId}`);
         let localStream = mediaStream.localStream;
@@ -108,9 +108,6 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
         // Join room via SignalR
         await signalR.joinRoom(roomId, offer);
-
-        // Update room state
-        roomActions.createRoom(roomId, `Room ${roomId}`);
 
         // Add local participant
         const connectionId = signalR.connectionId;
@@ -144,14 +141,11 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   /**
    * Create new room
    */
-  const createRoom = useCallback(
-    async (metadata?: Record<string, any>): Promise<string> => {
-      const roomId = generateRoomId();
-      await joinRoom(roomId, metadata);
-      return roomId;
-    },
-    [joinRoom]
-  );
+  const createRoom = useCallback(async (): Promise<string> => {
+    const roomId = generateRoomId();
+    await joinRoom(roomId);
+    return roomId;
+  }, [joinRoom]);
 
   /**
    * Leave current room
