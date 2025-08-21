@@ -2,8 +2,10 @@ import React, { useCallback, useMemo, useState } from 'react';
 import type { IVirtualTour, IVirtualTourScene } from '@/api/types';
 import { InteractiveHotspot } from '@/canvas/InteractiveHotspot';
 import { PanoramaSphere } from '@/canvas/PanoramaSphere';
-import type { Hotspot } from '@/canvas/types';
+import { PolygonSelector } from '@/canvas/PolygonSelect';
+import type { Hotspot, Polygon } from '@/canvas/types';
 import { LoadingErrorDisplay } from '@/ui/ErrorHandling';
+import { PreviewArtifact } from './PreviewArtifact';
 
 export interface VirtualTourViewerProps {
   /** Virtual tour data */
@@ -19,6 +21,10 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
   // Loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // PreviewArtifact state
+  const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Find current scene data
   const currentScene = useMemo(() => {
@@ -71,6 +77,12 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
     },
     [handleSceneNavigation]
   );
+
+  // Handle polygon click to open artifact preview
+  const handlePolygonClick = useCallback((polygon: Polygon) => {
+    setSelectedArtifactId(polygon.artifactIdLink);
+    setShowPreview(true);
+  }, []);
 
   // Enhanced hotspots with click handlers
   const enhancedHotspots = useMemo(() => {
@@ -137,6 +149,9 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
         {enhancedHotspots.map((hotspot) => (
           <InteractiveHotspot key={hotspot.id} hotspot={hotspot} isEditing={false} isDragMode={false} />
         ))}
+
+        {/* Polygon selector for completed polygons */}
+        <PolygonSelector completedPolygons={currentScene?.data?.polygons || []} onPolygonClick={handlePolygonClick} />
       </PanoramaSphere>
 
       {/* Scene info overlay */}
@@ -166,6 +181,18 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
           </button>
         ))}
       </div>
+
+      {/* PreviewArtifact Modal */}
+      {selectedArtifactId && (
+        <PreviewArtifact
+          artifactId={selectedArtifactId}
+          isOpen={showPreview}
+          onClose={() => {
+            setShowPreview(false);
+            setSelectedArtifactId(null);
+          }}
+        />
+      )}
     </div>
   );
 };
