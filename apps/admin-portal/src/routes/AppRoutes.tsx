@@ -3,6 +3,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { AdminDashboard } from '@/features/admin';
 import AuthPage from '@/features/auth/AuthPage';
 import { MuseumDetailPage, MuseumRequestDetailPage, MuseumRequestsPage, MuseumsPage } from '@/features/museum';
+import OrderListPage from '@/features/payment/OrderListPage';
 import PermissionPage from '@/features/rolebase/PermissionPage';
 import RolePage from '@/features/rolebase/RolePage';
 import RolePermissionsPage from '@/features/rolebase/RolePermissionsPage';
@@ -33,6 +34,9 @@ export default function AppRoutes() {
           <Route path="rolebase/roles" element={<RolePage />} />
           <Route path="rolebase/roles/:roleId/permissions" element={<RolePermissionsPage />} />
           <Route path="rolebase/permissions" element={<PermissionPage />} />
+
+          {/* Payment Management */}
+          <Route path="payments/orders" element={<OrderListPage />} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="*" element={<Error />} />
