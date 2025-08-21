@@ -46,7 +46,7 @@ const StarRating = ({
   );
 };
 
-export function FeedbackForm({ targetId, targetType, targetName, onSuccess, className }: FeedbackFormProps) {
+export function FeedbackForm({ targetId, targetType, onSuccess, className }: FeedbackFormProps) {
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -62,7 +62,7 @@ export function FeedbackForm({ targetId, targetType, targetName, onSuccess, clas
 
     const feedbackData: FeedbackCreate = {
       targetId,
-      targetType,
+      target: targetType,
       comment: content.trim(),
       rating,
     };
@@ -109,9 +109,7 @@ export function FeedbackForm({ targetId, targetType, targetName, onSuccess, clas
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="text-lg">
-          Đánh giá {targetName || (targetType === 'museum' ? 'bảo tàng' : 'sự kiện')}
-        </CardTitle>
+        <CardTitle className="text-lg">Đánh giá</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">

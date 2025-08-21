@@ -157,9 +157,9 @@ export function FeedbackList({ targetId, targetType, className }: FeedbackListPr
                     <StarRating rating={feedback.rating} />
                   </div>
 
-                  <p className="text-gray-700 text-sm leading-relaxed mb-2">{feedback.content}</p>
+                  <p className="text-gray-700 text-sm leading-relaxed mb-2">{feedback.comment}</p>
 
-                  <p className="text-xs text-gray-500">{formatDateTime(feedback.createdAt.toString())}</p>
+                  <p className="text-xs text-gray-500">{formatDateTime(feedback.updatedAt.toString())}</p>
                 </div>
               </div>
             </CardContent>
