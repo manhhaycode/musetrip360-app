@@ -9,6 +9,7 @@ export interface AuthStore {
   accessToken: AuthToken | null;
   refreshToken: AuthToken | null;
   userId: string | null;
+  isHydrated: boolean;
   setAccessToken: (accessToken: AuthToken | null) => void;
   setRefreshToken: (refreshToken: AuthToken | null) => void;
   login: (tokens: { accessToken: AuthToken; refreshToken: AuthToken }, userId: string) => void;
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthStore>()(
         accessToken: null,
         refreshToken: null,
         userId: null,
+        isHydrated: false,
 
         setAccessToken: (accessToken) =>
           set((state) => {
@@ -61,7 +63,7 @@ export const useAuthStore = create<AuthStore>()(
         hydrate: async () => {
           await useAuthStore.persist.rehydrate();
           AuthEndpoints.setAuthToken(useAuthStore.getState().accessToken?.token || '');
-
+          set({ isHydrated: true });
           return true;
         },
         isExpired: (): 'none' | 'access' | 'refresh' | 'both' => {

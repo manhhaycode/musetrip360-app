@@ -1,5 +1,7 @@
 /**
- * @fileoverview Museum Management UI Exports
+ * @fileoverview Event Management UI Exports
  *
- * Exports all UI components and related utilities for museum management.
+ * Exports all UI components and related utilities for event management.
  */
+
+export * from './EventCreateForm';

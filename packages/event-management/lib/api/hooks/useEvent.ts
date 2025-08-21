@@ -60,9 +60,9 @@ export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, 
   return useMutation(
     (
       data: EventUpdateDto & {
-        museumId: string;
+        eventId: string;
       }
-    ) => updateEvent(data.museumId, data),
+    ) => updateEvent(data.eventId, data),
     options
   );
 }

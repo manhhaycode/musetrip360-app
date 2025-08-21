@@ -1,3 +1,4 @@
+import { StorageClient, StorageFactory } from '@musetrip360/infras';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
@@ -30,7 +31,7 @@ export const useUserStore = create<UserStore>()(
       })),
       {
         name: 'musetrip360-user-management-store',
-        storage: createJSONStorage(() => localStorage),
+        storage: StorageFactory as unknown as StorageClient,
         partialize: (state) => ({
           user: state.user,
         }),

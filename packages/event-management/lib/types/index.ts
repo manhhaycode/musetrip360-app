@@ -42,6 +42,7 @@ export type Event = {
 
 export type EventMetadata = {
   images?: string[];
+  price?: number;
 };
 
 export enum EventTypeEnum {

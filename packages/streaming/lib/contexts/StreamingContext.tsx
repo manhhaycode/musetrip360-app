@@ -47,7 +47,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const { currentRoom: roomState } = useRoomStore();
 
   // Derived state from RoomStore (single source of truth)
-  const currentRoomId = roomState?.roomId || null;
+  const currentRoomId = roomState?.Id || null;
   const isInRoom = roomState !== null;
 
   const { participants: participantMap } = useParticipantStore();
@@ -110,7 +110,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         await signalR.joinRoom(roomId, offer);
 
         // Update room state
-        roomActions.createRoom(roomId, metadata);
+        roomActions.createRoom(roomId, `Room ${roomId}`);
 
         // Add local participant
         const connectionId = signalR.connectionId;
