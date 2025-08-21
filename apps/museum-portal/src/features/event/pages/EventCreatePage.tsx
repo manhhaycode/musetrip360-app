@@ -2,8 +2,7 @@ import { useNavigate } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Button } from '@musetrip360/ui-core/button';
 import { ArrowLeft } from 'lucide-react';
-import { Event } from '@musetrip360/event-management';
-import EventForm from '../EventForm';
+import { Event, EventCreateForm } from '@musetrip360/event-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
 import withPermission from '@/hocs/withPermission';
 import { PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
@@ -58,7 +57,7 @@ const EventCreatePage = withPermission(() => {
       </div>
 
       {/* Form Card */}
-      <EventForm museumId={museumId} onSuccess={handleEventCreated} onCancel={handleCancel} />
+      <EventCreateForm museumId={museumId} onCancel={handleCancel} />
     </div>
   );
 }, [PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT]);

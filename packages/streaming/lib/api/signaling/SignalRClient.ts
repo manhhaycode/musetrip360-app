@@ -300,7 +300,7 @@ export class SignalRClient {
     // Handle room state updates
     this.connection.on('ReceiveRoomState', (roomState: any) => {
       console.log('📥 Received room state update', roomState);
-      this.eventHandlers.ReceiveRoomState?.(roomState);
+      this.eventHandlers.ReceiveRoomState?.(JSON.parse(roomState));
     });
   }
 

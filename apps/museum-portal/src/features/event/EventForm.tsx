@@ -213,7 +213,7 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
       if (isEditing && event) {
         updateEvent({
           ...eventData,
-          museumId,
+          eventId: event.id,
         });
       } else {
         createEvent({

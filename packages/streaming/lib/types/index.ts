@@ -39,13 +39,48 @@ export interface PeerConnectionPair {
   subscriber: RTCPeerConnection | null;
 }
 
-// Room and Peer Management
+// Room Metadata Structure for Messages + Tour Actions
+export interface RoomMetadata {
+  Messages: Array<{
+    Id: string;
+    SenderId: string;
+    SenderName: string;
+    Message: string;
+    Timestamp: number;
+    MessageType: 'text' | 'system';
+  }>;
+
+  TourActions: Array<{
+    Id: string;
+    ActionType: 'move_camera' | 'highlight_artifact' | 'show_scene' | 'add_annotation';
+    ActionData: {
+      SceneId?: string;
+      ArtifactId?: string;
+      CameraPosition?: { X: number; Y: number; Z: number };
+      CameraRotation?: { X: number; Y: number; Z: number };
+    };
+    PerformedBy: string;
+    Timestamp: number;
+  }>;
+
+  CurrentTourState?: {
+    CurrentScene: string;
+    TourGuideId: string;
+    IsLive: boolean;
+  };
+}
+
+// Room and Peer Management - Match .NET Backend Response
 export interface RoomState {
-  roomId: string;
-  participants: Participant[];
-  metadata?: Record<string, any>;
-  createdAt: Date;
-  isActive: boolean;
+  Id: string;
+  Name: string;
+  Description?: string;
+  Status: number;
+  EventId?: string;
+  Metadata?: RoomMetadata;
+  CreatedAt: Date;
+  UpdatedAt: Date;
+  IsActive: boolean;
 }
 
 export interface Participant {
