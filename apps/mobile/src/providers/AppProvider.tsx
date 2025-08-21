@@ -5,7 +5,7 @@ import { initConfigApp } from '../../config';
 // Initialize app configuration
 initConfigApp();
 
-// Mobile-optimized QueryClient
+// Simple QueryClient for mobile - avoiding web-specific features
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -69,56 +69,6 @@ export default function SearchPage() {
       }));
     }
 
-    // Mock data for other tabs until APIs are implemented
-    if (activeTab === 'Artifact') {
-      return [
-        {
-          id: '1',
-          title: 'Trống đồng Ngọc Lũ',
-          type: 'Artifact' as const,
-          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-          description: 'Trống đồng thời Đông Sơn có niên đại từ thế kỷ III TCN',
-          location: 'Bảo tàng Lịch sử Việt Nam',
-        },
-        {
-          id: '2',
-          title: 'Kiếm đồng cổ',
-          type: 'Artifact' as const,
-          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-          description: 'Kiếm đồng thời Đông Sơn được phát hiện tại Đông Anh',
-          location: 'Bảo tàng Lịch sử quân sự',
-        },
-      ];
-    }
-
-    if (activeTab === 'Event') {
-      return [
-        {
-          id: '1',
-          title: 'Triển lâm văn hóa Đông Sơn',
-          type: 'Event' as const,
-          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-          description: 'Triển lâm các hiện vật văn hóa Đông Sơn quý hiếm',
-          location: 'Bảo tàng Lịch sử Việt Nam',
-          startTime: '2025-09-01',
-        },
-      ];
-    }
-
-    if (activeTab === 'TourOnline') {
-      return [
-        {
-          id: '1',
-          title: 'Tour ảo Cung điện Hoàng gia',
-          type: 'TourOnline' as const,
-          thumbnail: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
-          description: 'Khám phá cung điện hoàng gia qua công nghệ VR',
-          location: 'Bảo tàng Cung đình Huế',
-          duration: 45,
-        },
-      ];
-    }
-
     return [];
   }, [activeTab, museumsData]);
 
