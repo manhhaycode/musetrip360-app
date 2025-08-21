@@ -139,7 +139,7 @@ export type HistoricalPeriod = {
 
 export type FeedbackCreate = {
   targetId: string;
-  targetType: string;
+  target: string;
   comment: string;
   rating: number;
 };
@@ -147,8 +147,8 @@ export type FeedbackCreate = {
 export type Feedback = {
   id: string;
   targetId: string;
-  targetType: string;
-  content: string;
+  type: string;
+  comment: string;
   rating: number;
   createdBy: string;
   createdByUser: IUser;
