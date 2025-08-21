@@ -65,6 +65,7 @@ const JoinEventButton = ({ eventId }: { eventId: string }) => {
   );
 };
 import { ParticipantRoleName } from '@/config/constants/type';
+import { FeedbackList, FeedbackForm } from '../feedback';
 
 interface EventDetailPageProps {
   eventId: string;
@@ -416,6 +417,23 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
                     </div>
                   </Card>
                 )}
+              </div>
+
+              {/* Event Feedback */}
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Đánh giá sự kiện</h3>
+
+                  {/* Show feedback form only for participants or if event is past */}
+                  {(hasParticipated || isPast) && (
+                    <div className="mb-6">
+                      <FeedbackForm targetId={eventId} targetType="event" targetName={event.title} />
+                    </div>
+                  )}
+
+                  {/* Feedback list */}
+                  <FeedbackList targetId={eventId} targetType="event" />
+                </div>
               </div>
             </div>
           </div>

@@ -9,6 +9,8 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { MuseumIntroTab } from './MuseumIntroTab';
 import { MuseumArtifactsTab } from './MuseumArtifactsTab';
 import { MuseumEventsTab } from './MuseumEventsTab';
+import { MuseumArticlesTab } from './MuseumArticlesTab';
+import { MuseumFeedbackTab } from './MuseumFeedbackTab';
 
 interface MuseumHomePageProps {
   museumId: string;
@@ -83,7 +85,7 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
       <div className="space-y-6">
         {/* Main Content with Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 lg:w-fit lg:grid-cols-4">
+          <TabsList className="grid w-full grid-cols-6 lg:w-fit lg:grid-cols-6">
             <TabsTrigger value="intro" className="text-sm">
               Giới thiệu
             </TabsTrigger>
@@ -93,8 +95,14 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             <TabsTrigger value="events" className="text-sm">
               Sự kiện
             </TabsTrigger>
+            <TabsTrigger value="articles" className="text-sm">
+              Bài viết
+            </TabsTrigger>
             <TabsTrigger value="tours" className="text-sm">
               Tour ảo
+            </TabsTrigger>
+            <TabsTrigger value="feedback" className="text-sm">
+              Đánh giá
             </TabsTrigger>
           </TabsList>
 
@@ -110,6 +118,10 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             <MuseumEventsTab museumId={museumId} />
           </TabsContent>
 
+          <TabsContent value="articles" className="mt-6">
+            <MuseumArticlesTab museumId={museumId} />
+          </TabsContent>
+
           <TabsContent value="tours" className="mt-6">
             <Card>
               <CardContent className="p-6">
@@ -119,6 +131,10 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="feedback" className="mt-6">
+            <MuseumFeedbackTab museumId={museumId} museumName={museum.name} />
           </TabsContent>
         </Tabs>
       </div>
