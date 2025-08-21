@@ -13,6 +13,9 @@ const routes = {
     roles: '/rolebase/roles',
     permissions: '/rolebase/permissions',
   },
+  payments: {
+    orders: '/payments/orders',
+  },
 };
 
 export default routes;
