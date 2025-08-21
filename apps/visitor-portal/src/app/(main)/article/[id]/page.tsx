@@ -1,13 +1,15 @@
 'use client';
 
 import { ArticleDetailPage } from '@/components/article/ArticleDetailPage';
+import { use } from 'react';
 
 interface ArticlePageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ArticlePage({ params }: ArticlePageProps) {
-  return <ArticleDetailPage articleId={params.id} />;
+  const { id } = use(params);
+  return <ArticleDetailPage articleId={id} />;
 }
