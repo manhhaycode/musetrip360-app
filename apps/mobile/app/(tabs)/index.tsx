@@ -73,7 +73,8 @@ export default function HomePage() {
               <Search size={20} color="#6b7280" />
             </TouchableOpacity>
           </View>
-        </View>{' '}
+        </View>
+        <Text> </Text>
         {/* Featured Museums */}
         <View className="px-4 pb-6">
           <View className="flex-row items-center justify-between mb-4">

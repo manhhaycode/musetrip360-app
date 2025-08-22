@@ -109,6 +109,18 @@ export interface SearchResultItem {
   location?: string;
 }
 
+export interface SearchParams {
+  Search?: string;
+  Type?: 'Museum' | 'Artifact' | 'Event' | 'TourOnline' | 'All';
+  Location?: string;
+  RadiusKm?: number;
+  Latitude?: number;
+  Longitude?: number;
+  Status?: string;
+  Page?: number;
+  PageSize?: number;
+}
+
 export interface SearchResponse {
   data: {
     items: SearchResultItem[];
@@ -116,6 +128,7 @@ export interface SearchResponse {
     page: number;
     pageSize: number;
     typeAggregations: Record<string, number>;
+    locationAggregations?: Record<string, number>;
   };
   code: number;
   message: string;

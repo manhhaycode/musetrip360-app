@@ -3,10 +3,9 @@ import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MapPin, Share2, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import RenderHtml from 'react-native-render-html';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge } from '@/components/core/ui/badge';
 import { Button } from '@/components/core/ui/button';
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
@@ -174,51 +173,58 @@ export default function MuseumDetailPage() {
         if (!museum) return null;
 
         return (
-          <View className="space-y-4">
-            {/* Introduction */}
-            {museum.metadata?.contentHomePage && (
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardContent className="p-4">
-                  <Text className="text-lg font-semibold text-gray-900 mb-3">Giới thiệu</Text>
-                  {renderHtmlContent(museum.metadata.contentHomePage)}
-                </CardContent>
-              </Card>
-            )}
+          <View className="space-y-8 px-2">
+            {/* Introduction - Always show, prioritize contentHomePage over description */}
+            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm mb-6">
+              <CardContent className="p-4">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-8 h-8 bg-orange-500 rounded-full items-center justify-center mr-3">
+                    <Text className="text-white text-lg">🏛️</Text>
+                  </View>
+                  <Text className="text-lg font-semibold text-orange-900">Giới thiệu</Text>
+                </View>
+                {museum.metadata?.contentHomePage ? (
+                  renderHtmlContent(museum.metadata.contentHomePage)
+                ) : (
+                  <Text className="text-orange-800 text-base leading-6">
+                    {museum.description || 'Thông tin giới thiệu đang được cập nhật...'}
+                  </Text>
+                )}
+              </CardContent>
+            </Card>
 
             {/* Detailed Information */}
             {museum.metadata?.detail && (
-              <Card className="bg-white border border-gray-200 rounded-lg">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-6">
                 <CardContent className="p-4">
-                  <Text className="text-lg font-semibold text-gray-900 mb-3">Thông tin chi tiết</Text>
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
+                      <Text className="text-white text-lg">📋</Text>
+                    </View>
+                    <Text className="text-lg font-semibold text-blue-900">Thông tin chi tiết</Text>
+                  </View>
                   {renderHtmlContent(museum.metadata.detail)}
                 </CardContent>
               </Card>
             )}
 
-            {/* Basic Description - Only show if no detailed info */}
-            {!museum.metadata?.detail && !museum.metadata?.contentHomePage && (
-              <Card className="bg-white border border-gray-200 rounded-lg">
-                <CardContent className="p-4">
-                  <Text className="text-lg font-semibold text-gray-900 mb-3">Mô tả</Text>
-                  <Text className="text-gray-700 text-base leading-6">
-                    {museum.description || 'Thông tin mô tả đang được cập nhật...'}
-                  </Text>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Contact Information */}
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm mb-6">
               <CardContent className="p-4">
-                <Text className="text-lg font-semibold text-gray-900 mb-4">Thông tin liên hệ</Text>
+                <View className="flex-row items-center mb-4">
+                  <View className="w-8 h-8 bg-green-500 rounded-full items-center justify-center mr-3">
+                    <Text className="text-white text-lg">📞</Text>
+                  </View>
+                  <Text className="text-lg font-semibold text-green-900">Thông tin liên hệ</Text>
+                </View>
 
                 <View className="space-y-3">
                   {/* Address */}
-                  <View className="flex-row items-start space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <MapPin size={20} color="#6b7280" className="mt-0.5" />
+                  <View className="flex-row items-start space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200">
+                    <MapPin size={20} color="#059669" className="mt-0.5" />
                     <View className="flex-1">
-                      <Text className="text-sm font-medium text-gray-900">Địa chỉ</Text>
-                      <Text className="text-sm text-gray-600 mt-1">{museum.location}</Text>
+                      <Text className="text-sm font-medium text-green-900">Địa chỉ</Text>
+                      <Text className="text-sm text-green-700 mt-1">{museum.location}</Text>
                     </View>
                   </View>
 
@@ -226,14 +232,14 @@ export default function MuseumDetailPage() {
                   {museum.contactPhone && (
                     <TouchableOpacity
                       onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                      className="flex-row items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
                     >
                       <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-gray-500">📞</Text>
+                        <Text className="text-green-600">📞</Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-900">Số điện thoại</Text>
-                        <Text className="text-sm text-blue-600 mt-1">{museum.contactPhone}</Text>
+                        <Text className="text-sm font-medium text-green-900">Số điện thoại</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.contactPhone}</Text>
                       </View>
                     </TouchableOpacity>
                   )}
@@ -242,14 +248,14 @@ export default function MuseumDetailPage() {
                   {museum.contactEmail && (
                     <TouchableOpacity
                       onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
-                      className="flex-row items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
                     >
                       <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-gray-500">✉️</Text>
+                        <Text className="text-green-600">✉️</Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-900">Email</Text>
-                        <Text className="text-sm text-blue-600 mt-1">{museum.contactEmail}</Text>
+                        <Text className="text-sm font-medium text-green-900">Email</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.contactEmail}</Text>
                       </View>
                     </TouchableOpacity>
                   )}
@@ -263,14 +269,14 @@ export default function MuseumDetailPage() {
                           Linking.openURL(website);
                         }
                       }}
-                      className="flex-row items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
                     >
                       <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-gray-500">🌐</Text>
+                        <Text className="text-green-600">🌐</Text>
                       </View>
                       <View className="flex-1">
-                        <Text className="text-sm font-medium text-gray-900">Website</Text>
-                        <Text className="text-sm text-blue-600 mt-1">{museum.metadata.socialLinks.website}</Text>
+                        <Text className="text-sm font-medium text-green-900">Website</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.metadata.socialLinks.website}</Text>
                       </View>
                     </TouchableOpacity>
                   )}
@@ -280,15 +286,23 @@ export default function MuseumDetailPage() {
 
             {/* Categories */}
             {museum.categories && museum.categories.length > 0 && (
-              <Card className="bg-white border border-gray-200 rounded-lg">
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg shadow-sm mb-6">
                 <CardContent className="p-4">
-                  <Text className="text-lg font-semibold text-gray-900 mb-3">Danh mục bảo tàng</Text>
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-8 h-8 bg-purple-500 rounded-full items-center justify-center mr-3">
+                      <Text className="text-white text-lg">🏷️</Text>
+                    </View>
+                    <Text className="text-lg font-semibold text-purple-900">Danh mục bảo tàng</Text>
+                  </View>
                   <View className="flex-row flex-wrap gap-2">
                     {museum.categories.map((category) => (
-                      <View key={category.id} className="px-3 py-2 bg-blue-50 rounded-lg border border-blue-200">
-                        <Text className="text-sm text-blue-800 font-medium">{category.name}</Text>
+                      <View
+                        key={category.id}
+                        className="px-3 py-2 bg-purple-100/70 rounded-lg border border-purple-300"
+                      >
+                        <Text className="text-sm text-purple-800 font-medium">{category.name}</Text>
                         {category.description && (
-                          <Text className="text-xs text-blue-600 mt-1">{category.description}</Text>
+                          <Text className="text-xs text-purple-700 mt-1">{category.description}</Text>
                         )}
                       </View>
                     ))}
@@ -320,9 +334,14 @@ export default function MuseumDetailPage() {
                 if (displayImages.length === 0) return null;
 
                 return (
-                  <Card className="bg-white border border-gray-200 rounded-lg">
+                  <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm mb-6">
                     <CardContent className="p-4">
-                      <Text className="text-lg font-semibold text-gray-900 mb-3">Hình ảnh bảo tàng</Text>
+                      <View className="flex-row items-center mb-3">
+                        <View className="w-8 h-8 bg-amber-500 rounded-full items-center justify-center mr-3">
+                          <Text className="text-white text-lg">📸</Text>
+                        </View>
+                        <Text className="text-lg font-semibold text-amber-900">Hình ảnh bảo tàng</Text>
+                      </View>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-3">
                         {displayImages.map((imageUrl, index) => (
                           <Image
@@ -389,9 +408,9 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-4">
+          <View className="space-y-6 px-2">
             {artifacts.map((artifact: any) => (
-              <Card key={artifact.id} className="bg-white border border-gray-200 rounded-lg">
+              <Card key={artifact.id} className="bg-white border border-gray-200 rounded-lg mb-5">
                 <CardContent className="p-0">
                   <View className="flex-row">
                     <Image
@@ -472,9 +491,9 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-4">
+          <View className="space-y-6 px-2">
             {events.map((event: any) => (
-              <Card key={event.id} className="bg-white border border-gray-200 rounded-lg">
+              <Card key={event.id} className="bg-white border border-gray-200 rounded-lg mb-5">
                 <CardContent className="p-4">
                   <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
                     {event.title}
@@ -486,9 +505,9 @@ export default function MuseumDetailPage() {
                     <Text className="text-gray-500 text-xs">
                       {new Date(event.startTime).toLocaleDateString('vi-VN')}
                     </Text>
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                      <Text className="text-xs">{event.eventType}</Text>
-                    </Badge>
+                    <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
+                      <Text className="text-xs text-blue-800">{event.eventType}</Text>
+                    </View>
                   </View>
                 </CardContent>
               </Card>
@@ -550,9 +569,9 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-4">
+          <View className="space-y-6 px-2">
             {articles.map((article: any) => (
-              <Card key={article.id} className="bg-white border border-gray-200 rounded-lg">
+              <Card key={article.id} className="bg-white border border-gray-200 rounded-lg mb-5">
                 <CardContent className="p-4">
                   <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
                     {article.title}
@@ -564,9 +583,9 @@ export default function MuseumDetailPage() {
                     <Text className="text-gray-500 text-xs">
                       {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
                     </Text>
-                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-                      <Text className="text-xs">{article.status}</Text>
-                    </Badge>
+                    <View className="bg-orange-100 border border-orange-200 rounded px-2 py-1">
+                      <Text className="text-xs text-orange-800">{article.status}</Text>
+                    </View>
                   </View>
                 </CardContent>
               </Card>
@@ -628,9 +647,9 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-4">
+          <View className="space-y-6 px-2">
             {virtualTours.map((tour: any) => (
-              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg">
+              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg mb-5">
                 <CardContent className="p-0">
                   <View className="flex-row">
                     <Image
@@ -649,9 +668,9 @@ export default function MuseumDetailPage() {
                         <Text className="text-gray-500 text-xs">
                           {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
                         </Text>
-                        <Badge className="bg-purple-100 text-purple-800 border-purple-200">
-                          <Text className="text-xs">Tour 360°</Text>
-                        </Badge>
+                        <View className="bg-purple-100 border border-purple-200 rounded px-2 py-1">
+                          <Text className="text-xs text-purple-800">Tour 360°</Text>
+                        </View>
                       </View>
                     </View>
                   </View>
@@ -774,15 +793,15 @@ export default function MuseumDetailPage() {
               <Text className="text-gray-500 text-base ml-1">(0 đánh giá)</Text>
             </View>
 
-            <Badge
+            <View
               className={`${
                 museum.status === 'Active'
                   ? 'bg-green-100 text-green-800 border-green-200'
                   : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-              }`}
+              } border rounded px-2 py-1`}
             >
               <Text className="text-sm">{museum.status === 'Active' ? 'Hoạt động' : 'Tạm ngưng'}</Text>
-            </Badge>
+            </View>
           </View>
 
           <View className="flex-row items-center mb-4">

@@ -1,19 +1,17 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Filter, Search as SearchIcon } from 'lucide-react-native';
+import { Filter, MapPin, Search as SearchIcon } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Badge } from '@/components/core/ui/badge';
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
 import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
-import { MuseumCard } from '@/components/MuseumCard';
-import { useMuseums } from '@/hooks/useMuseums';
-import type { SearchFilters } from '@/types/api';
+import { searchUtils, useGlobalSearch } from '@/hooks/useSearch';
+import type { SearchFilters, SearchResultItem } from '@/types/api';
 
 const SEARCH_TABS = [
   { key: 'Museum', label: 'Bảo tàng', icon: '🏛️' },
@@ -38,46 +36,57 @@ export default function SearchPage() {
     pageSize: 12,
   });
 
-  // API calls for different content types
-  const {
-    data: museumsData,
-    isLoading: museumsLoading,
-    refetch: refetchMuseums,
-    error: museumsError,
-  } = useMuseums(
-    {
-      Page: currentPage,
-      PageSize: 12,
-      Search: filters.query || undefined,
-    },
-    { enabled: activeTab === 'Museum' }
-  );
+  // Convert filters to API parameters
+  const apiParams = useMemo(() => {
+    return searchUtils.formatFiltersForAPI({
+      ...filters,
+      type: activeTab,
+      page: currentPage,
+    });
+  }, [filters, activeTab, currentPage]);
 
-  // For other content types, we show a message that search functionality is coming soon
-  // since current APIs require specific museumId and don't support universal search
+  // Global search API call
+  const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
 
   // Debug API response
   React.useEffect(() => {
-    console.log('Search Museums Data:', museumsData);
-    console.log('Search Museums Loading:', museumsLoading);
-    console.log('Search Museums Error:', museumsError);
-  }, [museumsData, museumsLoading, museumsError]);
+    console.log('=== 🔍 SEARCH DEBUG ===');
+    console.log('🔍 API Params:', apiParams);
+    console.log('🔍 Search Response:', searchResponse);
+    console.log('🔍 Search Loading:', isLoading);
+    console.log('🔍 Search Error:', error);
+    console.log('=== END SEARCH DEBUG ===');
+  }, [apiParams, searchResponse, isLoading, error]);
 
   const searchResults = useMemo(() => {
-    if (activeTab === 'Museum' && museumsData?.data?.list) {
-      // Return original Museum objects for MuseumCard component
-      return museumsData.data.list;
-    }
+    return searchResponse?.data?.items || [];
+  }, [searchResponse]);
 
-    // For other tabs, return empty array since universal search APIs are not available yet
-    return [];
-  }, [activeTab, museumsData]);
+  const totalPages = useMemo(() => {
+    if (!searchResponse?.data) return 0;
+    return searchUtils.calculateTotalPages(searchResponse.data.total, filters.pageSize);
+  }, [searchResponse?.data, filters.pageSize]);
+
+  // Debounced search function
+  const debouncedSearch = useMemo(
+    () =>
+      searchUtils.debounceSearch((newQuery: string) => {
+        setFilters((prev) => ({ ...prev, query: newQuery, page: 1 }));
+        setCurrentPage(1);
+      }, 500),
+    []
+  );
 
   const handleSearch = () => {
     setCurrentPage(1);
     setFilters((prev) => ({ ...prev, query: searchQuery, page: 1 }));
-    if (activeTab === 'Museum') {
-      refetchMuseums();
+  };
+
+  const handleSearchInputChange = (text: string) => {
+    setSearchQuery(text);
+    // Debounced search for live search
+    if (text.length >= 2 || text.length === 0) {
+      debouncedSearch(text);
     }
   };
 
@@ -85,36 +94,34 @@ export default function SearchPage() {
     setActiveTab(tab);
     setCurrentPage(1);
     setFilters((prev) => ({ ...prev, type: tab, page: 1 }));
-
-    // Refetch data when switching to Museum tab
-    if (tab === 'Museum') {
-      refetchMuseums();
-    }
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    if (activeTab === 'Museum') {
-      refetchMuseums();
+  };
+
+  const navigateToDetail = (item: SearchResultItem) => {
+    switch (item.type) {
+      case 'Museum':
+        router.push(`/museum/${item.id}`);
+        break;
+      case 'Artifact':
+      case 'Event':
+      case 'TourOnline':
+        // For now, show a message that detail pages are coming soon
+        console.log(`Navigate to ${item.type} detail:`, item.id);
+        break;
     }
   };
 
-  const renderSearchResult = ({ item }: { item: any }) => (
-    <TouchableOpacity
-      onPress={() => {
-        if (item.type === 'Museum') {
-          router.push(`/museum/${item.id}`);
-        }
-        // Handle other types when their detail pages are implemented
-      }}
-      className="mb-4"
-    >
+  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => (
+    <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
       <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
         <CardContent className="p-0">
           <View className="flex-row">
             <Image
               source={item.thumbnail || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400'}
-              className="w-24 h-24"
+              className="w-24 h-24 rounded-l-lg"
               resizeMode="cover"
             />
             <View className="flex-1 p-4">
@@ -122,25 +129,24 @@ export default function SearchPage() {
                 <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
                   {item.title}
                 </Text>
-                <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                  <Text className="text-xs">
-                    {SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}{' '}
-                    {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
+                <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
+                  <Text className="text-xs text-blue-800">
+                    <Text>{SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}</Text>
+                    <Text> {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}</Text>
                   </Text>
-                </Badge>
+                </View>
               </View>
 
               <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
                 {item.description}
               </Text>
 
-              {item.location && <Text className="text-gray-500 text-sm">📍 {item.location}</Text>}
-
-              {item.rating && (
-                <View className="flex-row items-center mt-1">
-                  <Text className="text-yellow-500">⭐</Text>
-                  <Text className="text-gray-900 text-sm ml-1 font-medium">{item.rating.toFixed(1)}</Text>
-                  {item.reviewCount && <Text className="text-gray-500 text-sm ml-1">({item.reviewCount})</Text>}
+              {item.location && (
+                <View className="flex-row items-center">
+                  <MapPin size={12} color="#6b7280" />
+                  <Text className="text-gray-500 text-xs ml-1" numberOfLines={1}>
+                    {item.location}
+                  </Text>
                 </View>
               )}
             </View>
@@ -163,7 +169,7 @@ export default function SearchPage() {
           <Input
             placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
             value={searchQuery}
-            onChangeText={setSearchQuery}
+            onChangeText={handleSearchInputChange}
             onSubmitEditing={handleSearch}
             className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-lg"
           />
@@ -187,7 +193,8 @@ export default function SearchPage() {
                 }`}
               >
                 <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
-                  {tab.icon} {tab.label}
+                  <Text>{tab.icon}</Text>
+                  <Text> {tab.label}</Text>
                 </Text>
               </TouchableOpacity>
             ))}
@@ -204,7 +211,7 @@ export default function SearchPage() {
           <Text className="text-gray-600">{searchResults.length} kết quả</Text>
         </View>
 
-        {activeTab === 'Museum' && museumsLoading ? (
+        {isLoading ? (
           <View className="px-4 space-y-4">
             {Array.from({ length: 3 }).map((_, index) => (
               <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
@@ -221,66 +228,54 @@ export default function SearchPage() {
               </Card>
             ))}
           </View>
-        ) : activeTab !== 'Museum' ? (
-          // Show coming soon message for other tabs
+        ) : error ? (
           <View className="px-4">
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-white border border-red-200 rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">🚧</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Tính năng đang phát triển</Text>
-                <Text className="text-gray-600 text-center mb-4">
-                  Tìm kiếm {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label.toLowerCase()} sẽ sớm có trong các
-                  phiên bản tiếp theo.
-                </Text>
-                <Text className="text-gray-500 text-sm text-center">
-                  Hiện tại bạn có thể xem {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label.toLowerCase()} trong
-                  từng bảo tàng cụ thể.
-                </Text>
+                <Text className="text-4xl mb-3">⚠️</Text>
+                <Text className="text-lg font-semibold text-red-900 mb-2">Lỗi tìm kiếm</Text>
+                <Text className="text-red-600 text-center">{error?.message || 'Không thể thực hiện tìm kiếm'}</Text>
               </CardContent>
             </Card>
           </View>
         ) : searchResults.length > 0 ? (
           <View className="flex-1">
-            {activeTab === 'Museum' ? (
-              <FlatList
-                data={searchResults}
-                renderItem={({ item }) => <MuseumCard museum={item} />}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-                ItemSeparatorComponent={() => <View className="h-4" />}
-                ListFooterComponent={() => (
-                  <View className="pt-4 pb-20">
-                    {/* Museums Pagination */}
-                    {museumsData?.data?.total && Math.ceil(museumsData.data.total / 12) > 1 && (
-                      <Pagination
-                        currentPage={currentPage}
-                        totalPages={Math.ceil(museumsData.data.total / 12)}
-                        onPageChange={handlePageChange}
-                        showPages={5}
-                        className="pt-4"
-                      />
-                    )}
-                  </View>
-                )}
-              />
-            ) : (
-              <FlatList
-                data={searchResults}
-                renderItem={renderSearchResult}
-                keyExtractor={(item) => item.id}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
-              />
-            )}
+            <FlatList
+              data={searchResults}
+              renderItem={renderSearchResultCard}
+              keyExtractor={(item) => item.id}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 16 }}
+              ItemSeparatorComponent={() => <View className="h-2" />}
+              ListFooterComponent={() => (
+                <View className="pt-4 pb-20">
+                  {/* Pagination */}
+                  {searchResponse?.data?.total && totalPages > 1 && (
+                    <Pagination
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      onPageChange={handlePageChange}
+                      showPages={5}
+                      className="pt-4"
+                    />
+                  )}
+                </View>
+              )}
+            />
           </View>
         ) : (
           <View className="px-4">
             <Card className="bg-white border border-gray-200 rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">🔍</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy kết quả</Text>
-                <Text className="text-gray-600 text-center">Thử tìm kiếm với từ khóa khác hoặc chọn tab khác</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">
+                  {filters.query ? 'Không tìm thấy kết quả' : 'Nhập từ khóa để tìm kiếm'}
+                </Text>
+                <Text className="text-gray-600 text-center">
+                  {filters.query
+                    ? 'Thử tìm kiếm với từ khóa khác hoặc chọn tab khác'
+                    : 'Tìm kiếm bảo tàng, hiện vật, sự kiện và tour ảo'}
+                </Text>
               </CardContent>
             </Card>
           </View>
