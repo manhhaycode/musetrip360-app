@@ -9,6 +9,7 @@ import { Badge } from '@/components/core/ui/badge';
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
+import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
 import { MuseumCard } from '@/components/MuseumCard';
 import { useMuseums } from '@/hooks/useMuseums';
@@ -29,6 +30,7 @@ export default function SearchPage() {
 
   const [searchQuery, setSearchQuery] = useState((params.q as string) || '');
   const [activeTab, setActiveTab] = useState<SearchTabKey>('Museum');
+  const [currentPage, setCurrentPage] = useState(1);
   const [filters, setFilters] = useState<SearchFilters>({
     query: (params.q as string) || '',
     type: 'Museum',
@@ -36,17 +38,23 @@ export default function SearchPage() {
     pageSize: 12,
   });
 
-  // For now, only museums are working with real API
+  // API calls for different content types
   const {
     data: museumsData,
     isLoading: museumsLoading,
     refetch: refetchMuseums,
     error: museumsError,
-  } = useMuseums({
-    Page: 1,
-    PageSize: 20,
-    Search: filters.query || undefined,
-  });
+  } = useMuseums(
+    {
+      Page: currentPage,
+      PageSize: 12,
+      Search: filters.query || undefined,
+    },
+    { enabled: activeTab === 'Museum' }
+  );
+
+  // For other content types, we show a message that search functionality is coming soon
+  // since current APIs require specific museumId and don't support universal search
 
   // Debug API response
   React.useEffect(() => {
@@ -57,22 +65,16 @@ export default function SearchPage() {
 
   const searchResults = useMemo(() => {
     if (activeTab === 'Museum' && museumsData?.data?.list) {
-      return museumsData.data.list.map((museum) => ({
-        id: museum.id,
-        title: museum.name,
-        type: 'Museum' as const,
-        thumbnail: museum.metadata?.coverImageUrl,
-        description: museum.description,
-        location: museum.location,
-        rating: museum.rating,
-        reviewCount: 0, // Default value since this field doesn't exist in Museum type
-      }));
+      // Return original Museum objects for MuseumCard component
+      return museumsData.data.list;
     }
 
+    // For other tabs, return empty array since universal search APIs are not available yet
     return [];
   }, [activeTab, museumsData]);
 
   const handleSearch = () => {
+    setCurrentPage(1);
     setFilters((prev) => ({ ...prev, query: searchQuery, page: 1 }));
     if (activeTab === 'Museum') {
       refetchMuseums();
@@ -81,7 +83,20 @@ export default function SearchPage() {
 
   const handleTabChange = (tab: SearchTabKey) => {
     setActiveTab(tab);
+    setCurrentPage(1);
     setFilters((prev) => ({ ...prev, type: tab, page: 1 }));
+
+    // Refetch data when switching to Museum tab
+    if (tab === 'Museum') {
+      refetchMuseums();
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    if (activeTab === 'Museum') {
+      refetchMuseums();
+    }
   };
 
   const renderSearchResult = ({ item }: { item: any }) => (
@@ -181,8 +196,8 @@ export default function SearchPage() {
       </View>
 
       {/* Results */}
-      <View className="flex-1 px-4 py-4">
-        <View className="flex-row items-center justify-between mb-4">
+      <View className="flex-1">
+        <View className="flex-row items-center justify-between mb-4 px-4">
           <Text className="text-lg font-semibold text-gray-900">
             {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label}
           </Text>
@@ -190,7 +205,7 @@ export default function SearchPage() {
         </View>
 
         {activeTab === 'Museum' && museumsLoading ? (
-          <View className="space-y-4">
+          <View className="px-4 space-y-4">
             {Array.from({ length: 3 }).map((_, index) => (
               <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
                 <CardContent className="p-0">
@@ -206,30 +221,69 @@ export default function SearchPage() {
               </Card>
             ))}
           </View>
+        ) : activeTab !== 'Museum' ? (
+          // Show coming soon message for other tabs
+          <View className="px-4">
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">🚧</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Tính năng đang phát triển</Text>
+                <Text className="text-gray-600 text-center mb-4">
+                  Tìm kiếm {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label.toLowerCase()} sẽ sớm có trong các
+                  phiên bản tiếp theo.
+                </Text>
+                <Text className="text-gray-500 text-sm text-center">
+                  Hiện tại bạn có thể xem {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label.toLowerCase()} trong
+                  từng bảo tàng cụ thể.
+                </Text>
+              </CardContent>
+            </Card>
+          </View>
         ) : searchResults.length > 0 ? (
-          activeTab === 'Museum' ? (
-            <View className="space-y-4">
-              {searchResults.map((museum: any) => (
-                <MuseumCard key={museum.id} museum={museum} />
-              ))}
-            </View>
-          ) : (
-            <FlatList
-              data={searchResults}
-              renderItem={renderSearchResult}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: 100 }}
-            />
-          )
+          <View className="flex-1">
+            {activeTab === 'Museum' ? (
+              <FlatList
+                data={searchResults}
+                renderItem={({ item }) => <MuseumCard museum={item} />}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                ItemSeparatorComponent={() => <View className="h-4" />}
+                ListFooterComponent={() => (
+                  <View className="pt-4 pb-20">
+                    {/* Museums Pagination */}
+                    {museumsData?.data?.total && Math.ceil(museumsData.data.total / 12) > 1 && (
+                      <Pagination
+                        currentPage={currentPage}
+                        totalPages={Math.ceil(museumsData.data.total / 12)}
+                        onPageChange={handlePageChange}
+                        showPages={5}
+                        className="pt-4"
+                      />
+                    )}
+                  </View>
+                )}
+              />
+            ) : (
+              <FlatList
+                data={searchResults}
+                renderItem={renderSearchResult}
+                keyExtractor={(item) => item.id}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 100 }}
+              />
+            )}
+          </View>
         ) : (
-          <Card className="bg-white border border-gray-200 rounded-lg">
-            <CardContent className="p-8 items-center">
-              <Text className="text-4xl mb-3">🔍</Text>
-              <Text className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy kết quả</Text>
-              <Text className="text-gray-600 text-center">Thử tìm kiếm với từ khóa khác hoặc chọn tab khác</Text>
-            </CardContent>
-          </Card>
+          <View className="px-4">
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">🔍</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Không tìm thấy kết quả</Text>
+                <Text className="text-gray-600 text-center">Thử tìm kiếm với từ khóa khác hoặc chọn tab khác</Text>
+              </CardContent>
+            </Card>
+          </View>
         )}
       </View>
     </SafeAreaView>

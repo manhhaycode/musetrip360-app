@@ -2,13 +2,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, MapPin, Share2, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
-import { Linking, RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import RenderHtml from 'react-native-render-html';
 
 import { Badge } from '@/components/core/ui/badge';
 import { Button } from '@/components/core/ui/button';
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
+import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
 import { useArticles } from '@/hooks/useArticles';
 import { useArtifacts } from '@/hooks/useArtifacts';
@@ -32,6 +34,13 @@ export default function MuseumDetailPage() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState<MuseumTabKey>('overview');
   const [refreshing, setRefreshing] = useState(false);
+  const { width } = useWindowDimensions();
+
+  // Pagination states for each tab
+  const [artifactsPage, setArtifactsPage] = useState(1);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [toursPage, setToursPage] = useState(1);
+  const [articlesPage, setArticlesPage] = useState(1);
 
   const { data: museum, isLoading, error, refetch } = useMuseum(id!);
 
@@ -40,46 +49,99 @@ export default function MuseumDetailPage() {
     data: artifactsData,
     isLoading: artifactsLoading,
     error: artifactsError,
-  } = useArtifacts({ museumId: id!, Page: 1, PageSize: 10 });
+  } = useArtifacts({ museumId: id!, Page: artifactsPage, PageSize: 12 });
 
   const {
     data: eventsData,
     isLoading: eventsLoading,
     error: eventsError,
-  } = useEvents({ museumId: id!, Page: 1, PageSize: 10 });
+  } = useEvents({ museumId: id!, Page: eventsPage, PageSize: 12 });
 
   const {
     data: virtualToursData,
     isLoading: virtualToursLoading,
     error: virtualToursError,
-  } = useVirtualTours({ museumId: id!, Page: 1, PageSize: 10 });
+  } = useVirtualTours({ museumId: id!, Page: toursPage, PageSize: 12 });
 
   const {
     data: articlesData,
     isLoading: articlesLoading,
     error: articlesError,
-  } = useArticles({ museumId: id!, Page: 1, PageSize: 10 });
+  } = useArticles({ museumId: id!, Page: articlesPage, PageSize: 12 });
+
+  // Debug logs
+  React.useEffect(() => {
+    console.log('=== 🏛️ MUSEUM DETAIL DEBUG ===');
+    console.log('🏛️ Museum ID:', id);
+    console.log('�️ Museum Data:', museum);
+    console.log('�🏺 Artifacts Data:', artifactsData);
+    console.log('🏺 Artifacts Loading:', artifactsLoading);
+    console.log('🏺 Artifacts Error:', artifactsError);
+    console.log('📅 Events Data:', eventsData);
+    console.log('📅 Events Loading:', eventsLoading);
+    console.log('📅 Events Error:', eventsError);
+    console.log('🌐 Virtual Tours Data:', virtualToursData);
+    console.log('🌐 Virtual Tours Loading:', virtualToursLoading);
+    console.log('🌐 Virtual Tours Error:', virtualToursError);
+    console.log('📰 Articles Data:', articlesData);
+    console.log('📰 Articles Loading:', articlesLoading);
+    console.log('📰 Articles Error:', articlesError);
+    console.log('=== END DEBUG ===');
+  }, [
+    id,
+    museum,
+    artifactsData,
+    artifactsLoading,
+    artifactsError,
+    eventsData,
+    eventsLoading,
+    eventsError,
+    virtualToursData,
+    virtualToursLoading,
+    virtualToursError,
+    articlesData,
+    articlesLoading,
+    articlesError,
+  ]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     refetch().finally(() => setRefreshing(false));
   }, [refetch]);
 
-  // Function to clean text content by removing URLs
-  const cleanTextContent = (text: string) => {
-    if (!text) return '';
+  // Function to render HTML content
+  const renderHtmlContent = (htmlContent: string) => {
+    if (!htmlContent) return null;
 
-    console.log('Original text:', text.substring(0, 100) + '...');
+    const tagsStyles = {
+      h1: { fontSize: 24, fontWeight: 'bold' as const, marginBottom: 16, color: '#1f2937' },
+      h2: { fontSize: 22, fontWeight: 'bold' as const, marginBottom: 14, color: '#1f2937' },
+      h3: { fontSize: 20, fontWeight: 'bold' as const, marginBottom: 12, color: '#1f2937' },
+      h4: { fontSize: 18, fontWeight: 'bold' as const, marginBottom: 10, color: '#1f2937' },
+      p: { fontSize: 16, lineHeight: 24, marginBottom: 12, color: '#374151' },
+      span: { fontSize: 16, color: '#374151' },
+      strong: { fontWeight: 'bold' as const },
+      b: { fontWeight: 'bold' as const },
+      em: { fontStyle: 'italic' as const },
+      i: { fontStyle: 'italic' as const },
+      img: { marginVertical: 8 },
+    };
 
-    // Remove URLs (http/https links) and extra whitespace
-    const urlRegex = /(https?:\/\/[^\s\)]+)/g;
-    const cleanedText = text
-      .replace(urlRegex, '') // Remove URLs
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .trim(); // Remove leading/trailing whitespace
+    const systemFonts = ['System'];
 
-    console.log('Cleaned text:', cleanedText.substring(0, 100) + '...');
-    return cleanedText;
+    return (
+      <RenderHtml
+        contentWidth={width - 32} // Account for padding
+        source={{ html: htmlContent }}
+        tagsStyles={tagsStyles}
+        systemFonts={systemFonts}
+        renderersProps={{
+          img: {
+            enableExperimentalPercentWidth: true,
+          },
+        }}
+      />
+    );
   };
 
   // Function to get the best available image
@@ -118,9 +180,7 @@ export default function MuseumDetailPage() {
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardContent className="p-4">
                   <Text className="text-lg font-semibold text-gray-900 mb-3">Giới thiệu</Text>
-                  <Text className="text-gray-700 text-base leading-6">
-                    {cleanTextContent(museum.metadata.contentHomePage)}
-                  </Text>
+                  {renderHtmlContent(museum.metadata.contentHomePage)}
                 </CardContent>
               </Card>
             )}
@@ -130,7 +190,7 @@ export default function MuseumDetailPage() {
               <Card className="bg-white border border-gray-200 rounded-lg">
                 <CardContent className="p-4">
                   <Text className="text-lg font-semibold text-gray-900 mb-3">Thông tin chi tiết</Text>
-                  <Text className="text-gray-700 text-base leading-6">{cleanTextContent(museum.metadata.detail)}</Text>
+                  {renderHtmlContent(museum.metadata.detail)}
                 </CardContent>
               </Card>
             )}
@@ -305,7 +365,16 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const artifacts = artifactsData?.data || [];
+        const artifacts = (artifactsData as any)?.list || [];
+
+        console.log('🏺 Processed artifacts:', artifacts);
+        console.log('🏺 Artifacts length:', artifacts.length);
+        console.log('🏺 Full artifactsData:', artifactsData);
+        console.log('🏺 Artifacts total:', (artifactsData as any)?.total);
+        console.log(
+          '🏺 Calculated totalPages:',
+          (artifactsData as any)?.total ? Math.ceil((artifactsData as any).total / 12) : 0
+        );
 
         if (artifacts.length === 0) {
           return (
@@ -326,8 +395,10 @@ export default function MuseumDetailPage() {
                 <CardContent className="p-0">
                   <View className="flex-row">
                     <Image
-                      source={artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400'}
-                      className="w-24 h-24"
+                      source={{
+                        uri: artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+                      }}
+                      className="w-24 h-24 rounded-lg"
                       resizeMode="cover"
                     />
                     <View className="flex-1 p-4">
@@ -343,6 +414,17 @@ export default function MuseumDetailPage() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Artifacts Pagination */}
+            {(artifactsData as any)?.total && Math.ceil((artifactsData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={artifactsPage}
+                totalPages={Math.ceil((artifactsData as any).total / 12)}
+                onPageChange={setArtifactsPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
           </View>
         );
 
@@ -371,7 +453,11 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const events = eventsData?.data?.list || [];
+        const events = (eventsData as any)?.list || [];
+
+        console.log('📅 Processed events:', events);
+        console.log('📅 Events length:', events.length);
+        console.log('📅 Full eventsData:', eventsData);
 
         if (events.length === 0) {
           return (
@@ -407,6 +493,17 @@ export default function MuseumDetailPage() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Events Pagination */}
+            {(eventsData as any)?.total && Math.ceil((eventsData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={eventsPage}
+                totalPages={Math.ceil((eventsData as any).total / 12)}
+                onPageChange={setEventsPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
           </View>
         );
 
@@ -435,7 +532,10 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const articles = articlesData?.data?.list || [];
+        const articles = (articlesData as any)?.list || [];
+
+        console.log('📰 Processed articles:', articles);
+        console.log('📰 Articles length:', articles.length);
 
         if (articles.length === 0) {
           return (
@@ -471,6 +571,17 @@ export default function MuseumDetailPage() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Articles Pagination */}
+            {(articlesData as any)?.total && Math.ceil((articlesData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={articlesPage}
+                totalPages={Math.ceil((articlesData as any).total / 12)}
+                onPageChange={setArticlesPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
           </View>
         );
 
@@ -499,7 +610,10 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const virtualTours = virtualToursData?.data || [];
+        const virtualTours = (virtualToursData as any)?.list || [];
+
+        console.log('🌐 Processed virtualTours:', virtualTours);
+        console.log('🌐 VirtualTours length:', virtualTours.length);
 
         if (virtualTours.length === 0) {
           return (
@@ -544,6 +658,17 @@ export default function MuseumDetailPage() {
                 </CardContent>
               </Card>
             ))}
+
+            {/* Virtual Tours Pagination */}
+            {(virtualToursData as any)?.total && Math.ceil((virtualToursData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={toursPage}
+                totalPages={Math.ceil((virtualToursData as any).total / 12)}
+                onPageChange={setToursPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
           </View>
         );
 
@@ -671,7 +796,14 @@ export default function MuseumDetailPage() {
               {MUSEUM_TABS.map((tab) => (
                 <TouchableOpacity
                   key={tab.key}
-                  onPress={() => setActiveTab(tab.key)}
+                  onPress={() => {
+                    setActiveTab(tab.key);
+                    // Reset tất cả pagination khi đổi tab
+                    setArtifactsPage(1);
+                    setEventsPage(1);
+                    setToursPage(1);
+                    setArticlesPage(1);
+                  }}
                   className={`px-4 py-2 rounded-full border ${
                     activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
                   }`}

@@ -7,19 +7,29 @@ interface ArtifactSearchParams {
   HistoricalPeriods?: string[];
 }
 
-export const useArtifacts = (params?: ArtifactSearchParams) => {
-  // Use real API exactly like visitor-portal
+export const useArtifacts = (params?: ArtifactSearchParams, options?: { enabled?: boolean }) => {
+  console.log('🏺 useArtifacts called with params:', params);
+  console.log('🏺 useArtifacts options:', options);
+
+  // Use real API exactly like visitor-portal - fix parameters
   const apiResult = useArtifactsByMuseum(
     {
-      Page: params?.Page || 1,
-      PageSize: params?.PageSize || 10,
       museumId: params?.museumId || '',
+      Page: params?.Page || 1,
+      PageSize: params?.PageSize || 12,
       HistoricalPeriods: params?.HistoricalPeriods,
     },
     {
-      enabled: !!params?.museumId,
+      enabled: options?.enabled !== false && !!params?.museumId,
+      refetchOnWindowFocus: false,
     }
   );
+
+  console.log('🏺 useArtifacts API result:', {
+    data: apiResult.data,
+    isLoading: apiResult.isLoading,
+    error: apiResult.error,
+  });
 
   return {
     data: apiResult.data,

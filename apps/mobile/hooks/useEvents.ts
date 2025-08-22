@@ -10,22 +10,33 @@ interface EventSearchParams {
   endDate?: string;
 }
 
-export const useEvents = (params?: EventSearchParams) => {
-  // Use real API exactly like visitor-portal
+export const useEvents = (params?: EventSearchParams, options?: { enabled?: boolean }) => {
+  console.log('📅 useEvents called with params:', params);
+  console.log('📅 useEvents options:', options);
+
+  // Use real API - fix function name
   const apiResult = useGetEventsByMuseumId(
     params?.museumId || '',
     {
       Page: params?.Page || 1,
-      PageSize: params?.PageSize || 10,
-      eventType: params?.eventType as any,
-      status: params?.status as any,
-      startDate: params?.startDate,
-      endDate: params?.endDate,
+      PageSize: params?.PageSize || 12,
     },
     {
-      enabled: !!params?.museumId,
+      enabled: options?.enabled !== false && !!params?.museumId,
+      refetchOnWindowFocus: false,
     }
   );
 
-  return apiResult;
+  console.log('📅 useEvents API result:', {
+    data: apiResult.data,
+    isLoading: apiResult.isLoading,
+    error: apiResult.error,
+  });
+
+  return {
+    data: apiResult.data,
+    isLoading: apiResult.isLoading,
+    error: apiResult.error,
+    refetch: apiResult.refetch,
+  };
 };

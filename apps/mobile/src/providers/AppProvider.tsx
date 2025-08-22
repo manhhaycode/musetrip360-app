@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
 import React from 'react';
 import { initConfigApp } from '../../config';
 
