@@ -27,7 +27,7 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
     console.log('Checking room status...');
     console.log(`isInRoom: ${isInRoom}, currentRoomId: ${currentRoomId}, roomId: ${roomId}`);
     if (!isInRoom || currentRoomId !== roomId) {
-      // router.replace(`/stream/setup/${roomId}`);
+      router.replace(`/stream/setup/${roomId}`);
     }
   }, [isInRoom, currentRoomId, roomId]);
 

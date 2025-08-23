@@ -4,6 +4,9 @@
  * Common TypeScript types used across the shared package
  */
 
+import type { Pagination } from '@musetrip360/query-foundation';
+import { IUser } from 'node_modules/@musetrip360/auth-system/dist/types/types';
+
 /**
  * Media type enumeration matching backend API
  */
@@ -132,4 +135,28 @@ export type HistoricalPeriod = {
   startDate?: string; // ISO date string
   endDate?: string; // ISO date string
   metadata?: any;
+};
+
+export type FeedbackCreate = {
+  targetId: string;
+  target: string;
+  comment: string;
+  rating: number;
+};
+
+export type Feedback = {
+  id: string;
+  targetId: string;
+  type: string;
+  comment: string;
+  rating: number;
+  createdBy: string;
+  createdByUser: IUser;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type FeedbackSearchParams = Pagination & {
+  targetId?: string;
+  targetType?: string;
 };
