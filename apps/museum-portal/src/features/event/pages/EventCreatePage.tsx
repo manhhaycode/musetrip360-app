@@ -2,18 +2,19 @@ import { useNavigate } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Button } from '@musetrip360/ui-core/button';
 import { ArrowLeft } from 'lucide-react';
-import { Event, EventCreateForm } from '@musetrip360/event-management';
+import { Event, EventBasicInfoForm } from '@musetrip360/event-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
 import withPermission from '@/hocs/withPermission';
 import { PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const EventCreatePage = withPermission(() => {
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();
   const museumId = selectedMuseum?.id || '';
 
-  const handleEventCreated = (event: Event) => {
-    console.log('Event created:', event);
+  const handleEventCreated = () => {
+    toast.success('Sự kiện đã được tạo thành công!');
     navigate(-1);
   };
 
@@ -40,7 +41,7 @@ const EventCreatePage = withPermission(() => {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 flex flex-col flex-1">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={handleCancel} className="shrink-0">
@@ -50,14 +51,16 @@ const EventCreatePage = withPermission(() => {
 
         <div className="border-l border-gray-200 pl-4">
           <h1 className="text-2xl font-bold tracking-tight">Tạo Sự kiện Mới</h1>
-          <p className="text-muted-foreground">
-            Tạo một sự kiện mới cho bảo tàng của bạn với cấu hình tour trực tuyến.
-          </p>
         </div>
       </div>
 
       {/* Form Card */}
-      <EventCreateForm museumId={museumId} onCancel={handleCancel} />
+      <EventBasicInfoForm
+        onSuccess={handleEventCreated}
+        className="flex-1"
+        museumId={museumId}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }, [PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT]);
