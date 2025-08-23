@@ -1,8 +1,20 @@
 import * as React from 'react';
+import { NumericFormat, NumericFormatProps } from 'react-number-format';
 
 import { cn } from '@/libs/utils';
 
-function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
+export interface InputProps extends React.ComponentProps<'input'> {
+  className?: string;
+  type?: string;
+}
+
+export interface PriceInputProps extends Omit<NumericFormatProps, 'onChange'> {
+  className?: string;
+  onChange?: (value: string | number) => void;
+  value?: string | number;
+}
+
+function Input({ className, type, ...props }: InputProps) {
   return (
     <input
       type={type}
@@ -18,4 +30,24 @@ function Input({ className, type, ...props }: React.ComponentProps<'input'>) {
   );
 }
 
-export { Input };
+function NumberInput({ className, onChange, value, type = 'text', ...props }: PriceInputProps) {
+  return (
+    <NumericFormat
+      type={type}
+      customInput={Input}
+      thousandSeparator=","
+      decimalSeparator="."
+      allowNegative={false}
+      decimalScale={0}
+      fixedDecimalScale={false}
+      onValueChange={(values) => {
+        onChange?.(values.floatValue!);
+      }}
+      value={value}
+      className={className}
+      {...props}
+    />
+  );
+}
+
+export { Input, NumberInput };

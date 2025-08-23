@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type { IVirtualTour, IVirtualTourScene } from '@/api/types';
 import { InteractiveHotspot } from '@/canvas/InteractiveHotspot';
 import { PanoramaSphere } from '@/canvas/PanoramaSphere';
@@ -93,6 +93,10 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
       onClick: () => handleHotspotClick(hotspot),
     }));
   }, [currentScene?.data?.hotspots, handleHotspotClick]);
+
+  useEffect(() => {
+    setCurrentSceneId(virtualTour.metadata.scenes[0]?.sceneId || '');
+  }, [virtualTour]);
 
   // Error state
   if (error) {
