@@ -6,7 +6,8 @@
       "mcp__serena__get_symbols_overview",
       "mcp__ide__getDiagnostics",
       "mcp__serena__find_file",
-      "WebSearch"
+      "WebSearch",
+      "mcp__serena__list_dir"
     ],
     "defaultMode": "acceptEdits"
   }

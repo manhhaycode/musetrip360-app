@@ -18,7 +18,6 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   const { roomId } = use(params);
   const router = useRouter();
   const { isInRoom, currentRoomId, roomState } = useStreamingContext();
-  console.log(roomState);
   const { data: event, isLoading } = useGetEventById(roomState?.EventId!, {
     enabled: !!roomState?.EventId,
   });
@@ -28,7 +27,7 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
     console.log('Checking room status...');
     console.log(`isInRoom: ${isInRoom}, currentRoomId: ${currentRoomId}, roomId: ${roomId}`);
     if (!isInRoom || currentRoomId !== roomId) {
-      router.replace(`/stream/setup/${roomId}`);
+      // router.replace(`/stream/setup/${roomId}`);
     }
   }, [isInRoom, currentRoomId, roomId]);
 

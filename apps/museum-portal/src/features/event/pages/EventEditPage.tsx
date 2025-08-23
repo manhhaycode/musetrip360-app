@@ -1,12 +1,12 @@
-import { useParams, useNavigate } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
-import { Button } from '@musetrip360/ui-core/button';
-import { ArrowLeft, Loader2 } from 'lucide-react';
-import { Event, useGetEventById } from '@musetrip360/event-management';
-import EventForm from '../EventForm';
-import { useMuseumStore } from '@musetrip360/museum-management';
 import withPermission from '@/hocs/withPermission';
+import { useGetEventById } from '@musetrip360/event-management';
+import { EventDetailManagement } from '@musetrip360/event-management/ui';
+import { useMuseumStore } from '@musetrip360/museum-management';
 import { PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router';
 
 const EventEditPage = withPermission(() => {
   const { id } = useParams<{ id: string }>();
@@ -22,11 +22,6 @@ const EventEditPage = withPermission(() => {
   } = useGetEventById(id || '', {
     enabled: !!id && !!museumId,
   });
-
-  const handleEventUpdated = (updatedEvent: Event) => {
-    console.log('Event updated:', updatedEvent);
-    refetch(); // Refresh the event data after update
-  };
 
   const handleCancel = () => {
     navigate(-1);
@@ -80,7 +75,7 @@ const EventEditPage = withPermission(() => {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 flex flex-col flex-1">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="sm" onClick={handleCancel} className="shrink-0">
@@ -90,12 +85,12 @@ const EventEditPage = withPermission(() => {
 
         <div className="border-l border-gray-200 pl-4">
           <h1 className="text-2xl font-bold tracking-tight">Chỉnh sửa Sự kiện</h1>
-          <p className="text-muted-foreground">Cập nhật thông tin sự kiện và cấu hình tour trực tuyến.</p>
         </div>
       </div>
 
       {/* Form Card */}
-      <EventForm event={event} museumId={museumId} onSuccess={handleEventUpdated} onCancel={handleCancel} />
+      {/* <EventForm event={event} museumId={museumId} onSuccess={handleEventUpdated} onCancel={handleCancel} /> */}
+      <EventDetailManagement event={event} onUpdated={refetch} />
     </div>
   );
 }, [PERMISSION_EVENT_MANAGEMENT]);
