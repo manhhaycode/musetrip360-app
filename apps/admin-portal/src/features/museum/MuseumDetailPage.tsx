@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ArrowLeft, Building, Calendar, Edit, Mail, MapPin, Phone, Star } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const MuseumDetailPage = () => {
   const { id } = useParams<{ id: string }>();

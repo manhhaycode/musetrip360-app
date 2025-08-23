@@ -1,0 +1,847 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { ArrowLeft, MapPin, Share2, Star } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import RenderHtml from 'react-native-render-html';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+import { Button } from '@/components/core/ui/button';
+import { Card, CardContent } from '@/components/core/ui/card';
+import { Image } from '@/components/core/ui/image';
+import { Pagination } from '@/components/core/ui/pagination';
+import { Text } from '@/components/core/ui/text';
+import { useArticles } from '@/hooks/useArticles';
+import { useArtifacts } from '@/hooks/useArtifacts';
+import { useEvents } from '@/hooks/useEvents';
+import { useMuseum } from '@/hooks/useMuseums';
+import { useVirtualTours } from '@/hooks/useVirtualTours';
+
+const MUSEUM_TABS = [
+  { key: 'overview', label: 'Giới thiệu', icon: '📖' },
+  { key: 'artifacts', label: 'Hiện vật', icon: '🏺' },
+  { key: 'events', label: 'Sự kiện', icon: '📅' },
+  { key: 'articles', label: 'Bài viết', icon: '📰' },
+  { key: 'tours', label: 'Tour ảo', icon: '🌐' },
+  { key: 'reviews', label: 'Đánh giá', icon: '⭐' },
+] as const;
+
+type MuseumTabKey = (typeof MUSEUM_TABS)[number]['key'];
+
+export default function MuseumDetailPage() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const [activeTab, setActiveTab] = useState<MuseumTabKey>('overview');
+  const [refreshing, setRefreshing] = useState(false);
+  const { width } = useWindowDimensions();
+
+  // Pagination states for each tab
+  const [artifactsPage, setArtifactsPage] = useState(1);
+  const [eventsPage, setEventsPage] = useState(1);
+  const [toursPage, setToursPage] = useState(1);
+  const [articlesPage, setArticlesPage] = useState(1);
+
+  const { data: museum, isLoading, error, refetch } = useMuseum(id!);
+
+  // Fetch artifacts and events for this museum
+  const {
+    data: artifactsData,
+    isLoading: artifactsLoading,
+    error: artifactsError,
+  } = useArtifacts({ museumId: id!, Page: artifactsPage, PageSize: 12 });
+
+  const {
+    data: eventsData,
+    isLoading: eventsLoading,
+    error: eventsError,
+  } = useEvents({ museumId: id!, Page: eventsPage, PageSize: 12 });
+
+  const {
+    data: virtualToursData,
+    isLoading: virtualToursLoading,
+    error: virtualToursError,
+  } = useVirtualTours({ museumId: id!, Page: toursPage, PageSize: 12 });
+
+  const {
+    data: articlesData,
+    isLoading: articlesLoading,
+    error: articlesError,
+  } = useArticles({ museumId: id!, Page: articlesPage, PageSize: 12 });
+
+  // Debug logs
+  React.useEffect(() => {
+    console.log('=== 🏛️ MUSEUM DETAIL DEBUG ===');
+    console.log('🏛️ Museum ID:', id);
+    console.log('�️ Museum Data:', museum);
+    console.log('�🏺 Artifacts Data:', artifactsData);
+    console.log('🏺 Artifacts Loading:', artifactsLoading);
+    console.log('🏺 Artifacts Error:', artifactsError);
+    console.log('📅 Events Data:', eventsData);
+    console.log('📅 Events Loading:', eventsLoading);
+    console.log('📅 Events Error:', eventsError);
+    console.log('🌐 Virtual Tours Data:', virtualToursData);
+    console.log('🌐 Virtual Tours Loading:', virtualToursLoading);
+    console.log('🌐 Virtual Tours Error:', virtualToursError);
+    console.log('📰 Articles Data:', articlesData);
+    console.log('📰 Articles Loading:', articlesLoading);
+    console.log('📰 Articles Error:', articlesError);
+    console.log('=== END DEBUG ===');
+  }, [
+    id,
+    museum,
+    artifactsData,
+    artifactsLoading,
+    artifactsError,
+    eventsData,
+    eventsLoading,
+    eventsError,
+    virtualToursData,
+    virtualToursLoading,
+    virtualToursError,
+    articlesData,
+    articlesLoading,
+    articlesError,
+  ]);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    refetch().finally(() => setRefreshing(false));
+  }, [refetch]);
+
+  // Function to render HTML content
+  const renderHtmlContent = (htmlContent: string) => {
+    if (!htmlContent) return null;
+
+    const tagsStyles = {
+      h1: { fontSize: 24, fontWeight: 'bold' as const, marginBottom: 16, color: '#1f2937' },
+      h2: { fontSize: 22, fontWeight: 'bold' as const, marginBottom: 14, color: '#1f2937' },
+      h3: { fontSize: 20, fontWeight: 'bold' as const, marginBottom: 12, color: '#1f2937' },
+      h4: { fontSize: 18, fontWeight: 'bold' as const, marginBottom: 10, color: '#1f2937' },
+      p: { fontSize: 16, lineHeight: 24, marginBottom: 12, color: '#374151' },
+      span: { fontSize: 16, color: '#374151' },
+      strong: { fontWeight: 'bold' as const },
+      b: { fontWeight: 'bold' as const },
+      em: { fontStyle: 'italic' as const },
+      i: { fontStyle: 'italic' as const },
+      img: { marginVertical: 8 },
+    };
+
+    const systemFonts = ['System'];
+
+    return (
+      <RenderHtml
+        contentWidth={width - 32} // Account for padding
+        source={{ html: htmlContent }}
+        tagsStyles={tagsStyles}
+        systemFonts={systemFonts}
+        renderersProps={{
+          img: {
+            enableExperimentalPercentWidth: true,
+          },
+        }}
+      />
+    );
+  };
+
+  // Function to get the best available image
+  const getMuseumImage = () => {
+    // Debug logging
+    console.log('Museum metadata:', museum?.metadata);
+    console.log('Cover image URL:', museum?.metadata?.coverImageUrl);
+    console.log('Images array:', museum?.metadata?.images);
+
+    // Try cover image first
+    if (museum?.metadata?.coverImageUrl) {
+      console.log('Using cover image:', museum.metadata.coverImageUrl);
+      return museum.metadata.coverImageUrl;
+    }
+
+    // Try first image from images array
+    if (museum?.metadata?.images && museum.metadata.images.length > 0) {
+      console.log('Using first image from array:', museum.metadata.images[0]);
+      return museum.metadata.images[0];
+    }
+
+    // Fallback image
+    console.log('Using fallback image');
+    return 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400';
+  };
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'overview':
+        if (!museum) return null;
+
+        return (
+          <View className="space-y-8 px-2">
+            {/* Introduction - Always show, prioritize contentHomePage over description */}
+            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm mb-6">
+              <CardContent className="p-4">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-8 h-8 bg-orange-500 rounded-full items-center justify-center mr-3">
+                    <Text className="text-white text-lg">🏛️</Text>
+                  </View>
+                  <Text className="text-lg font-semibold text-orange-900">Giới thiệu</Text>
+                </View>
+                {museum.metadata?.contentHomePage ? (
+                  renderHtmlContent(museum.metadata.contentHomePage)
+                ) : (
+                  <Text className="text-orange-800 text-base leading-6">
+                    {museum.description || 'Thông tin giới thiệu đang được cập nhật...'}
+                  </Text>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Detailed Information */}
+            {museum.metadata?.detail && (
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-6">
+                <CardContent className="p-4">
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
+                      <Text className="text-white text-lg">📋</Text>
+                    </View>
+                    <Text className="text-lg font-semibold text-blue-900">Thông tin chi tiết</Text>
+                  </View>
+                  {renderHtmlContent(museum.metadata.detail)}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Contact Information */}
+            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm mb-6">
+              <CardContent className="p-4">
+                <View className="flex-row items-center mb-4">
+                  <View className="w-8 h-8 bg-green-500 rounded-full items-center justify-center mr-3">
+                    <Text className="text-white text-lg">📞</Text>
+                  </View>
+                  <Text className="text-lg font-semibold text-green-900">Thông tin liên hệ</Text>
+                </View>
+
+                <View className="space-y-3">
+                  {/* Address */}
+                  <View className="flex-row items-start space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200">
+                    <MapPin size={20} color="#059669" className="mt-0.5" />
+                    <View className="flex-1">
+                      <Text className="text-sm font-medium text-green-900">Địa chỉ</Text>
+                      <Text className="text-sm text-green-700 mt-1">{museum.location}</Text>
+                    </View>
+                  </View>
+
+                  {/* Phone */}
+                  {museum.contactPhone && (
+                    <TouchableOpacity
+                      onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
+                    >
+                      <View className="w-5 h-5 items-center justify-center">
+                        <Text className="text-green-600">📞</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-sm font-medium text-green-900">Số điện thoại</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.contactPhone}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Email */}
+                  {museum.contactEmail && (
+                    <TouchableOpacity
+                      onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
+                    >
+                      <View className="w-5 h-5 items-center justify-center">
+                        <Text className="text-green-600">✉️</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-sm font-medium text-green-900">Email</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.contactEmail}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+
+                  {/* Website */}
+                  {museum.metadata?.socialLinks?.website && (
+                    <TouchableOpacity
+                      onPress={() => {
+                        const website = museum.metadata?.socialLinks?.website;
+                        if (website) {
+                          Linking.openURL(website);
+                        }
+                      }}
+                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
+                    >
+                      <View className="w-5 h-5 items-center justify-center">
+                        <Text className="text-green-600">🌐</Text>
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-sm font-medium text-green-900">Website</Text>
+                        <Text className="text-sm text-green-700 mt-1">{museum.metadata.socialLinks.website}</Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </CardContent>
+            </Card>
+
+            {/* Categories */}
+            {museum.categories && museum.categories.length > 0 && (
+              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg shadow-sm mb-6">
+                <CardContent className="p-4">
+                  <View className="flex-row items-center mb-3">
+                    <View className="w-8 h-8 bg-purple-500 rounded-full items-center justify-center mr-3">
+                      <Text className="text-white text-lg">🏷️</Text>
+                    </View>
+                    <Text className="text-lg font-semibold text-purple-900">Danh mục bảo tàng</Text>
+                  </View>
+                  <View className="flex-row flex-wrap gap-2">
+                    {museum.categories.map((category) => (
+                      <View
+                        key={category.id}
+                        className="px-3 py-2 bg-purple-100/70 rounded-lg border border-purple-300"
+                      >
+                        <Text className="text-sm text-purple-800 font-medium">{category.name}</Text>
+                        {category.description && (
+                          <Text className="text-xs text-purple-700 mt-1">{category.description}</Text>
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Additional Images - Only show if we have multiple images or different from cover */}
+            {museum.metadata?.images &&
+              museum.metadata.images.length > 0 &&
+              (() => {
+                // Filter out images that are the same as cover image and ensure they're valid URLs
+                const availableImages = museum.metadata.images.filter(
+                  (img) =>
+                    img &&
+                    img !== museum.metadata?.coverImageUrl &&
+                    (img.startsWith('http://') || img.startsWith('https://'))
+                );
+
+                // If we have the cover image, include additional images
+                // If no cover image, show first image as cover and rest as additional
+                const displayImages = museum.metadata?.coverImageUrl
+                  ? availableImages
+                  : museum.metadata.images
+                      .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
+                      .slice(1); // Skip first image as it's used as cover
+
+                if (displayImages.length === 0) return null;
+
+                return (
+                  <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm mb-6">
+                    <CardContent className="p-4">
+                      <View className="flex-row items-center mb-3">
+                        <View className="w-8 h-8 bg-amber-500 rounded-full items-center justify-center mr-3">
+                          <Text className="text-white text-lg">📸</Text>
+                        </View>
+                        <Text className="text-lg font-semibold text-amber-900">Hình ảnh bảo tàng</Text>
+                      </View>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-3">
+                        {displayImages.map((imageUrl, index) => (
+                          <Image
+                            key={index}
+                            source={imageUrl}
+                            className="w-48 h-32 rounded-lg mr-3"
+                            resizeMode="cover"
+                          />
+                        ))}
+                      </ScrollView>
+                    </CardContent>
+                  </Card>
+                );
+              })()}
+          </View>
+        );
+
+      case 'artifacts':
+        if (artifactsLoading) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải hiện vật...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (artifactsError) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">⚠️</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải hiện vật</Text>
+                <Text className="text-gray-600 text-center">
+                  {artifactsError?.message || 'Không thể tải danh sách hiện vật'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        const artifacts = (artifactsData as any)?.list || [];
+
+        console.log('🏺 Processed artifacts:', artifacts);
+        console.log('🏺 Artifacts length:', artifacts.length);
+        console.log('🏺 Full artifactsData:', artifactsData);
+        console.log('🏺 Artifacts total:', (artifactsData as any)?.total);
+        console.log(
+          '🏺 Calculated totalPages:',
+          (artifactsData as any)?.total ? Math.ceil((artifactsData as any).total / 12) : 0
+        );
+
+        if (artifacts.length === 0) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">🏺</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có hiện vật</Text>
+                <Text className="text-gray-600 text-center">Bảo tàng này chưa có hiện vật nào được trưng bày</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        return (
+          <View className="space-y-6 px-2">
+            {artifacts.map((artifact: any) => (
+              <Card key={artifact.id} className="bg-white border border-gray-200 rounded-lg mb-5">
+                <CardContent className="p-0">
+                  <View className="flex-row">
+                    <Image
+                      source={{
+                        uri: artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+                      }}
+                      className="w-24 h-24 rounded-lg"
+                      resizeMode="cover"
+                    />
+                    <View className="flex-1 p-4">
+                      <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                        {artifact.name}
+                      </Text>
+                      <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
+                        {artifact.description}
+                      </Text>
+                      <Text className="text-gray-500 text-xs">{artifact.historicalPeriod}</Text>
+                    </View>
+                  </View>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Artifacts Pagination */}
+            {(artifactsData as any)?.total && Math.ceil((artifactsData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={artifactsPage}
+                totalPages={Math.ceil((artifactsData as any).total / 12)}
+                onPageChange={setArtifactsPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
+          </View>
+        );
+
+      case 'events':
+        if (eventsLoading) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải sự kiện...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (eventsError) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">⚠️</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải sự kiện</Text>
+                <Text className="text-gray-600 text-center">
+                  {eventsError?.message || 'Không thể tải danh sách sự kiện'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        const events = (eventsData as any)?.list || [];
+
+        console.log('📅 Processed events:', events);
+        console.log('📅 Events length:', events.length);
+        console.log('📅 Full eventsData:', eventsData);
+
+        if (events.length === 0) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">📅</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có sự kiện</Text>
+                <Text className="text-gray-600 text-center">Bảo tàng này chưa có sự kiện nào được tổ chức</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        return (
+          <View className="space-y-6 px-2">
+            {events.map((event: any) => (
+              <Card key={event.id} className="bg-white border border-gray-200 rounded-lg mb-5">
+                <CardContent className="p-4">
+                  <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                    {event.title}
+                  </Text>
+                  <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
+                    {event.description}
+                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-gray-500 text-xs">
+                      {new Date(event.startTime).toLocaleDateString('vi-VN')}
+                    </Text>
+                    <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
+                      <Text className="text-xs text-blue-800">{event.eventType}</Text>
+                    </View>
+                  </View>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Events Pagination */}
+            {(eventsData as any)?.total && Math.ceil((eventsData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={eventsPage}
+                totalPages={Math.ceil((eventsData as any).total / 12)}
+                onPageChange={setEventsPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
+          </View>
+        );
+
+      case 'articles':
+        if (articlesLoading) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải bài viết...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (articlesError) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">⚠️</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải bài viết</Text>
+                <Text className="text-gray-600 text-center">
+                  {articlesError?.message || 'Không thể tải danh sách bài viết'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        const articles = (articlesData as any)?.list || [];
+
+        console.log('📰 Processed articles:', articles);
+        console.log('📰 Articles length:', articles.length);
+
+        if (articles.length === 0) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">📰</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có bài viết</Text>
+                <Text className="text-gray-600 text-center">Bảo tàng này chưa có bài viết nào được đăng tải</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        return (
+          <View className="space-y-6 px-2">
+            {articles.map((article: any) => (
+              <Card key={article.id} className="bg-white border border-gray-200 rounded-lg mb-5">
+                <CardContent className="p-4">
+                  <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                    {article.title}
+                  </Text>
+                  <Text className="text-gray-600 text-sm mb-2" numberOfLines={3}>
+                    {article.content.replace(/<[^>]*>/g, '')} {/* Remove HTML tags */}
+                  </Text>
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-gray-500 text-xs">
+                      {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
+                    </Text>
+                    <View className="bg-orange-100 border border-orange-200 rounded px-2 py-1">
+                      <Text className="text-xs text-orange-800">{article.status}</Text>
+                    </View>
+                  </View>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Articles Pagination */}
+            {(articlesData as any)?.total && Math.ceil((articlesData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={articlesPage}
+                totalPages={Math.ceil((articlesData as any).total / 12)}
+                onPageChange={setArticlesPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
+          </View>
+        );
+
+      case 'tours':
+        if (virtualToursLoading) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải tour ảo...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (virtualToursError) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">⚠️</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải tour ảo</Text>
+                <Text className="text-gray-600 text-center">
+                  {virtualToursError?.message || 'Không thể tải danh sách tour ảo'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        const virtualTours = (virtualToursData as any)?.list || [];
+
+        console.log('🌐 Processed virtualTours:', virtualTours);
+        console.log('🌐 VirtualTours length:', virtualTours.length);
+
+        if (virtualTours.length === 0) {
+          return (
+            <Card className="bg-white border border-gray-200 rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-4xl mb-3">🌐</Text>
+                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có tour ảo</Text>
+                <Text className="text-gray-600 text-center">Bảo tàng này chưa có tour ảo nào được cung cấp</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        return (
+          <View className="space-y-6 px-2">
+            {virtualTours.map((tour: any) => (
+              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg mb-5">
+                <CardContent className="p-0">
+                  <View className="flex-row">
+                    <Image
+                      source={tour.thumbnail || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400'}
+                      className="w-24 h-24"
+                      resizeMode="cover"
+                    />
+                    <View className="flex-1 p-4">
+                      <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                        {tour.title}
+                      </Text>
+                      <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
+                        {tour.description}
+                      </Text>
+                      <View className="flex-row items-center justify-between">
+                        <Text className="text-gray-500 text-xs">
+                          {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
+                        </Text>
+                        <View className="bg-purple-100 border border-purple-200 rounded px-2 py-1">
+                          <Text className="text-xs text-purple-800">Tour 360°</Text>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Virtual Tours Pagination */}
+            {(virtualToursData as any)?.total && Math.ceil((virtualToursData as any).total / 12) > 1 && (
+              <Pagination
+                currentPage={toursPage}
+                totalPages={Math.ceil((virtualToursData as any).total / 12)}
+                onPageChange={setToursPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
+          </View>
+        );
+
+      case 'reviews':
+        return (
+          <Card className="bg-white border border-gray-200 rounded-lg">
+            <CardContent className="p-8 items-center">
+              <Text className="text-4xl mb-3">⭐</Text>
+              <Text className="text-lg font-semibold text-gray-900 mb-2">Đánh giá đang cập nhật</Text>
+              <Text className="text-gray-600 text-center">Các đánh giá của khách tham quan đang được cập nhật...</Text>
+            </CardContent>
+          </Card>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <StatusBar style="dark" />
+
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
+            <ArrowLeft size={24} color="#1f2937" />
+          </TouchableOpacity>
+          <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+          <TouchableOpacity className="p-2">
+            <Share2 size={24} color="#1f2937" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Loading Content */}
+        <ScrollView className="flex-1 px-4 py-4">
+          <View className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
+          <View className="w-3/4 h-6 bg-gray-200 rounded mb-2" />
+          <View className="w-1/2 h-4 bg-gray-200 rounded mb-4" />
+          <View className="w-full h-20 bg-gray-200 rounded" />
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !museum) {
+    return (
+      <SafeAreaView className="flex-1 bg-white">
+        <StatusBar style="dark" />
+
+        {/* Header */}
+        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
+            <ArrowLeft size={24} color="#1f2937" />
+          </TouchableOpacity>
+          <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+          <TouchableOpacity className="p-2">
+            <Share2 size={24} color="#1f2937" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Error Content */}
+        <View className="flex-1 items-center justify-center px-4">
+          <Text className="text-4xl mb-4">😞</Text>
+          <Text className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy bảo tàng</Text>
+          <Text className="text-gray-600 text-center mb-6">Bảo tàng này có thể đã bị xóa hoặc không tồn tại</Text>
+          <Button onPress={() => router.back()} className="bg-blue-600 px-6 py-3 rounded-lg">
+            <Text className="text-white font-medium">Quay lại</Text>
+          </Button>
+        </View>
+      </SafeAreaView>
+    );
+  }
+
+  return (
+    <SafeAreaView className="flex-1 bg-white">
+      <StatusBar style="dark" />
+
+      {/* Header */}
+      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+        <TouchableOpacity onPress={() => router.back()} className="p-2">
+          <ArrowLeft size={24} color="#1f2937" />
+        </TouchableOpacity>
+        <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+        <TouchableOpacity className="p-2">
+          <Share2 size={24} color="#1f2937" />
+        </TouchableOpacity>
+      </View>
+
+      <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+        {/* Museum Image */}
+        <Image source={getMuseumImage()} className="w-full h-64" resizeMode="cover" />
+
+        {/* Museum Info */}
+        <View className="px-4 py-4">
+          <Text className="text-2xl font-bold text-gray-900 mb-2">{museum.name}</Text>
+
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center">
+              <Star size={16} color="#fbbf24" fill="#fbbf24" />
+              <Text className="text-gray-900 text-base ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
+              <Text className="text-gray-500 text-base ml-1">(0 đánh giá)</Text>
+            </View>
+
+            <View
+              className={`${
+                museum.status === 'Active'
+                  ? 'bg-green-100 text-green-800 border-green-200'
+                  : 'bg-yellow-100 text-yellow-800 border-yellow-200'
+              } border rounded px-2 py-1`}
+            >
+              <Text className="text-sm">{museum.status === 'Active' ? 'Hoạt động' : 'Tạm ngưng'}</Text>
+            </View>
+          </View>
+
+          <View className="flex-row items-center mb-4">
+            <MapPin size={16} color="#6b7280" />
+            <Text className="text-gray-600 text-base ml-2 flex-1">{museum.location}</Text>
+          </View>
+
+          {/* Tabs */}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+            <View className="flex-row space-x-2">
+              {MUSEUM_TABS.map((tab) => (
+                <TouchableOpacity
+                  key={tab.key}
+                  onPress={() => {
+                    setActiveTab(tab.key);
+                    // Reset tất cả pagination khi đổi tab
+                    setArtifactsPage(1);
+                    setEventsPage(1);
+                    setToursPage(1);
+                    setArticlesPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-full border ${
+                    activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
+                    {tab.icon} {tab.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </ScrollView>
+
+          {/* Tab Content */}
+          {renderTabContent()}
+        </View>
+
+        {/* Bottom spacing */}
+        <View className="h-20" />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}

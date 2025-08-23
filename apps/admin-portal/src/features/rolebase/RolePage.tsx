@@ -29,7 +29,7 @@ import {
   FormMessage,
 } from '@musetrip360/ui-core';
 import { Plus, Edit, Users, Shield } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@musetrip360/ui-core/sonner';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';

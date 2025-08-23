@@ -2,7 +2,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@musetrip360/ui-core/t
 import { EventBasicInfoForm } from './EventBasicInfoForm';
 import { Event } from '@/types';
 import { EventTourOnlineForm } from './EventTourOnlineForm';
-import { EventParticipant } from './EventParticipant';
+import { EventParticipants } from './EventParticipants';
 import { BulkUploadProvider } from '@musetrip360/shared';
 
 export function EventDetailManagement({ event, onUpdated }: { event: Event; onUpdated?: () => void }) {
@@ -23,7 +23,7 @@ export function EventDetailManagement({ event, onUpdated }: { event: Event; onUp
           <EventTourOnlineForm className="flex-1 flex" event={event} onUpdated={onUpdated} />
         </TabsContent>
         <TabsContent style={{ flex: '1 0 0' }} className="flex min-h-0" value="participants">
-          <EventParticipant event={event} onUpdated={onUpdated} />
+          <EventParticipants event={event} onUpdated={onUpdated} />
         </TabsContent>
       </Tabs>
     </BulkUploadProvider>
