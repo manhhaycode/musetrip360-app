@@ -1,29 +1,17 @@
-import { Tabs } from 'expo-router';
+import { Stack } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-import { House } from 'lucide-react-native';
+import { View } from 'react-native';
+
+import { BottomNavigation } from '@/components/layout/BottomNavigation';
 
 export default function TabLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: '#7357b6', // Primary color from our theme
-        headerShown: false,
-        tabBarStyle: Platform.select({
-          ios: {
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <House color={color} />,
-        }}
-      />
-    </Tabs>
+    <View className="flex-1 bg-white">
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="search" />
+      </Stack>
+      <BottomNavigation />
+    </View>
   );
 }
