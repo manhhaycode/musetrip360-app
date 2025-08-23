@@ -1,8 +1,11 @@
 'use client';
 
-import { Check, Loader2, CreditCard, CheckCircle, XCircle } from 'lucide-react';
-import { useEffect } from 'react';
+import { Check, Loader2, CreditCard, CheckCircle, XCircle, X, FileText, Download } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
+import { useForm, useFieldArray, useWatch } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 import {
   useGetPlans,
@@ -11,6 +14,7 @@ import {
   Plan,
   SubscriptionStatusEnum,
   Subscription,
+  useGenerateContract,
 } from '@musetrip360/payment-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
 import { Button } from '@musetrip360/ui-core/button';
@@ -18,15 +22,59 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@muse
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Alert, AlertDescription } from '@musetrip360/ui-core/alert';
 import { Separator } from '@musetrip360/ui-core/separator';
-import { cn } from '@musetrip360/ui-core';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@musetrip360/ui-core/dialog';
+import { Form, FormLabel } from '@musetrip360/ui-core/form';
+import { cn, toast } from '@musetrip360/ui-core';
+import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
+import get from 'lodash.get';
+
+// Validation schema for confirmation dialog
+const confirmationSchema = z.object({
+  documents: z.array(z.union([z.string(), z.any()])).optional(),
+});
+
+type ConfirmationFormData = z.infer<typeof confirmationSchema>;
 
 const SubscriptionPlanPage = () => {
   const { selectedMuseum } = useMuseumStore();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
+  const [isUploadingDocs, setIsUploadingDocs] = useState(false);
+  const [isPolling, setIsPolling] = useState(false);
+  const [orderCode, setOrderCode] = useState<string | null>(null);
+  const [contractUrl, setContractUrl] = useState<string | null>(null);
 
   const paymentSuccess = searchParams.get('success') === 'true';
   const paymentCanceled = searchParams.get('canceled') === 'true';
+
+  const uploadFileMutation = useFileUpload();
+
+  const confirmationForm = useForm<ConfirmationFormData>({
+    resolver: zodResolver(confirmationSchema),
+    defaultValues: {
+      documents: [],
+    },
+  });
+
+  const {
+    fields: documentFields,
+    append: appendDocument,
+    remove: removeDocument,
+  } = useFieldArray({
+    control: confirmationForm.control,
+    name: 'documents',
+  });
+
+  const watchedDocuments = useWatch({ control: confirmationForm.control, name: 'documents' });
 
   const { data: plans, isLoading: isLoadingPlans, error: plansError } = useGetPlans();
 
@@ -40,29 +88,152 @@ const SubscriptionPlanPage = () => {
 
   const { mutate: buySubscription, isPending: isBuyingSubscription } = useBuySubscription({
     onSuccess: (data) => {
-      // Redirect to payment URL
-      console.log(data);
+      console.log('Purchase response:', data);
+      if (data?.orderCode) {
+        setOrderCode(`${data.orderCode}`);
+        startPollingOrder(`${data.orderCode}`);
+      }
       if (data?.checkoutUrl) {
         window.open(data.checkoutUrl, '_blank');
       }
+      setShowConfirmDialog(false);
     },
     onError: (error) => {
       console.error('Failed to buy subscription:', error);
+      toast.error(get(error, 'error', 'Đã xảy ra lỗi khi mua gói đăng ký. Vui lòng thử lại sau.'));
+      setShowConfirmDialog(false);
+    },
+  });
+
+  const { mutate: generateContract, isPending: isContractGenerating } = useGenerateContract({
+    onSuccess: (data) => {
+      console.log('Contract generated:', data);
+      if (data?.url) {
+        setContractUrl(data.url);
+        // Add contract URL to documents
+        const currentDocs = confirmationForm.getValues('documents') || [];
+        const newDocs = [...currentDocs.filter(Boolean), data.url];
+        confirmationForm.setValue('documents', newDocs);
+
+        // Trigger download
+        const link = document.createElement('a');
+        link.href = data.url;
+        link.download = `contract-${selectedPlan?.name || 'subscription'}.pdf`;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast.success('Hợp đồng đã được tạo và tải xuống thành công!');
+      }
+    },
+    onError: (error) => {
+      console.error('Failed to generate contract:', error);
+      toast.error(get(error, 'error', 'Đã xảy ra lỗi khi tạo hợp đồng. Vui lòng thử lại sau.'));
     },
   });
 
   const handleBuyPlan = (planId: string) => {
     if (!selectedMuseum?.id) {
-      alert('Vui lòng chọn bảo tàng trước khi mua gói');
+      toast.error('Vui lòng chọn bảo tàng trước khi mua gói');
       return;
     }
 
-    buySubscription({
-      planId,
+    const plan = (plans as Plan[])?.find((p) => p.id === planId);
+    if (plan) {
+      setSelectedPlan(plan);
+      setContractUrl(null); // Reset contract URL
+      setShowConfirmDialog(true);
+    }
+  };
+
+  const handleGenerateContract = () => {
+    if (!selectedPlan || !selectedMuseum?.id) {
+      toast.error('Vui lòng chọn gói và bảo tàng');
+      return;
+    }
+
+    generateContract({
+      planId: selectedPlan.id,
       museumId: selectedMuseum.id,
-      successUrl: `${window.location.origin}/museum/contract?success=true`,
-      cancelUrl: `${window.location.origin}/museum/contract?canceled=true`,
+      successUrl: '',
+      cancelUrl: '',
+      metadata: {
+        documents: [],
+      },
     });
+  };
+
+  const handleConfirmPurchase = async (data: ConfirmationFormData) => {
+    if (!selectedPlan || !selectedMuseum?.id) return;
+
+    try {
+      setIsUploadingDocs(true);
+
+      const validDocs = (data.documents || []).filter(Boolean).map((doc) => doc.file);
+      const uploadedDocUrls: string[] = [];
+
+      for (const doc of validDocs) {
+        if (typeof doc === 'object' && doc !== null && 'name' in doc && 'type' in doc) {
+          const result = await uploadFileMutation.mutateAsync(doc as File);
+          console.log('Uploaded document result:', result);
+          uploadedDocUrls.push(result.data.url);
+        } else if (typeof doc === 'string') {
+          uploadedDocUrls.push(doc);
+        }
+      }
+
+      // Include contract URL if generated
+      if (contractUrl) {
+        uploadedDocUrls.push(contractUrl);
+      }
+
+      buySubscription({
+        planId: selectedPlan.id,
+        museumId: selectedMuseum.id,
+        successUrl: `${window.location.origin}/museum/contract?success=true`,
+        cancelUrl: `${window.location.origin}/museum/contract?canceled=true`,
+        metadata: {
+          documents: uploadedDocUrls,
+        },
+      });
+    } catch (error) {
+      console.error('Error uploading documents:', error);
+      toast.error('Có lỗi xảy ra khi tải lên tài liệu. Vui lòng thử lại.');
+    } finally {
+      setIsUploadingDocs(false);
+    }
+  };
+
+  const startPollingOrder = (orderCode: string) => {
+    setIsPolling(true);
+    const pollInterval = setInterval(async () => {
+      try {
+        // TODO: Replace with actual order status API call
+        // const orderStatus = await checkOrderStatus(orderCode);
+        // For now, simulate polling for 30 seconds
+        console.log('Polling order status for:', orderCode);
+
+        // Stop polling after 30 seconds (10 polls × 3 seconds)
+        setTimeout(() => {
+          setIsPolling(false);
+          setOrderCode(null);
+          clearInterval(pollInterval);
+          refetchSubscriptions();
+        }, 30000);
+      } catch (error) {
+        console.error('Error polling order status:', error);
+        clearInterval(pollInterval);
+        setIsPolling(false);
+        setOrderCode(null);
+      }
+    }, 3000);
+
+    // Clean up interval on component unmount
+    return () => {
+      clearInterval(pollInterval);
+      setIsPolling(false);
+    };
   };
 
   const formatPrice = (price: number) => {
@@ -109,6 +280,21 @@ const SubscriptionPlanPage = () => {
     // Finally compare by price (higher price usually means better plan)
     return b.price - a.price;
   };
+
+  // Initialize document fields
+  useEffect(() => {
+    if (documentFields.length === 0) {
+      appendDocument('');
+    }
+  }, [documentFields.length, appendDocument]);
+
+  // Auto-append new field if all are filled
+  useEffect(() => {
+    const allDocumentsHaveValue = watchedDocuments?.every((doc) => !!doc);
+    if (documentFields.length > 0 && allDocumentsHaveValue) {
+      appendDocument('');
+    }
+  }, [watchedDocuments, documentFields, appendDocument]);
 
   // Handle payment redirect states
   useEffect(() => {
@@ -193,6 +379,15 @@ const SubscriptionPlanPage = () => {
             <AlertDescription>
               Bạn đang sử dụng gói <strong>{activeSubscription.plan?.name}</strong> (hết hạn:{' '}
               {new Date(activeSubscription.endDate).toLocaleDateString('vi-VN')})
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isPolling && orderCode && (
+          <Alert className="mt-4 border-blue-200 bg-blue-50">
+            <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+            <AlertDescription className="text-blue-700">
+              <strong>Đang xử lý đơn hàng #{orderCode}</strong> - Hệ thống đang kiểm tra trạng thái thanh toán...
             </AlertDescription>
           </Alert>
         )}
@@ -294,6 +489,139 @@ const SubscriptionPlanPage = () => {
           <p className="text-muted-foreground">Hiện tại không có gói nào khả dụng.</p>
         </div>
       )}
+
+      {/* Confirmation Dialog */}
+      <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Xác nhận mua gói đăng ký</DialogTitle>
+            <DialogDescription>
+              Bạn đang mua gói <strong>{selectedPlan?.name}</strong> cho bảo tàng{' '}
+              <strong>{selectedMuseum?.name}</strong>. Vui lòng tải lên các tài liệu cần thiết (nếu có) trước khi tiếp
+              tục.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...confirmationForm}>
+            <form onSubmit={confirmationForm.handleSubmit(handleConfirmPurchase)} className="space-y-6">
+              {/* Plan Summary */}
+              {selectedPlan && (
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <h3 className="font-semibold">{selectedPlan.name}</h3>
+                  <div className="flex justify-between text-sm">
+                    <span>Giá:</span>
+                    <span className="font-medium">{formatPrice(selectedPlan.price)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span>Thời hạn:</span>
+                    <span className="font-medium">{formatDuration(selectedPlan.durationDays)}</span>
+                  </div>
+                  {selectedPlan.maxEvents && (
+                    <div className="flex justify-between text-sm">
+                      <span>Số sự kiện tối đa:</span>
+                      <span className="font-medium">
+                        {selectedPlan.maxEvents > 100000 ? 'Không giới hạn' : selectedPlan.maxEvents}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Contract Generation */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">Hợp đồng</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateContract}
+                    disabled={isContractGenerating || isUploadingDocs || isBuyingSubscription}
+                    className="gap-2"
+                  >
+                    {isContractGenerating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Đang tạo...
+                      </>
+                    ) : contractUrl ? (
+                      <>
+                        <Download className="h-4 w-4" />
+                        Tải lại hợp đồng
+                      </>
+                    ) : (
+                      <>
+                        <FileText className="h-4 w-4" />
+                        Tạo hợp đồng
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {contractUrl && (
+                  <Alert className="border-green-200 bg-green-50">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    <AlertDescription className="text-green-700">
+                      Hợp đồng đã được tạo thành công và sẽ được đính kèm trong đơn đăng ký.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
+              {/* Document Upload */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <FormLabel className="text-gray-600">Tài liệu hỗ trợ (tùy chọn)</FormLabel>
+                  <span className="text-sm text-muted-foreground">Thêm tài liệu nếu cần hỗ trợ xử lý</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  {documentFields.map((field, index) => (
+                    <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
+                      <FormDropZone
+                        name={`documents.${index}`}
+                        control={confirmationForm.control}
+                        mediaType={MediaType.DOCUMENT}
+                        label={''}
+                        description={''}
+                      />
+                      {documentFields.length > 1 && (
+                        <Button
+                          type="button"
+                          onClick={() => removeDocument(index)}
+                          variant="destructive"
+                          size="sm"
+                          className="absolute top-1 right-1"
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <DialogFooter className="gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setShowConfirmDialog(false)}
+                  disabled={isUploadingDocs || isBuyingSubscription}
+                >
+                  Hủy
+                </Button>
+                <Button type="submit" disabled={isUploadingDocs || isBuyingSubscription} className="gap-2">
+                  {isUploadingDocs || isBuyingSubscription ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="h-4 w-4" />
+                  )}
+                  {isUploadingDocs || isBuyingSubscription ? 'Đang xử lý...' : 'Tiếp tục thanh toán'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

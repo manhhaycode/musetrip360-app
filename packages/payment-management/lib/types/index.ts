@@ -82,6 +82,7 @@ export type Subscription = {
   status: SubscriptionStatusEnum;
   createdAt: Date;
   updatedAt: Date;
+  metadata?: SubscriptionMetadata;
   user?: IUser;
   plan?: Plan;
   museum?: any;
@@ -98,4 +99,9 @@ export type BuySubscription = {
   museumId: string;
   successUrl?: string;
   cancelUrl?: string;
+  metadata?: SubscriptionMetadata;
+};
+
+export type SubscriptionMetadata = {
+  documents: string[];
 };

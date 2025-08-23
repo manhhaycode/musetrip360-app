@@ -5,6 +5,7 @@ export const subscriptionEndpoints = {
   plans: '/subscriptions/plans',
   buy: '/subscriptions/buy',
   getMuseumSubscriptions: (museumId: string) => `/subscriptions/museum/${museumId}`,
+  generateContract: '/subscriptions/contract/generate',
 };
 
 export const getPlans = async () => {
@@ -24,5 +25,16 @@ export const getMuseumSubscriptions = async (museumId: string) => {
   const response = await httpClient.get<APIResponse<Subscription[]>>(
     subscriptionEndpoints.getMuseumSubscriptions(museumId)
   );
+  return response.data;
+};
+
+export const generateContract = async (data: BuySubscription) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<{ url: string }>>(subscriptionEndpoints.generateContract, {
+    params: {
+      museumId: data.museumId,
+      planId: data.planId,
+    },
+  });
   return response.data;
 };

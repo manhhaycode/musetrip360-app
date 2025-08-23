@@ -6,7 +6,7 @@ import {
   useQuery,
 } from '@musetrip360/query-foundation';
 import { orderManagementCacheKeys } from '../cache/cacheKeys';
-import { buySubscription, getMuseumSubscriptions, getPlans } from '../endpoints';
+import { buySubscription, generateContract, getMuseumSubscriptions, getPlans } from '../endpoints';
 import { BuySubscription, OrderMetadata } from '@/types';
 
 export function useGetMuseumSubscriptions(museumId: string, options?: CustomQueryOptions) {
@@ -23,6 +23,12 @@ export function useGetPlans(options?: CustomQueryOptions) {
 
 export function useBuySubscription(options?: CustomMutationOptions<OrderMetadata, APIError, BuySubscription>) {
   return useMutation((data: BuySubscription) => buySubscription(data), {
+    ...options,
+  });
+}
+
+export function useGenerateContract(options?: CustomMutationOptions<{ url: string }, APIError, BuySubscription>) {
+  return useMutation((data: BuySubscription) => generateContract(data), {
     ...options,
   });
 }
