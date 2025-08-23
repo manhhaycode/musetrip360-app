@@ -92,7 +92,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'outline' |
   }
 };
 
-export function EventParticipant({ event, onUpdated }: EventParticipantProps) {
+export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   const initialData: EventParticipant[] = useMemo(() => [], []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 

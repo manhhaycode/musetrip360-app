@@ -43,7 +43,7 @@ import {
 } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
+import { toast } from '@musetrip360/ui-core/sonner';
 import { z } from 'zod';
 
 const RichEditor = React.lazy(() =>

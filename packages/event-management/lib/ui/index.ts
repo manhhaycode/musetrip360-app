@@ -7,5 +7,5 @@
 export * from './EventBasicInfoForm';
 export * from './EventDetailManagement';
 export * from './EventTourOnlineForm';
-export * from './EventParticipant';
+export * from './EventParticipants';
 export * from './AddParticipantDialog';
