@@ -22,6 +22,15 @@ export class OrderManagementCacheKeys extends BaseCacheKeyFactory {
   adminOrders(params: OrderSearchParams): QueryKey {
     return [this.prefix, 'adminOrders', params.Page, params.PageSize, params.status, params.orderType];
   }
+  plans(): QueryKey {
+    return [this.prefix, 'plans'];
+  }
+  museumSubscriptions(museumId: string): QueryKey {
+    return [this.prefix, 'museumSubscriptions', museumId];
+  }
+  museumSubscriptionList(): QueryKey {
+    return [this.prefix, 'museumSubscriptions'];
+  }
 }
 
 /**
