@@ -40,6 +40,27 @@ export class EventManagementCacheKeys extends BaseCacheKeyFactory {
   userEventParticipants(userId: string): QueryKey {
     return [this.prefix, 'userEventParticipants', userId];
   }
+
+  // EventParticipant management keys
+  allEventParticipants(): QueryKey {
+    return [this.prefix, 'allEventParticipants'];
+  }
+
+  eventParticipant(id: string): QueryKey {
+    return [this.prefix, 'eventParticipant', id];
+  }
+
+  eventParticipantsByEvent(eventId: string): QueryKey {
+    return [this.prefix, 'eventParticipants', 'byEvent', eventId];
+  }
+
+  eventParticipantsByUser(userId: string): QueryKey {
+    return [this.prefix, 'eventParticipants', 'byUser', userId];
+  }
+
+  userInEvent(eventId: string, userId: string): QueryKey {
+    return [this.prefix, 'userInEvent', eventId, userId];
+  }
 }
 
 /**

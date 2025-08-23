@@ -17,8 +17,6 @@ export const UserProvider = ({ children, strictMode = true }: { children: React.
     enabled: isHydrated && isAuthenticated,
   });
 
-  console.log(user);
-
   useEffect(() => {
     hydrate().then(() => {
       setIsHydrated(true);

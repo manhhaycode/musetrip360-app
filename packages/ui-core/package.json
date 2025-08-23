@@ -97,6 +97,11 @@
       "import": "./dist/es/components/context-menu.js",
       "require": "./dist/cjs/components/context-menu.js"
     },
+    "./datetime-picker": {
+      "types": "./dist/datetime-picker.d.ts",
+      "import": "./dist/es/components/datetime-picker.js",
+      "require": "./dist/cjs/components/datetime-picker.js"
+    },
     "./dialog": {
       "types": "./dist/dialog.d.ts",
       "import": "./dist/es/components/dialog.js",
