@@ -197,7 +197,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
           isSortable: false,
           unit: '',
         },
-        accessorKey: 'name',
+        accessorKey: 'user.fullName',
         header: 'Người tham gia',
         enableSorting: false,
         cell: ({ row }) => {

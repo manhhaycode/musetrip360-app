@@ -61,6 +61,7 @@
   "dependencies": {
     "@microsoft/signalr": "^8.0.17",
     "@musetrip360/auth-system": "workspace:*",
+    "@musetrip360/event-management": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
