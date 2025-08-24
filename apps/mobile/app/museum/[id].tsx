@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, MapPin, Share2, Star } from 'lucide-react-native';
+import { ArrowLeft, Share2, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
@@ -15,6 +15,7 @@ import { useArticles } from '@/hooks/useArticles';
 import { useArtifacts } from '@/hooks/useArtifacts';
 import { useEvents } from '@/hooks/useEvents';
 import { useMuseum } from '@/hooks/useMuseums';
+import { useReviews } from '@/hooks/useReviews';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
 
 const MUSEUM_TABS = [
@@ -68,40 +69,8 @@ export default function MuseumDetailPage() {
     error: articlesError,
   } = useArticles({ museumId: id!, Page: articlesPage, PageSize: 12 });
 
-  // Debug logs
-  React.useEffect(() => {
-    console.log('=== 🏛️ MUSEUM DETAIL DEBUG ===');
-    console.log('🏛️ Museum ID:', id);
-    console.log('�️ Museum Data:', museum);
-    console.log('�🏺 Artifacts Data:', artifactsData);
-    console.log('🏺 Artifacts Loading:', artifactsLoading);
-    console.log('🏺 Artifacts Error:', artifactsError);
-    console.log('📅 Events Data:', eventsData);
-    console.log('📅 Events Loading:', eventsLoading);
-    console.log('📅 Events Error:', eventsError);
-    console.log('🌐 Virtual Tours Data:', virtualToursData);
-    console.log('🌐 Virtual Tours Loading:', virtualToursLoading);
-    console.log('🌐 Virtual Tours Error:', virtualToursError);
-    console.log('📰 Articles Data:', articlesData);
-    console.log('📰 Articles Loading:', articlesLoading);
-    console.log('📰 Articles Error:', articlesError);
-    console.log('=== END DEBUG ===');
-  }, [
-    id,
-    museum,
-    artifactsData,
-    artifactsLoading,
-    artifactsError,
-    eventsData,
-    eventsLoading,
-    eventsError,
-    virtualToursData,
-    virtualToursLoading,
-    virtualToursError,
-    articlesData,
-    articlesLoading,
-    articlesError,
-  ]);
+  // Reviews for this museum
+  const { data: reviewsData } = useReviews(id!, 'Museum');
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -145,26 +114,18 @@ export default function MuseumDetailPage() {
 
   // Function to get the best available image
   const getMuseumImage = () => {
-    // Debug logging
-    console.log('Museum metadata:', museum?.metadata);
-    console.log('Cover image URL:', museum?.metadata?.coverImageUrl);
-    console.log('Images array:', museum?.metadata?.images);
-
     // Try cover image first
     if (museum?.metadata?.coverImageUrl) {
-      console.log('Using cover image:', museum.metadata.coverImageUrl);
       return museum.metadata.coverImageUrl;
     }
 
     // Try first image from images array
     if (museum?.metadata?.images && museum.metadata.images.length > 0) {
-      console.log('Using first image from array:', museum.metadata.images[0]);
       return museum.metadata.images[0];
     }
 
     // Fallback image
-    console.log('Using fallback image');
-    return 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400';
+    return 'https://via.placeholder.com/400x200/e5e7eb/9ca3af?text=Museum';
   };
 
   const renderTabContent = () => {
@@ -173,9 +134,9 @@ export default function MuseumDetailPage() {
         if (!museum) return null;
 
         return (
-          <View className="space-y-8 px-2">
+          <View className="px-2">
             {/* Introduction - Always show, prioritize contentHomePage over description */}
-            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm mb-6">
+            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm mb-8">
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
                   <View className="w-8 h-8 bg-orange-500 rounded-full items-center justify-center mr-3">
@@ -195,7 +156,7 @@ export default function MuseumDetailPage() {
 
             {/* Detailed Information */}
             {museum.metadata?.detail && (
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-6">
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-8">
                 <CardContent className="p-4">
                   <View className="flex-row items-center mb-3">
                     <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
@@ -208,81 +169,7 @@ export default function MuseumDetailPage() {
               </Card>
             )}
 
-            {/* Contact Information */}
-            <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm mb-6">
-              <CardContent className="p-4">
-                <View className="flex-row items-center mb-4">
-                  <View className="w-8 h-8 bg-green-500 rounded-full items-center justify-center mr-3">
-                    <Text className="text-white text-lg">📞</Text>
-                  </View>
-                  <Text className="text-lg font-semibold text-green-900">Thông tin liên hệ</Text>
-                </View>
-
-                <View className="space-y-3">
-                  {/* Address */}
-                  <View className="flex-row items-start space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200">
-                    <MapPin size={20} color="#059669" className="mt-0.5" />
-                    <View className="flex-1">
-                      <Text className="text-sm font-medium text-green-900">Địa chỉ</Text>
-                      <Text className="text-sm text-green-700 mt-1">{museum.location}</Text>
-                    </View>
-                  </View>
-
-                  {/* Phone */}
-                  {museum.contactPhone && (
-                    <TouchableOpacity
-                      onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
-                    >
-                      <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-green-600">📞</Text>
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-medium text-green-900">Số điện thoại</Text>
-                        <Text className="text-sm text-green-700 mt-1">{museum.contactPhone}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-
-                  {/* Email */}
-                  {museum.contactEmail && (
-                    <TouchableOpacity
-                      onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
-                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
-                    >
-                      <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-green-600">✉️</Text>
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-medium text-green-900">Email</Text>
-                        <Text className="text-sm text-green-700 mt-1">{museum.contactEmail}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-
-                  {/* Website */}
-                  {museum.metadata?.socialLinks?.website && (
-                    <TouchableOpacity
-                      onPress={() => {
-                        const website = museum.metadata?.socialLinks?.website;
-                        if (website) {
-                          Linking.openURL(website);
-                        }
-                      }}
-                      className="flex-row items-center space-x-3 p-3 bg-green-100/50 rounded-lg border border-green-200"
-                    >
-                      <View className="w-5 h-5 items-center justify-center">
-                        <Text className="text-green-600">🌐</Text>
-                      </View>
-                      <View className="flex-1">
-                        <Text className="text-sm font-medium text-green-900">Website</Text>
-                        <Text className="text-sm text-green-700 mt-1">{museum.metadata.socialLinks.website}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                </View>
-              </CardContent>
-            </Card>
+            {/* Museum Images */}
 
             {/* Categories */}
             {museum.categories && museum.categories.length > 0 && (
@@ -334,7 +221,7 @@ export default function MuseumDetailPage() {
                 if (displayImages.length === 0) return null;
 
                 return (
-                  <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm mb-6">
+                  <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm mb-8">
                     <CardContent className="p-4">
                       <View className="flex-row items-center mb-3">
                         <View className="w-8 h-8 bg-amber-500 rounded-full items-center justify-center mr-3">
@@ -386,15 +273,6 @@ export default function MuseumDetailPage() {
 
         const artifacts = (artifactsData as any)?.list || [];
 
-        console.log('🏺 Processed artifacts:', artifacts);
-        console.log('🏺 Artifacts length:', artifacts.length);
-        console.log('🏺 Full artifactsData:', artifactsData);
-        console.log('🏺 Artifacts total:', (artifactsData as any)?.total);
-        console.log(
-          '🏺 Calculated totalPages:',
-          (artifactsData as any)?.total ? Math.ceil((artifactsData as any).total / 12) : 0
-        );
-
         if (artifacts.length === 0) {
           return (
             <Card className="bg-white border border-gray-200 rounded-lg">
@@ -408,30 +286,36 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-6 px-2">
+          <View className="px-2">
             {artifacts.map((artifact: any) => (
-              <Card key={artifact.id} className="bg-white border border-gray-200 rounded-lg mb-5">
-                <CardContent className="p-0">
-                  <View className="flex-row">
+              <TouchableOpacity
+                key={artifact.id}
+                onPress={() => router.push(`/artifact/${artifact.id}` as any)}
+                className="mb-4"
+              >
+                <Card className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                  <View className="flex-row h-24">
                     <Image
                       source={{
-                        uri: artifact.imageUrl || 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400',
+                        uri: artifact.imageUrl || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Artifact',
                       }}
-                      className="w-24 h-24 rounded-lg"
+                      className="w-24 h-24"
                       resizeMode="cover"
                     />
-                    <View className="flex-1 p-4">
-                      <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
-                        {artifact.name}
-                      </Text>
-                      <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
-                        {artifact.description}
-                      </Text>
-                      <Text className="text-gray-500 text-xs">{artifact.historicalPeriod}</Text>
+                    <View className="flex-1 p-3 justify-between">
+                      <View className="flex-1">
+                        <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                          {artifact.name}
+                        </Text>
+                        <Text className="text-gray-600 text-sm flex-1" numberOfLines={2}>
+                          {artifact.description}
+                        </Text>
+                      </View>
+                      <Text className="text-gray-500 text-xs mt-1">{artifact.historicalPeriod}</Text>
                     </View>
                   </View>
-                </CardContent>
-              </Card>
+                </Card>
+              </TouchableOpacity>
             ))}
 
             {/* Artifacts Pagination */}
@@ -474,10 +358,6 @@ export default function MuseumDetailPage() {
 
         const events = (eventsData as any)?.list || [];
 
-        console.log('📅 Processed events:', events);
-        console.log('📅 Events length:', events.length);
-        console.log('📅 Full eventsData:', eventsData);
-
         if (events.length === 0) {
           return (
             <Card className="bg-white border border-gray-200 rounded-lg">
@@ -491,26 +371,32 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-6 px-2">
+          <View className="px-2">
             {events.map((event: any) => (
-              <Card key={event.id} className="bg-white border border-gray-200 rounded-lg mb-5">
-                <CardContent className="p-4">
-                  <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
-                    {event.title}
-                  </Text>
-                  <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
-                    {event.description}
-                  </Text>
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-500 text-xs">
-                      {new Date(event.startTime).toLocaleDateString('vi-VN')}
+              <TouchableOpacity
+                key={event.id}
+                onPress={() => router.push(`/event/${event.id}` as any)}
+                className="mb-4"
+              >
+                <Card className="bg-white border border-gray-200 rounded-lg">
+                  <CardContent className="p-4">
+                    <Text className="font-semibold text-base text-gray-900 mb-2" numberOfLines={2}>
+                      {event.title}
                     </Text>
-                    <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
-                      <Text className="text-xs text-blue-800">{event.eventType}</Text>
+                    <Text className="text-gray-600 text-sm mb-3 leading-5" numberOfLines={3}>
+                      {event.description}
+                    </Text>
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-500 text-xs">
+                        {new Date(event.startTime).toLocaleDateString('vi-VN')}
+                      </Text>
+                      <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
+                        <Text className="text-xs text-blue-800">{event.eventType}</Text>
+                      </View>
                     </View>
-                  </View>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </TouchableOpacity>
             ))}
 
             {/* Events Pagination */}
@@ -553,9 +439,6 @@ export default function MuseumDetailPage() {
 
         const articles = (articlesData as any)?.list || [];
 
-        console.log('📰 Processed articles:', articles);
-        console.log('📰 Articles length:', articles.length);
-
         if (articles.length === 0) {
           return (
             <Card className="bg-white border border-gray-200 rounded-lg">
@@ -569,26 +452,32 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-6 px-2">
+          <View className="px-2">
             {articles.map((article: any) => (
-              <Card key={article.id} className="bg-white border border-gray-200 rounded-lg mb-5">
-                <CardContent className="p-4">
-                  <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
-                    {article.title}
-                  </Text>
-                  <Text className="text-gray-600 text-sm mb-2" numberOfLines={3}>
-                    {article.content.replace(/<[^>]*>/g, '')} {/* Remove HTML tags */}
-                  </Text>
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-gray-500 text-xs">
-                      {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
+              <TouchableOpacity
+                key={article.id}
+                onPress={() => router.push(`/article/${article.id}` as any)}
+                className="mb-4"
+              >
+                <Card className="bg-white border border-gray-200 rounded-lg">
+                  <CardContent className="p-4">
+                    <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                      {article.title}
                     </Text>
-                    <View className="bg-orange-100 border border-orange-200 rounded px-2 py-1">
-                      <Text className="text-xs text-orange-800">{article.status}</Text>
+                    <Text className="text-gray-600 text-sm mb-2" numberOfLines={3}>
+                      {article.content.replace(/<[^>]*>/g, '')}
+                    </Text>
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-gray-500 text-xs">
+                        {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
+                      </Text>
+                      <View className="bg-orange-100 border border-orange-200 rounded px-2 py-1">
+                        <Text className="text-xs text-orange-800">{article.status}</Text>
+                      </View>
                     </View>
-                  </View>
-                </CardContent>
-              </Card>
+                  </CardContent>
+                </Card>
+              </TouchableOpacity>
             ))}
 
             {/* Articles Pagination */}
@@ -631,9 +520,6 @@ export default function MuseumDetailPage() {
 
         const virtualTours = (virtualToursData as any)?.list || [];
 
-        console.log('🌐 Processed virtualTours:', virtualTours);
-        console.log('🌐 VirtualTours length:', virtualTours.length);
-
         if (virtualTours.length === 0) {
           return (
             <Card className="bg-white border border-gray-200 rounded-lg">
@@ -647,34 +533,36 @@ export default function MuseumDetailPage() {
         }
 
         return (
-          <View className="space-y-6 px-2">
+          <View className="px-2">
             {virtualTours.map((tour: any) => (
-              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg mb-5">
-                <CardContent className="p-0">
-                  <View className="flex-row">
-                    <Image
-                      source={tour.thumbnail || 'https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400'}
-                      className="w-24 h-24"
-                      resizeMode="cover"
-                    />
-                    <View className="flex-1 p-4">
-                      <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg mb-4 overflow-hidden">
+                <View className="flex-row">
+                  <Image
+                    source={{
+                      uri: tour.thumbnail || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Tour',
+                    }}
+                    className="w-24 h-24"
+                    resizeMode="cover"
+                  />
+                  <View className="flex-1 p-4 justify-between">
+                    <View className="flex-1">
+                      <Text className="font-semibold text-base text-gray-900 mb-2" numberOfLines={2}>
                         {tour.title}
                       </Text>
-                      <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
+                      <Text className="text-gray-600 text-sm leading-5" numberOfLines={3}>
                         {tour.description}
                       </Text>
-                      <View className="flex-row items-center justify-between">
-                        <Text className="text-gray-500 text-xs">
-                          {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
-                        </Text>
-                        <View className="bg-purple-100 border border-purple-200 rounded px-2 py-1">
-                          <Text className="text-xs text-purple-800">Tour 360°</Text>
-                        </View>
+                    </View>
+                    <View className="flex-row items-center justify-between mt-2">
+                      <Text className="text-gray-500 text-xs">
+                        {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
+                      </Text>
+                      <View className="bg-purple-100 border border-purple-200 rounded px-2 py-1">
+                        <Text className="text-xs text-purple-800">Tour 360°</Text>
                       </View>
                     </View>
                   </View>
-                </CardContent>
+                </View>
               </Card>
             ))}
 
@@ -692,14 +580,53 @@ export default function MuseumDetailPage() {
         );
 
       case 'reviews':
+        const reviews = reviewsData?.data?.list || [];
+
         return (
-          <Card className="bg-white border border-gray-200 rounded-lg">
-            <CardContent className="p-8 items-center">
-              <Text className="text-4xl mb-3">⭐</Text>
-              <Text className="text-lg font-semibold text-gray-900 mb-2">Đánh giá đang cập nhật</Text>
-              <Text className="text-gray-600 text-center">Các đánh giá của khách tham quan đang được cập nhật...</Text>
-            </CardContent>
-          </Card>
+          <View className="px-2">
+            {reviews.length > 0 ? (
+              reviews.map((review) => (
+                <Card key={review.id} className="bg-white border border-gray-200 rounded-lg mb-4">
+                  <CardContent className="p-4">
+                    <View className="flex-row items-center justify-between mb-3">
+                      <View className="flex-row items-center">
+                        <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center mr-3">
+                          <Text className="text-white text-sm font-semibold">
+                            {review.createdByUser.fullName.charAt(0).toUpperCase()}
+                          </Text>
+                        </View>
+                        <View>
+                          <Text className="font-semibold text-gray-900">{review.createdByUser.fullName}</Text>
+                          <Text className="text-gray-500 text-xs">
+                            {new Date(review.createdAt).toLocaleDateString('vi-VN')}
+                          </Text>
+                        </View>
+                      </View>
+                      <View className="flex-row items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            size={16}
+                            color={i < review.rating ? '#fbbf24' : '#d1d5db'}
+                            fill={i < review.rating ? '#fbbf24' : 'none'}
+                          />
+                        ))}
+                      </View>
+                    </View>
+                    <Text className="text-gray-700 text-base leading-6">{review.comment}</Text>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <Card className="bg-white border border-gray-200 rounded-lg">
+                <CardContent className="p-8 items-center">
+                  <Text className="text-4xl mb-3">⭐</Text>
+                  <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có đánh giá</Text>
+                  <Text className="text-gray-600 text-center">Hãy là người đầu tiên đánh giá bảo tàng này!</Text>
+                </CardContent>
+              </Card>
+            )}
+          </View>
         );
 
       default:
@@ -786,44 +713,95 @@ export default function MuseumDetailPage() {
         <View className="px-4 py-4">
           <Text className="text-2xl font-bold text-gray-900 mb-2">{museum.name}</Text>
 
-          <View className="flex-row items-center justify-between mb-4">
+          {/* Rating */}
+          <View className="flex-row items-center mb-4">
             <View className="flex-row items-center">
-              <Star size={16} color="#fbbf24" fill="#fbbf24" />
-              <Text className="text-gray-900 text-base ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
-              <Text className="text-gray-500 text-base ml-1">(0 đánh giá)</Text>
-            </View>
-
-            <View
-              className={`${
-                museum.status === 'Active'
-                  ? 'bg-green-100 text-green-800 border-green-200'
-                  : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-              } border rounded px-2 py-1`}
-            >
-              <Text className="text-sm">{museum.status === 'Active' ? 'Hoạt động' : 'Tạm ngưng'}</Text>
+              <Star size={16} color="#f97316" fill="#f97316" />
+              <Text className="text-orange-600 text-base ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
+              <Text className="text-gray-600 text-base ml-1">Đánh giá</Text>
             </View>
           </View>
 
-          <View className="flex-row items-center mb-4">
-            <MapPin size={16} color="#6b7280" />
-            <Text className="text-gray-600 text-base ml-2 flex-1">{museum.location}</Text>
+          {/* Info Cards Row - All Orange Theme */}
+          <View className="flex-row space-x-3 mb-4">
+            {/* Operating Hours */}
+            <View className="flex-1 bg-orange-100 p-4 rounded-lg">
+              <View className="flex-row items-center mb-2">
+                <Text className="text-orange-600 text-lg mr-2">🕒</Text>
+                <Text className="text-sm font-medium text-orange-800">08:00 - 17:00</Text>
+              </View>
+              <Text className="text-xs text-orange-600">Giờ mở cửa</Text>
+            </View>
+
+            {/* Address */}
+            <View className="flex-1 bg-orange-100 p-4 rounded-lg">
+              <View className="flex-row items-start mb-2">
+                <Text className="text-orange-600 text-lg mr-2">📍</Text>
+                <Text className="text-sm font-medium text-orange-800 leading-4 flex-1" numberOfLines={2}>
+                  {museum.location}
+                </Text>
+              </View>
+              <Text className="text-xs text-orange-600">Địa chỉ</Text>
+            </View>
+          </View>
+
+          {/* Action Button - Full Width */}
+          <View className="mb-4">
+            {museum.contactPhone && (
+              <TouchableOpacity
+                onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
+                className="w-full bg-orange-500 py-4 px-4 rounded-lg"
+              >
+                <View className="flex-row items-center justify-center">
+                  <Text className="text-white text-lg mr-2">📞</Text>
+                  <Text className="text-white font-medium text-sm">Đặt vé tham quan</Text>
+                </View>
+              </TouchableOpacity>
+            )}
+          </View>
+
+          {/* Contact Information - Orange Theme */}
+          <View className="flex-row space-x-3 mb-6">
+            {/* Phone Card */}
+            {museum.contactPhone && (
+              <TouchableOpacity
+                onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
+                className="flex-1 bg-orange-100 p-4 rounded-lg"
+              >
+                <Text className="text-orange-600 text-lg mb-1">📞</Text>
+                <Text className="text-orange-800 text-sm font-medium">{museum.contactPhone}</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Email Card */}
+            {museum.contactEmail && (
+              <TouchableOpacity
+                onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
+                className="flex-1 bg-orange-100 p-4 rounded-lg"
+              >
+                <Text className="text-orange-600 text-lg mb-1">✉️</Text>
+                <Text className="text-orange-800 text-sm font-medium" numberOfLines={1}>
+                  {museum.contactEmail}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Tabs */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
-            <View className="flex-row space-x-2">
+            <View className="flex-row">
               {MUSEUM_TABS.map((tab) => (
                 <TouchableOpacity
                   key={tab.key}
                   onPress={() => {
                     setActiveTab(tab.key);
-                    // Reset tất cả pagination khi đổi tab
+                    // Reset pagination when changing tabs
                     setArtifactsPage(1);
                     setEventsPage(1);
                     setToursPage(1);
                     setArticlesPage(1);
                   }}
-                  className={`px-4 py-2 rounded-full border ${
+                  className={`px-4 py-2 rounded-full border mr-6 ${
                     activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
                   }`}
                 >

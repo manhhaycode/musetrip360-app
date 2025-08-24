@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Filter, MapPin, Search as SearchIcon } from 'lucide-react-native';
+import { Filter, Search as SearchIcon } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -48,16 +48,6 @@ export default function SearchPage() {
   // Global search API call
   const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
 
-  // Debug API response
-  React.useEffect(() => {
-    console.log('=== 🔍 SEARCH DEBUG ===');
-    console.log('🔍 API Params:', apiParams);
-    console.log('🔍 Search Response:', searchResponse);
-    console.log('🔍 Search Loading:', isLoading);
-    console.log('🔍 Search Error:', error);
-    console.log('=== END SEARCH DEBUG ===');
-  }, [apiParams, searchResponse, isLoading, error]);
-
   const searchResults = useMemo(() => {
     return searchResponse?.data?.items || [];
   }, [searchResponse]);
@@ -103,58 +93,66 @@ export default function SearchPage() {
   const navigateToDetail = (item: SearchResultItem) => {
     switch (item.type) {
       case 'Museum':
-        router.push(`/museum/${item.id}`);
+        router.push(`/museum/${item.id}` as any);
         break;
       case 'Artifact':
+        router.push(`/artifact/${item.id}` as any);
+        break;
       case 'Event':
+        router.push(`/event/${item.id}` as any);
+        break;
+      case 'Article':
+        router.push(`/article/${item.id}` as any);
+        break;
       case 'TourOnline':
-        // For now, show a message that detail pages are coming soon
-        console.log(`Navigate to ${item.type} detail:`, item.id);
+        // Tour online details can be implemented later
         break;
     }
   };
 
-  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => (
-    <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
-      <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-        <CardContent className="p-0">
-          <View className="flex-row">
-            <Image
-              source={item.thumbnail || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400'}
-              className="w-24 h-24 rounded-l-lg"
-              resizeMode="cover"
-            />
-            <View className="flex-1 p-4">
-              <View className="flex-row items-start justify-between mb-2">
-                <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
-                  {item.title}
+  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => {
+    // Tăng chiều cao cho bảo tàng vì có nhiều text hơn
+    const cardHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
+    const imageHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
+
+    return (
+      <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
+        <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+          <View className={`flex-row ${cardHeight}`}>
+            <View className={`w-24 ${imageHeight} bg-gray-100`}>
+              <Image
+                source={{
+                  uri: item.thumbnail || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Image',
+                }}
+                className={`w-24 ${imageHeight}`}
+                resizeMode="cover"
+                defaultSource={{ uri: 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Loading' }}
+              />
+            </View>
+            <View className="flex-1 p-3 justify-between">
+              <View className="flex-1">
+                <View className="flex-row items-start justify-between mb-2">
+                  <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
+                    {item.title}
+                  </Text>
+                  <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1 shrink-0">
+                    <Text className="text-xs text-blue-800">
+                      {SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}{' '}
+                      {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text className="text-gray-600 text-sm leading-5" numberOfLines={item.type === 'Museum' ? 4 : 3}>
+                  {item.description}
                 </Text>
-                <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
-                  <Text className="text-xs text-blue-800">
-                    <Text>{SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}</Text>
-                    <Text> {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}</Text>
-                  </Text>
-                </View>
               </View>
-
-              <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
-                {item.description}
-              </Text>
-
-              {item.location && (
-                <View className="flex-row items-center">
-                  <MapPin size={12} color="#6b7280" />
-                  <Text className="text-gray-500 text-xs ml-1" numberOfLines={1}>
-                    {item.location}
-                  </Text>
-                </View>
-              )}
             </View>
           </View>
-        </CardContent>
-      </Card>
-    </TouchableOpacity>
-  );
+        </Card>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -183,18 +181,17 @@ export default function SearchPage() {
 
         {/* Search Tabs */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
-          <View className="flex-row space-x-2">
+          <View className="flex-row">
             {SEARCH_TABS.map((tab) => (
               <TouchableOpacity
                 key={tab.key}
                 onPress={() => handleTabChange(tab.key)}
-                className={`px-4 py-2 rounded-full border ${
+                className={`px-4 py-2 rounded-full border mr-6 ${
                   activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
                 }`}
               >
                 <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
-                  <Text>{tab.icon}</Text>
-                  <Text> {tab.label}</Text>
+                  {tab.icon} {tab.label}
                 </Text>
               </TouchableOpacity>
             ))}
@@ -212,9 +209,9 @@ export default function SearchPage() {
         </View>
 
         {isLoading ? (
-          <View className="px-4 space-y-4">
+          <View className="px-4">
             {Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+              <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg mb-4">
                 <CardContent className="p-0">
                   <View className="flex-row">
                     <View className="w-24 h-24 bg-gray-200" />
@@ -246,7 +243,7 @@ export default function SearchPage() {
               keyExtractor={(item) => item.id}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 16 }}
-              ItemSeparatorComponent={() => <View className="h-2" />}
+              ItemSeparatorComponent={() => <View className="h-4" />}
               ListFooterComponent={() => (
                 <View className="pt-4 pb-20">
                   {/* Pagination */}

@@ -52,13 +52,34 @@ export interface Artifact {
   id: string;
   name: string;
   description: string;
+  historicalPeriod?: string;
   imageUrl?: string;
-  period?: string;
-  material?: string;
-  origin?: string;
+  model3DUrl?: string;
+  rating?: number;
+  isActive: boolean;
   museumId: string;
-  museum?: Pick<Museum, 'id' | 'name'>;
-  status: 'Active' | 'Inactive' | 'Pending';
+  museum?: {
+    id: string;
+    name: string;
+    imageUrl?: string;
+    address?: string;
+  };
+  createdBy: string;
+  metadata?: {
+    type?: string;
+    ethnicGroup?: string;
+    locationInMuseum?: string;
+    material?: string;
+    discoveryDate?: string;
+    originalLocation?: string;
+    discoveryLocation?: string;
+    artist?: string;
+    dimensions?: string;
+    award?: string;
+    photographer?: string;
+    nationalTreasure?: boolean;
+    [key: string]: any;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -101,7 +122,7 @@ export interface Tour {
 export interface SearchResultItem {
   id: string;
   title: string;
-  type: 'Museum' | 'Artifact' | 'Event' | 'TourOnline';
+  type: 'Museum' | 'Artifact' | 'Event' | 'Article' | 'TourOnline';
   thumbnail?: string;
   description: string;
   latitude?: number;
@@ -111,7 +132,7 @@ export interface SearchResultItem {
 
 export interface SearchParams {
   Search?: string;
-  Type?: 'Museum' | 'Artifact' | 'Event' | 'TourOnline' | 'All';
+  Type?: 'Museum' | 'Artifact' | 'Event' | 'Article' | 'TourOnline' | 'All';
   Location?: string;
   RadiusKm?: number;
   Latitude?: number;
@@ -151,7 +172,7 @@ export interface PaginatedResponse<T> {
 // Search Filters
 export interface SearchFilters {
   query: string;
-  type: 'All' | 'Museum' | 'Artifact' | 'Event' | 'TourOnline';
+  type: 'All' | 'Museum' | 'Artifact' | 'Event' | 'Article' | 'TourOnline';
   page: number;
   pageSize: number;
 }
@@ -162,3 +183,36 @@ export const DEFAULT_SEARCH_FILTERS: SearchFilters = {
   page: 1,
   pageSize: 12,
 };
+
+// Review Types
+export interface Review {
+  id: string;
+  targetId: string;
+  type: 'Museum' | 'Artifact' | 'Event' | 'Article';
+  rating: number;
+  comment: string;
+  createdBy: string;
+  createdByUser: {
+    id: string;
+    username: string;
+    fullName: string;
+    email: string;
+    avatarUrl?: string;
+    phoneNumber?: string;
+    birthDate?: string;
+    authType: string;
+    status: string;
+    lastLogin: string;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReviewsResponse {
+  data: {
+    list: Review[];
+    total: number;
+  };
+  code: number;
+  message: string;
+}

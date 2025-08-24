@@ -25,13 +25,6 @@ export default function HomePage() {
     error,
   } = useMuseums({ Page: 1, PageSize: 6 }); // Limit to 6 featured museums
 
-  // Debug API response
-  React.useEffect(() => {
-    console.log('Museums Data:', museumsData);
-    console.log('Museums Loading:', museumsLoading);
-    console.log('Museums Error:', error);
-  }, [museumsData, museumsLoading, error]);
-
   // Handle museums data structure - API returns {data: {list: Museum[], total: number}}
   const featuredMuseums = React.useMemo(() => {
     if (museumsData?.data?.list && Array.isArray(museumsData.data.list)) {
