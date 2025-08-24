@@ -1,65 +1,35 @@
-import { useAdminAnalyticsOverview } from '@musetrip360/museum-management';
+import {
+  AdminAnalyticsOverview,
+  useAdminAnalyticsOverview,
+  useAdminWeeklyEventCounts,
+  WeeklyEventCount,
+} from '@musetrip360/museum-management';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
-import { ArrowDownRight, ArrowUpRight, Building2, CheckCircle, Clock, Users } from 'lucide-react';
+import { Building2, CheckCircle, Clock, Users } from 'lucide-react';
 import { useRef, useState, useMemo } from 'react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis } from 'recharts';
-
-export type AdminAnalyticsOverview = {
-  totalMuseums: number;
-  totalPendingRequests: number;
-  totalUsers: number;
-  totalEvents: number;
-  totalTours: number;
-  museumsByCategory: {
-    category: string;
-    count: number;
-  }[];
-};
+import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import get from 'lodash/get';
 
 export default function AdminDashboard() {
   const { data, isLoading } = useAdminAnalyticsOverview();
+  const { data: weeklyEventData, isLoading: isLoadingEvents } = useAdminWeeklyEventCounts();
 
   const overviewData = data as AdminAnalyticsOverview | undefined;
   console.log('Admin Dashboard Data:', data);
 
-  const [selectedPeriod, setSelectedPeriod] = useState('3 tháng gần đây');
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
   const donutRef = useRef<SVGSVGElement>(null);
 
-  // Dữ liệu xu hướng được format lại cho Recharts
-  const visitorTrends = {
-    '7 ngày gần đây': [
-      { period: 'T2', tourVirtual: 534, directVisit: 356, total: 890, date: 'T2' },
-      { period: 'T3', tourVirtual: 672, directVisit: 448, total: 1120, date: 'T3' },
-      { period: 'T4', tourVirtual: 588, directVisit: 392, total: 980, date: 'T4' },
-      { period: 'T5', tourVirtual: 810, directVisit: 540, total: 1350, date: 'T5' },
-      { period: 'T6', tourVirtual: 690, directVisit: 460, total: 1150, date: 'T6' },
-      { period: 'T7', tourVirtual: 948, directVisit: 632, total: 1580, date: 'T7' },
-      { period: 'CN', tourVirtual: 828, directVisit: 552, total: 1380, date: 'CN' },
-    ],
-    '30 ngày gần đây': [
-      { period: 'Tuần 1', tourVirtual: 2520, directVisit: 1680, total: 4200, date: 'Tuần 1' },
-      { period: 'Tuần 2', tourVirtual: 3060, directVisit: 2040, total: 5100, date: 'Tuần 2' },
-      { period: 'Tuần 3', tourVirtual: 2880, directVisit: 1920, total: 4800, date: 'Tuần 3' },
-      { period: 'Tuần 4', tourVirtual: 3720, directVisit: 2480, total: 6200, date: 'Tuần 4' },
-      { period: 'Tuần 5', tourVirtual: 3480, directVisit: 2320, total: 5800, date: 'Tuần 5' },
-      { period: 'Tuần 6', tourVirtual: 4260, directVisit: 2840, total: 7100, date: 'Tuần 6' },
-      { period: 'Tuần 7', tourVirtual: 4080, directVisit: 2720, total: 6800, date: 'Tuần 7' },
-    ],
-    '3 tháng gần đây': [
-      { period: 'T10', tourVirtual: 11100, directVisit: 7400, total: 18500, date: 'T10' },
-      { period: 'T11-T1', tourVirtual: 13200, directVisit: 8800, total: 22000, date: 'T11-T1' },
-      { period: 'T11-T2', tourVirtual: 15360, directVisit: 10240, total: 25600, date: 'T11-T2' },
-      { period: 'T11-T3', tourVirtual: 14520, directVisit: 9680, total: 24200, date: 'T11-T3' },
-      { period: 'T12-T1', tourVirtual: 17340, directVisit: 11560, total: 28900, date: 'T12-T1' },
-      { period: 'T12-T2', tourVirtual: 16080, directVisit: 10720, total: 26800, date: 'T12-T2' },
-      { period: 'T12-T3', tourVirtual: 18720, directVisit: 12480, total: 31200, date: 'T12-T3' },
-      { period: 'T1-T1', tourVirtual: 17700, directVisit: 11800, total: 29500, date: 'T1-T1' },
-      { period: 'T1-T2', tourVirtual: 20280, directVisit: 13520, total: 33800, date: 'T1-T2' },
-    ],
-  };
+  // Format weekly event data for chart
+  const chartData = useMemo(() => {
+    return get(weeklyEventData, 'weeklyData', []).map((week: WeeklyEventCount) => ({
+      weekLabel: week.weekLabel,
+      eventCount: week.eventCount,
+      formattedPeriod: week.weekLabel,
+    })) as { weekLabel: string; eventCount: number; formattedPeriod: string }[];
+  }, [weeklyEventData]);
 
-  const currentData = visitorTrends[selectedPeriod as keyof typeof visitorTrends];
+  console.log('ChartData', chartData);
 
   // Process museum categories from API data
   const museumCategories = useMemo(() => {
@@ -112,7 +82,7 @@ export default function AdminDashboard() {
     return num.toString();
   };
 
-  // Custom Tooltip cho AreaChart
+  // Custom Tooltip for BarChart
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0]?.payload;
@@ -120,9 +90,7 @@ export default function AdminDashboard() {
         <div className="bg-slate-800 text-white rounded-lg px-3 py-2 shadow-xl">
           <div className="text-center">
             <div className="text-xs opacity-80 mb-1">{label}</div>
-            <div className="font-bold text-sm">🏛️ Tour ảo: {data?.tourVirtual?.toLocaleString()}</div>
-            <div className="font-bold text-sm">👥 Trực tiếp: {data?.directVisit?.toLocaleString()}</div>
-            <div className="text-xs mt-1 border-t border-white/20 pt-1">Tổng: {data?.total?.toLocaleString()}</div>
+            <div className="font-bold text-sm">📅 Sự kiện: {data?.eventCount?.toLocaleString()}</div>
           </div>
         </div>
       );
@@ -207,7 +175,7 @@ export default function AdminDashboard() {
     setHoveredSlice(null);
   };
 
-  if (isLoading) {
+  if (isLoading || isLoadingEvents) {
     return (
       <div className="space-y-6">
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -240,11 +208,6 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900">{formatNumber(overviewData?.totalUsers || 0)}</div>
-            <div className="flex items-center mt-2">
-              <ArrowUpRight className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600">+12.5%</span>
-              <span className="text-sm ml-2 text-slate-600">tháng này</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -257,11 +220,6 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900">{overviewData?.totalMuseums || 0}</div>
-            <div className="flex items-center mt-2">
-              <ArrowUpRight className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600">+8.2%</span>
-              <span className="text-sm ml-2 text-slate-600">so với tháng trước</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -274,11 +232,6 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900">{overviewData?.totalTours || 0}</div>
-            <div className="flex items-center mt-2">
-              <ArrowUpRight className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600">+15.3%</span>
-              <span className="text-sm ml-2 text-slate-600">tuần này</span>
-            </div>
           </CardContent>
         </Card>
 
@@ -291,39 +244,19 @@ export default function AdminDashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-slate-900">{overviewData?.totalPendingRequests || 0}</div>
-            <div className="flex items-center mt-2">
-              <ArrowDownRight className="h-4 w-4 text-emerald-500" />
-              <span className="text-sm font-medium text-emerald-600">-23.1%</span>
-              <span className="text-sm ml-2 text-slate-600">giảm so với tuần trước</span>
-            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Chart Grid */}
       <div className="grid gap-6 lg:grid-cols-12">
-        {/* Visitor Trends Chart */}
+        {/* Weekly Events Chart */}
         <Card className="lg:col-span-7 rounded-3xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-xl font-semibold text-slate-900">Lượt Thăm Bảo Tàng</CardTitle>
-                <p className="text-sm text-slate-600 mt-1">Thống kê theo thời gian</p>
-              </div>
-              <div className="flex items-center gap-2">
-                {['3 tháng gần đây', '30 ngày gần đây', '7 ngày gần đây'].map((period) => (
-                  <button
-                    key={period}
-                    onClick={() => setSelectedPeriod(period)}
-                    className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
-                      selectedPeriod === period
-                        ? 'bg-orange-100 text-orange-800 font-medium shadow-sm'
-                        : 'text-slate-700 hover:bg-orange-50'
-                    }`}
-                  >
-                    {period}
-                  </button>
-                ))}
+                <CardTitle className="text-xl font-semibold text-slate-900">Sự Kiện Hàng Tuần</CardTitle>
+                <p className="text-sm text-slate-600 mt-1">Số lượng sự kiện theo tuần</p>
               </div>
             </div>
           </CardHeader>
@@ -331,64 +264,56 @@ export default function AdminDashboard() {
             <div className="space-y-4">
               <div className="relative w-full h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={currentData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <BarChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                     <defs>
-                      <linearGradient id="tourVirtualGradient" x1="0" y1="0" x2="0" y2="1">
+                      <linearGradient id="eventGradient" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#FF6B35" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#FF6B35" stopOpacity={0.1} />
-                      </linearGradient>
-                      <linearGradient id="directVisitGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#FFB570" stopOpacity={0.8} />
-                        <stop offset="95%" stopColor="#FFB570" stopOpacity={0.1} />
+                        <stop offset="95%" stopColor="#FF6B35" stopOpacity={0.3} />
                       </linearGradient>
                     </defs>
 
                     <XAxis
-                      dataKey="date"
+                      dataKey="weekLabel"
                       axisLine={false}
                       tickLine={false}
                       tick={{ fontSize: 12, fill: '#6b7280' }}
                       dy={10}
                     />
 
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: '#6b7280' }} width={50} />
+
                     <Tooltip content={<CustomTooltip />} />
 
-                    <Area
-                      type="monotone"
-                      dataKey="directVisit"
-                      stackId="1"
-                      stroke="#FFB570"
-                      strokeWidth={2}
-                      fill="url(#directVisitGradient)"
-                    />
-
-                    <Area
-                      type="monotone"
-                      dataKey="tourVirtual"
-                      stackId="1"
+                    <Bar
+                      dataKey="eventCount"
+                      fill="url(#eventGradient)"
                       stroke="#FF6B35"
-                      strokeWidth={2}
-                      fill="url(#tourVirtualGradient)"
+                      strokeWidth={1}
+                      radius={[4, 4, 0, 0]}
                     />
-                  </AreaChart>
+                  </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              <div className="flex items-center gap-6 mt-4">
+              <div className="flex items-center gap-6 m-4">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Tour ảo</span>
+                  <span className="text-sm text-gray-600">Sự kiện</span>
                   <span className="text-sm font-medium text-gray-900">
-                    {currentData[currentData.length - 1]?.tourVirtual?.toLocaleString()}
+                    {chartData.length > 0
+                      ? chartData.reduce((sum, item) => sum + item.eventCount, 0).toLocaleString()
+                      : '0'}{' '}
+                    tổng
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 bg-orange-300 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Trực tiếp</span>
-                  <span className="text-sm font-medium text-gray-900">
-                    {currentData[currentData.length - 1]?.directVisit?.toLocaleString()}
-                  </span>
-                </div>
+                {chartData.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-gray-600">Tuần gần nhất:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {chartData[chartData.length - 1]?.eventCount?.toLocaleString()} sự kiện
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

@@ -169,9 +169,9 @@ export function Header() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
-                <Link href="/education">
+                <Link href="/chatbot">
                   <GraduationCap className="mr-2 h-6 w-6 hover:text-primary" />
-                  Giáo dục
+                  Chatbot
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>

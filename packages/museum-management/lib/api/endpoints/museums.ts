@@ -12,6 +12,8 @@ import {
   MuseumCreateDto,
   MuseumSearchParams,
   MuseumSearchResponse,
+  WeeklyEventCount,
+  WeeklyParticipantCount,
 } from '../../types';
 
 /**
@@ -30,7 +32,9 @@ export const museumEndpoints = {
   listByMuseum: (museumId: string) => `/museums/${museumId}`,
   createForMuseum: (museumId: string) => `/museums/${museumId}`,
   analyticsOverview: (museumId: string) => `/analytics/overview/${museumId}`,
+  analyticWeeklyParticipants: (museumId: string) => `/analytics/weekly-participants/${museumId}`,
   adminOverview: 'analytics/admin/overview',
+  adminWeeklyEventCounts: 'analytics/weekly-events',
 } as const;
 
 /**
@@ -102,6 +106,20 @@ export const getAnalyticsOverview = async (museumId: string): Promise<any> => {
 export const getAdminAnalyticsOverview = async (): Promise<AdminAnalyticsOverview> => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<AdminAnalyticsOverview>>(museumEndpoints.adminOverview);
+  return response.data;
+};
+
+export const getAdminWeeklyEventCounts = async (): Promise<WeeklyEventCount[]> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<WeeklyEventCount[]>>(museumEndpoints.adminWeeklyEventCounts);
+  return response.data;
+};
+
+export const getAdminWeeklyParticipantCounts = async (museumId: string): Promise<WeeklyParticipantCount[]> => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<WeeklyParticipantCount[]>>(
+    museumEndpoints.analyticWeeklyParticipants(museumId)
+  );
   return response.data;
 };
 

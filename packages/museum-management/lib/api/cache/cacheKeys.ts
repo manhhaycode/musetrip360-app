@@ -49,6 +49,14 @@ export class MuseumManagementCacheKeys extends BaseCacheKeyFactory {
   adminOverview(): QueryKey {
     return [this.prefix, 'adminOverview'];
   }
+
+  adminWeeklyEventCounts(): QueryKey {
+    return [this.prefix, 'adminWeeklyEventCounts'];
+  }
+
+  adminWeeklyParticipantCounts(museumId: string): QueryKey {
+    return [this.prefix, 'adminWeeklyParticipantCounts', museumId];
+  }
 }
 
 /**
