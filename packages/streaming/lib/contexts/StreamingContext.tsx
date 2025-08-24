@@ -4,6 +4,7 @@
  * Main context provider orchestrating all streaming functionality
  */
 
+import { chatService } from '@/api';
 import { useSignalR } from '@/hooks';
 import { useMediaStream } from '@/hooks/useMediaStream';
 import { useWebRTC } from '@/hooks/useWebRTC';
@@ -115,6 +116,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
         // Join room via SignalR
         await signalR.joinRoom(roomId, offer);
+
+        chatService.setSignalRClient(signalR.getClient()!);
 
         // Add local participant
         const connectionId = signalR.connectionId;

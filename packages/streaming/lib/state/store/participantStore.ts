@@ -12,6 +12,7 @@ import { EventParticipant } from '@musetrip360/event-management';
 interface ParticipantStoreState {
   // Participant tracking
   participants: Map<string, Participant>;
+  participantInfos: Map<string, EventParticipant>;
   localParticipant: Participant | null;
 
   // Stream mapping
@@ -51,6 +52,7 @@ interface ParticipantStoreActions {
   removeParticipant: (participantId: string) => void;
   updateParticipant: (participantId: string, updates: Partial<Participant>) => void;
   setLocalParticipant: (participant: Participant | null) => void;
+  setParticipantInfos: (participantInfos: Map<string, EventParticipant>) => void;
 
   // Media state management
   updateParticipantMediaState: (participantId: string, mediaState: Partial<MediaState>) => void;
@@ -105,6 +107,7 @@ type ParticipantStore = ParticipantStoreState & ParticipantStoreActions;
 
 const initialState: ParticipantStoreState = {
   participants: new Map(),
+  participantInfos: new Map(),
   localParticipant: null,
   streamToParticipant: new Map(),
   participantToStream: new Map(),
@@ -133,6 +136,10 @@ export const useParticipantStore = create<ParticipantStore>()(
             // Update stream mapping
             const newParticipantToStream = new Map(state.participantToStream);
             const newStreamToParticipant = new Map(state.streamToParticipant);
+
+            if (!participant.participantInfo) {
+              participant.participantInfo = state.participantInfos.get(participant.id) || null;
+            }
 
             newParticipantToStream.set(participant.id, participant.streamId);
             newStreamToParticipant.set(participant.streamId, participant.id);
@@ -221,6 +228,8 @@ export const useParticipantStore = create<ParticipantStore>()(
         ),
 
       setLocalParticipant: (participant) => set({ localParticipant: participant }, false, 'setLocalParticipant'),
+
+      setParticipantInfos: (participantInfos) => set({ participantInfos }, false, 'setParticipantInfos'),
 
       // Media state management
       updateParticipantMediaState: (participantId, mediaState) =>
@@ -520,12 +529,11 @@ export const participantActions = {
   },
 
   syncParticipantInfo: (participantInfo: EventParticipant[]) => {
-    const { participants, updateParticipant } = useParticipantStore.getState();
+    const { setParticipantInfos, participants } = useParticipantStore.getState();
+    const participantInfoMap = new Map(participantInfo.map((p) => [p.userId, p]));
+    setParticipantInfos(participantInfoMap);
     for (const [, participant] of participants.entries()) {
-      const participantInfoData = participantInfo.find((p) => p.userId === participant.userId) || null;
-      if (participantInfoData) {
-        updateParticipant(participant.id, { participantInfo: participantInfoData });
-      }
+      participant.participantInfo = participantInfoMap.get(participant.userId) || null;
     }
   },
 };
