@@ -18,6 +18,7 @@ export type Event = {
   capacity: number;
   availableSlots: number;
   bookingDeadline: string; // ISO date string
+  price: number;
   museumId: string;
   createdBy?: string;
   status: EventStatusEnum;
@@ -41,6 +42,10 @@ export type Event = {
 
 export type EventMetadata = {
   images?: string[];
+  price?: number;
+  roomCreateType?: 'AUTO' | 'NOW' | 'NONE';
+  thumbnail?: string;
+  richDescription?: string;
 };
 
 export enum EventTypeEnum {
@@ -79,6 +84,7 @@ export type EventCreateDto = {
   endTime: string;
   location: string;
   capacity: number;
+  price: number;
   availableSlots: number;
   bookingDeadline: string;
   metadata?: EventMetadata;
@@ -111,3 +117,21 @@ export type EventRoomCreateDto = {
   description?: string;
   status?: string;
 };
+
+export type EventParticipant = {
+  id: string;
+  eventId: string;
+  userId: string;
+  joinedAt: string; // ISO date string
+  role: ParticipantRoleEnum;
+  status: string;
+  user?: IUser;
+  event?: Event;
+};
+
+export enum ParticipantRoleEnum {
+  Attendee = 'Attendee',
+  Organizer = 'Organizer',
+  TourGuide = 'TourGuide',
+  Guest = 'Guest',
+}

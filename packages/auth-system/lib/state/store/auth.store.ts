@@ -1,14 +1,15 @@
-import { create } from 'zustand';
-import { AuthToken } from '@/types';
-import { createJSONStorage, persist, subscribeWithSelector } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
 import { AuthEndpoints } from '@/api';
-import { getStorageClient } from '@musetrip360/infras';
+import { AuthToken } from '@/types';
+import { StorageClient, StorageFactory } from '@musetrip360/infras';
+import { create } from 'zustand';
+import { persist, subscribeWithSelector } from 'zustand/middleware';
+import { immer } from 'zustand/middleware/immer';
 
 export interface AuthStore {
   accessToken: AuthToken | null;
   refreshToken: AuthToken | null;
   userId: string | null;
+  isHydrated: boolean;
   setAccessToken: (accessToken: AuthToken | null) => void;
   setRefreshToken: (refreshToken: AuthToken | null) => void;
   login: (tokens: { accessToken: AuthToken; refreshToken: AuthToken }, userId: string) => void;
@@ -28,6 +29,7 @@ export const useAuthStore = create<AuthStore>()(
         accessToken: null,
         refreshToken: null,
         userId: null,
+        isHydrated: false,
 
         setAccessToken: (accessToken) =>
           set((state) => {
@@ -61,7 +63,7 @@ export const useAuthStore = create<AuthStore>()(
         hydrate: async () => {
           await useAuthStore.persist.rehydrate();
           AuthEndpoints.setAuthToken(useAuthStore.getState().accessToken?.token || '');
-
+          set({ isHydrated: true });
           return true;
         },
         isExpired: (): 'none' | 'access' | 'refresh' | 'both' => {
@@ -97,7 +99,7 @@ export const useAuthStore = create<AuthStore>()(
       })),
       {
         name: 'musetrip360-auth-store',
-        storage: createJSONStorage(() => getStorageClient()),
+        storage: StorageFactory as unknown as StorageClient,
         partialize: (state) => ({
           accessToken: state.accessToken,
           refreshToken: state.refreshToken,

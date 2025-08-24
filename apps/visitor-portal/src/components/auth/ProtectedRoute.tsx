@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuthActionContext, useIsAuthenticated } from '@musetrip360/auth-system/state';
+import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Lock } from 'lucide-react';
 import { Button } from '@musetrip360/ui-core/button';
@@ -17,14 +17,15 @@ interface ProtectedRouteProps {
 
 function AuthRequiredScreen({ redirectTo }: { redirectTo?: string }) {
   const { modalControl: authController } = useAuthActionContext();
-
+  const isHydrated = useAuthStore((state) => state.isHydrated);
   useEffect(() => {
     if (redirectTo) {
       sessionStorage.setItem('postLoginRedirect', redirectTo);
     }
-    // Auto-trigger login modal
-    authController?.open('login');
-  }, [redirectTo]);
+    if (isHydrated) {
+      authController?.open('login');
+    }
+  }, [redirectTo, isHydrated]);
 
   const handleLogin = () => {
     authController?.open('login');

@@ -25,6 +25,7 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text';
 import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { BulkUploadProvider } from '@musetrip360/shared/contexts';
 import { cn } from '@musetrip360/ui-core/utils';
+import { $getRoot } from 'lexical';
 import { forwardRef, useImperativeHandle } from 'react';
 
 const createInitialConfig = (onError?: (error: Error) => void) => ({
@@ -145,9 +146,11 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
             <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
             {onChange && (
               <OnChangePlugin
-                onChange={(editorState) => {
+                onChange={(editorState, editor) => {
                   const jsonString = JSON.stringify(editorState.toJSON());
-                  onChange(jsonString);
+                  const parsedEditorState = editor.parseEditorState(jsonString);
+                  const editorStateTextString = parsedEditorState.read(() => $getRoot().getTextContent());
+                  onChange(editorStateTextString);
                 }}
               />
             )}

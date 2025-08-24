@@ -5,7 +5,12 @@
       "mcp__serena__search_for_pattern",
       "mcp__serena__get_symbols_overview",
       "mcp__ide__getDiagnostics",
-      "mcp__serena__find_file"
+      "mcp__serena__find_file",
+      "WebSearch",
+      "mcp__serena__list_dir",
+      "Bash(pnpm lint:*)",
+      "Bash(mkdir:*)",
+      "Bash(pnpm install:*)"
     ],
     "defaultMode": "acceptEdits"
   }

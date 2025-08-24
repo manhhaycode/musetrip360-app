@@ -2,6 +2,5 @@
   "buildCommand": "turbo run build",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "installCommand": "pnpm install",
-  "rewrites": [{ "source": "/(.*)", "destination": "/" }]
+  "installCommand": "pnpm install"
 }

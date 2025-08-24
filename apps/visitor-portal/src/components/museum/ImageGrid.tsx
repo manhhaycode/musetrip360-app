@@ -1,5 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
 import { cn } from '@musetrip360/ui-core/utils';
-import { useState } from 'react';
 
 interface ImageGridProps {
   images: string[];

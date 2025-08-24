@@ -8,7 +8,7 @@ import {
   useQuery,
 } from '@musetrip360/query-foundation';
 
-import { Event, EventCreateDto, EventRoom, EventSearchParams, EventUpdateDto } from '@/types';
+import { Event, EventCreateDto, EventParticipant, EventRoom, EventSearchParams, EventUpdateDto } from '@/types';
 
 import {
   createEventRequest,
@@ -22,6 +22,8 @@ import {
   getEventById,
   getEventRooms,
   createEventRoom,
+  getEventParticipants,
+  getUserEventParticipants,
 } from '../endpoints';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';
@@ -35,8 +37,6 @@ export function useGetEventsByMuseumId(
     [eventManagementCacheKeys.eventsByMuseum(museumId, params)],
     () => getEventsByMuseumId(museumId, params),
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
       ...options,
     }
   );
@@ -47,8 +47,6 @@ export function useGetEventById(id: string, options?: CustomQueryOptions<Event>)
     [eventManagementCacheKeys.event(id)],
     () => getEventById(id), // Assuming the id is a museumId for this example
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
       ...options,
     }
   );
@@ -62,9 +60,9 @@ export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, 
   return useMutation(
     (
       data: EventUpdateDto & {
-        museumId: string;
+        eventId: string;
       }
-    ) => updateEvent(data.museumId, data),
+    ) => updateEvent(data.eventId, data),
     options
   );
 }
@@ -97,8 +95,6 @@ export function useRemoveEventTourOnlines(
 
 export function useGetEventRooms(eventId: string, options?: CustomQueryOptions<EventRoom[]>) {
   return useQuery([eventManagementCacheKeys.eventRooms(eventId)], () => getEventRooms(eventId), {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
     ...options,
   });
 }
@@ -115,4 +111,16 @@ export function useCreateEventRoom(
       createEventRoom(data.eventId, data),
     options
   );
+}
+
+export function useGetEventParticipants(eventId: string, options?: CustomQueryOptions<EventParticipant[]>) {
+  return useQuery([eventManagementCacheKeys.eventParticipants(eventId)], () => getEventParticipants(eventId), {
+    ...options,
+  });
+}
+
+export function useGetUserEventParticipants(userId: string, options?: CustomQueryOptions<EventParticipant[]>) {
+  return useQuery([eventManagementCacheKeys.userEventParticipants(userId)], () => getUserEventParticipants(userId), {
+    ...options,
+  });
 }

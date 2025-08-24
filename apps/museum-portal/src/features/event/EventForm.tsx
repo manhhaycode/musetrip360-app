@@ -26,7 +26,6 @@ import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shar
 import { useVirtualTourByMuseum } from '@musetrip360/virtual-tour/api';
 import get from 'lodash.get';
 import { EventTypeName } from '@/config/constants/event';
-import { useMuseumStore } from '@musetrip360/museum-management';
 import { PERMISSION_EVENT_CREATE, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const eventFormSchema = z.object({
@@ -40,6 +39,7 @@ const eventFormSchema = z.object({
   location: z.string().min(1, 'Địa điểm là bắt buộc'),
   capacity: z.number().min(1, 'Sức chứa phải ít nhất là 1'),
   bookingDeadline: z.string().min(1, 'Hạn đăng ký là bắt buộc'),
+  price: z.number().min(0, 'Giá phải là số dương'),
   imageUrls: z.array(z.string()).optional(),
   selectedTourOnlineIds: z.array(z.string()).optional(),
   mainImageUpload: z.any().optional(),
@@ -68,7 +68,6 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [currentTab, setCurrentTab] = useState('event-info');
   const [createdEventId, setCreatedEventId] = useState<string | null>(event?.id || null);
-  const { selectedMuseum } = useMuseumStore();
   const { hasPermission } = useRolebaseStore();
 
   const { data } = useVirtualTourByMuseum({
@@ -90,7 +89,8 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
       eventType: event?.eventType || EventTypeEnum.Other,
       startTime: event?.startTime ? new Date(event.startTime).toISOString().slice(0, 16) : '',
       endTime: event?.endTime ? new Date(event.endTime).toISOString().slice(0, 16) : '',
-      location: event?.location || selectedMuseum?.location || '',
+      location: event?.location || 'Online',
+      price: event?.price || 0,
       capacity: event?.capacity || 50,
       bookingDeadline: event?.bookingDeadline ? new Date(event.bookingDeadline).toISOString().slice(0, 16) : '',
       imageUrls: event?.metadata?.images || [],
@@ -200,6 +200,7 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
         eventType: data.eventType,
         startTime: new Date(data.startTime).toISOString(),
         endTime: new Date(data.endTime).toISOString(),
+        price: data.price,
         location: data.location,
         capacity: data.capacity,
         availableSlots: data.capacity, // Initially all slots are available
@@ -212,7 +213,7 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
       if (isEditing && event) {
         updateEvent({
           ...eventData,
-          museumId,
+          eventId: event.id,
         });
       } else {
         createEvent({
@@ -442,6 +443,27 @@ const EventForm = ({ event, museumId, onSuccess, onCancel, className }: EventFor
                     <FormLabel className="text-gray-600">Hạn đăng ký *</FormLabel>
                     <FormControl>
                       <Input type="datetime-local" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-gray-600">Giá *</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="Nhập giá"
+                        {...field}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
