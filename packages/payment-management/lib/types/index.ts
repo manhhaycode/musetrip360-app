@@ -71,6 +71,17 @@ export type Plan = {
   updatedAt: Date;
 };
 
+export type PlanCreate = {
+  name: string;
+  description?: string;
+  price: number;
+  durationDays: number;
+  maxEvents?: number;
+  discountPercent?: number; // from 0 - 100
+  isActive: boolean;
+};
+export type PlanUpdate = Partial<PlanCreate> & { id: string };
+
 export type Subscription = {
   id: string;
   userId: string;
@@ -86,6 +97,7 @@ export type Subscription = {
   user?: IUser;
   plan?: Plan;
   museum?: any;
+  order?: Order;
 };
 
 export enum SubscriptionStatusEnum {
@@ -105,3 +117,9 @@ export type BuySubscription = {
 export type SubscriptionMetadata = {
   documents: string[];
 };
+
+export type SubscriptionParams = {
+  museumId?: string;
+  planId?: string;
+  status?: SubscriptionStatusEnum;
+} & Pagination;

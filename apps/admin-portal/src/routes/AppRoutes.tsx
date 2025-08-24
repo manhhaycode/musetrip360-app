@@ -3,6 +3,7 @@ import ScrollToTop from '@/components/ScrollToTop';
 import { AdminDashboard } from '@/features/admin';
 import AuthPage from '@/features/auth/AuthPage';
 import { MuseumDetailPage, MuseumRequestDetailPage, MuseumRequestsPage, MuseumsPage } from '@/features/museum';
+import SubscriptionAdminPage from '@/features/admin/SubscriptionAdminPage';
 import OrderListPage from '@/features/payment/OrderListPage';
 import PermissionPage from '@/features/rolebase/PermissionPage';
 import RolePage from '@/features/rolebase/RolePage';
@@ -11,6 +12,9 @@ import { UsersPage } from '@/features/users';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import PlanListPage from '@/features/payment/PlanListPage';
+import SubscriptionListPage from '@/features/payment/SubscriptionListPage';
+import PayoutListPage from '@/features/payment/PayoutListPage';
 
 export default function AppRoutes() {
   return (
@@ -29,6 +33,9 @@ export default function AppRoutes() {
           <Route path="museums/requests" element={<MuseumRequestsPage />} />
           <Route path="museums/requests/:id" element={<MuseumRequestDetailPage />} />
 
+          {/* Manager Subscription */}
+          <Route path="/subscription" element={<SubscriptionAdminPage />} />
+
           {/* User Management */}
           <Route path="users" element={<UsersPage />} />
           <Route path="rolebase/roles" element={<RolePage />} />
@@ -37,6 +44,9 @@ export default function AppRoutes() {
 
           {/* Payment Management */}
           <Route path="payments/orders" element={<OrderListPage />} />
+          <Route path="payments/plans" element={<PlanListPage />} />
+          <Route path="payments/subscriptions" element={<SubscriptionListPage />} />
+          <Route path="payments/payouts" element={<PayoutListPage />} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="*" element={<Error />} />

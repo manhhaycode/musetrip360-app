@@ -15,6 +15,9 @@ const routes = {
   },
   payments: {
     orders: '/payments/orders',
+    plans: '/payments/plans',
+    subscriptions: 'payments/subscriptions',
+    payouts: 'payments/payouts',
   },
 };
 

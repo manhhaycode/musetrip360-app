@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
-import type { ChatMessage, RoomMetadata } from '@/types';
+import type { ChatMessage } from '@/types';
 import { useShallow } from 'zustand/shallow';
 
 // Chat Store State

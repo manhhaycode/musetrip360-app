@@ -15,7 +15,19 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@musetrip360/ui-core/sidebar';
-import { Building2, ChevronRight, FileText, Gavel, Home, LogOutIcon, LucideIcon, Settings, Users } from 'lucide-react';
+import {
+  Building2,
+  ChevronRight,
+  Gavel,
+  Gift,
+  Home,
+  LogOutIcon,
+  LucideIcon,
+  Settings,
+  TicketCheck,
+  Users,
+  Wallet,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
@@ -77,12 +89,6 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               items: [],
             },
             {
-              title: 'Chính sách',
-              url: routes.policies,
-              icon: FileText,
-              items: [],
-            },
-            {
               title: 'Quản lý quyền',
               url: routes.rolebase.roles,
               icon: Gavel,
@@ -109,13 +115,22 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                   url: routes.payments.orders,
                   icon: Gavel,
                 },
+                {
+                  title: 'Danh sách gói',
+                  url: routes.payments.plans,
+                  icon: Gift,
+                },
+                {
+                  title: 'Danh sách đăng ký',
+                  url: routes.payments.subscriptions,
+                  icon: TicketCheck,
+                },
+                {
+                  title: 'Danh sách rút tiền',
+                  url: routes.payments.payouts,
+                  icon: Wallet,
+                },
               ],
-            },
-            {
-              title: 'Cài đặt',
-              url: routes.settings,
-              icon: Settings,
-              items: [],
             },
           ]}
         />

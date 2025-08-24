@@ -18,6 +18,8 @@ import {
   updateMuseum,
   getAnalyticsOverview,
   getAdminAnalyticsOverview,
+  getAdminWeeklyEventCounts,
+  getAdminWeeklyParticipantCounts,
 } from '../endpoints/museums';
 
 export function useGetUserMuseums(options?: CustomQueryOptions<Museum[]>) {
@@ -81,4 +83,16 @@ export function useGetMuseumAnalyticsOverview(museumId: string, options?: Custom
 
 export function useAdminAnalyticsOverview(options?: CustomQueryOptions<any>) {
   return useQuery(museumManagementCacheKeys.adminOverview(), () => getAdminAnalyticsOverview(), options);
+}
+
+export function useAdminWeeklyEventCounts(options?: CustomQueryOptions<any>) {
+  return useQuery(museumManagementCacheKeys.adminWeeklyEventCounts(), () => getAdminWeeklyEventCounts(), options);
+}
+
+export function useAdminWeeklyParticipantCounts(museumId: string, options?: CustomQueryOptions<any>) {
+  return useQuery(
+    museumManagementCacheKeys.adminWeeklyParticipantCounts(museumId),
+    () => getAdminWeeklyParticipantCounts(museumId),
+    options
+  );
 }

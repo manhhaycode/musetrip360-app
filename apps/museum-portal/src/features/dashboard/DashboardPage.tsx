@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -7,46 +6,41 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  Button,
 } from '@musetrip360/ui-core';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { ArchiveIcon, CoinsIcon, CalendarDaysIcon, TicketsPlaneIcon } from 'lucide-react';
-import { useMuseumStore, useGetMuseumAnalyticsOverview } from '@musetrip360/museum-management';
+import {
+  useMuseumStore,
+  useGetMuseumAnalyticsOverview,
+  useAdminWeeklyParticipantCounts,
+} from '@musetrip360/museum-management';
 import get from 'lodash/get';
 import UpcomingEvent from '../event/UpcomingEvent';
 
-const revenueData = [
-  { month: 'T1', revenue: 35000000, visitors: 850 },
-  { month: 'T2', revenue: 42000000, visitors: 920 },
-  { month: 'T3', revenue: 38000000, visitors: 880 },
-  { month: 'T4', revenue: 51000000, visitors: 1100 },
-  { month: 'T5', revenue: 48000000, visitors: 980 },
-  { month: 'T6', revenue: 45780000, visitors: 1050 },
-];
-
 const chartConfig = {
-  revenue: {
-    label: 'Doanh thu (VND)',
+  participantCount: {
+    label: 'Người tham gia',
     color: 'hsl(var(--chart-1))',
-  },
-  visitors: {
-    label: 'Khách tham quan',
-    color: 'hsl(var(--chart-2))',
   },
 };
 
 const DashboardPage = () => {
-  const [timeRange, setTimeRange] = useState('6months');
   const { selectedMuseum } = useMuseumStore();
 
   const { data } = useGetMuseumAnalyticsOverview(selectedMuseum?.id || '');
+  const { data: participantData, isLoading: isParticipantDataLoading } = useAdminWeeklyParticipantCounts(
+    selectedMuseum?.id || '',
+    {
+      enabled: !!selectedMuseum?.id,
+    }
+  );
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(value);
-  };
+  // Transform participant data for chart
+  const chartData =
+    get(participantData, 'weeklyData', [])?.map((item: any) => ({
+      weekLabel: item.weekLabel,
+      participantCount: item.participantCount,
+    })) || [];
 
   return (
     <div className="p-6 space-y-6">
@@ -102,57 +96,47 @@ const DashboardPage = () => {
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        {/* Revenue Chart */}
-        <Card className="col-span-2 lg:col-span-1">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+        {/* Participant Chart */}
+        <Card className="col-span-1 lg:col-span-3">
           <CardHeader>
-            <CardTitle>Biểu đồ doanh thu</CardTitle>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={timeRange === '6months' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange('6months')}
-              >
-                6 tháng
-              </Button>
-              <Button
-                variant={timeRange === '1year' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setTimeRange('1year')}
-              >
-                1 năm
-              </Button>
-            </div>
+            <CardTitle>Biểu đồ người tham gia theo tuần</CardTitle>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig}>
-              <LineChart
-                data={revenueData}
-                margin={{
-                  top: 5,
-                  right: 30,
-                  left: 20,
-                  bottom: 5,
-                }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" tickLine={false} axisLine={false} />
-                <YAxis tickLine={false} axisLine={false} tickFormatter={(value) => `${value / 1000000}M`} />
-                <ChartTooltip
-                  content={<ChartTooltipContent />}
-                  formatter={(value, name) => [
-                    name === 'revenue' ? formatCurrency(Number(value)) : value,
-                    name === 'revenue' ? 'Doanh thu' : 'Khách tham quan',
-                  ]}
-                />
-                <Line type="monotone" dataKey="revenue" stroke="var(--color-revenue)" strokeWidth={2} dot={{ r: 4 }} />
-              </LineChart>
-            </ChartContainer>
+            {isParticipantDataLoading ? (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-muted-foreground">Đang tải dữ liệu...</div>
+              </div>
+            ) : chartData.length > 0 ? (
+              <ChartContainer config={chartConfig}>
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    top: 5,
+                    right: 30,
+                    left: 20,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="weekLabel" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <ChartTooltip content={<ChartTooltipContent />} formatter={(value) => [value, ' Người tham gia']} />
+                  <Line type="monotone" dataKey="participantCount" stroke="red" strokeWidth={2} dot={{ r: 4 }} />
+                </LineChart>
+              </ChartContainer>
+            ) : (
+              <div className="flex items-center justify-center h-64">
+                <div className="text-muted-foreground">Không có dữ liệu để hiển thị</div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Upcoming Events */}
-        <UpcomingEvent />
+        <div className="lg:col-span-2">
+          <UpcomingEvent />
+        </div>
       </div>
     </div>
   );

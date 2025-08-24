@@ -227,8 +227,24 @@ export type AdminAnalyticsOverview = {
   totalUsers: number;
   totalEvents: number;
   totalTours: number;
+  totalSubscriptions: number;
+  totalRevenue: number;
   museumsByCategory: {
     category: string;
     count: number;
   }[];
+};
+
+export type WeeklyEventCount = {
+  weekLabel: string;
+  weekStartDate: Date;
+  weekEndDate: Date;
+  eventCount: number;
+};
+
+export type WeeklyParticipantCount = {
+  weekLabel: string;
+  weekStartDate: Date;
+  weekEndDate: Date;
+  participantCount: number;
 };
