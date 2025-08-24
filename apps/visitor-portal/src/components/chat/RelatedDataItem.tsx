@@ -6,6 +6,17 @@ import { AIChatRelatedData } from '@musetrip360/ai-bot';
 import { Card } from '@musetrip360/ui-core/card';
 import { useRouter } from 'next/navigation';
 
+// Utility to normalize API response fields (handles both capitalized and camelCase)
+const normalizeRelatedDataItem = (item: any): AIChatRelatedData => {
+  return {
+    id: item.id || item.Id,
+    type: item.type || item.Type,
+    title: item.title || item.Title,
+    description: item.description || item.Description,
+    similarityScore: item.similarityScore || item.SimilarityScore || 0,
+  };
+};
+
 interface RelatedDataItemProps {
   item: AIChatRelatedData;
 }
@@ -28,13 +39,13 @@ const getTypeIcon = (type: string) => {
 const getRedirectLink = (item: AIChatRelatedData) => {
   switch (item.type) {
     case 'Museum':
-      return `/museums/${item.id}`;
+      return `/museum/${item.id}`;
     case 'Event':
-      return `/events/${item.id}`;
+      return `/event/${item.id}`;
     case 'Artifact':
-      return `/artifacts/${item.id}`;
+      return `/artifact/${item.id}`;
     case 'TourOnline':
-      return `/tours/${item.id}`;
+      return `/tour/${item.id}`;
     default:
       return '#';
   }
@@ -42,9 +53,13 @@ const getRedirectLink = (item: AIChatRelatedData) => {
 
 export function RelatedDataItem({ item }: RelatedDataItemProps) {
   const router = useRouter();
+
+  // Normalize the item to handle both capitalized and camelCase properties
+  const normalizedItem = normalizeRelatedDataItem(item);
+
   const handleClick = () => {
-    const link = getRedirectLink(item);
-    if (link) {
+    const link = getRedirectLink(normalizedItem);
+    if (link && link !== '#') {
       router.push(link);
     }
   };
@@ -53,13 +68,20 @@ export function RelatedDataItem({ item }: RelatedDataItemProps) {
     <Card className="p-3 hover:bg-muted/50 transition-colors cursor-pointer" onClick={handleClick}>
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-          {getTypeIcon(item.type)}
+          {getTypeIcon(normalizedItem.type)}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h4 className="text-sm font-medium truncate line-clamp-2">{item.title}</h4>
+            <h4 className="text-sm font-medium truncate line-clamp-2">{normalizedItem.title}</h4>
           </div>
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{item.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{normalizedItem.description}</p>
+          {normalizedItem.similarityScore > 0 && (
+            <div className="flex items-center">
+              <span className="text-xs text-muted-foreground">
+                Relevance: {(normalizedItem.similarityScore * 100).toFixed(0)}%
+              </span>
+            </div>
+          )}
         </div>
       </div>
     </Card>
