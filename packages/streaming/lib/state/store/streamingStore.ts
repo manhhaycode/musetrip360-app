@@ -314,6 +314,7 @@ export const streamingActions = {
       console.error('Error leaving room:', error);
     } finally {
       cleanup();
+      console.log(useStreamingStore.getState());
     }
   },
 };

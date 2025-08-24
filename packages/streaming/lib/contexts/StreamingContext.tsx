@@ -9,10 +9,11 @@ import { useMediaStream } from '@/hooks/useMediaStream';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import { participantActions, useParticipantStore } from '@/state/store/participantStore';
 import { roomActions, useRoomStore } from '@/state/store/roomStore';
-import { useStreamingStore } from '@/state/store/streamingStore';
+import { streamingActions, useStreamingStore } from '@/state/store/streamingStore';
 import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } from '@/types';
 import { useStreamingEvents } from '@/utils/eventBus';
 import { generateRoomId } from '@/utils/webrtc';
+import { useGetEventParticipants } from '@musetrip360/event-management/api';
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
 
@@ -51,6 +52,12 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const isInRoom = roomState !== null;
 
   const { participants: participantMap } = useParticipantStore();
+
+  const { data: eventParticipants } = useGetEventParticipants(roomState?.EventId || '', {
+    enabled: !!roomState?.EventId,
+    staleTime: 0.5 * 60 * 1000, // 30 seconds
+    gcTime: 0.5 * 60 * 1000, // 30 seconds
+  });
 
   /**
    * Initialize a streaming system
@@ -112,6 +119,14 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         // Add local participant
         const connectionId = signalR.connectionId;
         if (connectionId && mediaStream.localStream) {
+          let userId = '';
+          // Set stream peer ID for tracking
+          const client = signalR.getClient();
+          if (client) {
+            await client.setStreamPeerId(mediaStream.localStream.id);
+            userId = (await client.getParticipantInfoByStreamId(mediaStream.localStream.id)) || '';
+          }
+
           participantActions.addParticipantWithStream({
             id: uuid(),
             peerId: connectionId,
@@ -120,13 +135,9 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             isLocalUser: true,
             mediaState: mediaStream.mediaState,
             joinedAt: new Date(),
+            userId: userId,
+            participantInfo: eventParticipants?.find((p) => p.userId === userId) || null,
           });
-
-          // Set stream peer ID for tracking
-          const client = signalR.getClient();
-          if (client) {
-            await client.setStreamPeerId(mediaStream.localStream.id);
-          }
         }
 
         console.log(`✅ Successfully joined room: ${roomId}`);
@@ -135,7 +146,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         throw error;
       }
     },
-    [signalR, webRTC, mediaStream]
+    [mediaStream, webRTC, signalR, eventParticipants]
   );
 
   /**
@@ -165,6 +176,10 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
       // Clean up participants
       useParticipantStore.getState().reset();
+
+      streamingActions.leaveRoomSafely();
+
+      isInitializedRef.current = false;
 
       console.log('✅ Successfully left room');
     } catch (error) {
@@ -236,11 +251,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
       try {
         // Resolve actual peer ID from SignalR
         const client = signalR.getClient();
+        let userId = '';
         let resolvedPeerId = peerId;
 
         if (client) {
           try {
             resolvedPeerId = await client.getPeerIdByStreamId(stream.id);
+            userId = (await client.getParticipantInfoByStreamId(stream.id)) || '';
           } catch {
             console.warn('Failed to resolve peer ID for stream:', stream.id);
           }
@@ -264,6 +281,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             isLocalUser: false,
             mediaState: { video: true, audio: true },
             joinedAt: new Date(),
+            userId: userId,
+            participantInfo: eventParticipants?.find((p) => p.userId === userId) || null,
           });
         }
 
@@ -277,13 +296,19 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
       unsubscribePeerJoined();
       unsubscribePeerDisconnected();
     };
-  }, [on, signalR, mediaStream]);
+  }, [on, signalR, mediaStream, eventParticipants]);
 
   // Handle remote stream events
   useEffect(() => {
     // This would be enhanced to handle actual remote stream events from WebRTC
     // For now, it's a placeholder for the integration
   }, [webRTC, mediaStream]);
+
+  useEffect(() => {
+    if (eventParticipants) {
+      participantActions.syncParticipantInfo(eventParticipants);
+    }
+  }, [eventParticipants]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -301,6 +326,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     signalR,
     webRTC,
     mediaStream,
+
+    initialize,
 
     // Room State
     roomState,

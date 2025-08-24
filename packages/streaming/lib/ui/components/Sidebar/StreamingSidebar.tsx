@@ -10,7 +10,7 @@ import { Button } from '@musetrip360/ui-core/button';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@musetrip360/ui-core/tabs';
 import { cn } from '@musetrip360/ui-core/utils';
-import { Mic, MicOff, Plus, Users, Video, VideoOff } from 'lucide-react';
+import { Crown, Mic, MicOff, Plus, Target, User, Users, Video, VideoOff } from 'lucide-react';
 import React from 'react';
 import type { Participant } from '@/types';
 
@@ -49,60 +49,102 @@ export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants
 
           <ScrollArea className="h-[calc(100vh-280px)]">
             <div className="space-y-1">
-              {participants.map((participant) => (
-                <div key={participant.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 group">
-                  <div className="relative">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="text-xs bg-muted">
-                        {participant.isLocalUser ? 'You' : participant?.peerId?.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-background rounded-full flex items-center justify-center">
+              {participants.map((participant) => {
+                const userInfo = participant.participantInfo;
+                const displayName = participant.isLocalUser
+                  ? 'You'
+                  : userInfo?.user
+                    ? userInfo.user.fullName || userInfo.user.username
+                    : 'Anonymous User';
+                const userRole = userInfo?.role;
+                const userAvatar = userInfo?.user?.avatarUrl;
+
+                return (
+                  <div key={participant.id} className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/30 group">
+                    <div className="relative">
+                      <Avatar className="h-8 w-8">
+                        {userAvatar && !participant.isLocalUser ? (
+                          <img src={userAvatar} alt={displayName} className="w-full h-full object-cover" />
+                        ) : (
+                          <AvatarFallback className="text-xs bg-muted">
+                            {participant.isLocalUser
+                              ? 'You'
+                              : displayName === 'Anonymous User'
+                                ? 'AU'
+                                : displayName.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-background rounded-full flex items-center justify-center">
+                        <div
+                          className={cn(
+                            'w-2 h-2 rounded-full',
+                            participant.mediaState.audio ? 'bg-green-500' : 'bg-red-500'
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm font-medium truncate">{displayName}</p>
+
+                        {userRole && (
+                          <Badge
+                            variant={userRole === 'TourGuide' ? 'default' : 'outline'}
+                            className="text-xs h-5 px-2 py-0.5 flex items-center gap-1"
+                          >
+                            {userRole === 'TourGuide' ? (
+                              <>
+                                <Target className="w-3 h-3" />
+                                Guide
+                              </>
+                            ) : userRole === 'Organizer' ? (
+                              <>
+                                <Crown className="w-3 h-3" />
+                                Host
+                              </>
+                            ) : userRole === 'Attendee' ? (
+                              <>
+                                <User className="w-3 h-3" />
+                                Guest
+                              </>
+                            ) : (
+                              userRole
+                            )}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {participant.mediaState.video ? 'Camera on' : 'Camera off'}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <div
                         className={cn(
-                          'w-2 h-2 rounded-full',
-                          participant.mediaState.audio ? 'bg-green-500' : 'bg-red-500'
+                          'w-5 h-5 rounded flex items-center justify-center',
+                          participant.mediaState.audio ? 'text-green-600' : 'text-muted-foreground'
                         )}
-                      />
+                      >
+                        {participant.mediaState.audio ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
+                      </div>
+                      <div
+                        className={cn(
+                          'w-5 h-5 rounded flex items-center justify-center',
+                          participant.mediaState.video ? 'text-green-600' : 'text-muted-foreground'
+                        )}
+                      >
+                        {participant.mediaState.video ? (
+                          <Video className="w-3 h-3" />
+                        ) : (
+                          <VideoOff className="w-3 h-3" />
+                        )}
+                      </div>
                     </div>
                   </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium truncate">
-                        {participant.isLocalUser ? 'You' : `User ${participant.peerId}`}
-                      </p>
-                      {participant.isLocalUser && (
-                        <Badge variant="outline" className="text-xs h-4 px-1">
-                          You
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {participant.mediaState.video ? 'Camera on' : 'Camera off'}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div
-                      className={cn(
-                        'w-5 h-5 rounded flex items-center justify-center',
-                        participant.mediaState.audio ? 'text-green-600' : 'text-muted-foreground'
-                      )}
-                    >
-                      {participant.mediaState.audio ? <Mic className="w-3 h-3" /> : <MicOff className="w-3 h-3" />}
-                    </div>
-                    <div
-                      className={cn(
-                        'w-5 h-5 rounded flex items-center justify-center',
-                        participant.mediaState.video ? 'text-green-600' : 'text-muted-foreground'
-                      )}
-                    >
-                      {participant.mediaState.video ? <Video className="w-3 h-3" /> : <VideoOff className="w-3 h-3" />}
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </ScrollArea>
         </TabsContent>

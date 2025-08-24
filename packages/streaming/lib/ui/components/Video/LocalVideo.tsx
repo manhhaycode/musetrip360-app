@@ -7,16 +7,21 @@
 import React, { useRef, useEffect } from 'react';
 import { cn } from '@musetrip360/ui-core/utils';
 import { Badge } from '@musetrip360/ui-core/badge';
-import { LocalVideoProps } from '@/types';
-import { User, MicOff } from 'lucide-react';
+import { LocalVideoProps, Participant } from '@/types';
+import { Crown, Target, User, MicOff } from 'lucide-react';
 
-export const LocalVideo: React.FC<LocalVideoProps> = ({
+interface LocalVideoComponentProps extends LocalVideoProps {
+  participant?: Participant;
+}
+
+export const LocalVideo: React.FC<LocalVideoComponentProps> = ({
   stream,
   muted = true,
   autoPlay = true,
   playsInline = true,
   className,
   showControls = false,
+  participant,
   onError,
   ...props
 }) => {
@@ -42,6 +47,11 @@ export const LocalVideo: React.FC<LocalVideoProps> = ({
       // Don't set srcObject to null on cleanup as it's local stream
     };
   }, [stream, onError]);
+
+  // Enhanced local user info
+  const userInfo = participant?.participantInfo;
+  const displayName = userInfo?.user ? userInfo.user.fullName || userInfo.user.username : 'You';
+  const userRole = userInfo?.role;
 
   if (!stream) {
     return (
@@ -80,11 +90,27 @@ export const LocalVideo: React.FC<LocalVideoProps> = ({
         {...props}
       />
 
-      {/* Local video label */}
-      <div className="absolute bottom-2 left-2">
-        <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
-          You
+      {/* Enhanced local video labels */}
+      <div className="absolute bottom-2 max-w-full gap-1 px-1 flex">
+        <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs shrink justify-start">
+          <span className="truncate">{displayName}</span>
         </Badge>
+        {userRole && (
+          <Badge
+            variant={userRole === 'TourGuide' ? 'default' : 'outline'}
+            className="bg-background/80 backdrop-blur-sm text-xs px-2 py-0.5 flex items-center gap-1 shrink-0"
+          >
+            {userRole === 'TourGuide' ? (
+              <Target className="w-3 h-3" />
+            ) : userRole === 'Organizer' ? (
+              <Crown className="w-3 h-3" />
+            ) : userRole === 'Attendee' ? (
+              <User className="w-3 h-3" />
+            ) : (
+              userRole
+            )}
+          </Badge>
+        )}
       </div>
 
       {/* Muted indicator for local video */}
