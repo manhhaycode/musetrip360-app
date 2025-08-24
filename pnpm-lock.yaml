@@ -373,6 +373,9 @@ importers:
       '@musetrip360/museum-management':
         specifier: workspace:*
         version: link:../../packages/museum-management
+      '@musetrip360/payment-management':
+        specifier: workspace:*
+        version: link:../../packages/payment-management
       '@musetrip360/query-foundation':
         specifier: workspace:*
         version: link:../../packages/query-foundation
