@@ -13,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { CheckCircle, XCircle, Edit, Trash2, Plus, Info, MoreHorizontal, Eye } from 'lucide-react';
-import { AnimatePresence, motion } from 'framer-motion';
 
 function getAccessToken() {
   try {
@@ -57,13 +56,7 @@ const PlanDetailModal: React.FC<{
   if (!open || !plan) return null;
   return (
     <div className="fixed inset-0 z-[101] bg-black/40 flex items-center justify-center backdrop-blur-[2px]">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.93 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        transition={{ duration: 0.18 }}
-        className="bg-white rounded-2xl shadow-2xl p-7 w-[95vw] max-w-lg relative"
-      >
+      <div className="bg-white rounded-2xl shadow-2xl p-7 w-[95vw] max-w-lg relative">
         <button
           className="absolute right-4 top-4 text-gray-400 text-2xl hover:text-red-400 transition-colors"
           onClick={onClose}
@@ -89,7 +82,7 @@ const PlanDetailModal: React.FC<{
           <DetailRow label="Ngày tạo">{new Date(plan.createdAt).toLocaleString()}</DetailRow>
           <DetailRow label="Cập nhật">{new Date(plan.updatedAt).toLocaleString()}</DetailRow>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
@@ -146,12 +139,7 @@ const PlanForm: React.FC<{
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[100] bg-black/30 flex items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white rounded-2xl shadow-2xl p-7 w-full max-w-md"
-      >
+      <div className="bg-white rounded-2xl shadow-2xl p-7 w-full max-w-md">
         <h2 className="text-lg font-bold mb-4">
           {editingPlan ? 'Cập nhật gói Subscription' : 'Tạo mới gói Subscription'}
         </h2>
@@ -259,7 +247,7 @@ const PlanForm: React.FC<{
             </Button>
           </div>
         </form>
-      </motion.div>
+      </div>
     </div>
   );
 };
@@ -274,12 +262,7 @@ const ConfirmDeleteDialog: React.FC<{
   if (!open || !plan) return null;
   return (
     <div className="fixed inset-0 z-[102] bg-black/30 flex items-center justify-center">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.93 }}
-        className="bg-white rounded-xl shadow-lg p-6 min-w-[320px]"
-      >
+      <div className="bg-white rounded-xl shadow-lg p-6 min-w-[320px]">
         <div className="mb-4 font-bold text-lg text-red-600">Xác nhận xoá?</div>
         <div className="mb-4">
           Bạn muốn xoá gói <b>{plan.name}</b>?
@@ -292,7 +275,7 @@ const ConfirmDeleteDialog: React.FC<{
             Xoá
           </Button>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 };
@@ -503,35 +486,32 @@ const SubscriptionAdminPage: React.FC = () => {
             {loading && <div className="py-4 text-center text-gray-400">Đang tải...</div>}
           </div>
         </div>
-        <AnimatePresence>
-          {openForm && (
-            <PlanForm
-              open={openForm}
-              onClose={() => {
-                setOpenForm(false);
-                setEditingPlan(null);
-              }}
-              onSubmit={handleSubmitPlan}
-              editingPlan={editingPlan}
-              loading={loading}
-            />
-          )}
-        </AnimatePresence>
-        <AnimatePresence>
-          {detailPlan && <PlanDetailModal open={!!detailPlan} plan={detailPlan} onClose={() => setDetailPlan(null)} />}
-        </AnimatePresence>
+
+        {openForm && (
+          <PlanForm
+            open={openForm}
+            onClose={() => {
+              setOpenForm(false);
+              setEditingPlan(null);
+            }}
+            onSubmit={handleSubmitPlan}
+            editingPlan={editingPlan}
+            loading={loading}
+          />
+        )}
+
+        {detailPlan && <PlanDetailModal open={!!detailPlan} plan={detailPlan} onClose={() => setDetailPlan(null)} />}
+
         {/* Confirm Delete Dialog */}
-        <AnimatePresence>
-          {confirmDelete && (
-            <ConfirmDeleteDialog
-              open={!!confirmDelete}
-              plan={confirmDelete}
-              onCancel={() => setConfirmDelete(null)}
-              onConfirm={() => confirmDelete && handleDelete(confirmDelete.id)}
-              loading={loading}
-            />
-          )}
-        </AnimatePresence>
+        {confirmDelete && (
+          <ConfirmDeleteDialog
+            open={!!confirmDelete}
+            plan={confirmDelete}
+            onCancel={() => setConfirmDelete(null)}
+            onConfirm={() => confirmDelete && handleDelete(confirmDelete.id)}
+            loading={loading}
+          />
+        )}
       </div>
     </div>
   );

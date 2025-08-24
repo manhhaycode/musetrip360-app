@@ -12,6 +12,9 @@ import { UsersPage } from '@/features/users';
 import DefaultLayout from '@/layouts/DefaultLayout';
 import { GoogleOAuthCallback } from '@musetrip360/auth-system';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import PlanListPage from '@/features/payment/PlanListPage';
+import SubscriptionListPage from '@/features/payment/SubscriptionListPage';
+import PayoutListPage from '@/features/payment/PayoutListPage';
 
 export default function AppRoutes() {
   return (
@@ -41,6 +44,9 @@ export default function AppRoutes() {
 
           {/* Payment Management */}
           <Route path="payments/orders" element={<OrderListPage />} />
+          <Route path="payments/plans" element={<PlanListPage />} />
+          <Route path="payments/subscriptions" element={<SubscriptionListPage />} />
+          <Route path="payments/payouts" element={<PayoutListPage />} />
         </Route>
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="*" element={<Error />} />

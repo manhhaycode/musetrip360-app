@@ -32,16 +32,6 @@ const OrderListPage = () => {
   const columns = useMemo<ColumnDef<Order>[]>(
     () => [
       {
-        accessorKey: 'id',
-        header: 'Order ID',
-        meta: {
-          variant: 'text',
-          placeholder: 'Search by ID',
-          label: 'Order ID',
-          unit: '',
-        },
-      },
-      {
         accessorKey: 'metadata.orderCode',
         header: 'Order Code',
         cell: ({ row }) => <div className="font-semibold">#{row.original.metadata?.orderCode}</div>,
