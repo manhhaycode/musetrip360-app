@@ -1,7 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useRoomStore } from '../store/roomStore';
 import { useChatSelectors, useChatActions, useChatComputed } from '../store/chatStore';
 import { chatService } from '@/api/chat';
+import { useStreamingContext } from '@/contexts/StreamingContext';
 import type { ChatMessage } from '@/types';
 
 /**
@@ -13,14 +14,14 @@ export const useChatState = () => {
   const chatSelectors = useChatSelectors();
   const chatComputed = useChatComputed();
 
-  // Get current room state
+  // Get current room state and streaming context
   const currentRoom = useRoomStore((state) => state.currentRoom);
+  const { participants } = useStreamingContext();
 
-  // Note: Room metadata sync disabled in favor of real-time events
-  // const roomMetadata = currentRoom?.Metadata;
-  // useEffect(() => {
-  //   chatActions.syncWithRoomMetadata(roomMetadata);
-  // }, [roomMetadata, chatActions]);
+  // Get current user ID from participants
+  const currentUserId = useMemo(() => {
+    return Array.from(participants.values()).find((p) => p.isLocalUser)?.userId || null;
+  }, [participants]);
 
   // Reset chat when room changes
   useEffect(() => {
@@ -37,7 +38,7 @@ export const useChatState = () => {
 
     // Listen to ReceiveChatMessage events
     const handleChatMessage = (messageJson: string) => {
-      chatActions.handleReceivedMessage(messageJson);
+      chatActions.handleReceivedMessage(messageJson, currentUserId || undefined);
     };
 
     client.on('ReceiveChatMessage', handleChatMessage);
@@ -45,7 +46,7 @@ export const useChatState = () => {
     return () => {
       client.off('ReceiveChatMessage');
     };
-  }, [chatActions]);
+  }, [chatActions, currentUserId]);
 
   return {
     // State
@@ -116,54 +117,5 @@ export const useChatMessages = () => {
     messageCount: messages.length,
     hasMessages: messages.length > 0,
     latestMessage: messages[messages.length - 1] || null,
-  };
-};
-
-/**
- * Hook for typing indicators
- */
-export const useTypingIndicators = () => {
-  const { isTyping, setUserTyping, clearTypingIndicators } = useChatState();
-
-  /**
-   * Set typing indicator for a user with automatic timeout
-   */
-  const setTyping = (userId: string, _userName: string, isTypingNow: boolean) => {
-    // Prefix unused param with underscore
-    setUserTyping(userId, isTypingNow);
-
-    // Clear typing indicator after 3 seconds of inactivity
-    if (isTypingNow) {
-      setTimeout(() => {
-        setUserTyping(userId, false);
-      }, 3000);
-    }
-  };
-
-  /**
-   * Get formatted typing indicator text
-   */
-  const getTypingText = (): string | null => {
-    const typingUsers = Object.entries(isTyping)
-      .filter(([, typing]) => typing) // Don't need userId in filter, so don't destructure
-      .map(([userId]) => userId);
-
-    if (typingUsers.length === 0) return null;
-
-    if (typingUsers.length === 1) {
-      return `Someone is typing...`;
-    } else if (typingUsers.length === 2) {
-      return `2 people are typing...`;
-    } else {
-      return `${typingUsers.length} people are typing...`;
-    }
-  };
-
-  return {
-    isTyping,
-    setTyping,
-    clearTypingIndicators,
-    getTypingText,
-    typingCount: Object.values(isTyping).filter(Boolean).length,
   };
 };

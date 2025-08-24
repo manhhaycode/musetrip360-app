@@ -53,6 +53,7 @@ interface ParticipantStoreActions {
   updateParticipant: (participantId: string, updates: Partial<Participant>) => void;
   setLocalParticipant: (participant: Participant | null) => void;
   setParticipantInfos: (participantInfos: Map<string, EventParticipant>) => void;
+  setParticipants: (participants: Map<string, Participant>) => void;
 
   // Media state management
   updateParticipantMediaState: (participantId: string, mediaState: Partial<MediaState>) => void;
@@ -230,6 +231,7 @@ export const useParticipantStore = create<ParticipantStore>()(
       setLocalParticipant: (participant) => set({ localParticipant: participant }, false, 'setLocalParticipant'),
 
       setParticipantInfos: (participantInfos) => set({ participantInfos }, false, 'setParticipantInfos'),
+      setParticipants: (participants) => set({ participants }, false, 'setParticipants'),
 
       // Media state management
       updateParticipantMediaState: (participantId, mediaState) =>
@@ -529,11 +531,12 @@ export const participantActions = {
   },
 
   syncParticipantInfo: (participantInfo: EventParticipant[]) => {
-    const { setParticipantInfos, participants } = useParticipantStore.getState();
+    const { setParticipantInfos, participants, setParticipants } = useParticipantStore.getState();
     const participantInfoMap = new Map(participantInfo.map((p) => [p.userId, p]));
     setParticipantInfos(participantInfoMap);
     for (const [, participant] of participants.entries()) {
       participant.participantInfo = participantInfoMap.get(participant.userId) || null;
     }
+    setParticipants(participants);
   },
 };

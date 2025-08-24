@@ -4,7 +4,7 @@
  * Main context provider orchestrating all streaming functionality
  */
 
-import { chatService } from '@/api';
+import { chatService, tourActionService } from '@/api';
 import { useSignalR } from '@/hooks';
 import { useMediaStream } from '@/hooks/useMediaStream';
 import { useWebRTC } from '@/hooks/useWebRTC';
@@ -52,7 +52,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const currentRoomId = roomState?.Id || null;
   const isInRoom = roomState !== null;
 
-  const { participants: participantMap } = useParticipantStore();
+  const { participants: participantMap, localParticipant } = useParticipantStore();
 
   const { data: eventParticipants } = useGetEventParticipants(roomState?.EventId || '', {
     enabled: !!roomState?.EventId,
@@ -118,6 +118,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         await signalR.joinRoom(roomId, offer);
 
         chatService.setSignalRClient(signalR.getClient()!);
+        tourActionService.setSignalRClient(signalR.getClient()!);
 
         // Add local participant
         const connectionId = signalR.connectionId;
@@ -322,6 +323,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         leaveRoom().catch(console.error);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty array = only run cleanup on unmount
 
   const contextValue: StreamingContextValue = {
@@ -335,6 +337,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     // Room State
     roomState,
     participants: participantMap,
+    localParticipant,
     currentRoomId,
     isInRoom,
 

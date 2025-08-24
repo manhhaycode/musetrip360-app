@@ -12,6 +12,10 @@ export interface PanoramaSphereProps {
   children?: React.ReactNode;
   enableRotate?: boolean;
   onClick?: (event: ThreeEvent<MouseEvent>) => void;
+  // NEW: Camera control props
+  controlledCameraPosition?: { theta: number; phi: number; fov?: number };
+  onCameraChange?: (position: { theta: number; phi: number; fov: number }) => void;
+  enableUserControls?: boolean;
 }
 
 function PanoramaContent({
@@ -19,11 +23,17 @@ function PanoramaContent({
   children,
   enableRotate,
   onClick,
+  controlledCameraPosition,
+  onCameraChange,
+  enableUserControls,
 }: {
   cubeMapFiles: string[];
   onClick?: (event: ThreeEvent<MouseEvent>) => void;
   children?: React.ReactNode;
   enableRotate: boolean;
+  controlledCameraPosition?: { theta: number; phi: number; fov?: number };
+  onCameraChange?: (position: { theta: number; phi: number; fov: number }) => void;
+  enableUserControls?: boolean;
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const textures = useTexture(cubeMapFiles);
@@ -48,12 +58,26 @@ function PanoramaContent({
       </Box>
 
       {children}
-      <PanoramaControls enableDamping={false} enableRotate={enableRotate} />
+      <PanoramaControls
+        enableDamping={false}
+        enableRotate={enableRotate}
+        controlledPosition={controlledCameraPosition}
+        onViewChange={onCameraChange}
+        enableUserControls={enableUserControls}
+      />
     </>
   );
 }
 
-export function PanoramaSphere({ cubeMapLevel, children, enableRotate = true, onClick }: PanoramaSphereProps) {
+export function PanoramaSphere({
+  cubeMapLevel,
+  children,
+  enableRotate = true,
+  onClick,
+  controlledCameraPosition,
+  onCameraChange,
+  enableUserControls = true,
+}: PanoramaSphereProps) {
   // Convert File objects to URLs for Environment component
   const cubeMapFiles = useMemo(() => {
     // Standard cube face order: [px, nx, py, ny, pz, nz]
@@ -85,7 +109,14 @@ export function PanoramaSphere({ cubeMapLevel, children, enableRotate = true, on
       dpr={[1, 2]}
     >
       <Suspense fallback={null}>
-        <PanoramaContent cubeMapFiles={cubeMapFiles} enableRotate={enableRotate} onClick={onClick}>
+        <PanoramaContent
+          cubeMapFiles={cubeMapFiles}
+          enableRotate={enableRotate}
+          onClick={onClick}
+          controlledCameraPosition={controlledCameraPosition}
+          onCameraChange={onCameraChange}
+          enableUserControls={enableUserControls}
+        >
           {children}
         </PanoramaContent>
       </Suspense>

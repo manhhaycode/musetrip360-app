@@ -244,6 +244,24 @@ export class SignalRClient {
   }
 
   /**
+   * Send a tour action to room using dedicated SendTourActionToRoom method
+   */
+  async sendTourActionToRoom(roomId: string, actionJson: string): Promise<void> {
+    if (!this.connection || this.connectionState !== ConnectionState.Connected) {
+      throw this.createError(StreamingErrorCode.SIGNALR_CONNECTION_FAILED, 'SignalR not connected');
+    }
+
+    try {
+      // Send via dedicated SignalR method
+      await this.connection.invoke('SendTourActionToRoom', roomId, actionJson);
+
+      console.log(`🎭 Tour action sent to room ${roomId}`);
+    } catch (error) {
+      throw this.createError(StreamingErrorCode.SIGNALR_CONNECTION_FAILED, 'Failed to send tour action', error);
+    }
+  }
+
+  /**
    * Register event handler
    */
   on<K extends keyof SignalREvents>(event: K, handler: SignalREvents[K]): void {
@@ -360,6 +378,12 @@ export class SignalRClient {
     this.connection.on('ReceiveChatMessage', (message: string) => {
       console.log('💬 Received chat message', message);
       this.eventHandlers.ReceiveChatMessage?.(message);
+    });
+
+    // Handle tour actions
+    this.connection.on('ReceiveTourAction', (actionJson: string) => {
+      console.log('🎭 Received tour action', actionJson);
+      this.eventHandlers.ReceiveTourAction?.(actionJson);
     });
   }
 

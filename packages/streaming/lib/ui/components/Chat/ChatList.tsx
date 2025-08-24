@@ -67,7 +67,7 @@ export const ChatList: React.FC<ChatListProps> = ({ messages, currentUserId, cla
       style={{
         flex: '1 0 0',
       }}
-      className={cn('relative min-h-0', className)}
+      className={cn('relative min-h-0 flex', className)}
     >
       <ScrollArea ref={scrollAreaRef} className="flex-1" onScrollCapture={handleScroll}>
         <div className="p-2 space-y-1">

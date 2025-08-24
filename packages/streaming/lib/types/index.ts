@@ -29,6 +29,7 @@ export interface SignalREvents {
   ReceiveIceCandidate: (connectionId: string, candidateData: string, isPub: boolean) => void;
   ReceiveRoomState: (roomState: RoomState) => void;
   ReceiveChatMessage: (message: string) => void; // New dedicated chat message event
+  ReceiveTourAction: (actionJson: string) => void; // New tour action sync event
 }
 
 // WebRTC Types
@@ -53,12 +54,20 @@ export interface RoomMetadata {
 
 export interface TourActions {
   Id: string;
-  ActionType: 'move_camera' | 'highlight_artifact' | 'show_scene' | 'add_annotation';
+  ActionType: 'camera_change' | 'scene_change' | 'artifact_preview' | 'artifact_close';
   ActionData: {
+    // Scene navigation
     SceneId?: string;
+
+    // Artifact interaction
     ArtifactId?: string;
-    CameraPosition?: { X: number; Y: number; Z: number };
-    CameraRotation?: { X: number; Y: number; Z: number };
+
+    // Camera position (spherical coordinates for panorama)
+    CameraPosition?: {
+      theta: number; // Horizontal angle in radians
+      phi: number; // Vertical angle in radians
+      fov: number; // Field of view in degrees
+    };
   };
   PerformedBy: string;
   Timestamp: number;
@@ -231,6 +240,7 @@ export interface StreamingContextValue {
   // Room State
   roomState: RoomState | null;
   participants: Map<string, Participant>;
+  localParticipant: Participant | null;
   currentRoomId: string | null;
   isInRoom: boolean;
   initialize: () => Promise<void>;

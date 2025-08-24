@@ -10,9 +10,41 @@ import { PreviewArtifact } from './PreviewArtifact';
 export interface VirtualTourViewerProps {
   /** Virtual tour data */
   virtualTour: IVirtualTour;
+
+  // NEW: External control props
+  /** Controlled scene ID - overrides internal scene state */
+  controlledSceneId?: string;
+  /** Controlled camera position in spherical coordinates */
+  controlledCameraPosition?: { theta: number; phi: number; fov?: number };
+  /** Controlled artifact ID to show preview */
+  controlledArtifactId?: string;
+
+  // NEW: Event callbacks for capturing user actions
+  /** Called when user navigates to a different scene */
+  onSceneChange?: (sceneId: string) => void;
+  /** Called when user changes camera position */
+  onCameraChange?: (position: { theta: number; phi: number; fov: number }) => void;
+  /** Called when user clicks on a polygon */
+  onPolygonClick?: (polygon: Polygon) => void;
+
+  // NEW: Control mode
+  /** Enable/disable user controls - false for attendee mode */
+  enableUserControls?: boolean;
 }
 
-export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTour }) => {
+export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
+  virtualTour,
+  // Control props
+  controlledSceneId,
+  controlledCameraPosition,
+  controlledArtifactId,
+  // Event callbacks
+  onSceneChange,
+  onCameraChange,
+  onPolygonClick,
+  // Control mode
+  enableUserControls = true,
+}) => {
   // Current scene state
   const [currentSceneId, setCurrentSceneId] = useState<string>(() => {
     return virtualTour.metadata.scenes[0]?.sceneId || '';
@@ -55,6 +87,9 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
       try {
         setCurrentSceneId(sceneId);
 
+        // Notify parent component of scene change
+        onSceneChange?.(sceneId);
+
         // Simulate loading delay for scene transition
         setTimeout(() => {
           setIsLoading(false);
@@ -64,8 +99,15 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
         setIsLoading(false);
       }
     },
-    [currentSceneId]
+    [currentSceneId, onSceneChange]
   );
+
+  // Sync with controlled scene ID
+  useEffect(() => {
+    if (controlledSceneId && controlledSceneId !== currentSceneId) {
+      setCurrentSceneId(controlledSceneId);
+    }
+  }, [controlledSceneId, currentSceneId]);
 
   // Handle hotspot interactions
   const handleHotspotClick = useCallback(
@@ -79,10 +121,27 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
   );
 
   // Handle polygon click to open artifact preview
-  const handlePolygonClick = useCallback((polygon: Polygon) => {
-    setSelectedArtifactId(polygon.artifactIdLink);
-    setShowPreview(true);
-  }, []);
+  const handlePolygonClick = useCallback(
+    (polygon: Polygon) => {
+      setSelectedArtifactId(polygon.artifactIdLink);
+      setShowPreview(true);
+
+      // Notify parent component of polygon click
+      onPolygonClick?.(polygon);
+    },
+    [onPolygonClick]
+  );
+
+  // Sync with controlled artifact ID
+  useEffect(() => {
+    if (controlledArtifactId) {
+      setSelectedArtifactId(controlledArtifactId);
+      setShowPreview(true);
+    } else if (controlledArtifactId === null) {
+      setSelectedArtifactId(null);
+      setShowPreview(false);
+    }
+  }, [controlledArtifactId]);
 
   // Enhanced hotspots with click handlers
   const enhancedHotspots = useMemo(() => {
@@ -148,14 +207,23 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
       )}
 
       {/* Panorama sphere with hotspots */}
-      <PanoramaSphere cubeMapLevel={cubeMapLevel} enableRotate={true}>
+      <PanoramaSphere
+        cubeMapLevel={cubeMapLevel}
+        enableRotate={enableUserControls}
+        controlledCameraPosition={controlledCameraPosition}
+        onCameraChange={onCameraChange}
+        enableUserControls={enableUserControls}
+      >
         {/* Interactive hotspots */}
         {enhancedHotspots.map((hotspot) => (
           <InteractiveHotspot key={hotspot.id} hotspot={hotspot} isEditing={false} isDragMode={false} />
         ))}
 
         {/* Polygon selector for completed polygons */}
-        <PolygonSelector completedPolygons={currentScene?.data?.polygons || []} onPolygonClick={handlePolygonClick} />
+        <PolygonSelector
+          completedPolygons={currentScene?.data?.polygons || []}
+          onPolygonClick={enableUserControls ? handlePolygonClick : undefined}
+        />
       </PanoramaSphere>
 
       {/* Scene info overlay */}
@@ -169,22 +237,24 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({ virtualTou
       </div>
 
       {/* Navigation controls */}
-      <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
-        {virtualTour.metadata.scenes.map((scene) => (
-          <button
-            key={scene.sceneId}
-            onClick={() => handleSceneNavigation(scene.sceneId)}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              scene.sceneId === currentSceneId
-                ? 'bg-blue-600 text-white'
-                : 'bg-black bg-opacity-75 text-white hover:bg-opacity-90'
-            }`}
-            disabled={isLoading}
-          >
-            {scene.sceneName}
-          </button>
-        ))}
-      </div>
+      {enableUserControls && (
+        <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
+          {virtualTour.metadata.scenes.map((scene) => (
+            <button
+              key={scene.sceneId}
+              onClick={() => handleSceneNavigation(scene.sceneId)}
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                scene.sceneId === currentSceneId
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-black bg-opacity-75 text-white hover:bg-opacity-90'
+              }`}
+              disabled={isLoading}
+            >
+              {scene.sceneName}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* PreviewArtifact Modal */}
       {selectedArtifactId && (

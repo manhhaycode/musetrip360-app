@@ -8,3 +8,4 @@
 export * from './components/Video';
 export * from './components/Controls';
 export * from './components/Room';
+export * from './components/TourSync';

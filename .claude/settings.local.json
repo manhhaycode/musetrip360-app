@@ -14,5 +14,6 @@
       "mcp__serena__think_about_task_adherence"
     ],
     "defaultMode": "acceptEdits"
-  }
+  },
+  "outputStyle": "Explanatory"
 }
