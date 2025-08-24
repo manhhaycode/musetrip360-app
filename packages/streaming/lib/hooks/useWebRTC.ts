@@ -14,7 +14,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   const peerManagerRef = useRef<PeerConnectionManager | null>(null);
 
   // Store selectors
-  const { config, localStream, setWebRTCState, addError, addRemoteStream, removeRemoteStream } = useStreamingStore();
+  const { config, localStream, setWebRTCState, addError, addRemoteStream } = useStreamingStore();
 
   // Event bus integration
   const { on, emit } = useStreamingEvents();
@@ -292,7 +292,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
   // Setup event handlers for SignalR messages
   useEffect(() => {
     // Handle offers from SignalR
-    const unsubscribeOffer = on('signalr:offer-received', async ({ offer, connectionId }) => {
+    const unsubscribeOffer = on('signalr:offer-received', async ({ offer }) => {
       try {
         console.log('📥 Processing offer from SignalR...');
         const answer = await handleOffer(offer);
@@ -304,7 +304,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     });
 
     // Handle answers from SignalR
-    const unsubscribeAnswer = on('signalr:answer-received', async ({ answer, connectionId }) => {
+    const unsubscribeAnswer = on('signalr:answer-received', async ({ answer }) => {
       try {
         console.log('📥 Processing answer from SignalR...');
         await handleAnswer(answer);
@@ -315,7 +315,7 @@ export const useWebRTC = (): UseWebRTCReturn => {
     });
 
     // Handle ICE candidates from SignalR
-    const unsubscribeIce = on('signalr:ice-candidate-received', async ({ candidate, isPub, connectionId }) => {
+    const unsubscribeIce = on('signalr:ice-candidate-received', async ({ candidate, isPub }) => {
       try {
         await handleIceCandidate(candidate, isPub);
         console.log(`🧊 ICE candidate processed (${isPub ? 'publisher' : 'subscriber'})`);

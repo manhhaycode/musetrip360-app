@@ -6,6 +6,7 @@
 
 import * as signalR from '@microsoft/signalr';
 import { ConnectionState, SignalRConnectionConfig, SignalREvents, StreamingError, StreamingErrorCode } from '@/types';
+import { EventParticipant } from '@musetrip360/event-management';
 
 export class SignalRClient {
   private connection: signalR.HubConnection | null = null;
@@ -191,6 +192,22 @@ export class SignalRClient {
   }
 
   /**
+   * Get participant info by streamId
+   */
+  async getParticipantInfoByStreamId(streamId: string): Promise<string | null> {
+    if (!this.connection || this.connectionState !== ConnectionState.Connected) {
+      throw this.createError(StreamingErrorCode.SIGNALR_CONNECTION_FAILED, 'SignalR not connected');
+    }
+
+    try {
+      return await this.connection.invoke('GetUserByStreamId', streamId);
+    } catch (error) {
+      console.error('Failed to get participant info by stream ID:', error);
+      return null;
+    }
+  }
+
+  /**
    * Register event handler
    */
   on<K extends keyof SignalREvents>(event: K, handler: SignalREvents[K]): void {
@@ -269,8 +286,8 @@ export class SignalRClient {
 
     // Handle peer joined
     this.connection.on('PeerJoined', (userId: string, peerId: string) => {
-      console.log(`👥 Peer joined: ${peerId}`);
-      this.eventHandlers.PeerJoined?.('', userId);
+      console.log(`👥 Peer joined: ${peerId} - UserId: ${userId}`);
+      this.eventHandlers.PeerJoined?.(userId, peerId);
     });
 
     // Handle peer disconnected

@@ -32,6 +32,7 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
                 <LocalVideo
                   muted={participant.mediaState.audio}
                   key={participant.id}
+                  participant={participant}
                   stream={localStream!}
                   className="w-40 h-30 rounded-lg border-2 border-primary shrink-0"
                   showControls={true}
@@ -39,7 +40,6 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
               );
             } else {
               const mediaStreamInfo = remoteStreams?.get(participant.streamId);
-              console.log(mediaStreamInfo);
               if (!mediaStreamInfo?.stream) return null;
               return (
                 <RemoteVideo

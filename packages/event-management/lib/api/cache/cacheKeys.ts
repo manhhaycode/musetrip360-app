@@ -61,9 +61,31 @@ export class EventManagementCacheKeys extends BaseCacheKeyFactory {
   userInEvent(eventId: string, userId: string): QueryKey {
     return [this.prefix, 'userInEvent', eventId, userId];
   }
+
+  // Room management keys
+  rooms(): QueryKey {
+    return [this.prefix, 'rooms'];
+  }
+
+  room(id: string): QueryKey {
+    return [this.prefix, 'room', id];
+  }
+
+  roomsByEvent(eventId: string): QueryKey {
+    return [this.prefix, 'rooms', 'byEvent', eventId];
+  }
 }
 
 /**
  * Default cache keys instance
  */
 export const eventManagementCacheKeys = new EventManagementCacheKeys();
+
+/**
+ * Room-specific cache keys helper
+ */
+export const roomCacheKeys = {
+  all: eventManagementCacheKeys.rooms(),
+  room: (id: string) => eventManagementCacheKeys.room(id),
+  byEvent: (eventId: string) => eventManagementCacheKeys.roomsByEvent(eventId),
+};

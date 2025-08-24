@@ -118,6 +118,41 @@ export type EventRoomCreateDto = {
   status?: string;
 };
 
+// Room types based on swagger API
+export enum RoomStatusEnum {
+  Active = 'Active',
+  Inactive = 'Inactive',
+  PreMeeting = 'PreMeeting',
+}
+
+export type Room = {
+  id: string;
+  name: string;
+  description?: string;
+  status: RoomStatusEnum;
+  eventId: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+};
+
+export type RoomCreateDto = {
+  name: string;
+  description?: string;
+  status?: RoomStatusEnum;
+};
+
+export type RoomUpdateDto = {
+  name?: string;
+  description?: string;
+  status?: RoomStatusEnum;
+};
+
+export type RoomUpdateMetadataDto = {
+  metadata?: Record<string, any>;
+};
+
 export type EventParticipant = {
   id: string;
   eventId: string;
