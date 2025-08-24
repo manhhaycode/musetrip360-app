@@ -25,6 +25,7 @@ import { ArticleCreatePage, ArticleEditPage } from '@/features/article/pages';
 import EventListPage from '@/features/event/pages/EventListPage';
 import EventCreatePage from '@/features/event/pages/EventCreatePage';
 import EventEditPage from '@/features/event/pages/EventEditPage';
+import SubscriptionPlanPage from '@/features/subscription/pages/SubscriptionPlanPage';
 
 export default function AppRoutes() {
   return (
@@ -57,7 +58,7 @@ export default function AppRoutes() {
           <Route path="/museum" element={<MuseumDetailPage />} />
           <Route path="/museum/home-page" element={<MuseumHomePage />} />
           <Route path="/museum/artifacts" element={<MuseumArtifactPage />} />
-          <Route path="/museum/contract" element={<div>Hợp đồng</div>} />
+          <Route path="/museum/contract" element={<SubscriptionPlanPage />} />
           <Route path="/museum/policy" element={<MuseumPolicyPage />} />
           <Route path="/museum/articles" element={<MuseumArticlePage />} />
           <Route path="/museum/articles/create" element={<ArticleCreatePage />} />

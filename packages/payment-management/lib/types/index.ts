@@ -56,3 +56,52 @@ export type OrderMetadata = {
   accountNumber?: string;
   qrCode?: string;
 };
+
+export type Plan = {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  durationDays: number;
+  maxEvents?: number;
+  discountPercent?: number; // from 0 - 100
+  isActive: boolean;
+  subscriptionCount: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type Subscription = {
+  id: string;
+  userId: string;
+  planId: string;
+  orderId: string;
+  museumId: string;
+  startDate: Date;
+  endDate: Date;
+  status: SubscriptionStatusEnum;
+  createdAt: Date;
+  updatedAt: Date;
+  metadata?: SubscriptionMetadata;
+  user?: IUser;
+  plan?: Plan;
+  museum?: any;
+};
+
+export enum SubscriptionStatusEnum {
+  Active = 'Active',
+  Expired = 'Expired',
+  Cancelled = 'Cancelled',
+}
+
+export type BuySubscription = {
+  planId: string;
+  museumId: string;
+  successUrl?: string;
+  cancelUrl?: string;
+  metadata?: SubscriptionMetadata;
+};
+
+export type SubscriptionMetadata = {
+  documents: string[];
+};
