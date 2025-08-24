@@ -5,6 +5,7 @@
  */
 
 import { SignalRClient } from '@/api';
+import { EventParticipant } from '@musetrip360/event-management';
 import { z } from 'zod';
 
 // SignalR Connection Types
@@ -87,11 +88,13 @@ export interface Participant {
   id: string;
   peerId: string;
   streamId: string;
+  userId: string;
   connectionId: string;
   metadata?: Record<string, any>;
   isLocalUser: boolean;
   mediaState: MediaState;
   joinedAt: Date;
+  participantInfo: EventParticipant | null;
 }
 
 export interface MediaState {
@@ -227,6 +230,7 @@ export interface StreamingContextValue {
   participants: Map<string, Participant>;
   currentRoomId: string | null;
   isInRoom: boolean;
+  initialize: () => Promise<void>;
 
   // Actions
   joinRoom: (roomId: string, metadata?: Record<string, any>) => Promise<void>;

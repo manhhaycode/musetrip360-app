@@ -92,7 +92,7 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'outline' |
   }
 };
 
-export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
+export function EventParticipant({ event, onUpdated }: EventParticipantProps) {
   const initialData: EventParticipant[] = useMemo(() => [], []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -197,7 +197,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
           isSortable: false,
           unit: '',
         },
-        accessorKey: 'user.fullName',
+        accessorKey: 'name',
         header: 'Người tham gia',
         enableSorting: false,
         cell: ({ row }) => {

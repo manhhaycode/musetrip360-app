@@ -9,7 +9,7 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Avatar, AvatarFallback } from '@musetrip360/ui-core/avatar';
 import { RemoteVideoProps } from '@/types';
-import { User, VideoOff, MicOff } from 'lucide-react';
+import { Crown, Target, User, VideoOff, MicOff } from 'lucide-react';
 
 export const RemoteVideo: React.FC<RemoteVideoProps> = ({
   stream,
@@ -68,6 +68,16 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
     };
   }, [stream, onError]);
 
+  // Enhanced user info from participant data - moved before early return
+  const userInfo = participant?.participantInfo;
+  const displayName = userInfo?.user
+    ? userInfo.user.fullName || userInfo.user.username
+    : participant
+      ? 'Anonymous User'
+      : 'Remote User';
+  const userRole = userInfo?.role;
+  const userAvatar = userInfo?.user?.avatarUrl;
+
   if (!stream) {
     return (
       <div
@@ -79,13 +89,19 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
       >
         <div className="text-center space-y-3">
           <Avatar className="w-16 h-16 mx-auto">
-            <AvatarFallback className="bg-muted-foreground/20">
-              <User className="w-8 h-8 text-muted-foreground" />
-            </AvatarFallback>
+            {userAvatar ? (
+              <img src={userAvatar} alt={displayName} className="w-full h-full object-cover" />
+            ) : (
+              <AvatarFallback className="bg-muted-foreground/20">
+                {displayName ? displayName.charAt(0).toUpperCase() : <User className="w-8 h-8 text-muted-foreground" />}
+              </AvatarFallback>
+            )}
           </Avatar>
           <div className="space-y-1">
             <div className="text-sm text-muted-foreground">Connecting...</div>
-            {showUserInfo && participant && <div className="text-xs text-muted-foreground">{participant.peerId}</div>}
+            {showUserInfo && participant && (
+              <div className="text-xs text-muted-foreground">{userInfo ? displayName : participant.peerId}</div>
+            )}
           </div>
         </div>
       </div>
@@ -93,7 +109,6 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
   }
 
   const streamId = stream.id;
-  const displayName = participant ? `User ${participant.peerId}` : 'Remote User';
   const isVideoEnabled = participant?.mediaState?.video ?? true;
   const isAudioEnabled = participant?.mediaState?.audio ?? true;
 
@@ -102,7 +117,7 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
       id={`wrapper-${streamId}`}
       className={cn(
         'relative bg-muted rounded-lg overflow-hidden border',
-        'inline-block m-2', // Matching reference styling
+        'inline-block', // Matching reference styling
         'w-80 h-60', // Default size matching reference (300px width, 200px height)
         className
       )}
@@ -123,25 +138,49 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-muted">
           <div className="text-center space-y-3">
             <Avatar className="w-12 h-12 mx-auto">
-              <AvatarFallback className="bg-muted-foreground/20">
-                {!isVideoReady ? (
-                  <User className="w-6 h-6 text-muted-foreground animate-pulse" />
-                ) : (
-                  <VideoOff className="w-6 h-6 text-muted-foreground" />
-                )}
-              </AvatarFallback>
+              {userAvatar && isVideoReady ? (
+                <img src={userAvatar} alt={displayName} className="w-full h-full object-cover" />
+              ) : (
+                <AvatarFallback className="bg-muted-foreground/20">
+                  {!isVideoReady ? (
+                    displayName ? (
+                      displayName.charAt(0).toUpperCase()
+                    ) : (
+                      <User className="w-6 h-6 text-muted-foreground animate-pulse" />
+                    )
+                  ) : (
+                    <VideoOff className="w-6 h-6 text-muted-foreground" />
+                  )}
+                </AvatarFallback>
+              )}
             </Avatar>
             <div className="text-sm text-muted-foreground">{!isVideoReady ? 'Connecting...' : 'Camera off'}</div>
           </div>
         </div>
       )}
 
-      {/* User info label */}
+      {/* Enhanced user info label */}
       {showUserInfo && (
-        <div className="absolute bottom-2 left-2">
-          <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs">
-            {displayName}
+        <div className="absolute bottom-2 max-w-full gap-1 px-1 flex">
+          <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm text-xs shrink justify-start">
+            <span className="truncate">{displayName}</span>
           </Badge>
+          {userRole && (
+            <Badge
+              variant={userRole === 'TourGuide' ? 'default' : 'outline'}
+              className="bg-background/80 backdrop-blur-sm text-xs px-2 py-0.5 flex items-center gap-1 shrink-0"
+            >
+              {userRole === 'TourGuide' ? (
+                <Target className="w-3 h-3" />
+              ) : userRole === 'Organizer' ? (
+                <Crown className="w-3 h-3" />
+              ) : userRole === 'Attendee' ? (
+                <User className="w-3 h-3" />
+              ) : (
+                userRole
+              )}
+            </Badge>
+          )}
         </div>
       )}
 

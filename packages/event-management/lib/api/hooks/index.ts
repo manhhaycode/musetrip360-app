@@ -5,3 +5,4 @@
  */
 export * from './useEvent';
 export * from './useEventParticipant';
+export * from './useRoom';

@@ -7,6 +7,7 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { MediaState, MediaStreamInfo, Participant } from '@/types';
+import { EventParticipant } from '@musetrip360/event-management';
 
 interface ParticipantStoreState {
   // Participant tracking
@@ -485,7 +486,6 @@ export const participantActions = {
 
     console.log(`👥 Participant added: ${participant.id} (${participant.isLocalUser ? 'local' : 'remote'})`);
   },
-
   /**
    * Remove participant and cleanup all associated data
    */
@@ -517,5 +517,15 @@ export const participantActions = {
       video: mediaState.video !== undefined ? mediaState.video : participant.mediaState.video,
       audio: mediaState.audio !== undefined ? mediaState.audio : participant.mediaState.audio,
     });
+  },
+
+  syncParticipantInfo: (participantInfo: EventParticipant[]) => {
+    const { participants, updateParticipant } = useParticipantStore.getState();
+    for (const [, participant] of participants.entries()) {
+      const participantInfoData = participantInfo.find((p) => p.userId === participant.userId) || null;
+      if (participantInfoData) {
+        updateParticipant(participant.id, { participantInfo: participantInfoData });
+      }
+    }
   },
 };
