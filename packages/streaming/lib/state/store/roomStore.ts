@@ -79,12 +79,7 @@ export const useRoomStore = create<RoomStore>()(
               currentRoom: state.currentRoom
                 ? {
                     ...state.currentRoom,
-                    Metadata: {
-                      Messages: state.currentRoom.Metadata?.Messages || [],
-                      TourActions: state.currentRoom.Metadata?.TourActions || [],
-                      ...state.currentRoom.Metadata,
-                      ...metadata,
-                    },
+                    Metadata: {},
                   }
                 : null,
             }),
@@ -191,11 +186,7 @@ export const roomActions = {
       Id: roomId,
       Name: name,
       Status: 1, // Active
-      Metadata: {
-        Messages: [],
-        TourActions: [],
-        ...metadata,
-      },
+      Metadata: metadata || {},
       CreatedAt: new Date(),
       UpdatedAt: new Date(),
       IsActive: true,

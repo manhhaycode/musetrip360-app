@@ -10,9 +10,11 @@ import { Button } from '@musetrip360/ui-core/button';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@musetrip360/ui-core/tabs';
 import { cn } from '@musetrip360/ui-core/utils';
-import { Crown, Mic, MicOff, Plus, Target, User, Users, Video, VideoOff } from 'lucide-react';
+import { Crown, Mic, MicOff, Plus, Target, User, Video, VideoOff } from 'lucide-react';
 import React from 'react';
 import type { Participant } from '@/types';
+import { ChatContainer } from '../Chat';
+import { useChatState } from '@/state/hooks';
 
 interface StreamingSidebarProps {
   participants: Participant[];
@@ -21,6 +23,7 @@ interface StreamingSidebarProps {
 }
 
 export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants, onAddParticipant, className }) => {
+  const { unreadCount } = useChatState();
   return (
     <div className={cn('w-80 border-l bg-gradient-to-b from-muted/30 to-background flex flex-col', className)}>
       <Tabs defaultValue="participants" className="flex-1 flex flex-col">
@@ -34,6 +37,11 @@ export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants
             </TabsTrigger>
             <TabsTrigger value="chats" className="text-xs">
               Chats
+              {unreadCount > 0 && (
+                <Badge variant="destructive" className="ml-2 text-xs h-4 px-1">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
         </div>
@@ -150,39 +158,8 @@ export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants
         </TabsContent>
 
         {/* Chat Tab */}
-        <TabsContent value="chats" className="flex-1 p-4 pt-2 mt-0">
-          <div className="flex flex-col h-[calc(100vh-280px)]">
-            {/* Chat Messages Area */}
-            <div className="flex-1 mb-4">
-              <ScrollArea className="h-full">
-                <div className="space-y-3">
-                  {/* Placeholder for chat messages */}
-                  <div className="text-center py-8">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-                      <Users className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                    <p className="text-sm text-muted-foreground">No messages yet</p>
-                    <p className="text-xs text-muted-foreground mt-1">Start a conversation</p>
-                  </div>
-                </div>
-              </ScrollArea>
-            </div>
-
-            {/* Chat Input */}
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <input
-                  type="text"
-                  placeholder="Type Something..."
-                  className="w-full px-3 py-2 text-sm border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-                  disabled
-                />
-              </div>
-              <Button size="sm" className="px-3" disabled>
-                <span className="text-xs">→</span>
-              </Button>
-            </div>
-          </div>
+        <TabsContent value="chats" className="flex-1 pt-2 mt-0 h-[calc(100vh-160px)]">
+          <ChatContainer className="h-full" />
         </TabsContent>
       </Tabs>
     </div>
