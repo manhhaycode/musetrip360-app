@@ -11,7 +11,7 @@ import {
   useUpdateUser,
 } from '@musetrip360/user-management';
 import { useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const UsersPage = () => {
   const [showEditDialog, setShowEditDialog] = useState(false);

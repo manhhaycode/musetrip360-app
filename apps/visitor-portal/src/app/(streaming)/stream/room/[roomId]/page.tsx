@@ -18,7 +18,6 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   const { roomId } = use(params);
   const router = useRouter();
   const { isInRoom, currentRoomId, roomState } = useStreamingContext();
-  console.log(roomState);
   const { data: event, isLoading } = useGetEventById(roomState?.EventId!, {
     enabled: !!roomState?.EventId,
   });

@@ -19,7 +19,7 @@ import get from 'lodash/get';
 import { ArrowLeft, Save, Shield, Users } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { toast } from 'sonner';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const RolePermissionsPage = () => {
   const { roleId } = useParams<{ roleId: string }>();

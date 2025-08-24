@@ -43,6 +43,9 @@ export type Event = {
 export type EventMetadata = {
   images?: string[];
   price?: number;
+  roomCreateType?: 'AUTO' | 'NOW' | 'NONE';
+  thumbnail?: string;
+  richDescription?: string;
 };
 
 export enum EventTypeEnum {
@@ -81,6 +84,7 @@ export type EventCreateDto = {
   endTime: string;
   location: string;
   capacity: number;
+  price: number;
   availableSlots: number;
   bookingDeadline: string;
   metadata?: EventMetadata;
