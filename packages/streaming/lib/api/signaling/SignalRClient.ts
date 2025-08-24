@@ -6,13 +6,13 @@
 
 import * as signalR from '@microsoft/signalr';
 import { ConnectionState, SignalRConnectionConfig, SignalREvents, StreamingError, StreamingErrorCode } from '@/types';
-import { EventParticipant } from '@musetrip360/event-management';
+// import { EventParticipant } from '@musetrip360/event-management';  // Unused import
 
 export class SignalRClient {
   private connection: signalR.HubConnection | null = null;
   private connectionState: ConnectionState = ConnectionState.Disconnected;
   private connectionId: string | null = null;
-  private config: SignalRConnectionConfig | null = null;
+  private config: SignalRConnectionConfig | null = null; // Used for reconnection logic
   private eventHandlers: Partial<SignalREvents> = {};
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
@@ -208,6 +208,42 @@ export class SignalRClient {
   }
 
   /**
+   * Send a chat message to room using dedicated SendChatMessageToRoom method
+   */
+  async sendChatMessageToRoom(
+    roomId: string,
+    senderId: string,
+    senderName: string,
+    messageText: string
+  ): Promise<void> {
+    if (!this.connection || this.connectionState !== ConnectionState.Connected) {
+      throw this.createError(StreamingErrorCode.SIGNALR_CONNECTION_FAILED, 'SignalR not connected');
+    }
+
+    try {
+      // Create message object
+      const message = {
+        Id: `${senderId}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
+        SenderId: senderId,
+        SenderName: senderName,
+        Message: messageText.trim(),
+        Timestamp: Date.now(),
+        MessageType: 'text' as const,
+      };
+
+      // Stringify message as per .NET requirement
+      const messageJson = JSON.stringify(message);
+
+      // Send via dedicated SignalR method
+      await this.connection.invoke('SendChatMessageToRoom', roomId, messageJson);
+
+      console.log(`💬 Chat message sent to room ${roomId}: ${messageText.substring(0, 50)}...`);
+    } catch (error) {
+      throw this.createError(StreamingErrorCode.SIGNALR_CONNECTION_FAILED, 'Failed to send chat message', error);
+    }
+  }
+
+  /**
    * Register event handler
    */
   on<K extends keyof SignalREvents>(event: K, handler: SignalREvents[K]): void {
@@ -318,6 +354,12 @@ export class SignalRClient {
     this.connection.on('ReceiveRoomState', (roomState: any) => {
       console.log('📥 Received room state update', roomState);
       this.eventHandlers.ReceiveRoomState?.(JSON.parse(roomState));
+    });
+
+    // Handle chat messages
+    this.connection.on('ReceiveChatMessage', (message: string) => {
+      console.log('💬 Received chat message', message);
+      this.eventHandlers.ReceiveChatMessage?.(message);
     });
   }
 
