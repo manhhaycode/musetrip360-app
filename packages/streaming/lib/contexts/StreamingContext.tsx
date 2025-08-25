@@ -310,7 +310,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
   useEffect(() => {
     if (eventParticipants) {
-      participantActions.syncParticipantInfo(eventParticipants);
+      setTimeout(() => participantActions.syncParticipantInfo(eventParticipants));
     }
   }, [eventParticipants]);
 

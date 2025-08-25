@@ -157,7 +157,7 @@ function SceneEditorContent() {
       <EditorToolbar className="absolute top-4 left-4 z-10" />
       <div
         className={cn(
-          'flex-1 flex',
+          'flex absolute inset-0 border overflow-hidden',
           selectedTool === 'hand' && 'cursor-grab active:cursor-grabbing',
           selectedTool === 'drag' && 'cursor-pointer active:cursor-move',
           selectedTool === 'pen' && 'cursor-crosshair'

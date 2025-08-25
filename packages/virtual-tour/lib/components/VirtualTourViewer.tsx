@@ -50,8 +50,6 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
     return virtualTour.metadata.scenes[0]?.sceneId || '';
   });
 
-  // Loading and error states
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // PreviewArtifact state
@@ -80,23 +78,14 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   const handleSceneNavigation = useCallback(
     (sceneId: string) => {
       if (sceneId === currentSceneId) return;
-
-      setIsLoading(true);
       setError(null);
-
       try {
         setCurrentSceneId(sceneId);
 
         // Notify parent component of scene change
         onSceneChange?.(sceneId);
-
-        // Simulate loading delay for scene transition
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 500);
       } catch {
         setError('Failed to navigate to scene');
-        setIsLoading(false);
       }
     },
     [currentSceneId, onSceneChange]
@@ -165,7 +154,6 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
           error={{ message: error } as any}
           onRetry={() => {
             setError(null);
-            setIsLoading(false);
           }}
         />
       </div>
@@ -199,13 +187,6 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
 
   return (
     <div className="virtual-tour-viewer relative w-full h-full">
-      {/* Loading overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="text-white">Loading scene...</div>
-        </div>
-      )}
-
       {/* Panorama sphere with hotspots */}
       <PanoramaSphere
         cubeMapLevel={cubeMapLevel}
@@ -248,7 +229,6 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
                   ? 'bg-blue-600 text-white'
                   : 'bg-black bg-opacity-75 text-white hover:bg-opacity-90'
               }`}
-              disabled={isLoading}
             >
               {scene.sceneName}
             </button>

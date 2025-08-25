@@ -21,7 +21,7 @@ export default function StudioLayout({ children, onBackScreen, museumId }: Studi
           <VirtualTourStudioHeader />
           {/* {children} */}
 
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 relative overflow-hidden">
             {children}
             <BulkUploadProvider>
               <PropertiesPanel museumId={museumId} className="border-l flex-shrink-0" />

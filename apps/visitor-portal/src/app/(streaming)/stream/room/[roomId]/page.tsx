@@ -6,7 +6,7 @@ import { StreamingRoom } from '@musetrip360/streaming/ui';
 
 import { IVirtualTour } from '@musetrip360/virtual-tour';
 import { useRouter } from 'next/navigation';
-import { Suspense, use, useEffect } from 'react';
+import React, { use, useEffect } from 'react';
 
 const SyncedVirtualTourViewer = await import('@musetrip360/streaming/ui').then((mod) => mod.SyncedVirtualTourViewer);
 
@@ -33,17 +33,23 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
 
   return (
     <StreamingRoom>
-      {isLoading || !event?.tourOnlines ? (
+      {isLoading || !event?.tourOnlines || !localParticipant?.participantInfo?.role ? (
         <div className="flex items-center justify-center h-full text-primary">Loading...</div>
       ) : (
-        <Suspense
-          fallback={<div className="flex items-center justify-center h-full text-primary">Loading Virtual Tour...</div>}
-        >
-          <SyncedVirtualTourViewer
-            mode={localParticipant?.participantInfo?.role === 'TourGuide' ? 'guide' : 'attendee'}
-            virtualTour={event.tourOnlines[0] as IVirtualTour}
-          />
-        </Suspense>
+        <div className="absolute inset-0 border overflow-hidden bg-gray-100">
+          <React.Suspense
+            fallback={
+              <div className="h-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            }
+          >
+            <SyncedVirtualTourViewer
+              mode={localParticipant?.participantInfo?.role === 'TourGuide' ? 'guide' : 'attendee'}
+              virtualTour={event.tourOnlines[0] as IVirtualTour}
+            />
+          </React.Suspense>
+        </div>
       )}
     </StreamingRoom>
   );
