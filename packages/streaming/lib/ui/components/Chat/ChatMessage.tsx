@@ -28,6 +28,34 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage 
       .slice(0, 2);
   };
 
+  // Enhanced message rendering với URL detection
+  const renderMessageContent = (text: string) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const parts = text.split(urlRegex);
+
+    return parts.map((part, index) => {
+      if (urlRegex.test(part)) {
+        return (
+          <a
+            key={index}
+            href={part}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              'underline hover:no-underline transition-colors break-all',
+              isOwnMessage
+                ? 'text-primary-foreground/80 hover:text-primary-foreground'
+                : 'text-primary hover:text-primary/80'
+            )}
+          >
+            {part}
+          </a>
+        );
+      }
+      return part;
+    });
+  };
+
   if (message.MessageType === 'system') {
     return (
       <div className={cn('flex justify-center my-2', className)}>
@@ -41,7 +69,8 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage 
   return (
     <div
       className={cn(
-        'flex gap-3 p-3 rounded-lg group hover:bg-muted/30 transition-colors',
+        'flex w-full max-w-full gap-3 p-3 rounded-lg group hover:bg-muted/30 transition-colors',
+        'overflow-hidden', // Prevent container overflow
         isOwnMessage ? 'flex-row-reverse' : 'flex-row',
         className
       )}
@@ -54,23 +83,35 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, isOwnMessage 
       </div>
 
       {/* Message Content */}
-      <div className={cn('flex-1 min-w-0', isOwnMessage ? 'text-right' : 'text-left')}>
+      <div className={cn('flex-1 min-w-0 max-w-full', isOwnMessage ? 'text-right' : 'text-left')}>
         {/* Header */}
         <div
           className={cn('flex items-baseline gap-2 mb-1', isOwnMessage ? 'flex-row-reverse justify-start' : 'flex-row')}
         >
-          <span className="font-medium text-sm truncate">{isOwnMessage ? 'You' : message.SenderName}</span>
+          <span
+            style={{
+              maxWidth: '150px',
+            }}
+            className="font-medium text-sm truncate"
+          >
+            {isOwnMessage ? 'You' : message.SenderName}
+          </span>
           <span className="text-xs text-muted-foreground flex-shrink-0">{formatTime(message.Timestamp)}</span>
         </div>
 
         {/* Message Text */}
         <div
           className={cn(
-            'p-2 rounded-md text-sm break-words',
+            'p-3 rounded-lg text-sm max-w-full',
+            'break-words hyphens-auto overflow-hidden',
             isOwnMessage ? 'bg-primary text-primary-foreground ml-8' : 'bg-muted mr-8'
           )}
+          style={{
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+          }}
         >
-          <p className="leading-relaxed whitespace-pre-wrap">{message.Message}</p>
+          <div className="leading-relaxed max-w-full whitespace-pre-wrap">{renderMessageContent(message.Message)}</div>
         </div>
       </div>
     </div>

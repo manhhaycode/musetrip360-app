@@ -106,7 +106,7 @@ export interface Participant {
   isLocalUser: boolean;
   mediaState: MediaState;
   joinedAt: Date;
-  participantInfo: EventParticipant | null;
+  participantInfo?: EventParticipant;
 }
 
 export interface MediaState {

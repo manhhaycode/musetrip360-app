@@ -6,6 +6,7 @@ import { PolygonSelector } from '@/canvas/PolygonSelect';
 import type { Hotspot, Polygon } from '@/canvas/types';
 import { LoadingErrorDisplay } from '@/ui/ErrorHandling';
 import { PreviewArtifact } from './PreviewArtifact';
+import { SceneNavigationMenu } from './SceneNavigationMenu';
 
 export interface VirtualTourViewerProps {
   /** Virtual tour data */
@@ -30,6 +31,10 @@ export interface VirtualTourViewerProps {
   // NEW: Control mode
   /** Enable/disable user controls - false for attendee mode */
   enableUserControls?: boolean;
+
+  // NEW: Navigation style
+  /** Use hamburger menu instead of button stack */
+  useHamburgerMenu?: boolean;
 }
 
 export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
@@ -44,6 +49,8 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   onPolygonClick,
   // Control mode
   enableUserControls = true,
+  // Navigation style
+  useHamburgerMenu = false,
 }) => {
   // Current scene state
   const [currentSceneId, setCurrentSceneId] = useState<string>(() => {
@@ -73,6 +80,25 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
 
     return findSceneById(virtualTour.metadata.scenes, currentSceneId);
   }, [virtualTour.metadata.scenes, currentSceneId]);
+
+  // Flatten all scenes for easier processing
+  const allScenes = useMemo(() => {
+    const flattenScenes = (scenes: IVirtualTourScene[], depth = 0): Array<IVirtualTourScene & { depth: number }> => {
+      const result: Array<IVirtualTourScene & { depth: number }> = [];
+
+      scenes.forEach((scene) => {
+        result.push({ ...scene, depth });
+
+        if (scene.subScenes && scene.subScenes.length > 0) {
+          result.push(...flattenScenes(scene.subScenes, depth + 1));
+        }
+      });
+
+      return result;
+    };
+
+    return flattenScenes(virtualTour.metadata.scenes);
+  }, [virtualTour.metadata.scenes]);
 
   // Handle scene navigation
   const handleSceneNavigation = useCallback(
@@ -207,34 +233,28 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
         />
       </PanoramaSphere>
 
-      {/* Scene info overlay */}
-      <div className="absolute top-4 left-4 z-10 bg-black bg-opacity-75 text-white rounded-lg p-3 max-w-xs">
-        <h3 className="font-semibold text-lg">{currentScene.sceneName}</h3>
-        {currentScene.sceneDescription && <p className="text-sm text-gray-300 mt-1">{currentScene.sceneDescription}</p>}
-        <p className="text-xs text-gray-400 mt-2">
-          Scene {virtualTour.metadata.scenes.findIndex((s) => s.sceneId === currentSceneId) + 1} of{' '}
-          {virtualTour.metadata.scenes.length}
-        </p>
+      {/* Hamburger Menu or Scene Info Overlay */}
+      <div className="absolute top-4 left-4 z-20">
+        {enableUserControls && useHamburgerMenu ? (
+          <SceneNavigationMenu
+            virtualTour={virtualTour}
+            currentSceneId={currentSceneId}
+            onSceneSelect={handleSceneNavigation}
+            enableSearch={true}
+            showStats={true}
+          />
+        ) : (
+          <div className="bg-black bg-opacity-75 text-white rounded-lg p-3 max-w-xs">
+            <h3 className="font-semibold text-lg">{currentScene.sceneName}</h3>
+            {currentScene.sceneDescription && (
+              <p className="text-sm text-gray-300 mt-1">{currentScene.sceneDescription}</p>
+            )}
+            <p className="text-xs text-gray-400 mt-2">
+              Scene {allScenes.findIndex((s) => s.sceneId === currentSceneId) + 1} of {allScenes.length}
+            </p>
+          </div>
+        )}
       </div>
-
-      {/* Navigation controls */}
-      {enableUserControls && (
-        <div className="absolute bottom-4 right-4 z-50 flex flex-col gap-2">
-          {virtualTour.metadata.scenes.map((scene) => (
-            <button
-              key={scene.sceneId}
-              onClick={() => handleSceneNavigation(scene.sceneId)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                scene.sceneId === currentSceneId
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-black bg-opacity-75 text-white hover:bg-opacity-90'
-              }`}
-            >
-              {scene.sceneName}
-            </button>
-          ))}
-        </div>
-      )}
 
       {/* PreviewArtifact Modal */}
       {selectedArtifactId && (

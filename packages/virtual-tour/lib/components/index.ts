@@ -17,3 +17,4 @@ export * from './VirtualTourDataTable';
 export * from './StudioVirtualTour';
 export * from './VirtualTourViewer';
 export * from './PreviewArtifact';
+export * from './SceneNavigationMenu';

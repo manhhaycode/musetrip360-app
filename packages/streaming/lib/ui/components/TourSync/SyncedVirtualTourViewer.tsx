@@ -81,6 +81,7 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
       // Guide mode: no controlled props, user has full control
       return {
         enableUserControls: true,
+        useHamburgerMenu: true,
       };
     }
 
