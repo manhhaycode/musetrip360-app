@@ -1593,6 +1593,9 @@ importers:
       '@musetrip360/ui-core':
         specifier: workspace:*
         version: link:../ui-core
+      '@musetrip360/virtual-tour':
+        specifier: workspace:*
+        version: link:../virtual-tour
       '@tanstack/react-query':
         specifier: ^5.81.5
         version: 5.83.0(react@19.0.0)

@@ -53,8 +53,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     // Auto-resize textarea
     const textarea = e.target;
     textarea.style.height = 'auto';
-    // const maxHeight = 120; // Max 4-5 lines
-    // textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
+    const maxHeight = 120; // Max 4-5 lines
+    textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px';
   };
 
   return (

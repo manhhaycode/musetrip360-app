@@ -23,10 +23,18 @@ interface StreamingSidebarProps {
 }
 
 export const StreamingSidebar: React.FC<StreamingSidebarProps> = ({ participants, onAddParticipant, className }) => {
-  const { unreadCount } = useChatState();
+  const { unreadCount, markAsRead } = useChatState();
+
+  // Handle tab change to mark messages as read when switching to chats
+  const handleTabChange = (value: string) => {
+    if (value === 'chats' && unreadCount > 0) {
+      markAsRead();
+    }
+  };
+
   return (
     <div className={cn('w-80 border-l bg-gradient-to-b from-muted/30 to-background flex flex-col', className)}>
-      <Tabs defaultValue="participants" className="flex-1 flex flex-col">
+      <Tabs defaultValue="participants" className="flex-1 flex flex-col" onValueChange={handleTabChange}>
         <div className="p-4 pb-0">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="participants" className="text-xs">

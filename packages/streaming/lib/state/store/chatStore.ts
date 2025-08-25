@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { devtools, subscribeWithSelector } from 'zustand/middleware';
-import type { ChatMessage, RoomMetadata } from '@/types';
+import type { ChatMessage } from '@/types';
 import { useShallow } from 'zustand/shallow';
 
 // Chat Store State
@@ -10,7 +10,6 @@ interface ChatStoreState {
 
   // UI State
   unreadCount: number;
-  isTyping: Record<string, boolean>; // userId -> isTyping
   lastSeenMessageId: string | null;
 
   // Input State
@@ -30,16 +29,12 @@ interface ChatStoreActions {
   incrementUnread: () => void;
   setUnreadCount: (count: number) => void;
 
-  // Typing Indicators
-  setUserTyping: (userId: string, isTyping: boolean) => void;
-  clearTypingIndicators: () => void;
-
   // Input Management
   setCurrentMessage: (message: string) => void;
   setSendingMessage: (isSending: boolean) => void;
 
   // Real-time Message Handling
-  handleReceivedMessage: (messageJson: string) => void;
+  handleReceivedMessage: (messageJson: string, currentUserId?: string) => void;
 
   // Utilities
   reset: () => void;
@@ -51,7 +46,6 @@ type ChatStore = ChatStoreState & ChatStoreActions;
 const initialState: ChatStoreState = {
   messages: [],
   unreadCount: 0,
-  isTyping: {},
   lastSeenMessageId: null,
   currentMessage: '',
   isSendingMessage: false,
@@ -100,28 +94,13 @@ export const useChatStore = create<ChatStore>()(
 
       setUnreadCount: (count) => set({ unreadCount: count }, false, 'setUnreadCount'),
 
-      // Typing Indicators
-      setUserTyping: (userId, isTyping) =>
-        set(
-          (state) => ({
-            isTyping: {
-              ...state.isTyping,
-              [userId]: isTyping,
-            },
-          }),
-          false,
-          'setUserTyping'
-        ),
-
-      clearTypingIndicators: () => set({ isTyping: {} }, false, 'clearTypingIndicators'),
-
       // Input Management
       setCurrentMessage: (message) => set({ currentMessage: message }, false, 'setCurrentMessage'),
 
       setSendingMessage: (isSending) => set({ isSendingMessage: isSending }, false, 'setSendingMessage'),
 
       // Real-time Message Handling
-      handleReceivedMessage: (messageJson) => {
+      handleReceivedMessage: (messageJson, currentUserId) => {
         try {
           const message: ChatMessage = JSON.parse(messageJson);
           const currentMessages = get().messages;
@@ -129,9 +108,14 @@ export const useChatStore = create<ChatStore>()(
           // Check if message already exists (avoid duplicates)
           const exists = currentMessages.some((msg) => msg.Id === message.Id);
           if (!exists) {
+            // Check if message is from another user to increment unread count
+            const isFromOtherUser = currentUserId && message.SenderId !== currentUserId;
+
             set(
               (state) => ({
                 messages: [...state.messages, message].sort((a, b) => a.Timestamp - b.Timestamp),
+                // Increment unread count only for messages from other users
+                unreadCount: isFromOtherUser ? state.unreadCount + 1 : state.unreadCount,
               }),
               false,
               'handleReceivedMessage'
@@ -155,14 +139,12 @@ export const useChatStore = create<ChatStore>()(
 export const useChatSelectors = () => {
   const messages = useChatStore((state) => state.messages);
   const unreadCount = useChatStore((state) => state.unreadCount);
-  const isTyping = useChatStore((state) => state.isTyping);
   const currentMessage = useChatStore((state) => state.currentMessage);
   const isSendingMessage = useChatStore((state) => state.isSendingMessage);
 
   return {
     messages,
     unreadCount,
-    isTyping,
     currentMessage,
     isSendingMessage,
   };
@@ -178,8 +160,6 @@ export const useChatActions = () => {
       markAsRead: state.markAsRead,
       incrementUnread: state.incrementUnread,
       setUnreadCount: state.setUnreadCount,
-      setUserTyping: state.setUserTyping,
-      clearTypingIndicators: state.clearTypingIndicators,
       setCurrentMessage: state.setCurrentMessage,
       setSendingMessage: state.setSendingMessage,
       handleReceivedMessage: state.handleReceivedMessage,
@@ -191,16 +171,10 @@ export const useChatActions = () => {
 // Computed values
 export const useChatComputed = () => {
   const messages = useChatStore((state) => state.messages);
-  const isTyping = useChatStore((state) => state.isTyping);
 
   return {
     // Get latest message
     latestMessage: messages[messages.length - 1] || null,
-
-    // Get typing users (exclude empty values)
-    typingUsers: Object.entries(isTyping)
-      .filter(([, typing]) => typing) // Don't need userId in filter, so don't destructure
-      .map(([userId]) => userId),
 
     // Message count
     messageCount: messages.length,
