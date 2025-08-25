@@ -139,7 +139,7 @@ export const useParticipantStore = create<ParticipantStore>()(
             const newStreamToParticipant = new Map(state.streamToParticipant);
 
             if (!participant.participantInfo) {
-              participant.participantInfo = state.participantInfos.get(participant.id) || null;
+              participant.participantInfo = state.participantInfos.get(participant.userId);
             }
 
             newParticipantToStream.set(participant.id, participant.streamId);
@@ -535,7 +535,7 @@ export const participantActions = {
     const participantInfoMap = new Map(participantInfo.map((p) => [p.userId, p]));
     setParticipantInfos(participantInfoMap);
     for (const [, participant] of participants.entries()) {
-      participant.participantInfo = participantInfoMap.get(participant.userId) || null;
+      participant.participantInfo = participantInfoMap.get(participant.userId);
     }
     setParticipants(participants);
   },

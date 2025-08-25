@@ -140,7 +140,6 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             mediaState: mediaStream.mediaState,
             joinedAt: new Date(),
             userId: userId,
-            participantInfo: eventParticipants?.find((p) => p.userId === userId) || null,
           });
         }
 
@@ -150,7 +149,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         throw error;
       }
     },
-    [mediaStream, webRTC, signalR, eventParticipants]
+    [mediaStream, webRTC, signalR]
   );
 
   /**
@@ -286,7 +285,6 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             mediaState: { video: true, audio: true },
             joinedAt: new Date(),
             userId: userId,
-            participantInfo: eventParticipants?.find((p) => p.userId === userId) || null,
           });
         }
 
@@ -300,7 +298,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
       unsubscribePeerJoined();
       unsubscribePeerDisconnected();
     };
-  }, [on, signalR, mediaStream, eventParticipants]);
+  }, [on, signalR, mediaStream]);
 
   // Handle remote stream events
   useEffect(() => {

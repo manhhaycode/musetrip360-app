@@ -60,7 +60,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({
   return (
     <div className={cn('border-t bg-background p-4', className)}>
       <div className="flex gap-2 items-end">
-        <div className="flex-1 relative">
+        <div className="flex-1 min-w-0 relative">
           <Textarea
             ref={textareaRef}
             value={message}
