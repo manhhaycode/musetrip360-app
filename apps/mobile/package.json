@@ -18,6 +18,7 @@
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/museum-management": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
+    "@musetrip360/shared": "workspace:*",
     "@musetrip360/streaming": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",

@@ -1,3 +1,4 @@
+import { AuthProvider } from '@musetrip360/auth-system';
 import { QueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
 import React from 'react';
 import { initConfigApp } from '../../config';
@@ -27,5 +28,9 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </AuthProvider>
+  );
 }

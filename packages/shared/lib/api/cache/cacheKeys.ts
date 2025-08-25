@@ -1,3 +1,4 @@
+import { FeedbackSearchParams } from '@/types';
 import { BaseCacheKeyFactory } from '@musetrip360/query-foundation';
 import type { QueryKey } from '@tanstack/react-query';
 
@@ -69,6 +70,19 @@ export class HistoricalPeriodCacheKeys extends BaseCacheKeyFactory {
   }
 }
 
+export class FeedbackCacheKeys extends BaseCacheKeyFactory {
+  constructor() {
+    super('feedback');
+  }
+
+  /**
+   * Cache key for feedback
+   */
+  feedback(params: FeedbackSearchParams): QueryKey {
+    return [this.prefix, 'list', params.Page, params.PageSize, params.targetId ?? '', params.targetType ?? ''];
+  }
+}
+
 /**
  * Shared cache keys
  */
@@ -83,6 +97,7 @@ export class SharedCacheKeys extends BaseCacheKeyFactory {
   upload = new UploadCacheKeys();
   category = new CategoryCacheKeys();
   historicalPeriod = new HistoricalPeriodCacheKeys();
+  feedback = new FeedbackCacheKeys();
 }
 
 export const sharedCacheKeys = new SharedCacheKeys();

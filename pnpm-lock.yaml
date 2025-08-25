@@ -180,6 +180,9 @@ importers:
       '@musetrip360/query-foundation':
         specifier: workspace:*
         version: link:../../packages/query-foundation
+      '@musetrip360/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@musetrip360/streaming':
         specifier: workspace:*
         version: link:../../packages/streaming
