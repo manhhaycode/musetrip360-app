@@ -23,6 +23,11 @@ export const useTourActionState = () => {
     return Array.from(participants.values()).find((p) => p.isLocalUser)?.userId || 'Unknown';
   }, [participants]);
 
+  // Get current user role from participants
+  const currentUserRole = useMemo(() => {
+    return Array.from(participants.values()).find((p) => p.isLocalUser)?.participantInfo?.role || null;
+  }, [participants]);
+
   /**
    * Send camera change action to other participants
    */
@@ -101,13 +106,17 @@ export const useTourActionState = () => {
   }, [currentRoom?.Id, currentUserId]);
 
   /**
-   * Check if user can send tour actions (is tour guide)
+   * Check if user can send tour actions (is tour guide or has guide permissions)
    */
   const canSendTourActions = useMemo(() => {
-    // TODO: Add proper tour guide role checking here
-    // For now, assume any user can send tour actions
-    return Boolean(currentRoom && currentUserId && tourActionService.isAvailable());
-  }, [currentRoom, currentUserId]);
+    // Must have room, user ID, and service available
+    if (!currentRoom || !currentUserId || !tourActionService.isAvailable()) {
+      return false;
+    }
+
+    // Check if user has tour guide role
+    return currentUserRole === 'TourGuide';
+  }, [currentRoom, currentUserId, currentUserRole]);
 
   return {
     // State
@@ -115,6 +124,7 @@ export const useTourActionState = () => {
     roomId: currentRoom?.Id || null,
     currentUserId,
     currentUserName,
+    currentUserRole,
     canSendTourActions,
 
     // Actions for sending tour actions (tour guide)

@@ -3,38 +3,44 @@ import type { IVirtualTour, CubeMapData } from '@musetrip360/virtual-tour';
 import { VirtualTourViewer, VirtualTourViewerProps } from '@musetrip360/virtual-tour/components';
 import { useTourActionState, useTourActionReceiver } from '@/state/hooks/useTourActionState';
 
+export type TourMode = 'free-explore' | 'follow-guide';
+
 export interface SyncedVirtualTourViewerProps {
   /** Virtual tour data */
   virtualTour: IVirtualTour;
 
-  /** Tour mode - guide can control, attendee follows */
-  mode: 'guide' | 'attendee';
+  /** Tour interaction mode */
+  mode: TourMode;
 
   /** Optional props to override VirtualTourViewer defaults */
   virtualTourProps?: Partial<Omit<VirtualTourViewerProps, 'virtualTour'>>;
 
-  /** Callback when mode-specific events occur */
-  onModeChange?: (mode: 'guide' | 'attendee') => void;
+  /** Callback when user wants to change tour mode */
+  onModeChange?: (mode: TourMode) => void;
+
+  /** Whether mode switching is allowed for this user */
+  allowModeSwitch?: boolean;
 }
 
 /**
  * Synced Virtual Tour Viewer that integrates with streaming tour actions
- * - Guide mode: User actions are broadcasted to other participants
- * - Attendee mode: Receives and applies actions from tour guide
+ * - Free Explore mode: User has full control, actions may be broadcasted if user is TourGuide
+ * - Follow Guide mode: Receives and applies actions from tour guide
  */
 export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = ({
   virtualTour,
   mode,
   virtualTourProps = {},
-  onModeChange,
 }) => {
   // Tour action hooks
   const tourActionState = useTourActionState();
   const tourActionReceiver = useTourActionReceiver();
 
-  // Determine if user can send tour actions (is tour guide)
-  const isGuideMode = mode === 'guide';
-  const canSendActions = isGuideMode && tourActionState.canSendTourActions;
+  // Determine interaction mode and permissions
+  const isFreeExploreMode = mode === 'free-explore';
+
+  // Can send actions if in free-explore mode AND user has tour guide role
+  const canSendActions = isFreeExploreMode && tourActionState.canSendTourActions;
 
   // Handle camera changes - send to other participants if guide
   const handleCameraChange = useCallback(
@@ -75,39 +81,39 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
     [canSendActions, tourActionState, virtualTourProps]
   );
 
-  // Prepare controlled props for attendee mode
+  // Prepare controlled props based on mode
   const controlledProps = useMemo(() => {
-    if (isGuideMode) {
-      // Guide mode: no controlled props, user has full control
+    if (isFreeExploreMode) {
+      // Free explore mode: user has full control
       return {
         enableUserControls: true,
         useHamburgerMenu: true,
       };
     }
 
-    // Attendee mode: use controlled props from tour actions
+    // Follow guide mode: use controlled props from tour actions
     return {
       enableUserControls: false,
       controlledSceneId: tourActionReceiver.controlledSceneId,
       controlledCameraPosition: tourActionReceiver.controlledCameraPosition,
       controlledArtifactId: tourActionReceiver.controlledArtifactId || undefined,
     };
-  }, [isGuideMode, tourActionReceiver]);
+  }, [isFreeExploreMode, tourActionReceiver]);
 
-  // Prepare event callbacks for guide mode
+  // Prepare event callbacks for free explore mode
   const eventCallbacks = useMemo(() => {
-    if (!isGuideMode) {
-      // Attendee mode: no event callbacks needed
+    if (!isFreeExploreMode) {
+      // Follow guide mode: no event callbacks needed
       return {};
     }
 
-    // Guide mode: attach tour action callbacks
+    // Free explore mode: attach tour action callbacks (if user can send actions)
     return {
       onCameraChange: handleCameraChange,
       onSceneChange: handleSceneChange,
       onPolygonClick: handlePolygonClick,
     };
-  }, [isGuideMode, handleCameraChange, handleSceneChange, handlePolygonClick]);
+  }, [isFreeExploreMode, handleCameraChange, handleSceneChange, handlePolygonClick]);
 
   // Merge all props
   const mergedProps: VirtualTourViewerProps = {
@@ -122,8 +128,9 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
       {/* Mode indicator */}
       <div className="absolute top-4 right-4 z-50 bg-black bg-opacity-75 text-white rounded-lg px-3 py-2 text-sm">
         <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isGuideMode ? 'bg-green-400' : 'bg-blue-400'}`} />
-          <span>{isGuideMode ? 'Tour Guide' : 'Following Guide'}</span>
+          <div className={`w-2 h-2 rounded-full ${isFreeExploreMode ? 'bg-green-400' : 'bg-blue-400'}`} />
+          <span>{isFreeExploreMode ? 'Free Explore' : 'Following Guide'}</span>
+          {canSendActions && <span className="text-xs text-green-300">(Broadcasting)</span>}
         </div>
 
         {/* Connection status */}
@@ -135,22 +142,22 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
       {/* Virtual Tour Viewer with integrated sync */}
       <VirtualTourViewer {...mergedProps} />
 
-      {/* Mode switching button (development/admin only) */}
-      {process.env.NODE_ENV === 'development' && onModeChange && (
+      {/* Mode switching button */}
+      {/* {allowModeSwitch && onModeChange && (
         <button
           onClick={() => {
-            const newMode = isGuideMode ? 'attendee' : 'guide';
-            if (newMode === 'attendee') {
-              // Clear any controlled state when switching to guide
+            const newMode: TourMode = isFreeExploreMode ? 'follow-guide' : 'free-explore';
+            if (newMode === 'follow-guide') {
+              // Clear any controlled state when switching to follow guide
               tourActionReceiver.clearControlledState();
             }
             onModeChange(newMode);
           }}
           className="absolute bottom-4 left-4 z-50 bg-purple-600 text-white rounded-lg px-3 py-2 text-sm hover:bg-purple-700 transition-colors"
         >
-          Switch to {isGuideMode ? 'Attendee' : 'Guide'} Mode
+          Switch to {isFreeExploreMode ? 'Follow Guide' : 'Free Explore'}
         </button>
-      )}
+      )} */}
     </>
   );
 };
