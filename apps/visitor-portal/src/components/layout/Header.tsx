@@ -48,6 +48,7 @@ import { useUserStore } from '@musetrip360/user-management/state';
 import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { cn } from '@musetrip360/ui-core/utils';
 import { useRouter } from 'next/navigation';
+import { NotificationBellContainer } from './NotificationBellContainer';
 
 export function Header() {
   const isAuthenticated = useIsAuthenticated();
@@ -231,6 +232,7 @@ export function Header() {
           {/* Auth Buttons */}
           {isAuthenticated && user ? (
             <div className="hidden md:flex items-center gap-2">
+              <NotificationBellContainer />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
