@@ -32,9 +32,6 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
 
     // Connection state
     signalR: { isConnected },
-
-    // Errors
-    errors,
   } = useStreamingContext();
 
   const participantArray = Array.from(participants.values());

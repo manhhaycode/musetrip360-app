@@ -2,13 +2,14 @@
 
 import { useGetEventById } from '@musetrip360/event-management';
 import { useStreamingContext } from '@musetrip360/streaming/contexts';
-import { StreamingRoom } from '@musetrip360/streaming/ui';
+import { StreamingRoom, TourModeSelector } from '@musetrip360/streaming/ui';
 
 import { IVirtualTour } from '@musetrip360/virtual-tour';
 import { useRouter } from 'next/navigation';
-import React, { use, useEffect } from 'react';
+import React, { use, useEffect, useState } from 'react';
 
 const SyncedVirtualTourViewer = await import('@musetrip360/streaming/ui').then((mod) => mod.SyncedVirtualTourViewer);
+type TourMode = 'free-explore' | 'follow-guide';
 
 interface StreamRoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -18,6 +19,21 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   const { roomId } = use(params);
   const router = useRouter();
   const { isInRoom, currentRoomId, roomState, localParticipant } = useStreamingContext();
+
+  // User's tour mode logic
+  const userRole = localParticipant?.participantInfo?.role;
+  const isTourGuide = userRole === 'TourGuide';
+
+  // Tour guides always use free-explore mode (broadcasting)
+  // Attendees can choose between modes
+  const defaultMode: TourMode = isTourGuide ? 'free-explore' : 'follow-guide';
+  const [userTourMode, setUserTourMode] = useState<TourMode>(defaultMode);
+
+  // Only attendees can switch modes
+  const canSwitchMode = Boolean(isInRoom && localParticipant && !isTourGuide);
+
+  // Force tour guides to stay in free-explore mode
+  const effectiveMode: TourMode = isTourGuide ? 'free-explore' : userTourMode;
   const { data: event, isLoading } = useGetEventById(roomState?.EventId!, {
     enabled: !!roomState?.EventId,
   });
@@ -44,10 +60,27 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
               </div>
             }
           >
-            <SyncedVirtualTourViewer
-              mode={localParticipant?.participantInfo?.role === 'TourGuide' ? 'guide' : 'attendee'}
-              virtualTour={event.tourOnlines[0] as IVirtualTour}
-            />
+            <div className="relative h-full">
+              <SyncedVirtualTourViewer
+                mode={effectiveMode}
+                virtualTour={event.tourOnlines[0] as IVirtualTour}
+                onModeChange={setUserTourMode}
+                allowModeSwitch={false} // Disabled - using separate component
+              />
+
+              {/* Tour Mode Selector - only show for attendees, positioned bottom-right */}
+              {!isTourGuide && canSwitchMode && (
+                <div className="absolute bottom-4 right-4 z-50">
+                  <TourModeSelector
+                    currentMode={userTourMode}
+                    onModeChange={setUserTourMode}
+                    disabled={false}
+                    userRole={userRole || null}
+                    isConnected={isInRoom}
+                  />
+                </div>
+              )}
+            </div>
           </React.Suspense>
         </div>
       )}
