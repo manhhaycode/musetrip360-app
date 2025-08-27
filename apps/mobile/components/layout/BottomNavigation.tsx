@@ -1,4 +1,4 @@
-import { Home, Search } from 'lucide-react-native';
+import { Home, Search, User } from 'lucide-react-native';
 import React from 'react';
 import { Platform, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -26,6 +26,12 @@ const tabs: TabItem[] = [
     icon: Search,
     href: '/search',
   },
+  {
+    name: 'profile',
+    label: 'Cá nhân',
+    icon: User,
+    href: '/profile',
+  },
 ];
 
 export function BottomNavigation() {
@@ -42,7 +48,7 @@ export function BottomNavigation() {
 
   return (
     <View
-      className="bg-white border-t border-gray-200"
+      className="bg-[#FFEDE3] border-t border-[#FFD2B2]/60 shadow"
       style={{
         paddingBottom: Platform.OS === 'ios' ? insets.bottom : 8,
         paddingTop: 8,

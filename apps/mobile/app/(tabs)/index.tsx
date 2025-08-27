@@ -43,7 +43,7 @@ export default function HomePage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
       <StatusBar style="dark" />
 
       <ScrollView
@@ -52,18 +52,18 @@ export default function HomePage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Hero Section */}
-        <View className="px-4 pt-8 pb-6">
+        <View className="px-4 pt-8 pb-6 bg-[#FFEDE3] rounded-2xl shadow-lg">
           {/* Search Bar */}
           <View className="relative">
             <Input
+              className="bg-[#FFEDE3] text-accent-foreground border-primary pl-12 h-12 text-base rounded-lg"
               placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
               value={searchQuery}
               onChangeText={setSearchQuery}
               onSubmitEditing={handleSearch}
-              className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-lg"
             />
             <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-              <Search size={20} color="#6b7280" />
+              <Search size={20} color="#222" />
             </TouchableOpacity>
           </View>
         </View>

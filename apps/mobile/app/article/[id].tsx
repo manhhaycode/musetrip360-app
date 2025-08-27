@@ -62,11 +62,11 @@ export default function ArticleDetailPage() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-[#FFEDE3]">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
@@ -87,11 +87,11 @@ export default function ArticleDetailPage() {
 
   if (error || !article) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-[#FFEDE3]">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
@@ -113,11 +113,11 @@ export default function ArticleDetailPage() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <ArrowLeft size={24} color="#1f2937" />
         </TouchableOpacity>

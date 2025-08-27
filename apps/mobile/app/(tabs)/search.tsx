@@ -155,27 +155,25 @@ export default function SearchPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="px-4 pt-4 pb-2 bg-white border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900 mb-4">Tìm kiếm</Text>
-
+      <View className="px-4 pt-8 pb-6 bg-[#FFEDE3] rounded-2xl shadow-lg">
         {/* Search Bar */}
-        <View className="relative mb-4">
+        <View className="relative mb-4 bg-[#FFEDE3] rounded-xl">
           <Input
-            placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
+            className="bg-[#FFEDE3] text-accent-foreground border-primary pl-12 h-12 text-base rounded-lg"
+            placeholder="Tìm kiếm..."
             value={searchQuery}
             onChangeText={handleSearchInputChange}
             onSubmitEditing={handleSearch}
-            className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-lg"
           />
           <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-            <SearchIcon size={20} color="#6b7280" />
+            <SearchIcon size={20} color="#222" />
           </TouchableOpacity>
           <TouchableOpacity className="absolute right-4 top-3">
-            <Filter size={20} color="#6b7280" />
+            <Filter size={20} color="#222" />
           </TouchableOpacity>
         </View>
 
@@ -187,10 +185,10 @@ export default function SearchPage() {
                 key={tab.key}
                 onPress={() => handleTabChange(tab.key)}
                 className={`px-4 py-2 rounded-full border mr-6 ${
-                  activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+                  activeTab === tab.key ? 'bg-black border-black' : 'bg-white border-gray-300'
                 }`}
               >
-                <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
+                <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-black'}`}>
                   {tab.icon} {tab.label}
                 </Text>
               </TouchableOpacity>
@@ -202,9 +200,7 @@ export default function SearchPage() {
       {/* Results */}
       <View className="flex-1">
         <View className="flex-row items-center justify-between mb-4 px-4">
-          <Text className="text-lg font-semibold text-gray-900">
-            {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label}
-          </Text>
+          <Text className="text-lg font-bold text-[#FF914D] mb-2">Bảo tàng nổi bật</Text>
           <Text className="text-gray-600">{searchResults.length} kết quả</Text>
         </View>
 
