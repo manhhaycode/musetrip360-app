@@ -160,3 +160,29 @@ export type FeedbackSearchParams = Pagination & {
   targetId?: string;
   targetType?: string;
 };
+
+export type Notification = {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  isRead: boolean;
+  readAt: Date | null;
+  target: 'User' | 'Admin' | 'All';
+  createdAt: Date;
+  userId: string;
+  metadata?: NotificationMetadata;
+};
+
+export type NotificationMetadata = {
+  TargetId?: string;
+};
+
+export type UpdateReadNotification = {
+  notificationId: string;
+  isRead: boolean;
+};
+
+export type NotificationSearchParams = Pagination & {
+  isRead?: boolean;
+};

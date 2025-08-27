@@ -12,9 +12,9 @@ import {
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
-import { Badge } from '@musetrip360/ui-core/badge';
-import { LogOutIcon, BellIcon, UserIcon, LockIcon } from 'lucide-react';
+import { LogOutIcon, UserIcon, LockIcon } from 'lucide-react';
 import { Link } from 'react-router';
+import { NotificationBellContainer } from './NotificationBellContainer';
 
 export default function Header() {
   const { data } = useCurrentProfile();
@@ -39,11 +39,8 @@ export default function Header() {
 
         {user ? (
           <div className="ml-auto flex items-center gap-4">
-            {/* Notification Icon */}
-            <Button variant="ghost" size="sm" className="relative">
-              <BellIcon className="h-5 w-5" />
-              <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 text-xs">3</Badge>
-            </Button>
+            {/* Notification Bell */}
+            <NotificationBellContainer />
 
             {/* Profile Dropdown */}
             <DropdownMenu>
