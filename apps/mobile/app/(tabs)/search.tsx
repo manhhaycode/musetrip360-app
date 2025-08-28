@@ -117,7 +117,7 @@ export default function SearchPage() {
 
     return (
       <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
-        <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+        <Card className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
           <View className={`flex-row ${cardHeight}`}>
             <View className={`w-24 ${imageHeight} bg-gray-100`}>
               <Image
@@ -155,11 +155,11 @@ export default function SearchPage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="px-4 pt-8 pb-6 bg-[#FFEDE3] rounded-2xl shadow-lg">
+      <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
         {/* Search Bar */}
         <View className="relative mb-4 bg-[#FFEDE3] rounded-xl">
           <Input

@@ -43,7 +43,7 @@ export default function HomePage() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
 
       <ScrollView
@@ -52,7 +52,7 @@ export default function HomePage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Hero Section */}
-        <View className="px-4 pt-8 pb-6 bg-[#FFEDE3] rounded-2xl shadow-lg">
+        <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
           {/* Search Bar */}
           <View className="relative">
             <Input
@@ -83,7 +83,7 @@ export default function HomePage() {
             <View className="space-y-4">
               <Text className="text-center text-gray-500 mb-2">Đang tải bảo tàng...</Text>
               {Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
+                <Card key={index} className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
                   <CardContent className="p-0">
                     <View className="flex-row">
                       <View className="w-24 h-24 bg-gray-200" />
@@ -99,7 +99,7 @@ export default function HomePage() {
             </View>
           ) : error ? (
             // Error state
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">⚠️</Text>
                 <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải dữ liệu</Text>
@@ -118,7 +118,7 @@ export default function HomePage() {
               ))}
             </View>
           ) : (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">🏛️</Text>
                 <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có bảo tàng nổi bật</Text>

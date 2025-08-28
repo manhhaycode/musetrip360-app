@@ -4,42 +4,42 @@
 
 @layer base {
   :root {
-    /* Base colors - matching web */
-    --background: 98.5% 8% 56.3169%;
-    --foreground: 33.5% 1.3% 2.7676%;
+    /* Base colors - matching visitor-portal, dùng HEX cho mobile/nativewind */
+    --background: #fff6ed;
+    --foreground: #2d1f13;
 
-    /* Card colors - matching web */
-    --card: 100% 0% 0%;
-    --card-foreground: 33.5% 1.3% 2.7676%;
+    /* Card colors - matching visitor-portal (web: trắng) */
+    --card: #ffffff;
+    --card-foreground: #2d1f13;
 
     /* Popover colors */
-    --popover: 100% 0% 0%;
-    --popover-foreground: 33.5% 1.3% 2.7676%;
+    --popover: #fff6ed;
+    --popover-foreground: #2d1f13;
 
-    /* Primary colors - matching web exactly */
-    --primary: 0.95 0.18 40; /* oklch: cam tươi */
-    --primary-foreground: 1 0 0;
+    /* Primary colors - matching visitor-portal */
+    --primary: #ff914d;
+    --primary-foreground: #fff6ed;
 
-    /* Secondary colors - matching web */
-    --secondary: 0.98 0.1 38; /* oklch: cam nhạt */
-    --secondary-foreground: 1 0 0;
+    /* Secondary colors - matching visitor-portal */
+    --secondary: #ffe3cc;
+    --secondary-foreground: #2d1f13;
 
-    /* Muted colors - matching web */
-    --muted: 96.56% 1.76% 39.4009%;
-    --muted-foreground: 55.34% 1.16% 58.0708%;
+    /* Muted colors - matching visitor-portal */
+    --muted: #f5e9dd;
+    --muted-foreground: #a67c52;
 
-    /* Accent colors - matching web */
-    --accent: 0.99 0.22 45; /* oklch: cam nổi bật */
-    --accent-foreground: 1 0 0;
+    /* Accent colors - matching visitor-portal */
+    --accent: #ffb672;
+    --accent-foreground: #2d1f13;
 
-    /* Destructive colors - matching web */
-    --destructive: 61.22% 20.82% 22.241%;
-    --destructive-foreground: 100% 0% 0%;
+    /* Destructive colors - matching visitor-portal */
+    --destructive: #f87171;
+    --destructive-foreground: #fff6ed;
 
-    /* Border, input, ring colors - matching web */
-    --border: 92.96% 3.7% 38.6868%;
-    --input: 92.96% 3.7% 38.6868%;
-    --ring: 73.57% 16.41% 34.7091%;
+    /* Border, input, ring colors - matching visitor-portal */
+    --border: #ffd2b2;
+    --input: #ffd2b2;
+    --ring: #ff914d;
 
     /* Font families - removed quotes for React Native compatibility */
     --font-sans: Montserrat;
@@ -50,42 +50,42 @@
   }
 
   .dark:root {
-    /* Base colors - matching web dark */
-    --background: 25.69% 1.69% 352.4042%;
-    --foreground: 93.97% 1.19% 51.3156%;
+    /* Base colors - dark mode HEX */
+    --background: #1a1208;
+    --foreground: #ffe3cc;
 
-    /* Card colors - matching web dark */
-    --card: 31.84% 1.76% 341.4465%;
-    --card-foreground: 93.97% 1.19% 51.3156%;
+    /* Card colors - dark mode HEX */
+    --card: #23180c;
+    --card-foreground: #ffe3cc;
 
     /* Popover colors */
-    --popover: 31.84% 1.76% 341.4465%;
-    --popover-foreground: 93.97% 1.19% 51.3156%;
+    --popover: #23180c;
+    --popover-foreground: #ffe3cc;
 
-    /* Primary colors - same as light mode */
-    --primary: 73.57% 16.41% 34.7091%;
-    --primary-foreground: 100% 0% 0%;
+    /* Primary colors - dark mode HEX */
+    --primary: #ff914d;
+    --primary-foreground: #fff6ed;
 
-    /* Secondary colors - matching web dark */
-    --secondary: 36.37% 2.03% 342.2664%;
-    --secondary-foreground: 93.97% 1.19% 51.3156%;
+    /* Secondary colors - dark mode HEX */
+    --secondary: #2d1f13;
+    --secondary-foreground: #ffe3cc;
 
-    /* Muted colors - matching web dark */
-    --muted: 31.84% 1.76% 341.4465%;
-    --muted-foreground: 83.78% 2.37% 52.6346%;
+    /* Muted colors - dark mode HEX */
+    --muted: #23180c;
+    --muted-foreground: #a67c52;
 
-    /* Accent colors - matching web dark */
-    --accent: 82.78% 11.31% 57.9984%;
-    --accent-foreground: 25.69% 1.69% 352.4042%;
+    /* Accent colors - dark mode HEX */
+    --accent: #ffb672;
+    --accent-foreground: #1a1208;
 
-    /* Destructive colors - matching web dark */
-    --destructive: 61.22% 20.82% 22.241%;
-    --destructive-foreground: 100% 0% 0%;
+    /* Destructive colors - dark mode HEX */
+    --destructive: #f87171;
+    --destructive-foreground: #fff6ed;
 
-    /* Border, input, ring colors - matching web dark */
-    --border: 36.37% 2.03% 342.2664%;
-    --input: 36.37% 2.03% 342.2664%;
-    --ring: 73.57% 16.41% 34.7091%;
+    /* Border, input, ring colors - dark mode HEX */
+    --border: #2d1f13;
+    --input: #2d1f13;
+    --ring: #ff914d;
 
     /* Font families - removed quotes for React Native compatibility */
     --font-sans: Montserrat;

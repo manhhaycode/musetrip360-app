@@ -68,8 +68,8 @@ export default function ProfileScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
-      <View className="px-4 pt-8 pb-6 bg-[#FFEDE3] rounded-2xl shadow-lg border border-[#FFD2B2]">
+    <SafeAreaView className="flex-1 bg-background">
+      <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
         <View style={styles.avatarContainer}>
           {profile?.avatarUrl ? (
             <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />

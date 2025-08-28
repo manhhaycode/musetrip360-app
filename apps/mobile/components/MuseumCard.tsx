@@ -60,7 +60,7 @@ export function MuseumCard({ museum }: MuseumCardProps) {
   return (
     <TouchableOpacity
       onPress={handlePress}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden"
+      className="bg-card rounded-xl shadow-md border border-card mb-4 overflow-hidden"
       activeOpacity={0.7}
     >
       {/* Image */}

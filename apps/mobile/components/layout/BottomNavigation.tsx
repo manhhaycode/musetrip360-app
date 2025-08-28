@@ -48,7 +48,7 @@ export function BottomNavigation() {
 
   return (
     <View
-      className="bg-[#FFEDE3] border-t border-[#FFD2B2]/60 shadow"
+      className="bg-background shadow-md"
       style={{
         paddingBottom: Platform.OS === 'ios' ? insets.bottom : 8,
         paddingTop: 8,
@@ -59,6 +59,10 @@ export function BottomNavigation() {
           const active = isActive(tab.href);
           const Icon = tab.icon;
 
+          // Dùng mã màu HEX trực tiếp cho icon
+          const primaryColor = '#ff914d';
+          const mutedColor = '#a67c52';
+
           return (
             <TouchableOpacity
               key={tab.name}
@@ -67,10 +71,12 @@ export function BottomNavigation() {
               activeOpacity={0.7}
             >
               <View className={`items-center justify-center ${active ? 'mb-1' : 'mb-2'}`}>
-                <Icon size={24} color={active ? '#2563eb' : '#6b7280'} />
-                {active && <View className="w-1 h-1 bg-blue-600 rounded-full mt-1" />}
+                <Icon size={24} color={active ? primaryColor : mutedColor} />
+                {active && <View className="w-1 h-1 bg-primary rounded-full mt-1" />}
               </View>
-              <Text className={`text-sm font-medium ${active ? 'text-blue-600' : 'text-gray-600'}`}>{tab.label}</Text>
+              <Text className={`text-sm font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}>
+                {tab.label}
+              </Text>
             </TouchableOpacity>
           );
         })}
