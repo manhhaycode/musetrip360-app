@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowRight, Search } from 'lucide-react-native';
+import { ArrowRight, Landmark, Search } from 'lucide-react-native';
 import React from 'react';
 import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -114,7 +114,7 @@ export default function HomePage() {
           ) : (
             <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">🏛️</Text>
+                <Landmark size={40} color="#FF7A00" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có bảo tàng nổi bật</Text>
                 <Text className="text-muted-foreground text-center">Các bảo tàng thú vị đang được cập nhật...</Text>
               </CardContent>

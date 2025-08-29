@@ -95,19 +95,22 @@ export default function EventDetailPage() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-gray-50">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+      <View className="flex-row items-center justify-between px-4 py-4 bg-background">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <ArrowLeft size={24} color="#1f2937" />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">Chi tiết sự kiện</Text>
+        <Text className="text-lg font-semibold text-foreground">Chi tiết sự kiện</Text>
         <View className="w-10" />
       </View>
 
-      <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        className="flex-1 bg-background"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Event Image */}
         {event.metadata?.images && event.metadata.images.length > 0 && (
           <Image
@@ -120,104 +123,102 @@ export default function EventDetailPage() {
         )}
 
         {/* Event Info */}
-        <View className="px-4 py-4 space-y-8">
+        <View className="px-4 py-4 space-y-6">
           {/* Basic Info */}
-          <View>
-            <Text className="text-2xl font-bold text-gray-900 mb-3">{event.title}</Text>
+          <View className="pb-2">
+            <Text className="text-2xl font-bold text-foreground mb-1">{event.title}</Text>
 
-            <View className="flex-row items-center justify-between mb-4">
-              {/* Event Type */}
-              <View className="bg-blue-100 border border-blue-200 rounded px-3 py-1">
-                <Text className="text-sm text-blue-800">{event.eventType}</Text>
-              </View>
-
-              {/* Status */}
-              <View
-                className={`${
-                  event.status === 'Published'
-                    ? 'bg-green-100 text-green-800 border-green-200'
-                    : event.status === 'Cancelled'
-                      ? 'bg-red-100 text-red-800 border-red-200'
-                      : 'bg-yellow-100 text-yellow-800 border-yellow-200'
-                } border rounded px-3 py-1`}
-              >
-                <Text className="text-sm">{event.status}</Text>
-              </View>
+            <View className="flex-row items-center mb-1">
+              {(event.eventType === 'SpecialEvent' || event.eventType === 'Exhibition' || event.eventType) && (
+                <View className="bg-accent/10 border border-accent rounded px-2 py-0.5 mr-2">
+                  <Text className="text-xs text-accent">
+                    {event.eventType === 'SpecialEvent'
+                      ? 'Sự kiện đặc biệt'
+                      : event.eventType === 'Exhibition'
+                        ? 'Triển lãm'
+                        : 'Khác'}
+                  </Text>
+                </View>
+              )}
             </View>
 
             {/* Date and Time */}
-            <View className="flex-row items-center mb-3">
-              <Calendar size={16} color="#6b7280" />
-              <Text className="text-gray-600 text-base ml-2">
+            <View className="flex-row items-center mb-1">
+              <Calendar size={16} color="#9ca3af" />
+              <Text className="text-muted-foreground text-xs ml-2">
                 {new Date(event.startTime).toLocaleDateString('vi-VN')} -{' '}
                 {new Date(event.endTime).toLocaleDateString('vi-VN')}
               </Text>
             </View>
 
             {/* Location */}
-            <View className="flex-row items-center mb-3">
-              <MapPin size={16} color="#6b7280" />
-              <Text className="text-gray-600 text-base ml-2">{event.location}</Text>
+            <View className="flex-row items-center mb-1">
+              <MapPin size={16} color="#9ca3af" />
+              <Text className="text-muted-foreground text-xs ml-2">{event.location}</Text>
             </View>
 
             {/* Capacity and Availability */}
-            <View className="flex-row items-center mb-3">
-              <Users size={16} color="#6b7280" />
-              <Text className="text-gray-600 text-base ml-2">
+            <View className="flex-row items-center mb-1">
+              <Users size={16} color="#9ca3af" />
+              <Text className="text-muted-foreground text-xs ml-2">
                 {event.availableSlots}/{event.capacity} chỗ còn trống
               </Text>
             </View>
           </View>
 
           {/* Description */}
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm">
-            <CardContent className="p-4">
+          <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
+            <CardContent className="px-3 py-2">
               <View className="flex-row items-center mb-3">
-                <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
+                <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
                   <Text className="text-white text-lg">📖</Text>
                 </View>
-                <Text className="text-lg font-semibold text-blue-900">Mô tả sự kiện</Text>
+                <Text className="text-lg font-semibold text-primary">Mô tả sự kiện</Text>
               </View>
               {event.description ? (
-                <Text className="text-blue-800 text-base leading-6">{event.description}</Text>
+                <Text className="text-foreground text-base leading-6">{event.description}</Text>
               ) : (
-                <Text className="text-blue-700 text-base italic">Thông tin mô tả đang được cập nhật...</Text>
+                <Text className="text-muted-foreground text-base italic">Thông tin mô tả đang được cập nhật...</Text>
               )}
             </CardContent>
           </Card>
 
           {/* Event Details */}
-          <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg shadow-sm">
-            <CardContent className="p-4">
+          <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
+            <CardContent className="px-3 py-2">
               <View className="flex-row items-center mb-4">
-                <View className="w-8 h-8 bg-green-500 rounded-full items-center justify-center mr-3">
+                <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
                   <Text className="text-white text-lg">🎫</Text>
                 </View>
-                <Text className="text-lg font-semibold text-green-900">Thông tin chi tiết</Text>
+                <Text className="text-lg font-semibold text-primary">Thông tin chi tiết</Text>
               </View>
 
               <View className="space-y-3">
                 {/* Time Details */}
-                <View className="flex-row justify-between items-center p-3 bg-green-100/50 rounded-lg border border-green-200">
-                  <Text className="text-sm font-medium text-green-900">Thời gian bắt đầu</Text>
-                  <Text className="text-sm text-green-700">{new Date(event.startTime).toLocaleString('vi-VN')}</Text>
+                <View className="flex-row justify-between items-center p-3 bg-card rounded-lg border border-border">
+                  <Text className="text-sm font-medium text-foreground">Thời gian bắt đầu</Text>
+                  <Text className="text-sm text-muted-foreground">
+                    {new Date(event.startTime).toLocaleString('vi-VN')}
+                  </Text>
                 </View>
 
-                <View className="flex-row justify-between items-center p-3 bg-green-100/50 rounded-lg border border-green-200">
-                  <Text className="text-sm font-medium text-green-900">Thời gian kết thúc</Text>
-                  <Text className="text-sm text-green-700">{new Date(event.endTime).toLocaleString('vi-VN')}</Text>
+                <View className="flex-row justify-between items-center p-3 bg-card rounded-lg border border-border">
+                  <Text className="text-sm font-medium text-foreground">Thời gian kết thúc</Text>
+                  <Text className="text-sm text-muted-foreground">
+                    {new Date(event.endTime).toLocaleString('vi-VN')}
+                  </Text>
                 </View>
 
-                <View className="flex-row justify-between items-center p-3 bg-green-100/50 rounded-lg border border-green-200">
-                  <Text className="text-sm font-medium text-green-900">Hạn đăng ký</Text>
-                  <Text className="text-sm text-green-700">
+                <View className="flex-row justify-between items-center p-3 bg-card rounded-lg border border-border">
+                  <Text className="text-sm font-medium text-foreground">Hạn đăng ký</Text>
+                  <Text className="text-sm text-muted-foreground">
                     {new Date(event.bookingDeadline).toLocaleString('vi-VN')}
                   </Text>
                 </View>
 
-                <View className="flex-row justify-between items-center p-3 bg-green-100/50 rounded-lg border border-green-200">
-                  <Text className="text-sm font-medium text-green-900">Giá vé</Text>
-                  <Text className="text-sm text-green-700">
+                <View className="flex-row justify-between items-center p-3 bg-card rounded-lg border border-border">
+                  <Text className="text-sm font-medium text-foreground">Giá vé</Text>
+                  <Text className="text-sm text-muted-foreground">
                     {event.price > 0 ? `${event.price.toLocaleString('vi-VN')} VNĐ` : 'Miễn phí'}
                   </Text>
                 </View>
@@ -227,19 +228,21 @@ export default function EventDetailPage() {
 
           {/* Tour Onlines */}
           {event.tourOnlines && event.tourOnlines.length > 0 && (
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg shadow-sm">
+            <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 bg-purple-500 rounded-full items-center justify-center mr-3">
+                  <View className="w-8 h-8 bg-secondary rounded-full items-center justify-center mr-3">
                     <Text className="text-white text-lg">🌐</Text>
                   </View>
-                  <Text className="text-lg font-semibold text-purple-900">Tour trực tuyến liên quan</Text>
+                  <Text className="text-lg font-semibold text-primary">Tour trực tuyến </Text>
                 </View>
                 <View className="space-y-2">
                   {event.tourOnlines.map((tour) => (
-                    <View key={tour.id} className="p-3 bg-purple-100/50 rounded-lg border border-purple-300">
-                      <Text className="font-semibold text-purple-900">{tour.name}</Text>
-                      {tour.description && <Text className="text-sm text-purple-700 mt-1">{tour.description}</Text>}
+                    <View key={tour.id} className="p-3 bg-card rounded-lg border border-border">
+                      <Text className="font-semibold text-foreground">{tour.name}</Text>
+                      {tour.description && (
+                        <Text className="text-sm text-muted-foreground mt-1">{tour.description}</Text>
+                      )}
                     </View>
                   ))}
                 </View>
@@ -249,34 +252,31 @@ export default function EventDetailPage() {
 
           {/* Artifacts */}
           {event.artifacts && event.artifacts.length > 0 && (
-            <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm">
+            <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 bg-amber-500 rounded-full items-center justify-center mr-3">
+                  <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
                     <Text className="text-white text-lg">🏺</Text>
                   </View>
-                  <Text className="text-lg font-semibold text-amber-900">Hiện vật liên quan</Text>
+                  <Text className="text-lg font-semibold text-accent">Hiện vật liên quan</Text>
                 </View>
                 <View className="space-y-3">
                   {event.artifacts.map((artifact) => (
-                    <View
-                      key={artifact.id}
-                      className="flex-row space-x-3 p-3 bg-amber-100/50 rounded-lg border border-amber-300"
-                    >
+                    <View key={artifact.id} className="flex-row space-x-3 p-3 bg-card rounded-lg border border-border">
                       <Image
                         source={artifact.imageUrl || 'https://via.placeholder.com/64x64/e5e7eb/9ca3af?text=Artifact'}
                         className="w-16 h-16 rounded-lg"
                         resizeMode="cover"
                       />
                       <View className="flex-1">
-                        <Text className="font-semibold text-amber-900">{artifact.name}</Text>
+                        <Text className="font-semibold text-foreground">{artifact.name}</Text>
                         {artifact.description && (
-                          <Text className="text-sm text-amber-700 mt-1" numberOfLines={2}>
+                          <Text className="text-sm text-muted-foreground mt-1" numberOfLines={2}>
                             {artifact.description}
                           </Text>
                         )}
                         {artifact.historicalPeriod && (
-                          <Text className="text-xs text-amber-600 mt-1">{artifact.historicalPeriod}</Text>
+                          <Text className="text-xs text-muted-foreground mt-1">{artifact.historicalPeriod}</Text>
                         )}
                       </View>
                     </View>
@@ -287,8 +287,8 @@ export default function EventDetailPage() {
           )}
 
           {/* Reviews Section */}
-          <Card className="bg-white border border-gray-200 rounded-lg mb-6">
-            <CardContent className="p-4">
+          <Card className="bg-white border border-gray-200 rounded-lg mb-5">
+            <CardContent className="px-3 py-2">
               <View className="flex-row items-center justify-between mb-4">
                 <View className="flex-row items-center">
                   <View className="w-8 h-8 bg-amber-100 rounded-full items-center justify-center mr-3">
@@ -344,8 +344,8 @@ export default function EventDetailPage() {
           </Card>
 
           {/* Đánh giá sự kiện section */}
-          <Card className="bg-white border border-gray-200 rounded-lg mb-6">
-            <CardContent className="p-4">
+          <Card className="bg-white border border-gray-200 rounded-lg mb-5">
+            <CardContent className="px-3 py-2">
               <View className="flex-row items-center mb-4">
                 <View className="w-8 h-8 bg-green-100 rounded-full items-center justify-center mr-3">
                   <MessageCircle size={16} color="#059669" />

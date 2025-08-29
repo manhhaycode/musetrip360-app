@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { Filter, Search as SearchIcon } from 'lucide-react-native';
+import { CalendarDays, Filter, Globe2, Landmark, Package, Search as SearchIcon } from 'lucide-react-native';
 import React, { useMemo, useState } from 'react';
 import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,10 +14,10 @@ import { searchUtils, useGlobalSearch } from '@/hooks/useSearch';
 import type { SearchFilters, SearchResultItem } from '@/types/api';
 
 const SEARCH_TABS = [
-  { key: 'Museum', label: 'Bảo tàng', icon: '🏛️' },
-  { key: 'Artifact', label: 'Hiện vật', icon: '🏺' },
-  { key: 'Event', label: 'Sự kiện', icon: '📅' },
-  { key: 'TourOnline', label: 'Tour ảo', icon: '🌐' },
+  { key: 'Museum', label: 'Bảo tàng', icon: Landmark },
+  { key: 'Artifact', label: 'Hiện vật', icon: Package },
+  { key: 'Event', label: 'Sự kiện', icon: CalendarDays },
+  { key: 'TourOnline', label: 'Tour ảo', icon: Globe2 },
 ] as const;
 
 type SearchTabKey = (typeof SEARCH_TABS)[number]['key'];
@@ -135,9 +135,14 @@ export default function SearchPage() {
                   <Text className="font-semibold text-base text-foreground flex-1 mr-2" numberOfLines={2}>
                     {item.title}
                   </Text>
-                  <View className="bg-primary border border-primary rounded px-2 py-1 shrink-0">
+                  <View className="bg-primary border border-primary rounded px-2 py-1 shrink-0 flex-row items-center">
+                    {(() => {
+                      const tab = SEARCH_TABS.find((tab) => tab.key === item.type);
+                      if (!tab) return null;
+                      const Icon = tab.icon;
+                      return <Icon size={14} color="#fff" style={{ marginRight: 4 }} />;
+                    })()}
                     <Text className="text-xs text-primary-foreground">
-                      {SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}{' '}
                       {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
                     </Text>
                   </View>
@@ -191,11 +196,14 @@ export default function SearchPage() {
                   activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'
                 }`}
               >
-                <Text
-                  className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
-                >
-                  {tab.icon} {tab.label}
-                </Text>
+                <View className="flex-row items-center">
+                  <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />
+                  <Text
+                    className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
+                  >
+                    {tab.label}
+                  </Text>
+                </View>
               </TouchableOpacity>
             ))}
           </View>

@@ -390,7 +390,13 @@ export default function MuseumDetailPage() {
                         {new Date(event.startTime).toLocaleDateString('vi-VN')}
                       </Text>
                       <View className="bg-accent/10 border border-accent rounded px-2 py-1">
-                        <Text className="text-xs text-accent">{event.eventType}</Text>
+                        <Text className="text-xs text-accent">
+                          {event.eventType === 'SpecialEvent'
+                            ? 'Sự kiện đặc biệt'
+                            : event.eventType === 'Exhibition'
+                              ? 'Triển lãm'
+                              : 'Khác'}
+                        </Text>
                       </View>
                     </View>
                   </CardContent>
@@ -472,9 +478,6 @@ export default function MuseumDetailPage() {
                       <Text className="text-muted-foreground text-xs">
                         {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
                       </Text>
-                      <View className="bg-primary/10 border border-primary rounded px-2 py-1">
-                        <Text className="text-xs text-primary">{article.status}</Text>
-                      </View>
                     </View>
                   </CardContent>
                 </Card>
@@ -726,70 +729,68 @@ export default function MuseumDetailPage() {
             </View>
           </View>
 
-          {/* Info Cards Row - All Orange Theme */}
-          <View className="flex-row space-x-3 mb-4">
+          {/* Info Section - Improved Layout & Alignment */}
+          <View className="flex-row gap-1 mb-2">
             {/* Operating Hours */}
-            <View className="flex-1 bg-primary/10 p-4 rounded-lg">
-              <View className="flex-row items-center mb-2">
-                <Text className="text-primary text-lg mr-2">🕒</Text>
-                <Text className="text-sm font-medium text-primary">08:00 - 17:00</Text>
-              </View>
-              <Text className="text-xs text-primary">Giờ mở cửa</Text>
+            <View className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]">
+              <Text className="text-primary text-base mb-0.5">🕒</Text>
+              <Text className="text-xs font-semibold text-foreground mb-0.5">08:00 - 17:00</Text>
+              <Text className="text-xs text-muted-foreground">Giờ mở cửa</Text>
             </View>
-
             {/* Address */}
-            <View className="flex-1 bg-primary/10 p-4 rounded-lg">
-              <View className="flex-row items-start mb-2">
-                <Text className="text-primary text-lg mr-2">📍</Text>
-                <Text className="text-sm font-medium text-primary leading-4 flex-1" numberOfLines={2}>
-                  {museum.location}
-                </Text>
-              </View>
-              <Text className="text-xs text-primary">Địa chỉ</Text>
+            <View className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]">
+              <Text className="text-primary text-base mb-0.5">📍</Text>
+              <Text className="text-xs font-semibold text-foreground mb-0.5 text-center" numberOfLines={6}>
+                {museum.location}
+              </Text>
+              <Text className="text-xs text-muted-foreground">Địa chỉ </Text>
             </View>
           </View>
 
-          {/* Action Button - Full Width */}
-          <View className="mb-4">
-            {museum.contactPhone && (
+          {/* Booking Button - Centered & Prominent */}
+          {museum.contactPhone && (
+            <View className="mb-4 items-center">
               <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                className="w-full bg-primary py-4 px-4 rounded-lg"
+                className="w-full max-w-md bg-accent py-4 px-4 rounded-lg shadow-md active:bg-accent/80"
               >
                 <View className="flex-row items-center justify-center">
-                  <Text className="text-white text-lg mr-2">📞</Text>
-                  <Text className="text-white font-medium text-sm">Đặt vé tham quan</Text>
+                  <Text className="text-accent-foreground text-lg mr-2">📞</Text>
+                  <Text className="text-accent-foreground font-semibold text-base">Đặt vé tham quan</Text>
                 </View>
               </TouchableOpacity>
-            )}
-          </View>
+            </View>
+          )}
 
-          {/* Contact Information - Orange Theme */}
-          <View className="flex-row space-x-3 mb-6">
-            {/* Phone Card */}
-            {museum.contactPhone && (
-              <TouchableOpacity
-                onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                className="flex-1 bg-primary/10 p-4 rounded-lg"
-              >
-                <Text className="text-primary text-lg mb-1">📞</Text>
-                <Text className="text-primary font-medium text-sm">{museum.contactPhone}</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Email Card */}
-            {museum.contactEmail && (
-              <TouchableOpacity
-                onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
-                className="flex-1 bg-primary/10 p-4 rounded-lg"
-              >
-                <Text className="text-primary text-lg mb-1">✉️</Text>
-                <Text className="text-primary font-medium text-sm" numberOfLines={1}>
-                  {museum.contactEmail}
-                </Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          {/* Contact Information - Consistent Height & Spacing */}
+          {(museum.contactPhone || museum.contactEmail) && (
+            <View className="flex-row gap-1 mb-2">
+              {/* Phone Card */}
+              {museum.contactPhone && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
+                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
+                >
+                  <Text className="text-primary text-base mb-0.5">📞</Text>
+                  <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
+                    {museum.contactPhone}
+                  </Text>
+                </TouchableOpacity>
+              )}
+              {/* Email Card */}
+              {museum.contactEmail && (
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
+                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
+                >
+                  <Text className="text-primary text-base mb-0.5">✉️</Text>
+                  <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
+                    {museum.contactEmail}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
 
           {/* Tabs */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
