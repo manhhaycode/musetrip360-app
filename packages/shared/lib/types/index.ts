@@ -6,7 +6,7 @@
 
 import type { Pagination } from '@musetrip360/query-foundation';
 import { IUser } from 'node_modules/@musetrip360/auth-system/dist/types/types';
-import { string, z, ZodType } from 'zod';
+import { z, ZodType } from 'zod';
 
 /**
  * Media type enumeration matching backend API
@@ -146,6 +146,11 @@ export type FileData = {
   file: File | string | null; // File object or URL
   mediaType: MediaType; // Type of the file
   fileName?: string; // Optional file name
+  audioOptions?: {
+    autoPlay?: boolean;
+    volume?: number;
+    loop?: boolean;
+  };
 };
 
 export const ZodFileData = z.object({

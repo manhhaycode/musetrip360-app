@@ -32,6 +32,7 @@ interface FormDropZoneProps<
   withUrl?: boolean; // Show URL input field
   urlPlaceholder?: string; // Placeholder for URL input
   onInteract?: (file: FileData) => void;
+  noAction?: boolean;
 }
 
 export function FormDropZone<
@@ -51,6 +52,7 @@ export function FormDropZone<
   direction = 'vertical',
   withUrl = false,
   urlPlaceholder = 'https://example.com/file.jpg',
+  noAction = false,
 }: FormDropZoneProps<TFieldValues, TName>) {
   const [urlInput, setUrlInput] = useState('');
 
@@ -132,6 +134,7 @@ export function FormDropZone<
                   mediaType={mediaType}
                   disabled={disabled}
                   manualUpload={manualUpload}
+                  noAction={noAction}
                 />
               </div>
             </FormControl>

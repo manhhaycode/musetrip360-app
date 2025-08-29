@@ -97,14 +97,14 @@ export function ImagesPanel({ artifact, isOpen, onPrevious, onNext, hasMultiple 
                       <div className="space-y-3">
                         <h3 className="font-semibold">Hình ảnh bổ sung ({artifact.metadata.images.length})</h3>
                         <div className="grid grid-cols-2 gap-3">
-                          {artifact.metadata.images.map((imageUrl, index) => (
+                          {artifact.metadata.images.map((image, index) => (
                             <div
                               key={index}
                               className="relative group overflow-hidden rounded-lg border border-border/50 hover:border-border cursor-pointer transition-colors"
-                              onClick={() => handleImageClick(imageUrl)}
+                              onClick={() => handleImageClick(image.file as string)}
                             >
                               <img
-                                src={imageUrl}
+                                src={image.file as string}
                                 alt={`${artifact.name} - Ảnh ${index + 1}`}
                                 className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-200"
                               />
