@@ -37,6 +37,7 @@ import {
   UsersIcon,
   TicketsPlaneIcon,
   NewspaperIcon,
+  WalletIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -52,7 +53,6 @@ import {
   PERMISSION_MUSEUM_DETAIL_MANAGEMENT,
   PERMISSION_TOUR_CREATE,
   PERMISSION_TOUR_MANAGEMENT,
-  PERMISSION_TOUR_VIEW,
   PERMISSION_USER_MANAGEMENT,
   PERMISSION_USER_VIEW,
   useRolebaseStore,
@@ -231,6 +231,25 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
             // },
           ]}
         />
+
+        <SidebarGroupItem
+          groupLabel="Quản lý tài chính"
+          items={[
+            {
+              title: 'Quản lý thanh toán',
+              url: '/payment',
+              icon: WalletIcon,
+              items: [
+                {
+                  title: 'Ví bảo tàng',
+                  url: '/payment',
+                  icon: WalletIcon,
+                },
+              ],
+            },
+          ]}
+        />
+
         <SidebarGroupItem
           groupLabel="Quản lý nội dung tour ảo"
           items={[

@@ -123,3 +123,60 @@ export type SubscriptionParams = {
   planId?: string;
   status?: SubscriptionStatusEnum;
 } & Pagination;
+
+export type BankAccount = {
+  id: string;
+  museumId: string;
+  userId: string;
+  holderName: string;
+  bankName: string;
+  accountNumber: string;
+  qrCode: string;
+};
+
+export type BankAccountCreate = {
+  museumId: string;
+  userId: string;
+  holderName: string;
+  bankName: string;
+  accountNumber: string;
+  qrCode: string;
+};
+
+export type BankAccountUpdate = Partial<BankAccountCreate> & { id: string };
+
+export type MuseumWallet = {
+  id: string;
+  museumId: string;
+  availableBalance: number;
+  pendingBalance: number;
+  totalBalance: number;
+};
+
+export type Payout = {
+  id: string;
+  museumId: string;
+  bankAccountId: string;
+  amount: number;
+  processedDate: string;
+  status: string;
+  metadata?: PayoutMetadata;
+};
+
+export type PayoutMetadata = {
+  imageUrl?: string;
+};
+
+export type PayoutCreate = {
+  museumId: string;
+  bankAccountId: string;
+  amount: number;
+  metadata?: PayoutMetadata;
+};
+
+export type PayoutUpdate = {
+  id: string;
+  bankAccountId?: string;
+  amount?: number;
+  metadata?: PayoutMetadata;
+};
