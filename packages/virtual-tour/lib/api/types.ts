@@ -1,4 +1,5 @@
 import { CubeMapData } from '@/types';
+import { FileData } from '@musetrip360/shared';
 
 export interface IVirtualTour {
   id: string;
@@ -22,4 +23,9 @@ export interface IVirtualTourScene {
   thumbnail?: string | File;
   data?: CubeMapData;
   subScenes?: Omit<IVirtualTourScene, 'subScenes'>[];
+  // Rich content fields
+  richDescription?: string;
+  audio?: FileData | null;
+  isUseVoiceAI?: boolean;
+  voiceAI?: FileData | null;
 }
