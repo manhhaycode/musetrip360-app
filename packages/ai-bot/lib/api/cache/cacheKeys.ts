@@ -22,6 +22,10 @@ export class AiManagementCacheKeys extends BaseCacheKeyFactory {
   messages(conversationId: string, params: Pagination): QueryKey {
     return [this.prefix, 'messages', conversationId, params.Page, params.PageSize];
   }
+
+  voice(): QueryKey {
+    return [this.prefix, 'voice'];
+  }
 }
 
 /**

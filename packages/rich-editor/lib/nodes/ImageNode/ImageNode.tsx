@@ -285,14 +285,17 @@ function ImageComponent({
     return (
       <div className="w-4/5 mx-auto" contentEditable={false} style={{ marginTop: '1rem', marginBottom: '1rem' }}>
         <DropZoneWithPreview
-          value={src}
+          value={
+            src
+              ? {
+                  file: src,
+                  fileName: src.name,
+                  mediaType: MediaType.IMAGE,
+                }
+              : null
+          }
           onChange={(newValue) => {
-            // Convert uploaded file to URL string when upload completes
-            if (typeof newValue === 'string') {
-              updateNodeSrc(newValue);
-            } else {
-              updateNodeSrc(newValue);
-            }
+            updateNodeSrc(newValue?.file as string);
           }}
           onRemove={() => updateNodeSrc(null)}
           mediaType={MediaType.IMAGE}

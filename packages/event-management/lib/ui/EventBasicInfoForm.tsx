@@ -146,6 +146,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         metadata: {
           ...event.metadata,
           ...(event.metadata?.thumbnail && { thumbnail: { file: event.metadata?.thumbnail } }),
+          richDescription: event.metadata?.richDescription ?? event.description,
         },
       });
     } else {

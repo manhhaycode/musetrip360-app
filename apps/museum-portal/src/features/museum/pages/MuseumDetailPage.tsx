@@ -445,7 +445,7 @@ const MuseumDetailPage = () => {
                     Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
                   </span>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {imageFields.map((field, index) => (
                     <div key={field.id} className="border rounded-lg p-2 space-y-2 relative">
                       <FormDropZone

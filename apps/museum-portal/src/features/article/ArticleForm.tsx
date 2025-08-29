@@ -4,9 +4,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@musetrip360/ui-core/input';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { toast } from '@musetrip360/ui-core/sonner';
-import { Save, Send } from 'lucide-react';
+import { FileText, Save, Send } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { z } from 'zod';
 import {
   DataEntityType,
@@ -18,12 +18,29 @@ import {
 } from '@musetrip360/museum-management';
 import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
 import { PERMISSION_CONTENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@musetrip360/ui-core/sheet';
+
+import { Card, CardContent } from '@musetrip360/ui-core/card';
+
+const RichEditor = React.lazy(() =>
+  import('@musetrip360/rich-editor').then((module) => ({
+    default: module.RichEditor,
+  }))
+);
 
 const articleFormSchema = z.object({
   title: z.string().min(1, 'Tiêu đề là bắt buộc').max(255, 'Tiêu đề phải có ít nhất 255 ký tự'),
   content: z.string().min(1, 'Nội dung là bắt buộc'),
   imageUrl: z.string().optional(),
   mainImageUpload: z.any().optional(),
+  previewContent: z.string().optional(),
 });
 
 type ArticleFormData = z.infer<typeof articleFormSchema>;
@@ -38,6 +55,7 @@ interface ArticleFormProps {
 
 const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: ArticleFormProps) => {
   const isEditing = !!article;
+  const [openSheet, setOpenSheet] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const { hasPermission } = useRolebaseStore();
 
@@ -153,19 +171,47 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
           />
 
           {/* Content */}
-          <FormField
-            control={form.control}
-            name="content"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-600">Nội dung *</FormLabel>
-                <FormControl>
-                  <Textarea placeholder="Nhập nội dung bài viết" className="min-h-[200px] resize-none" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <Sheet open={openSheet}>
+            <SheetTrigger asChild onClick={() => setOpenSheet(!openSheet)}>
+              <Card className="bg-secondary/40 hover:bg-secondary/80! hover:cursor-pointer w-full">
+                <CardContent className="flex gap-2 relative">
+                  <FileText className="h-5 w-5 shrink-0 text-gray-400" />
+                  {form.watch('content') ? (
+                    <div className="flex justify-start flex-col gap-2">
+                      <p className="font-semibold text-sm text-primary/80 text-start">Mô tả</p>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      <span className="font-semibold text-sm text-primary/80">Thêm mô tả</span>
+                      {form.formState.errors.content && (
+                        <p className="text-red-500 text-xs">{form.formState.errors.content.message}</p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </SheetTrigger>
+            <SheetContent className="sm:max-w-xl" dir="right">
+              <SheetHeader>
+                <SheetTitle>Thêm mô tả</SheetTitle>
+                <SheetDescription>
+                  Mô tả chi tiết, bao gồm thông tin quan trọng, nội dung và các chi tiết khác.
+                </SheetDescription>
+              </SheetHeader>
+              <React.Suspense fallback={<div className="w-full justify-center">Đang tải trình soạn thảo...</div>}>
+                <RichEditor
+                  value={form.watch('content')}
+                  onSave={(content) => {
+                    form.setValue('content', content);
+                    setOpenSheet(false);
+                  }}
+                  toolbarConfig={{ showFontFamily: false }}
+                  showToolbar
+                  placeholder="Nhập nội dung..."
+                />
+              </React.Suspense>
+            </SheetContent>
+          </Sheet>
 
           {/* Thumbnail Upload */}
           <FormField

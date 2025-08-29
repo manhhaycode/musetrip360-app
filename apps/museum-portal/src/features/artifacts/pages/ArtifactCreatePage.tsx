@@ -1,7 +1,12 @@
+import { BulkUploadProvider } from '@musetrip360/shared';
 import ArtifactForm from '../ArtifactForm';
 
 const ArtifactCreatePage = () => {
-  return <ArtifactForm mode="create" />;
+  return (
+    <BulkUploadProvider>
+      <ArtifactForm mode="create" />
+    </BulkUploadProvider>
+  );
 };
 
 export default ArtifactCreatePage;

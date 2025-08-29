@@ -1,4 +1,4 @@
-import { MediaType, FileValidationConfig, FileValidationResult, DEFAULT_VALIDATION_CONFIG } from '../types';
+import { MediaType, FileValidationConfig, FileValidationResult, DEFAULT_VALIDATION_CONFIG, FileData } from '../types';
 
 export const getAcceptConfig = (mediaType: MediaType) => {
   const config = getValidationConfig(mediaType);
@@ -70,6 +70,17 @@ export function validateFileByMediaType(file: File, mediaType: MediaType): FileV
  */
 export function getValidationConfig(mediaType: MediaType): FileValidationConfig {
   return DEFAULT_VALIDATION_CONFIG[mediaType];
+}
+
+export function getFileName(fileData: FileData) {
+  return (
+    fileData.fileName ||
+    (fileData.file instanceof File
+      ? fileData.file.name
+      : typeof fileData.file === 'string'
+        ? fileData.file.split('/').pop() || 'File'
+        : 'File')
+  );
 }
 
 /**

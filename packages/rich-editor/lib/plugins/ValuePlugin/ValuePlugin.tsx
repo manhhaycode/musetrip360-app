@@ -1,6 +1,6 @@
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $generateNodesFromDOM } from '@lexical/html';
-import { $getRoot } from 'lexical';
+import { $createParagraphNode, $getRoot } from 'lexical';
 import { useEffect } from 'react';
 
 interface ValuePluginProps {
@@ -21,7 +21,11 @@ export const ValuePlugin: React.FC<ValuePluginProps> = ({ value }) => {
         const parser = new DOMParser();
         const dom = parser.parseFromString(value, 'text/html');
         const nodes = $generateNodesFromDOM(editor, dom);
-        root.append(...nodes);
+        try {
+          root.append(...nodes);
+        } catch {
+          root.append($createParagraphNode().append(...nodes));
+        }
       }
     });
   }, [editor, value]);
