@@ -3,7 +3,7 @@ import { useAuthStore } from '@musetrip360/auth-system';
 import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
-import { Button, Image, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Image, Modal, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
   const { data: profile, isLoading, error } = useCurrentProfile();
@@ -69,54 +69,67 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
-        <View style={styles.avatarContainer}>
+      <View className="px-4 pt-8 pb-6 bg-card rounded-2xl shadow-lg">
+        <View className="items-center mb-4">
           {profile?.avatarUrl ? (
-            <Image source={{ uri: profile.avatarUrl }} style={styles.avatar} />
+            <Image source={{ uri: profile.avatarUrl }} className="w-20 h-20 rounded-full mb-2" />
           ) : (
-            <View style={styles.avatarDefault}>
+            <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-2">
               <MaterialIcons name="person" size={64} color="#fff" />
             </View>
           )}
         </View>
-        <Text style={styles.title}>Thông tin cá nhân</Text>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Username:</Text>
-          <Text style={styles.value}>{profile?.username || '-'}</Text>
+        <Text className="text-xl font-bold mb-4 text-primary">Thông tin cá nhân</Text>
+        <View className="flex-row items-center mb-3 w-full justify-between">
+          <Text className="text-base font-semibold text-muted-foreground w-32">Username:</Text>
+          <Text className="text-base text-foreground flex-1 text-right">{profile?.username || '-'}</Text>
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Họ tên:</Text>
-          {editMode ? (
-            <TextInput style={styles.input} value={fullName} onChangeText={setFullName} placeholder="Nhập họ tên" />
-          ) : (
-            <Text style={styles.value}>{profile?.fullName || '-'}</Text>
-          )}
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Email:</Text>
-          <Text style={styles.value}>{profile?.email || '-'}</Text>
-        </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Số điện thoại:</Text>
+        <View className="flex-row items-center mb-3 w-full justify-between">
+          <Text className="text-base font-semibold text-muted-foreground w-32">Họ tên:</Text>
           {editMode ? (
             <TextInput
-              style={styles.input}
+              className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Nhập họ tên"
+              placeholderTextColor="var(--muted-foreground)"
+            />
+          ) : (
+            <Text className="text-base text-foreground flex-1 text-right">{profile?.fullName || '-'}</Text>
+          )}
+        </View>
+        <View className="flex-row items-center mb-3 w-full justify-between">
+          <Text className="text-base font-semibold text-muted-foreground w-32">Email:</Text>
+          <Text className="text-base text-foreground flex-1 text-right">{profile?.email || '-'}</Text>
+        </View>
+        <View className="flex-row items-center mb-3 w-full justify-between">
+          <Text className="text-base font-semibold text-muted-foreground w-32">Số điện thoại:</Text>
+          {editMode ? (
+            <TextInput
+              className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               placeholder="Nhập số điện thoại"
               keyboardType="phone-pad"
+              placeholderTextColor="var(--muted-foreground)"
             />
           ) : (
-            <Text style={styles.value}>{profile?.phoneNumber || '-'}</Text>
+            <Text className="text-base text-foreground flex-1 text-right">{profile?.phoneNumber || '-'}</Text>
           )}
         </View>
-        <View style={styles.infoRow}>
-          <Text style={styles.label}>Ngày sinh:</Text>
+        <View className="flex-row items-center mb-3 w-full justify-between">
+          <Text className="text-base font-semibold text-muted-foreground w-32">Ngày sinh:</Text>
           {editMode ? (
             <>
-              <TouchableOpacity onPress={() => setShowDatePicker(true)} style={{ flex: 1 }}>
+              <TouchableOpacity onPress={() => setShowDatePicker(true)} className="flex-1">
                 <View pointerEvents="none">
-                  <TextInput style={styles.input} value={birthDate} placeholder="dd-mm-yyyy" editable={false} />
+                  <TextInput
+                    className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
+                    value={birthDate}
+                    placeholder="dd-mm-yyyy"
+                    editable={false}
+                    placeholderTextColor="var(--muted-foreground)"
+                  />
                 </View>
               </TouchableOpacity>
               {showDatePicker && (
@@ -129,13 +142,15 @@ export default function ProfileScreen() {
               )}
             </>
           ) : (
-            <Text style={styles.value}>{profile?.birthDate ? formatDate(profile.birthDate) : '-'}</Text>
+            <Text className="text-base text-foreground flex-1 text-right">
+              {profile?.birthDate ? formatDate(profile.birthDate) : '-'}
+            </Text>
           )}
         </View>
-        <View style={styles.buttonRow}>
+        <View className="mt-6 w-full">
           {editMode ? (
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: 'var(--primary)' }]}
+              className="py-3 px-6 rounded items-center mb-2 bg-primary"
               onPress={handleSave}
               disabled={updateProfileMutation.isPending}
             >
@@ -143,128 +158,32 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              style={[styles.button, { backgroundColor: 'var(--primary)' }]}
+              className="py-3 px-6 rounded items-center mb-2 bg-primary"
               onPress={() => setEditMode(true)}
             >
               <Text className="text-primary-foreground">Chỉnh sửa</Text>
             </TouchableOpacity>
           )}
-          <View style={{ height: 12 }} />
-          <TouchableOpacity style={[styles.button, { backgroundColor: 'var(--destructive)' }]} onPress={handleLogout}>
+          <View className="h-3" />
+          <TouchableOpacity className="py-3 px-6 rounded items-center bg-destructive" onPress={handleLogout}>
             <Text className="text-destructive-foreground">Đăng xuất</Text>
           </TouchableOpacity>
         </View>
       </View>
       <Modal visible={showSuccess} transparent animationType="fade">
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+        <View className="flex-1 bg-black/30 justify-center items-center">
+          <View className="bg-card p-8 rounded-2xl items-center shadow-lg">
             <MaterialIcons name="check-circle" size={48} color="#22c55e" style={{ marginBottom: 8 }} />
-            <Text style={{ fontSize: 18, marginBottom: 12, color: '#22c55e', fontWeight: 'bold' }}>
-              Cập nhật thành công!
-            </Text>
-            <Button title="Đóng" onPress={() => setShowSuccess(false)} color="#2563eb" />
+            <Text className="text-lg mb-3 text-green-500 font-bold">Cập nhật thành công!</Text>
+            <TouchableOpacity className="mt-2 py-2 px-6 rounded bg-primary" onPress={() => setShowSuccess(false)}>
+              <Text className="text-primary-foreground">Đóng</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    margin: 16,
-    padding: 16,
-    borderRadius: 16,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    alignItems: 'center',
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginBottom: 8,
-  },
-  avatarDefault: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#2563eb',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 8,
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 18,
-    color: '#2563eb',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    width: '100%',
-    justifyContent: 'space-between',
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-    width: 120,
-  },
-  value: {
-    fontSize: 16,
-    color: '#111827',
-    flex: 1,
-    textAlign: 'right',
-  },
-  input: {
-    height: 40,
-    borderColor: '#2563eb',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    fontSize: 16,
-    backgroundColor: '#f3f4f6',
-    flex: 1,
-    textAlign: 'right',
-  },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginVertical: 8,
-  },
-  buttonRow: {
-    marginTop: 24,
-    width: '100%',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: '#fff',
-    padding: 32,
-    borderRadius: 16,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-});
 
 // Thêm hàm formatDate phía trên hoặc dưới component
 function formatDate(dateString: string) {

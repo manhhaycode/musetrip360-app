@@ -132,18 +132,21 @@ export default function SearchPage() {
             <View className="flex-1 p-3 justify-between">
               <View className="flex-1">
                 <View className="flex-row items-start justify-between mb-2">
-                  <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
+                  <Text className="font-semibold text-base text-foreground flex-1 mr-2" numberOfLines={2}>
                     {item.title}
                   </Text>
-                  <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1 shrink-0">
-                    <Text className="text-xs text-blue-800">
+                  <View className="bg-primary border border-primary rounded px-2 py-1 shrink-0">
+                    <Text className="text-xs text-primary-foreground">
                       {SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}{' '}
                       {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
                     </Text>
                   </View>
                 </View>
 
-                <Text className="text-gray-600 text-sm leading-5" numberOfLines={item.type === 'Museum' ? 4 : 3}>
+                <Text
+                  className="text-muted-foreground text-sm leading-5"
+                  numberOfLines={item.type === 'Museum' ? 4 : 3}
+                >
                   {item.description}
                 </Text>
               </View>
@@ -161,19 +164,19 @@ export default function SearchPage() {
       {/* Header */}
       <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
         {/* Search Bar */}
-        <View className="relative mb-4 bg-[#FFEDE3] rounded-xl">
+        <View className="relative mb-4 bg-card rounded-xl">
           <Input
-            className="bg-[#FFEDE3] text-accent-foreground border-primary pl-12 h-12 text-base rounded-lg"
+            className="bg-card text-card-foreground border-primary pl-12 h-12 text-base rounded-lg"
             placeholder="Tìm kiếm..."
             value={searchQuery}
             onChangeText={handleSearchInputChange}
             onSubmitEditing={handleSearch}
           />
           <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-            <SearchIcon size={20} color="#222" />
+            <SearchIcon size={20} color="#ff941d" />
           </TouchableOpacity>
           <TouchableOpacity className="absolute right-4 top-3">
-            <Filter size={20} color="#222" />
+            <Filter size={20} color="#a67c52" />
           </TouchableOpacity>
         </View>
 
@@ -185,10 +188,12 @@ export default function SearchPage() {
                 key={tab.key}
                 onPress={() => handleTabChange(tab.key)}
                 className={`px-4 py-2 rounded-full border mr-6 ${
-                  activeTab === tab.key ? 'bg-black border-black' : 'bg-white border-gray-300'
+                  activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'
                 }`}
               >
-                <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-black'}`}>
+                <Text
+                  className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
+                >
                   {tab.icon} {tab.label}
                 </Text>
               </TouchableOpacity>
@@ -200,7 +205,6 @@ export default function SearchPage() {
       {/* Results */}
       <View className="flex-1">
         <View className="flex-row items-center justify-between mb-4 px-4">
-          <Text className="text-lg font-bold text-[#FF914D] mb-2">Bảo tàng nổi bật</Text>
           <Text className="text-gray-600">{searchResults.length} kết quả</Text>
         </View>
 

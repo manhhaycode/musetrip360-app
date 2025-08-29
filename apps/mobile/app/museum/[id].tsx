@@ -136,18 +136,18 @@ export default function MuseumDetailPage() {
         return (
           <View className="px-2">
             {/* Introduction - Always show, prioritize contentHomePage over description */}
-            <Card className="bg-gradient-to-br from-orange-50 to-red-50 border border-orange-200 rounded-lg shadow-sm mb-8">
+            <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 bg-orange-500 rounded-full items-center justify-center mr-3">
+                  <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
                     <Text className="text-white text-lg">🏛️</Text>
                   </View>
-                  <Text className="text-lg font-semibold text-orange-900">Giới thiệu</Text>
+                  <Text className="text-lg font-semibold text-primary">Giới thiệu</Text>
                 </View>
                 {museum.metadata?.contentHomePage ? (
                   renderHtmlContent(museum.metadata.contentHomePage)
                 ) : (
-                  <Text className="text-orange-800 text-base leading-6">
+                  <Text className="text-foreground text-base leading-6">
                     {museum.description || 'Thông tin giới thiệu đang được cập nhật...'}
                   </Text>
                 )}
@@ -156,13 +156,13 @@ export default function MuseumDetailPage() {
 
             {/* Detailed Information */}
             {museum.metadata?.detail && (
-              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-8">
+              <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
                 <CardContent className="p-4">
                   <View className="flex-row items-center mb-3">
-                    <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
+                    <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
                       <Text className="text-white text-lg">📋</Text>
                     </View>
-                    <Text className="text-lg font-semibold text-blue-900">Thông tin chi tiết</Text>
+                    <Text className="text-lg font-semibold text-primary">Thông tin chi tiết</Text>
                   </View>
                   {renderHtmlContent(museum.metadata.detail)}
                 </CardContent>
@@ -173,23 +173,20 @@ export default function MuseumDetailPage() {
 
             {/* Categories */}
             {museum.categories && museum.categories.length > 0 && (
-              <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border border-purple-200 rounded-lg shadow-sm mb-6">
+              <Card className="bg-card border border-border rounded-lg shadow-sm mb-6">
                 <CardContent className="p-4">
                   <View className="flex-row items-center mb-3">
-                    <View className="w-8 h-8 bg-purple-500 rounded-full items-center justify-center mr-3">
+                    <View className="w-8 h-8 bg-secondary rounded-full items-center justify-center mr-3">
                       <Text className="text-white text-lg">🏷️</Text>
                     </View>
-                    <Text className="text-lg font-semibold text-purple-900">Danh mục bảo tàng</Text>
+                    <Text className="text-lg font-semibold text-primary">Danh mục bảo tàng</Text>
                   </View>
                   <View className="flex-row flex-wrap gap-2">
                     {museum.categories.map((category) => (
-                      <View
-                        key={category.id}
-                        className="px-3 py-2 bg-purple-100/70 rounded-lg border border-purple-300"
-                      >
-                        <Text className="text-sm text-purple-800 font-medium">{category.name}</Text>
+                      <View key={category.id} className="px-3 py-2 bg-card rounded-lg border border-border">
+                        <Text className="text-sm text-foreground font-medium">{category.name}</Text>
                         {category.description && (
-                          <Text className="text-xs text-purple-700 mt-1">{category.description}</Text>
+                          <Text className="text-xs text-foreground mt-1">{category.description}</Text>
                         )}
                       </View>
                     ))}
@@ -221,13 +218,13 @@ export default function MuseumDetailPage() {
                 if (displayImages.length === 0) return null;
 
                 return (
-                  <Card className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-200 rounded-lg shadow-sm mb-8">
+                  <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
                     <CardContent className="p-4">
                       <View className="flex-row items-center mb-3">
-                        <View className="w-8 h-8 bg-amber-500 rounded-full items-center justify-center mr-3">
+                        <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
                           <Text className="text-white text-lg">📸</Text>
                         </View>
-                        <Text className="text-lg font-semibold text-amber-900">Hình ảnh bảo tàng</Text>
+                        <Text className="text-lg font-semibold text-accent">Hình ảnh bảo tàng</Text>
                       </View>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-3">
                         {displayImages.map((imageUrl, index) => (
@@ -249,9 +246,9 @@ export default function MuseumDetailPage() {
       case 'artifacts':
         if (artifactsLoading) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải hiện vật...</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải hiện vật...</Text>
               </CardContent>
             </Card>
           );
@@ -259,11 +256,11 @@ export default function MuseumDetailPage() {
 
         if (artifactsError) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">⚠️</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải hiện vật</Text>
-                <Text className="text-gray-600 text-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải hiện vật</Text>
+                <Text className="text-muted-foreground text-center">
                   {artifactsError?.message || 'Không thể tải danh sách hiện vật'}
                 </Text>
               </CardContent>
@@ -275,11 +272,13 @@ export default function MuseumDetailPage() {
 
         if (artifacts.length === 0) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">🏺</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có hiện vật</Text>
-                <Text className="text-gray-600 text-center">Bảo tàng này chưa có hiện vật nào được trưng bày</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có hiện vật</Text>
+                <Text className="text-muted-foreground text-center">
+                  Bảo tàng này chưa có hiện vật nào được trưng bày
+                </Text>
               </CardContent>
             </Card>
           );
@@ -293,7 +292,7 @@ export default function MuseumDetailPage() {
                 onPress={() => router.push(`/artifact/${artifact.id}` as any)}
                 className="mb-4"
               >
-                <Card className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+                <Card className="bg-card border border-border rounded-lg overflow-hidden">
                   <View className="flex-row h-24">
                     <Image
                       source={{
@@ -304,14 +303,14 @@ export default function MuseumDetailPage() {
                     />
                     <View className="flex-1 p-3 justify-between">
                       <View className="flex-1">
-                        <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                        <Text className="font-semibold text-base text-foreground mb-1" numberOfLines={2}>
                           {artifact.name}
                         </Text>
-                        <Text className="text-gray-600 text-sm flex-1" numberOfLines={2}>
+                        <Text className="text-muted-foreground text-sm flex-1" numberOfLines={2}>
                           {artifact.description}
                         </Text>
                       </View>
-                      <Text className="text-gray-500 text-xs mt-1">{artifact.historicalPeriod}</Text>
+                      <Text className="text-muted-foreground text-xs mt-1">{artifact.historicalPeriod}</Text>
                     </View>
                   </View>
                 </Card>
@@ -334,9 +333,9 @@ export default function MuseumDetailPage() {
       case 'events':
         if (eventsLoading) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải sự kiện...</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải sự kiện...</Text>
               </CardContent>
             </Card>
           );
@@ -344,11 +343,11 @@ export default function MuseumDetailPage() {
 
         if (eventsError) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">⚠️</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải sự kiện</Text>
-                <Text className="text-gray-600 text-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải sự kiện</Text>
+                <Text className="text-muted-foreground text-center">
                   {eventsError?.message || 'Không thể tải danh sách sự kiện'}
                 </Text>
               </CardContent>
@@ -360,11 +359,11 @@ export default function MuseumDetailPage() {
 
         if (events.length === 0) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">📅</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có sự kiện</Text>
-                <Text className="text-gray-600 text-center">Bảo tàng này chưa có sự kiện nào được tổ chức</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có sự kiện</Text>
+                <Text className="text-muted-foreground text-center">Bảo tàng này chưa có sự kiện nào được tổ chức</Text>
               </CardContent>
             </Card>
           );
@@ -378,20 +377,20 @@ export default function MuseumDetailPage() {
                 onPress={() => router.push(`/event/${event.id}` as any)}
                 className="mb-4"
               >
-                <Card className="bg-white border border-gray-200 rounded-lg">
+                <Card className="bg-card border border-border rounded-lg">
                   <CardContent className="p-4">
-                    <Text className="font-semibold text-base text-gray-900 mb-2" numberOfLines={2}>
+                    <Text className="font-semibold text-base text-foreground mb-2" numberOfLines={2}>
                       {event.title}
                     </Text>
-                    <Text className="text-gray-600 text-sm mb-3 leading-5" numberOfLines={3}>
+                    <Text className="text-muted-foreground text-sm mb-3 leading-5" numberOfLines={3}>
                       {event.description}
                     </Text>
                     <View className="flex-row items-center justify-between">
-                      <Text className="text-gray-500 text-xs">
+                      <Text className="text-muted-foreground text-xs">
                         {new Date(event.startTime).toLocaleDateString('vi-VN')}
                       </Text>
-                      <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
-                        <Text className="text-xs text-blue-800">{event.eventType}</Text>
+                      <View className="bg-accent/10 border border-accent rounded px-2 py-1">
+                        <Text className="text-xs text-accent">{event.eventType}</Text>
                       </View>
                     </View>
                   </CardContent>
@@ -415,9 +414,9 @@ export default function MuseumDetailPage() {
       case 'articles':
         if (articlesLoading) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải bài viết...</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải bài viết...</Text>
               </CardContent>
             </Card>
           );
@@ -425,11 +424,11 @@ export default function MuseumDetailPage() {
 
         if (articlesError) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">⚠️</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải bài viết</Text>
-                <Text className="text-gray-600 text-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải bài viết</Text>
+                <Text className="text-muted-foreground text-center">
                   {articlesError?.message || 'Không thể tải danh sách bài viết'}
                 </Text>
               </CardContent>
@@ -441,11 +440,13 @@ export default function MuseumDetailPage() {
 
         if (articles.length === 0) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">📰</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có bài viết</Text>
-                <Text className="text-gray-600 text-center">Bảo tàng này chưa có bài viết nào được đăng tải</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có bài viết</Text>
+                <Text className="text-muted-foreground text-center">
+                  Bảo tàng này chưa có bài viết nào được đăng tải
+                </Text>
               </CardContent>
             </Card>
           );
@@ -459,20 +460,20 @@ export default function MuseumDetailPage() {
                 onPress={() => router.push(`/article/${article.id}` as any)}
                 className="mb-4"
               >
-                <Card className="bg-white border border-gray-200 rounded-lg">
+                <Card className="bg-card border border-border rounded-lg">
                   <CardContent className="p-4">
-                    <Text className="font-semibold text-base text-gray-900 mb-1" numberOfLines={2}>
+                    <Text className="font-semibold text-base text-foreground mb-1" numberOfLines={2}>
                       {article.title}
                     </Text>
-                    <Text className="text-gray-600 text-sm mb-2" numberOfLines={3}>
+                    <Text className="text-muted-foreground text-sm mb-2" numberOfLines={3}>
                       {article.content.replace(/<[^>]*>/g, '')}
                     </Text>
                     <View className="flex-row items-center justify-between">
-                      <Text className="text-gray-500 text-xs">
+                      <Text className="text-muted-foreground text-xs">
                         {new Date(article.publishedAt).toLocaleDateString('vi-VN')}
                       </Text>
-                      <View className="bg-orange-100 border border-orange-200 rounded px-2 py-1">
-                        <Text className="text-xs text-orange-800">{article.status}</Text>
+                      <View className="bg-primary/10 border border-primary rounded px-2 py-1">
+                        <Text className="text-xs text-primary">{article.status}</Text>
                       </View>
                     </View>
                   </CardContent>
@@ -496,9 +497,9 @@ export default function MuseumDetailPage() {
       case 'tours':
         if (virtualToursLoading) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Đang tải tour ảo...</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải tour ảo...</Text>
               </CardContent>
             </Card>
           );
@@ -506,11 +507,11 @@ export default function MuseumDetailPage() {
 
         if (virtualToursError) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">⚠️</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Lỗi tải tour ảo</Text>
-                <Text className="text-gray-600 text-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải tour ảo</Text>
+                <Text className="text-muted-foreground text-center">
                   {virtualToursError?.message || 'Không thể tải danh sách tour ảo'}
                 </Text>
               </CardContent>
@@ -522,11 +523,13 @@ export default function MuseumDetailPage() {
 
         if (virtualTours.length === 0) {
           return (
-            <Card className="bg-white border border-gray-200 rounded-lg">
+            <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
                 <Text className="text-4xl mb-3">🌐</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có tour ảo</Text>
-                <Text className="text-gray-600 text-center">Bảo tàng này chưa có tour ảo nào được cung cấp</Text>
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có tour ảo</Text>
+                <Text className="text-muted-foreground text-center">
+                  Bảo tàng này chưa có tour ảo nào được cung cấp
+                </Text>
               </CardContent>
             </Card>
           );
@@ -535,7 +538,7 @@ export default function MuseumDetailPage() {
         return (
           <View className="px-2">
             {virtualTours.map((tour: any) => (
-              <Card key={tour.id} className="bg-white border border-gray-200 rounded-lg mb-4 overflow-hidden">
+              <Card key={tour.id} className="bg-card border border-border rounded-lg mb-4 overflow-hidden">
                 <View className="flex-row">
                   <Image
                     source={{
@@ -546,19 +549,19 @@ export default function MuseumDetailPage() {
                   />
                   <View className="flex-1 p-4 justify-between">
                     <View className="flex-1">
-                      <Text className="font-semibold text-base text-gray-900 mb-2" numberOfLines={2}>
+                      <Text className="font-semibold text-base text-foreground mb-2" numberOfLines={2}>
                         {tour.title}
                       </Text>
-                      <Text className="text-gray-600 text-sm leading-5" numberOfLines={3}>
+                      <Text className="text-muted-foreground text-sm leading-5" numberOfLines={3}>
                         {tour.description}
                       </Text>
                     </View>
                     <View className="flex-row items-center justify-between mt-2">
-                      <Text className="text-gray-500 text-xs">
+                      <Text className="text-muted-foreground text-xs">
                         {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
                       </Text>
-                      <View className="bg-purple-100 border border-purple-200 rounded px-2 py-1">
-                        <Text className="text-xs text-purple-800">Tour 360°</Text>
+                      <View className="bg-secondary/10 border border-secondary rounded px-2 py-1">
+                        <Text className="text-xs text-secondary">Tour 360°</Text>
                       </View>
                     </View>
                   </View>
@@ -586,18 +589,18 @@ export default function MuseumDetailPage() {
           <View className="px-2">
             {reviews.length > 0 ? (
               reviews.map((review) => (
-                <Card key={review.id} className="bg-white border border-gray-200 rounded-lg mb-4">
+                <Card key={review.id} className="bg-card border border-border rounded-lg mb-4">
                   <CardContent className="p-4">
                     <View className="flex-row items-center justify-between mb-3">
                       <View className="flex-row items-center">
-                        <View className="w-10 h-10 bg-blue-500 rounded-full items-center justify-center mr-3">
+                        <View className="w-10 h-10 bg-accent rounded-full items-center justify-center mr-3">
                           <Text className="text-white text-sm font-semibold">
                             {review.createdByUser.fullName.charAt(0).toUpperCase()}
                           </Text>
                         </View>
                         <View>
-                          <Text className="font-semibold text-gray-900">{review.createdByUser.fullName}</Text>
-                          <Text className="text-gray-500 text-xs">
+                          <Text className="font-semibold text-foreground">{review.createdByUser.fullName}</Text>
+                          <Text className="text-muted-foreground text-xs">
                             {new Date(review.createdAt).toLocaleDateString('vi-VN')}
                           </Text>
                         </View>
@@ -613,16 +616,18 @@ export default function MuseumDetailPage() {
                         ))}
                       </View>
                     </View>
-                    <Text className="text-gray-700 text-base leading-6">{review.comment}</Text>
+                    <Text className="text-foreground text-base leading-6">{review.comment}</Text>
                   </CardContent>
                 </Card>
               ))
             ) : (
-              <Card className="bg-white border border-gray-200 rounded-lg">
+              <Card className="bg-card border border-border rounded-lg">
                 <CardContent className="p-8 items-center">
                   <Text className="text-4xl mb-3">⭐</Text>
-                  <Text className="text-lg font-semibold text-gray-900 mb-2">Chưa có đánh giá</Text>
-                  <Text className="text-gray-600 text-center">Hãy là người đầu tiên đánh giá bảo tàng này!</Text>
+                  <Text className="text-lg font-semibold text-foreground mb-2">Chưa có đánh giá</Text>
+                  <Text className="text-muted-foreground text-center">
+                    Hãy là người đầu tiên đánh giá bảo tàng này!
+                  </Text>
                 </CardContent>
               </Card>
             )}
@@ -636,26 +641,26 @@ export default function MuseumDetailPage() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-border">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#1f2937" />
+            <ArrowLeft size={24} color="#222" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+          <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
           <TouchableOpacity className="p-2">
-            <Share2 size={24} color="#1f2937" />
+            <Share2 size={24} color="#222" />
           </TouchableOpacity>
         </View>
 
         {/* Loading Content */}
         <ScrollView className="flex-1 px-4 py-4">
-          <View className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
-          <View className="w-3/4 h-6 bg-gray-200 rounded mb-2" />
-          <View className="w-1/2 h-4 bg-gray-200 rounded mb-4" />
-          <View className="w-full h-20 bg-gray-200 rounded" />
+          <View className="w-full h-48 bg-muted rounded-lg mb-4" />
+          <View className="w-3/4 h-6 bg-muted rounded mb-2" />
+          <View className="w-1/2 h-4 bg-muted rounded mb-4" />
+          <View className="w-full h-20 bg-muted rounded" />
         </ScrollView>
       </SafeAreaView>
     );
@@ -663,15 +668,15 @@ export default function MuseumDetailPage() {
 
   if (error || !museum) {
     return (
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-border">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+          <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
           <TouchableOpacity className="p-2">
             <Share2 size={24} color="#1f2937" />
           </TouchableOpacity>
@@ -680,10 +685,12 @@ export default function MuseumDetailPage() {
         {/* Error Content */}
         <View className="flex-1 items-center justify-center px-4">
           <Text className="text-4xl mb-4">😞</Text>
-          <Text className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy bảo tàng</Text>
-          <Text className="text-gray-600 text-center mb-6">Bảo tàng này có thể đã bị xóa hoặc không tồn tại</Text>
-          <Button onPress={() => router.back()} className="bg-blue-600 px-6 py-3 rounded-lg">
-            <Text className="text-white font-medium">Quay lại</Text>
+          <Text className="text-xl font-semibold text-foreground mb-2">Không tìm thấy bảo tàng</Text>
+          <Text className="text-muted-foreground text-center mb-6">
+            Bảo tàng này có thể đã bị xóa hoặc không tồn tại
+          </Text>
+          <Button onPress={() => router.back()} className="bg-primary px-6 py-3 rounded-lg">
+            <Text className="text-primary-foreground font-medium">Quay lại</Text>
           </Button>
         </View>
       </SafeAreaView>
@@ -691,57 +698,60 @@ export default function MuseumDetailPage() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-gray-200">
+      <View className="flex-row items-center justify-between px-4 py-4 bg-background">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
           <ArrowLeft size={24} color="#1f2937" />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">Chi tiết bảo tàng</Text>
+        <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
         <TouchableOpacity className="p-2">
           <Share2 size={24} color="#1f2937" />
         </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
+      <ScrollView
+        className="flex-1 bg-background"
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {/* Museum Image */}
         <Image source={getMuseumImage()} className="w-full h-64" resizeMode="cover" />
 
         {/* Museum Info */}
         <View className="px-4 py-4">
-          <Text className="text-2xl font-bold text-gray-900 mb-2">{museum.name}</Text>
+          <Text className="text-2xl font-bold text-foreground mb-2">{museum.name}</Text>
 
           {/* Rating */}
           <View className="flex-row items-center mb-4">
             <View className="flex-row items-center">
-              <Star size={16} color="#f97316" fill="#f97316" />
-              <Text className="text-orange-600 text-base ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
-              <Text className="text-gray-600 text-base ml-1">Đánh giá</Text>
+              <Star size={16} color="#ff6600" fill="#ff6600" />
+              <Text className="text-primary text-base ml-1 font-medium">{museum.rating.toFixed(1)}</Text>
+              <Text className="text-muted-foreground text-base ml-1">Đánh giá</Text>
             </View>
           </View>
 
           {/* Info Cards Row - All Orange Theme */}
           <View className="flex-row space-x-3 mb-4">
             {/* Operating Hours */}
-            <View className="flex-1 bg-orange-100 p-4 rounded-lg">
+            <View className="flex-1 bg-primary/10 p-4 rounded-lg">
               <View className="flex-row items-center mb-2">
-                <Text className="text-orange-600 text-lg mr-2">🕒</Text>
-                <Text className="text-sm font-medium text-orange-800">08:00 - 17:00</Text>
+                <Text className="text-primary text-lg mr-2">🕒</Text>
+                <Text className="text-sm font-medium text-primary">08:00 - 17:00</Text>
               </View>
-              <Text className="text-xs text-orange-600">Giờ mở cửa</Text>
+              <Text className="text-xs text-primary">Giờ mở cửa</Text>
             </View>
 
             {/* Address */}
-            <View className="flex-1 bg-orange-100 p-4 rounded-lg">
+            <View className="flex-1 bg-primary/10 p-4 rounded-lg">
               <View className="flex-row items-start mb-2">
-                <Text className="text-orange-600 text-lg mr-2">📍</Text>
-                <Text className="text-sm font-medium text-orange-800 leading-4 flex-1" numberOfLines={2}>
+                <Text className="text-primary text-lg mr-2">📍</Text>
+                <Text className="text-sm font-medium text-primary leading-4 flex-1" numberOfLines={2}>
                   {museum.location}
                 </Text>
               </View>
-              <Text className="text-xs text-orange-600">Địa chỉ</Text>
+              <Text className="text-xs text-primary">Địa chỉ</Text>
             </View>
           </View>
 
@@ -750,7 +760,7 @@ export default function MuseumDetailPage() {
             {museum.contactPhone && (
               <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                className="w-full bg-orange-500 py-4 px-4 rounded-lg"
+                className="w-full bg-primary py-4 px-4 rounded-lg"
               >
                 <View className="flex-row items-center justify-center">
                   <Text className="text-white text-lg mr-2">📞</Text>
@@ -766,10 +776,10 @@ export default function MuseumDetailPage() {
             {museum.contactPhone && (
               <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                className="flex-1 bg-orange-100 p-4 rounded-lg"
+                className="flex-1 bg-primary/10 p-4 rounded-lg"
               >
-                <Text className="text-orange-600 text-lg mb-1">📞</Text>
-                <Text className="text-orange-800 text-sm font-medium">{museum.contactPhone}</Text>
+                <Text className="text-primary text-lg mb-1">📞</Text>
+                <Text className="text-primary font-medium text-sm">{museum.contactPhone}</Text>
               </TouchableOpacity>
             )}
 
@@ -777,10 +787,10 @@ export default function MuseumDetailPage() {
             {museum.contactEmail && (
               <TouchableOpacity
                 onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
-                className="flex-1 bg-orange-100 p-4 rounded-lg"
+                className="flex-1 bg-primary/10 p-4 rounded-lg"
               >
-                <Text className="text-orange-600 text-lg mb-1">✉️</Text>
-                <Text className="text-orange-800 text-sm font-medium" numberOfLines={1}>
+                <Text className="text-primary text-lg mb-1">✉️</Text>
+                <Text className="text-primary font-medium text-sm" numberOfLines={1}>
                   {museum.contactEmail}
                 </Text>
               </TouchableOpacity>
@@ -802,10 +812,12 @@ export default function MuseumDetailPage() {
                     setArticlesPage(1);
                   }}
                   className={`px-4 py-2 rounded-full border mr-6 ${
-                    activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
+                    activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
                   }`}
                 >
-                  <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
+                  <Text
+                    className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-muted-foreground'}`}
+                  >
                     {tab.icon} {tab.label}
                   </Text>
                 </TouchableOpacity>
