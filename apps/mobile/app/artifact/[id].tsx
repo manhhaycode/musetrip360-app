@@ -48,12 +48,13 @@ export default function ArtifactDetailPage() {
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="bg-background px-4 py-3">
-        <View className="flex-row items-center">
-          <TouchableOpacity onPress={() => router.back()} className="mr-3 p-2 -ml-2">
-            <ArrowLeft size={24} color="#1f2937" />
+      <View className="bg-background px-4 py-4">
+        <View className="flex-row items-center justify-between">
+          <TouchableOpacity onPress={() => router.back()} className="p-2">
+            <ArrowLeft size={24} color="#222" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-foreground flex-1">Chi tiết hiện vật</Text>
+          <Text className="text-lg font-semibold text-foreground">Chi tiết hiện vật</Text>
+          <View className="w-10" />
         </View>
       </View>
 

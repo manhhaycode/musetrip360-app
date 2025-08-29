@@ -62,24 +62,24 @@ export default function ArticleDetailPage() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-[#FFEDE3]">
+      <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-card">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#1f2937" />
+            <ArrowLeft size={24} color="#FF7A00" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-900">Chi tiết bài viết</Text>
+          <Text className="text-lg font-semibold text-primary">Chi tiết bài viết</Text>
           <View className="w-10" />
         </View>
 
         {/* Loading Content */}
         <ScrollView className="flex-1 px-4 py-4">
-          <View className="w-full h-48 bg-gray-200 rounded-lg mb-4" />
-          <View className="w-3/4 h-6 bg-gray-200 rounded mb-2" />
-          <View className="w-1/2 h-4 bg-gray-200 rounded mb-4" />
-          <View className="w-full h-20 bg-gray-200 rounded" />
+          <View className="w-full h-48 bg-muted rounded-lg mb-4" />
+          <View className="w-3/4 h-6 bg-muted rounded mb-2" />
+          <View className="w-1/2 h-4 bg-muted rounded mb-4" />
+          <View className="w-full h-20 bg-muted rounded" />
         </ScrollView>
       </SafeAreaView>
     );
@@ -87,25 +87,27 @@ export default function ArticleDetailPage() {
 
   if (error || !article) {
     return (
-      <SafeAreaView className="flex-1 bg-[#FFEDE3]">
+      <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
 
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
+        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-card">
           <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#1f2937" />
+            <ArrowLeft size={24} color="#FF7A00" />
           </TouchableOpacity>
-          <Text className="text-lg font-semibold text-gray-900">Chi tiết bài viết</Text>
+          <Text className="text-lg font-semibold text-primary">Chi tiết bài viết</Text>
           <View className="w-10" />
         </View>
 
         {/* Error Content */}
         <View className="flex-1 items-center justify-center px-4">
           <Text className="text-4xl mb-4">😞</Text>
-          <Text className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy bài viết</Text>
-          <Text className="text-gray-600 text-center mb-6">Bài viết này có thể đã bị xóa hoặc không tồn tại</Text>
-          <Button onPress={() => router.back()} className="bg-blue-600 px-6 py-3 rounded-lg">
-            <Text className="text-white font-medium">Quay lại</Text>
+          <Text className="text-xl font-semibold text-primary mb-2">Không tìm thấy bài viết</Text>
+          <Text className="text-muted-foreground text-center mb-6">
+            Bài viết này có thể đã bị xóa hoặc không tồn tại
+          </Text>
+          <Button onPress={() => router.back()} className="bg-primary px-6 py-3 rounded-lg">
+            <Text className="text-primary-foreground font-medium">Quay lại</Text>
           </Button>
         </View>
       </SafeAreaView>
@@ -113,15 +115,15 @@ export default function ArticleDetailPage() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FFEDE3]">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
 
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-white border-b border-[#FFD2B2]">
+      <View className="flex-row items-center justify-between px-4 py-4 bg-background">
         <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <ArrowLeft size={24} color="#1f2937" />
+          <ArrowLeft size={24} color="#222" />
         </TouchableOpacity>
-        <Text className="text-lg font-semibold text-gray-900">Chi tiết bài viết</Text>
+        <Text className="text-lg font-semibold text-foreground">Chi tiết bài viết</Text>
         <View className="w-10" />
       </View>
 
@@ -141,41 +143,41 @@ export default function ArticleDetailPage() {
         <View className="px-4 py-4">
           {/* Article Title */}
           <View className="mb-8">
-            <Text className="text-2xl font-bold text-gray-900 mb-4">{article.title}</Text>
+            <Text className="text-2xl font-bold text-foreground mb-4">{article.title}</Text>
           </View>
 
           {/* Article Content */}
-          <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg shadow-sm mb-8">
+          <Card className="bg-card border border-card rounded-lg shadow-sm mb-8">
             <CardContent className="p-4">
               <View className="flex-row items-center mb-4">
-                <View className="w-8 h-8 bg-blue-500 rounded-full items-center justify-center mr-3">
+                <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
                   <Text className="text-white text-lg">📰</Text>
                 </View>
-                <Text className="text-lg font-semibold text-blue-900">Nội dung bài viết</Text>
+                <Text className="text-lg font-semibold text-primary">Nội dung bài viết</Text>
               </View>
               {article.content ? (
                 renderHtmlContent(article.content)
               ) : (
-                <Text className="text-blue-700 text-base italic">Nội dung bài viết đang được cập nhật...</Text>
+                <Text className="text-muted-foreground text-base italic">Nội dung bài viết đang được cập nhật...</Text>
               )}
             </CardContent>
           </Card>
 
           {/* Article Information Card */}
-          <Card className="bg-white border border-gray-100 rounded-lg shadow-sm">
+          <Card className="bg-card border border-card rounded-lg shadow-sm">
             <CardContent className="p-4">
-              <Text className="text-lg font-bold text-gray-800 mb-3">Thông tin bài viết</Text>
+              <Text className="text-lg font-bold text-primary mb-3">Thông tin bài viết</Text>
 
               {/* Content Type */}
               <View className="flex-row items-center mb-3">
-                <Text className="text-gray-600 text-sm">🔸 Loại bài viết:</Text>
-                <Text className="text-gray-800 text-sm ml-2 font-medium">Hiện vật</Text>
+                <Text className="text-muted-foreground text-sm">Loại bài viết:</Text>
+                <Text className="text-foreground text-sm ml-2 font-medium">Hiện vật</Text>
               </View>
 
               {/* Publication Date */}
               <View className="flex-row items-center mb-3">
-                <Text className="text-gray-600 text-sm">📅 Ngày xuất bản:</Text>
-                <Text className="text-gray-800 text-sm ml-2 font-medium">
+                <Text className="text-muted-foreground text-sm">Ngày xuất bản:</Text>
+                <Text className="text-foreground text-sm ml-2 font-medium">
                   {new Date(article.publishedAt).toLocaleString('vi-VN', {
                     day: '2-digit',
                     month: '2-digit',
@@ -187,20 +189,20 @@ export default function ArticleDetailPage() {
               {/* Museum */}
               {article.museum && (
                 <View className="flex-row items-start mb-3">
-                  <Text className="text-gray-600 text-sm">�️ Bảo tàng:</Text>
+                  <Text className="text-muted-foreground text-sm">Bảo tàng:</Text>
                   <TouchableOpacity
                     onPress={() => router.push(`/museum/${article.museum?.id}`)}
                     className="flex-1 ml-2"
                   >
-                    <Text className="text-blue-600 text-sm font-medium underline">{article.museum.name}</Text>
+                    <Text className="text-primary text-sm font-medium">{article.museum.name}</Text>
                   </TouchableOpacity>
                 </View>
               )}
 
               {/* Author */}
               <View className="flex-row items-center">
-                <Text className="text-gray-600 text-sm">✍️ Tác giả:</Text>
-                <Text className="text-gray-800 text-sm ml-2 font-medium">
+                <Text className="text-muted-foreground text-sm">Tác giả:</Text>
+                <Text className="text-foreground text-sm ml-2 font-medium">
                   {article.createdByUser?.fullName || 'Không xác định'}
                 </Text>
               </View>
@@ -209,10 +211,12 @@ export default function ArticleDetailPage() {
               {article.museum && (
                 <TouchableOpacity
                   onPress={() => router.push(`/museum/${article.museum?.id}`)}
-                  className="mt-4 flex-row items-center justify-center bg-gray-100 p-3 rounded-lg border border-gray-200"
+                  className="mt-4 flex-row items-center justify-center bg-accent border border-accent p-3 rounded-lg active:bg-primary/80"
+                  activeOpacity={0.7}
                 >
-                  <Text className="text-gray-700 text-sm mr-2">📖</Text>
-                  <Text className="text-gray-700 text-sm font-medium">Khám phá thêm về Bảo tàng Lịch sử Quốc gia</Text>
+                  <Text className="text-accent-foreground text-sm font-medium">
+                    Khám phá thêm về {article.museum.name}
+                  </Text>
                 </TouchableOpacity>
               )}
             </CardContent>

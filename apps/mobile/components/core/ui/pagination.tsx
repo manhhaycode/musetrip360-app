@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, TouchableOpacity } from 'react-native';
-import { Text } from './text';
 import { cn } from '@/libs/utils';
+import React from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import { Text } from './text';
 
 interface PaginationProps {
   currentPage: number;
@@ -64,10 +64,12 @@ export function Pagination({ currentPage, totalPages, onPageChange, showPages = 
               onPress={() => onPageChange(pageNumber)}
               className={cn(
                 'w-10 h-10 rounded-lg border border-gray-300 items-center justify-center',
-                isCurrentPage ? 'bg-blue-600 border-blue-600' : 'bg-white active:bg-gray-50'
+                isCurrentPage ? 'bg-primary border-primary' : 'bg-card active:bg-muted'
               )}
             >
-              <Text className={cn('text-sm font-medium', isCurrentPage ? 'text-white' : 'text-gray-700')}>
+              <Text
+                className={cn('text-sm font-medium', isCurrentPage ? 'text-primary-foreground' : 'text-foreground')}
+              >
                 {pageNumber}
               </Text>
             </TouchableOpacity>

@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Share2, Star } from 'lucide-react-native';
+import { ArrowLeft, Star } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
@@ -650,9 +650,7 @@ export default function MuseumDetailPage() {
             <ArrowLeft size={24} color="#222" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-          <TouchableOpacity className="p-2">
-            <Share2 size={24} color="#222" />
-          </TouchableOpacity>
+          <View className="w-10" />
         </View>
 
         {/* Loading Content */}
@@ -677,9 +675,7 @@ export default function MuseumDetailPage() {
             <ArrowLeft size={24} color="#1f2937" />
           </TouchableOpacity>
           <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-          <TouchableOpacity className="p-2">
-            <Share2 size={24} color="#1f2937" />
-          </TouchableOpacity>
+          <View className="w-10" />
         </View>
 
         {/* Error Content */}
@@ -707,9 +703,7 @@ export default function MuseumDetailPage() {
           <ArrowLeft size={24} color="#1f2937" />
         </TouchableOpacity>
         <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-        <TouchableOpacity className="p-2">
-          <Share2 size={24} color="#1f2937" />
-        </TouchableOpacity>
+        <View className="w-10" />
       </View>
 
       <ScrollView
