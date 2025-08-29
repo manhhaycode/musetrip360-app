@@ -12,6 +12,11 @@ export type AIChatReq = {
   entityType?: DataEntityType;
 };
 
+export type AIAudioRes = {
+  audioUrl: string;
+  prompt: string;
+};
+
 export type AIChatResp = {
   data: string;
   relatedData: AIChatRelatedData[];
