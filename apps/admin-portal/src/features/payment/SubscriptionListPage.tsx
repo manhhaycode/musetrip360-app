@@ -7,6 +7,7 @@ import { useDataTableState } from '@musetrip360/ui-core/data-table';
 import { useGetAdminSubscriptions } from '@musetrip360/payment-management/api';
 import { Subscription, SubscriptionStatusEnum } from '@musetrip360/payment-management';
 import get from 'lodash/get';
+import { formatCurrency } from '@musetrip360/shared';
 
 const SubscriptionListPage = () => {
   const {
@@ -37,7 +38,7 @@ const SubscriptionListPage = () => {
         cell: ({ row }) => (
           <div>
             <div className="font-medium">{row.original.plan?.name}</div>
-            <div className="text-sm text-muted-foreground">${row.original.plan?.price.toLocaleString()}</div>
+            <div className="text-sm text-muted-foreground">{formatCurrency(row.original.plan?.price ?? 0)}</div>
           </div>
         ),
         meta: {

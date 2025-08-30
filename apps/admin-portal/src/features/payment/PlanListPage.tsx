@@ -22,6 +22,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@musetrip360/ui-core/alert-dialog';
+import { formatCurrency } from '@musetrip360/shared';
 
 const PlanListPage = () => {
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -99,13 +100,7 @@ const PlanListPage = () => {
       {
         accessorKey: 'price',
         header: 'Giá',
-        cell: ({ row }) => <div className="font-mono">${row.original.price.toLocaleString()}</div>,
-        meta: {
-          variant: 'number',
-          placeholder: 'Filter by price',
-          label: 'Giá',
-          unit: 'USD',
-        },
+        cell: ({ row }) => <div className="font-mono">{formatCurrency(row.original.price)}</div>,
       },
       {
         accessorKey: 'durationDays',

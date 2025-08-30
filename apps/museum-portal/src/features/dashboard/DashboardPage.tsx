@@ -16,6 +16,7 @@ import {
 } from '@musetrip360/museum-management';
 import get from 'lodash/get';
 import UpcomingEvent from '../event/UpcomingEvent';
+import { formatCurrency } from '@musetrip360/shared';
 
 const chartConfig = {
   participantCount: {
@@ -87,11 +88,11 @@ const DashboardPage = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1">
-            <CardTitle className="text-sm font-medium">Doanh thu tháng</CardTitle>
+            <CardTitle className="text-sm font-medium">Tổng doanh thu</CardTitle>
             <CoinsIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">--</div>
+            <div className="text-2xl font-bold">{formatCurrency(get(data, 'totalRevenue', 0))}</div>
           </CardContent>
         </Card>
       </div>

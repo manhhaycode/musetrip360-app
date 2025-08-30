@@ -263,7 +263,7 @@ export function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/events/user" className="cursor-pointer">
+                    <Link href="/event/user" className="cursor-pointer">
                       <Calendar className="mr-2 h-4 w-4" />
                       <span>Sự kiện của tôi</span>
                     </Link>
