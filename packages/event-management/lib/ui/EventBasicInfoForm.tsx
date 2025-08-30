@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FormDropZone, MediaType, useBulkUpload } from '@musetrip360/shared';
+import { FormDropZone, MediaType, useBulkUpload, ZodFileData } from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent } from '@musetrip360/ui-core/card';
 import { DateTimePicker, DateTimePickerRef } from '@musetrip360/ui-core/datetime-picker';
@@ -85,8 +85,8 @@ const eventInfoFormSchema = z.object({
   requiresApproval: z.boolean().optional(),
   metadata: z.object({
     roomCreateType: z.enum(['AUTO', 'NOW', 'NONE']).optional(),
-    thumbnail: z.any().optional(),
-    images: z.array(z.instanceof(File).or(z.string().url())).nullable(),
+    thumbnail: ZodFileData.nullable().optional(),
+    images: z.array(ZodFileData.nullable()).nullable().optional(),
     richDescription: z.string().optional(),
   }),
 });
@@ -145,7 +145,10 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         ...event,
         metadata: {
           ...event.metadata,
-          ...(event.metadata?.thumbnail && { thumbnail: { file: event.metadata?.thumbnail } }),
+          thumbnail: {
+            file: event.metadata?.thumbnail || '',
+          },
+          images: event.metadata?.images || [],
           richDescription: event.metadata?.richDescription ?? event.description,
         },
       });
@@ -242,7 +245,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         price: data.price,
         metadata: {
           roomCreateType: data.metadata.roomCreateType,
-          thumbnail: data.metadata.thumbnail.file as string,
+          thumbnail: data.metadata.thumbnail?.file as string,
           richDescription: data.metadata.richDescription as string,
           images: [],
         },

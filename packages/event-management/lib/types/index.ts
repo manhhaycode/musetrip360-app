@@ -5,6 +5,7 @@
  * exhibitions, and devices.
  */
 import { Pagination } from '@musetrip360/query-foundation';
+import { FileData } from '@musetrip360/shared';
 import { IUser } from '@musetrip360/user-management/types';
 
 export type Event = {
@@ -41,11 +42,11 @@ export type Event = {
 };
 
 export type EventMetadata = {
-  images?: string[];
+  images?: FileData[] | null;
   price?: number;
   roomCreateType?: 'AUTO' | 'NOW' | 'NONE';
-  thumbnail?: string;
-  richDescription?: string;
+  thumbnail?: string | null;
+  richDescription?: string | null;
 };
 
 export enum EventTypeEnum {
@@ -69,7 +70,7 @@ export type EventSearchParams = {
   museumId?: string;
   eventType?: EventTypeEnum;
   status?: EventStatusEnum;
-  startDate?: string; // ISO date string
+  St?: string; // ISO date string
   endDate?: string; // ISO date string
   startBookingDeadline?: string; // ISO date string
   endBookingDeadline?: string; // ISO date string

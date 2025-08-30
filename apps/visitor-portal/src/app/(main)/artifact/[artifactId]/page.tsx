@@ -12,8 +12,7 @@ import { AlertTriangle } from 'lucide-react';
 
 interface ArtifactPageProps {
   params: Promise<{
-    id: string; // museumId
-    artifactId: string;
+    artifactId: string; // artifactId
   }>;
 }
 
@@ -26,12 +25,12 @@ export default function ArtifactPage({ params }: ArtifactPageProps) {
     error: artifactError,
   } = useArtifact(resolvedParams.artifactId);
   const artifact = artifactResponse?.data;
-  const { data: museum, isLoading: museumLoading } = useGetMuseumById(resolvedParams.id, {
-    enabled: !!resolvedParams.id,
+  const { data: museum, isLoading: museumLoading } = useGetMuseumById(artifact?.museumId, {
+    enabled: !!artifact?.museumId,
   });
 
   const handleBack = () => {
-    router.push(`/museum/${resolvedParams.id}`);
+    router.push(`/museum/${artifact?.museumId}`);
   };
 
   // Loading state
@@ -152,7 +151,7 @@ export default function ArtifactPage({ params }: ArtifactPageProps) {
   return (
     <ArtifactDetailPage
       artifact={artifact}
-      museumId={resolvedParams.id}
+      museumId={artifact.museumId}
       museumName={museum?.name || 'Bảo tàng'}
       onBack={handleBack}
     />

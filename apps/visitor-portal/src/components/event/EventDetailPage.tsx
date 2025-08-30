@@ -252,9 +252,9 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
           {/* Event Details - Left Side */}
           <div className="lg:col-span-2 space-y-6">
             {/* Event Image */}
-            {event.metadata?.images?.[0] && (
+            {event.metadata?.thumbnail?.[0] && (
               <div className="relative aspect-video rounded-lg overflow-hidden">
-                <Image src={event.metadata.images[0]} alt={event.title} fill className="object-cover" unoptimized />
+                <Image src={event.metadata?.thumbnail[0]} alt={event.title} fill className="object-cover" unoptimized />
               </div>
             )}
 

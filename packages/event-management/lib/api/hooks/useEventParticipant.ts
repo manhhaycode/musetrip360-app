@@ -3,6 +3,7 @@ import {
   APIError,
   CustomMutationOptions,
   CustomQueryOptions,
+  PaginatedResponse,
   useMutation,
   useQuery,
 } from '@musetrip360/query-foundation';
@@ -22,6 +23,7 @@ import {
 } from '../endpoints/eventParticipant';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';
+import { EventParticipant } from '@/types';
 
 /**
  * Get all event participants
@@ -71,7 +73,10 @@ export function useDeleteEventParticipant(options?: CustomMutationOptions<any, A
 /**
  * Get event participants by event ID
  */
-export function useGetEventParticipantsByEvent(eventId: string, options?: CustomQueryOptions<any>) {
+export function useGetEventParticipantsByEvent(
+  eventId: string,
+  options?: CustomQueryOptions<PaginatedResponse<[EventParticipant]>['data']>
+) {
   return useQuery(
     eventManagementCacheKeys.eventParticipantsByEvent(eventId),
     () => getEventParticipantsByEvent(eventId),

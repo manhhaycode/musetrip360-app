@@ -53,7 +53,7 @@ export const getEventsByMuseumId = async (museumId: string, params: EventSearchP
 
 export const searchEvents = async (params: EventSearchParams) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.get<APIResponse<PaginatedResponse<Event>>>(eventEndpoints.search, {
+  const response = await httpClient.get<PaginatedResponse<Event>>(eventEndpoints.search, {
     params,
   });
   return response.data;

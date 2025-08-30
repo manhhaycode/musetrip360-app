@@ -32,6 +32,9 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
     if (item.type === 'Museum') {
       router.push(`/museum/${item.id}`);
     }
+    if (item.type === 'Artifact') {
+      router.push(`/artifact/${item.id}`);
+    }
     // TODO: Add navigation for other types when their detail pages are ready
   };
 
