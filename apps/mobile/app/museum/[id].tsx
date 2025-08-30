@@ -246,8 +246,8 @@ export default function MuseumDetailPage() {
                 const displayImages = museum.metadata?.coverImageUrl
                   ? availableImages
                   : museum.metadata.images
-                    .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
-                    .slice(1); // Skip first image as it's used as cover
+                      .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
+                      .slice(1); // Skip first image as it's used as cover
 
                 if (displayImages.length === 0) return null;
 
@@ -806,8 +806,9 @@ export default function MuseumDetailPage() {
                     setToursPage(1);
                     setArticlesPage(1);
                   }}
-                  className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
-                    }`}
+                  className={`px-4 py-2 rounded-full border mr-6 ${
+                    activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
+                  }`}
                 >
                   <View className="flex-row items-center">
                     <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />

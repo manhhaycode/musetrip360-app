@@ -4,7 +4,6 @@ import { View } from 'react-native';
 
 import { BottomNavigation } from '@/components/layout/BottomNavigation';
 
-
 export default function TabLayout() {
   return (
     <View className="flex-1 bg-background">

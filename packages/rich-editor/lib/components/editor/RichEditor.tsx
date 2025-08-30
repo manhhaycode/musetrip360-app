@@ -106,11 +106,11 @@ export const RichEditor = forwardRef<EditorRef, RichEditorProps>(
 
     useImperativeHandle(ref, () => ({
       editor: null as any, // Will be set in actual implementation
-      focus: () => { },
-      blur: () => { },
-      clear: () => { },
+      focus: () => {},
+      blur: () => {},
+      clear: () => {},
       getContent: () => '',
-      setContent: () => { },
+      setContent: () => {},
     }));
 
     return (
