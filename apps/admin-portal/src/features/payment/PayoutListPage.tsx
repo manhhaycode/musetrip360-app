@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Clock, CheckCircle, XCircle, MoreHorizontal, Check, X, Eye, RefreshCw, Upload, FileImage } from 'lucide-react';
+import { Clock, CheckCircle, XCircle, MoreHorizontal, Check, Eye, RefreshCw, Upload, FileImage } from 'lucide-react';
 import { Button } from '@musetrip360/ui-core/button';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { DataTable } from '@musetrip360/ui-core/data-table';
@@ -26,13 +26,7 @@ import {
 import { Label } from '@musetrip360/ui-core/label';
 import { Textarea } from '@musetrip360/ui-core/textarea';
 import { toast } from '@musetrip360/ui-core/sonner';
-import {
-  useApprovePayout,
-  useRejectPayout,
-  Payout,
-  usePayoutsAdmin,
-  PayoutStatusEnum,
-} from '@musetrip360/payment-management';
+import { useApprovePayout, Payout, usePayoutsAdmin, PayoutStatusEnum } from '@musetrip360/payment-management';
 import { formatCurrency, useFileUpload } from '@musetrip360/shared';
 import get from 'lodash/get';
 import { Card, CardContent } from '@musetrip360/ui-core';
@@ -126,31 +120,6 @@ const PayoutListPage = () => {
     },
   });
 
-  const rejectMutation = useRejectPayout({
-    onSuccess: () => {
-      toast.success('Đã từ chối yêu cầu rút tiền');
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(`Lỗi từ chối: ${error.message}`);
-      refetch();
-    },
-  });
-
-  const handleReject = useCallback(
-    async (payout: Payout) => {
-      try {
-        await rejectMutation.mutateAsync({
-          id: payout.id,
-          metadata: payout.metadata,
-        });
-      } catch (error) {
-        console.error('Error rejecting payout:', error);
-      }
-    },
-    [rejectMutation]
-  );
-
   // Table columns definition
   const columns = useMemo<ColumnDef<Payout>[]>(
     () => [
@@ -239,14 +208,6 @@ const PayoutListPage = () => {
                       <Check className="h-4 w-4 mr-2" />
                       Phê duyệt
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleReject(payout)}
-                      disabled={rejectMutation.isPending}
-                      className="text-red-600"
-                    >
-                      <X className="h-4 w-4 mr-2" />
-                      Từ chối
-                    </DropdownMenuItem>
                   </>
                 )}
               </DropdownMenuContent>
@@ -255,7 +216,7 @@ const PayoutListPage = () => {
         },
       },
     ],
-    [approveMutation.isPending, handleReject, rejectMutation.isPending]
+    [approveMutation.isPending]
   );
 
   // DataTable setup
@@ -598,17 +559,6 @@ const PayoutListPage = () => {
                   >
                     <Check className="h-4 w-4 mr-2" />
                     Phê duyệt
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      handleReject(selectedPayout);
-                      setModalType(null);
-                    }}
-                    disabled={rejectMutation.isPending}
-                    variant="destructive"
-                  >
-                    <X className="h-4 w-4 mr-2" />
-                    Từ chối
                   </Button>
                 </div>
               )}
