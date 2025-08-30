@@ -28,6 +28,7 @@ export default function RootLayout() {
           <Stack.Screen name="artifact/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="tour/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       ) : (

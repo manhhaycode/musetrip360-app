@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft } from 'lucide-react-native';
+import { ArrowLeft, Frown, Newspaper } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
@@ -11,6 +11,20 @@ import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Text } from '@/components/core/ui/text';
 import { useArticleDetail } from '@/hooks/useArticles';
+
+// Function ArticleHeader remains unchanged
+function ArticleHeader() {
+  const router = useRouter();
+  return (
+    <View className="flex-row items-center justify-between px-4 py-4 bg-background border-b border-card">
+      <TouchableOpacity onPress={() => router.back()} className="p-2">
+        <ArrowLeft size={24} color="#1f2937" />
+      </TouchableOpacity>
+      <Text className="text-lg font-semibold text-foreground">Chi tiết bài viết</Text>
+      <View className="w-10" />
+    </View>
+  );
+}
 
 export default function ArticleDetailPage() {
   const router = useRouter();
@@ -60,56 +74,30 @@ export default function ArticleDetailPage() {
     );
   };
 
-  if (isLoading) {
+  if (isLoading || error || !article) {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
-
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-card">
-          <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#FF7A00" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-primary">Chi tiết bài viết</Text>
-          <View className="w-10" />
-        </View>
-
-        {/* Loading Content */}
-        <ScrollView className="flex-1 px-4 py-4">
-          <View className="w-full h-48 bg-muted rounded-lg mb-4" />
-          <View className="w-3/4 h-6 bg-muted rounded mb-2" />
-          <View className="w-1/2 h-4 bg-muted rounded mb-4" />
-          <View className="w-full h-20 bg-muted rounded" />
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
-
-  if (error || !article) {
-    return (
-      <SafeAreaView className="flex-1 bg-background">
-        <StatusBar style="dark" />
-
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-card">
-          <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#FF7A00" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-primary">Chi tiết bài viết</Text>
-          <View className="w-10" />
-        </View>
-
-        {/* Error Content */}
-        <View className="flex-1 items-center justify-center px-4">
-          <Text className="text-4xl mb-4">😞</Text>
-          <Text className="text-xl font-semibold text-primary mb-2">Không tìm thấy bài viết</Text>
-          <Text className="text-muted-foreground text-center mb-6">
-            Bài viết này có thể đã bị xóa hoặc không tồn tại
-          </Text>
-          <Button onPress={() => router.back()} className="bg-primary px-6 py-3 rounded-lg">
-            <Text className="text-primary-foreground font-medium">Quay lại</Text>
-          </Button>
-        </View>
+        <ArticleHeader />
+        {isLoading ? (
+          <ScrollView className="flex-1 px-4 py-4">
+            <View className="w-full h-48 bg-muted rounded-lg mb-4" />
+            <View className="w-3/4 h-6 bg-muted rounded mb-2" />
+            <View className="w-1/2 h-4 bg-muted rounded mb-4" />
+            <View className="w-full h-20 bg-muted rounded" />
+          </ScrollView>
+        ) : (
+          <View className="flex-1 items-center justify-center px-4">
+            <Frown size={40} color="#a67c52" className="mb-4" />
+            <Text className="text-xl font-semibold text-primary mb-2">Không tìm thấy bài viết</Text>
+            <Text className="text-muted-foreground text-center mb-6">
+              Bài viết này có thể đã bị xóa hoặc không tồn tại
+            </Text>
+            <Button onPress={() => router.back()} className="bg-primary px-6 py-3 rounded-lg">
+              <Text className="text-primary-foreground font-medium">Quay lại</Text>
+            </Button>
+          </View>
+        )}
       </SafeAreaView>
     );
   }
@@ -117,16 +105,7 @@ export default function ArticleDetailPage() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
-
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-background">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <ArrowLeft size={24} color="#222" />
-        </TouchableOpacity>
-        <Text className="text-lg font-semibold text-foreground">Chi tiết bài viết</Text>
-        <View className="w-10" />
-      </View>
-
+      <ArticleHeader />
       <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         {/* Article Image */}
         {article.metadata?.thumbnail && (
@@ -151,7 +130,7 @@ export default function ArticleDetailPage() {
             <CardContent className="p-4">
               <View className="flex-row items-center mb-4">
                 <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
-                  <Text className="text-white text-lg">📰</Text>
+                  <Newspaper size={20} color="#fff" />
                 </View>
                 <Text className="text-lg font-semibold text-primary">Nội dung bài viết</Text>
               </View>

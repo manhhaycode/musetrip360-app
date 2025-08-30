@@ -1,16 +1,41 @@
-import { useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { ArrowRight, Landmark, Search } from 'lucide-react-native';
-import React from 'react';
-import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Input } from '@/components/core/ui/input';
 import { Text } from '@/components/core/ui/text';
 import { MuseumCard } from '@/components/MuseumCard';
 import { useMuseums } from '@/hooks/useMuseums';
 import type { Museum } from '@musetrip360/museum-management';
+import { useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { ArrowRight, Frown, Landmark, Search } from 'lucide-react-native';
+import React from 'react';
+import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// SearchBar component
+type SearchBarProps = {
+  searchQuery: string;
+  setSearchQuery: (text: string) => void;
+  handleSearch: () => void;
+};
+
+function SearchBar({ searchQuery, setSearchQuery, handleSearch }: SearchBarProps) {
+  return (
+    <View className="px-4 pt-4 pb-2 bg-background shadow-sm">
+      <View className="relative">
+        <Input
+          className="bg-card text-foreground border-primary pl-12 h-12 text-base rounded-lg"
+          placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          onSubmitEditing={handleSearch}
+        />
+        <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
+          <Search size={20} color="#FF7A00" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -43,27 +68,12 @@ export default function HomePage() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
+      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleSearch={handleSearch} />
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Hero Section */}
-        <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
-          {/* Search Bar */}
-          <View className="relative">
-            <Input
-              className="bg-card text-foreground border-primary pl-12 h-12 text-base rounded-lg"
-              placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              onSubmitEditing={handleSearch}
-            />
-            <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-              <Search size={20} color="#FF7A00" />
-            </TouchableOpacity>
-          </View>
-        </View>
         <Text> </Text>
         {/* Featured Museums */}
         <View className="px-4 pb-6">
@@ -95,7 +105,7 @@ export default function HomePage() {
           ) : error ? (
             <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
+                <Frown size={40} color="#FF7A00" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải dữ liệu</Text>
                 <Text className="text-muted-foreground text-center mb-4">
                   {error?.message || 'Không thể tải danh sách bảo tàng'}

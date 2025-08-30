@@ -1,6 +1,22 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Star } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  BookOpen,
+  CalendarDays,
+  Camera,
+  ClipboardList,
+  Clock,
+  Frown,
+  Globe2,
+  Mail,
+  MapPin,
+  Newspaper,
+  Package,
+  Phone,
+  Star,
+  Tag,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import RenderHtml from 'react-native-render-html';
@@ -18,13 +34,27 @@ import { useMuseum } from '@/hooks/useMuseums';
 import { useReviews } from '@/hooks/useReviews';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
 
+// MuseumHeader component giống ArticleHeader
+function MuseumHeader() {
+  const router = useRouter();
+  return (
+    <View className="flex-row items-center justify-between px-4 py-4 bg-background border-b border-card">
+      <TouchableOpacity onPress={() => router.back()} className="p-2">
+        <ArrowLeft size={24} color="#1f2937" />
+      </TouchableOpacity>
+      <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
+      <View className="w-10" />
+    </View>
+  );
+}
+
 const MUSEUM_TABS = [
-  { key: 'overview', label: 'Giới thiệu', icon: '📖' },
-  { key: 'artifacts', label: 'Hiện vật', icon: '🏺' },
-  { key: 'events', label: 'Sự kiện', icon: '📅' },
-  { key: 'articles', label: 'Bài viết', icon: '📰' },
-  { key: 'tours', label: 'Tour ảo', icon: '🌐' },
-  { key: 'reviews', label: 'Đánh giá', icon: '⭐' },
+  { key: 'overview', label: 'Giới thiệu', icon: BookOpen },
+  { key: 'artifacts', label: 'Hiện vật', icon: Package },
+  { key: 'events', label: 'Sự kiện', icon: CalendarDays },
+  { key: 'articles', label: 'Bài viết', icon: Newspaper },
+  { key: 'tours', label: 'Tour ảo', icon: Globe2 },
+  { key: 'reviews', label: 'Đánh giá', icon: Star },
 ] as const;
 
 type MuseumTabKey = (typeof MUSEUM_TABS)[number]['key'];
@@ -92,7 +122,13 @@ export default function MuseumDetailPage() {
       b: { fontWeight: 'bold' as const },
       em: { fontStyle: 'italic' as const },
       i: { fontStyle: 'italic' as const },
-      img: { marginVertical: 8 },
+      img: {
+        marginVertical: 8,
+        maxWidth: width - 64,
+        width: '100%',
+        height: 'auto',
+        borderRadius: 12,
+      },
     };
 
     const systemFonts = ['System'];
@@ -140,7 +176,7 @@ export default function MuseumDetailPage() {
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
                   <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
-                    <Text className="text-white text-lg">🏛️</Text>
+                    <BookOpen size={20} color="#fff" />
                   </View>
                   <Text className="text-lg font-semibold text-primary">Giới thiệu</Text>
                 </View>
@@ -160,7 +196,7 @@ export default function MuseumDetailPage() {
                 <CardContent className="p-4">
                   <View className="flex-row items-center mb-3">
                     <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
-                      <Text className="text-white text-lg">📋</Text>
+                      <ClipboardList size={20} color="#fff" />
                     </View>
                     <Text className="text-lg font-semibold text-primary">Thông tin chi tiết</Text>
                   </View>
@@ -173,11 +209,11 @@ export default function MuseumDetailPage() {
 
             {/* Categories */}
             {museum.categories && museum.categories.length > 0 && (
-              <Card className="bg-card border border-border rounded-lg shadow-sm mb-6">
+              <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
                 <CardContent className="p-4">
                   <View className="flex-row items-center mb-3">
-                    <View className="w-8 h-8 bg-secondary rounded-full items-center justify-center mr-3">
-                      <Text className="text-white text-lg">🏷️</Text>
+                    <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
+                      <Tag size={20} color="#fff" />
                     </View>
                     <Text className="text-lg font-semibold text-primary">Danh mục bảo tàng</Text>
                   </View>
@@ -221,10 +257,10 @@ export default function MuseumDetailPage() {
                   <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
                     <CardContent className="p-4">
                       <View className="flex-row items-center mb-3">
-                        <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
-                          <Text className="text-white text-lg">📸</Text>
+                        <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
+                          <Camera size={20} color="#fff" />
                         </View>
-                        <Text className="text-lg font-semibold text-accent">Hình ảnh bảo tàng</Text>
+                        <Text className="text-lg font-semibold text-primary">Hình ảnh bảo tàng</Text>
                       </View>
                       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="space-x-3">
                         {displayImages.map((imageUrl, index) => (
@@ -258,7 +294,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
+                <Frown size={32} color="#a67c52" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải hiện vật</Text>
                 <Text className="text-muted-foreground text-center">
                   {artifactsError?.message || 'Không thể tải danh sách hiện vật'}
@@ -274,7 +310,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">🏺</Text>
+                <Package size={32} color="#a67c52" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có hiện vật</Text>
                 <Text className="text-muted-foreground text-center">
                   Bảo tàng này chưa có hiện vật nào được trưng bày
@@ -345,7 +381,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
+                <Frown size={32} color="#a67c52" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải sự kiện</Text>
                 <Text className="text-muted-foreground text-center">
                   {eventsError?.message || 'Không thể tải danh sách sự kiện'}
@@ -361,7 +397,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">📅</Text>
+                <CalendarDays size={32} color="#0ea5e9" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có sự kiện</Text>
                 <Text className="text-muted-foreground text-center">Bảo tàng này chưa có sự kiện nào được tổ chức</Text>
               </CardContent>
@@ -432,7 +468,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
+                <Frown size={32} color="#a67c52" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải bài viết</Text>
                 <Text className="text-muted-foreground text-center">
                   {articlesError?.message || 'Không thể tải danh sách bài viết'}
@@ -448,7 +484,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">📰</Text>
+                <Newspaper size={32} color="#0ea5e9" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có bài viết</Text>
                 <Text className="text-muted-foreground text-center">
                   Bảo tàng này chưa có bài viết nào được đăng tải
@@ -512,7 +548,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
+                <Frown size={32} color="#a67c52" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải tour ảo</Text>
                 <Text className="text-muted-foreground text-center">
                   {virtualToursError?.message || 'Không thể tải danh sách tour ảo'}
@@ -528,7 +564,7 @@ export default function MuseumDetailPage() {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">🌐</Text>
+                <Globe2 size={32} color="#0ea5e9" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có tour ảo</Text>
                 <Text className="text-muted-foreground text-center">
                   Bảo tàng này chưa có tour ảo nào được cung cấp
@@ -626,7 +662,7 @@ export default function MuseumDetailPage() {
             ) : (
               <Card className="bg-card border border-border rounded-lg">
                 <CardContent className="p-8 items-center">
-                  <Text className="text-4xl mb-3">⭐</Text>
+                  <Star size={32} color="#fbbf24" className="mb-3" />
                   <Text className="text-lg font-semibold text-foreground mb-2">Chưa có đánh giá</Text>
                   <Text className="text-muted-foreground text-center">
                     Hãy là người đầu tiên đánh giá bảo tàng này!
@@ -646,16 +682,7 @@ export default function MuseumDetailPage() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
-
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-border">
-          <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#222" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-          <View className="w-10" />
-        </View>
-
+        <MuseumHeader />
         {/* Loading Content */}
         <ScrollView className="flex-1 px-4 py-4">
           <View className="w-full h-48 bg-muted rounded-lg mb-4" />
@@ -671,19 +698,10 @@ export default function MuseumDetailPage() {
     return (
       <SafeAreaView className="flex-1 bg-background">
         <StatusBar style="dark" />
-
-        {/* Header */}
-        <View className="flex-row items-center justify-between px-4 py-4 bg-card border-b border-border">
-          <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#1f2937" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-          <View className="w-10" />
-        </View>
-
+        <MuseumHeader />
         {/* Error Content */}
         <View className="flex-1 items-center justify-center px-4">
-          <Text className="text-4xl mb-4">😞</Text>
+          <Frown size={40} color="#a67c52" className="mb-4" />
           <Text className="text-xl font-semibold text-foreground mb-2">Không tìm thấy bảo tàng</Text>
           <Text className="text-muted-foreground text-center mb-6">
             Bảo tàng này có thể đã bị xóa hoặc không tồn tại
@@ -699,27 +717,16 @@ export default function MuseumDetailPage() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
-
-      {/* Header */}
-      <View className="flex-row items-center justify-between px-4 py-4 bg-background">
-        <TouchableOpacity onPress={() => router.back()} className="p-2">
-          <ArrowLeft size={24} color="#1f2937" />
-        </TouchableOpacity>
-        <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
-        <View className="w-10" />
-      </View>
-
+      <MuseumHeader />
       <ScrollView
         className="flex-1 bg-background"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Museum Image */}
         <Image source={getMuseumImage()} className="w-full h-64" resizeMode="cover" />
-
         {/* Museum Info */}
         <View className="px-4 py-4">
           <Text className="text-2xl font-bold text-foreground mb-2">{museum.name}</Text>
-
           {/* Rating */}
           <View className="flex-row items-center mb-4">
             <View className="flex-row items-center">
@@ -728,25 +735,23 @@ export default function MuseumDetailPage() {
               <Text className="text-muted-foreground text-base ml-1">Đánh giá</Text>
             </View>
           </View>
-
           {/* Info Section - Improved Layout & Alignment */}
           <View className="flex-row gap-1 mb-2">
             {/* Operating Hours */}
             <View className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]">
-              <Text className="text-primary text-base mb-0.5">🕒</Text>
+              <Clock size={18} color="#ff6600" />
               <Text className="text-xs font-semibold text-foreground mb-0.5">08:00 - 17:00</Text>
               <Text className="text-xs text-muted-foreground">Giờ mở cửa</Text>
             </View>
             {/* Address */}
             <View className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]">
-              <Text className="text-primary text-base mb-0.5">📍</Text>
+              <MapPin size={18} color="#ff6600" />
               <Text className="text-xs font-semibold text-foreground mb-0.5 text-center" numberOfLines={6}>
                 {museum.location}
               </Text>
               <Text className="text-xs text-muted-foreground">Địa chỉ </Text>
             </View>
           </View>
-
           {/* Booking Button - Centered & Prominent */}
           {museum.contactPhone && (
             <View className="mb-4 items-center">
@@ -755,13 +760,12 @@ export default function MuseumDetailPage() {
                 className="w-full max-w-md bg-accent py-4 px-4 rounded-lg shadow-md active:bg-accent/80"
               >
                 <View className="flex-row items-center justify-center">
-                  <Text className="text-accent-foreground text-lg mr-2">📞</Text>
+                  <Phone size={18} color="#fff" style={{ marginRight: 8 }} />
                   <Text className="text-accent-foreground font-semibold text-base">Đặt vé tham quan</Text>
                 </View>
               </TouchableOpacity>
             </View>
           )}
-
           {/* Contact Information - Consistent Height & Spacing */}
           {(museum.contactPhone || museum.contactEmail) && (
             <View className="flex-row gap-1 mb-2">
@@ -771,7 +775,7 @@ export default function MuseumDetailPage() {
                   onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
                   className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
                 >
-                  <Text className="text-primary text-base mb-0.5">📞</Text>
+                  <Phone size={16} color="#ff6600" />
                   <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
                     {museum.contactPhone}
                   </Text>
@@ -783,7 +787,7 @@ export default function MuseumDetailPage() {
                   onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
                   className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
                 >
-                  <Text className="text-primary text-base mb-0.5">✉️</Text>
+                  <Mail size={16} color="#ff6600" />
                   <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
                     {museum.contactEmail}
                   </Text>
@@ -791,7 +795,6 @@ export default function MuseumDetailPage() {
               )}
             </View>
           )}
-
           {/* Tabs */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
             <View className="flex-row">
@@ -810,20 +813,21 @@ export default function MuseumDetailPage() {
                     activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
                   }`}
                 >
-                  <Text
-                    className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-muted-foreground'}`}
-                  >
-                    {tab.icon} {tab.label}
-                  </Text>
+                  <View className="flex-row items-center">
+                    <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />
+                    <Text
+                      className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-muted-foreground'}`}
+                    >
+                      {tab.label}
+                    </Text>
+                  </View>
                 </TouchableOpacity>
               ))}
             </View>
           </ScrollView>
-
           {/* Tab Content */}
           {renderTabContent()}
         </View>
-
         {/* Bottom spacing */}
         <View className="h-20" />
       </ScrollView>

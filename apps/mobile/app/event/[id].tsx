@@ -1,6 +1,17 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft, Calendar, MapPin, MessageCircle, Star, Users } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  BookOpen,
+  Calendar,
+  Frown,
+  Globe2,
+  Landmark,
+  MapPin,
+  MessageCircle,
+  Star,
+  Users,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
 import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -84,6 +95,7 @@ export default function EventDetailPage() {
         {/* Error Content */}
         <View className="flex-1 items-center justify-center px-4">
           <Text className="text-4xl mb-4">😞</Text>
+          <Frown size={40} color="#a67c52" className="mb-4" />
           <Text className="text-xl font-semibold text-gray-900 mb-2">Không tìm thấy sự kiện</Text>
           <Text className="text-gray-600 text-center mb-6">Sự kiện này có thể đã bị xóa hoặc không tồn tại</Text>
           <Button onPress={() => router.back()} className="bg-blue-600 px-6 py-3 rounded-lg">
@@ -161,7 +173,7 @@ export default function EventDetailPage() {
             <View className="flex-row items-center mb-1">
               <Users size={16} color="#9ca3af" />
               <Text className="text-muted-foreground text-xs ml-2">
-                {event.availableSlots}/{event.capacity} chỗ còn trống
+                Còn {event.availableSlots}/{event.capacity} chỗ
               </Text>
             </View>
           </View>
@@ -171,7 +183,7 @@ export default function EventDetailPage() {
             <CardContent className="px-3 py-2">
               <View className="flex-row items-center mb-3">
                 <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
-                  <Text className="text-white text-lg">📖</Text>
+                  <BookOpen size={20} color="#fff" />
                 </View>
                 <Text className="text-lg font-semibold text-primary">Mô tả sự kiện</Text>
               </View>
@@ -188,7 +200,7 @@ export default function EventDetailPage() {
             <CardContent className="px-3 py-2">
               <View className="flex-row items-center mb-4">
                 <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
-                  <Text className="text-white text-lg">🎫</Text>
+                  <Landmark size={20} color="#fff" />
                 </View>
                 <Text className="text-lg font-semibold text-primary">Thông tin chi tiết</Text>
               </View>
@@ -232,7 +244,7 @@ export default function EventDetailPage() {
               <CardContent className="p-4">
                 <View className="flex-row items-center mb-3">
                   <View className="w-8 h-8 bg-secondary rounded-full items-center justify-center mr-3">
-                    <Text className="text-white text-lg">🌐</Text>
+                    <Globe2 size={20} color="#fff" />
                   </View>
                   <Text className="text-lg font-semibold text-primary">Tour trực tuyến </Text>
                 </View>
@@ -243,42 +255,6 @@ export default function EventDetailPage() {
                       {tour.description && (
                         <Text className="text-sm text-muted-foreground mt-1">{tour.description}</Text>
                       )}
-                    </View>
-                  ))}
-                </View>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Artifacts */}
-          {event.artifacts && event.artifacts.length > 0 && (
-            <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
-              <CardContent className="p-4">
-                <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 bg-accent rounded-full items-center justify-center mr-3">
-                    <Text className="text-white text-lg">🏺</Text>
-                  </View>
-                  <Text className="text-lg font-semibold text-accent">Hiện vật liên quan</Text>
-                </View>
-                <View className="space-y-3">
-                  {event.artifacts.map((artifact) => (
-                    <View key={artifact.id} className="flex-row space-x-3 p-3 bg-card rounded-lg border border-border">
-                      <Image
-                        source={artifact.imageUrl || 'https://via.placeholder.com/64x64/e5e7eb/9ca3af?text=Artifact'}
-                        className="w-16 h-16 rounded-lg"
-                        resizeMode="cover"
-                      />
-                      <View className="flex-1">
-                        <Text className="font-semibold text-foreground">{artifact.name}</Text>
-                        {artifact.description && (
-                          <Text className="text-sm text-muted-foreground mt-1" numberOfLines={2}>
-                            {artifact.description}
-                          </Text>
-                        )}
-                        {artifact.historicalPeriod && (
-                          <Text className="text-xs text-muted-foreground mt-1">{artifact.historicalPeriod}</Text>
-                        )}
-                      </View>
                     </View>
                   ))}
                 </View>

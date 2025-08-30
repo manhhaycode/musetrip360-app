@@ -1,14 +1,32 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { ArrowLeft } from 'lucide-react-native';
-import React, { useState } from 'react';
-import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Text } from '@/components/core/ui/text';
 import { useArtifactDetail } from '@/hooks/useArtifacts';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { ArrowLeft, ClipboardList } from 'lucide-react-native';
+import React, { useState } from 'react';
+import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// ArtifactHeader giống các header chi tiết
+type ArtifactHeaderProps = {
+  router: ReturnType<typeof useRouter>;
+};
+
+function ArtifactHeader({ router }: ArtifactHeaderProps) {
+  return (
+    <View className="bg-background px-4 py-4">
+      <View className="flex-row items-center justify-between">
+        <TouchableOpacity onPress={() => router.back()} className="p-2">
+          <ArrowLeft size={24} color="#222" />
+        </TouchableOpacity>
+        <Text className="text-lg font-semibold text-foreground">Chi tiết hiện vật</Text>
+        <View className="w-10" />
+      </View>
+    </View>
+  );
+}
 
 export default function ArtifactDetailPage() {
   const router = useRouter();
@@ -26,6 +44,8 @@ export default function ArtifactDetailPage() {
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <StatusBar style="dark" />
+        <ArtifactHeader router={router} />
         <View className="flex-1 justify-center items-center">
           <Text className="text-muted-foreground">Đang tải...</Text>
         </View>
@@ -36,6 +56,8 @@ export default function ArtifactDetailPage() {
   if (!artifact?.data) {
     return (
       <SafeAreaView className="flex-1 bg-background">
+        <StatusBar style="dark" />
+        <ArtifactHeader router={router} />
         <View className="flex-1 justify-center items-center">
           <Text className="text-muted-foreground">Không tìm thấy hiện vật</Text>
         </View>
@@ -46,18 +68,7 @@ export default function ArtifactDetailPage() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
-
-      {/* Header */}
-      <View className="bg-background px-4 py-4">
-        <View className="flex-row items-center justify-between">
-          <TouchableOpacity onPress={() => router.back()} className="p-2">
-            <ArrowLeft size={24} color="#222" />
-          </TouchableOpacity>
-          <Text className="text-lg font-semibold text-foreground">Chi tiết hiện vật</Text>
-          <View className="w-10" />
-        </View>
-      </View>
-
+      <ArtifactHeader router={router} />
       <ScrollView className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View className="p-4">
           {/* Artifact Image */}
@@ -79,10 +90,10 @@ export default function ArtifactDetailPage() {
           <Card className="bg-card border border-border rounded-lg mb-8">
             <CardContent className="p-4">
               <View className="flex-row items-center mb-3">
-                <View className="w-8 h-8 bg-secondary/10 rounded-full items-center justify-center mr-3">
-                  <Text className="text-secondary font-semibold">ℹ️</Text>
+                <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
+                  <ClipboardList size={20} color="#fff" />
                 </View>
-                <Text className="text-lg font-semibold text-foreground">Thông tin chi tiết</Text>
+                <Text className="text-lg font-semibold text-primary">Thông tin chi tiết</Text>
               </View>
 
               {/* Historical Period */}
@@ -212,45 +223,6 @@ export default function ArtifactDetailPage() {
               </View>
             </CardContent>
           </Card>
-
-          {/* Museum Information */}
-          {artifact.data.museum && (
-            <Card className="bg-card border border-border rounded-lg mb-8">
-              <CardContent className="p-4">
-                <View className="flex-row items-center mb-3">
-                  <View className="w-8 h-8 bg-primary/10 rounded-full items-center justify-center mr-3">
-                    <Text className="text-primary font-semibold">🏛️</Text>
-                  </View>
-                  <Text className="text-lg font-semibold text-foreground">Thông tin bảo tàng</Text>
-                </View>
-
-                <TouchableOpacity
-                  className="border border-primary rounded-lg p-3 bg-card"
-                  onPress={() => {
-                    router.push(`/museum/${artifact.data.museum.id}`);
-                  }}
-                >
-                  <View className="flex-row items-center">
-                    <Image
-                      source={{
-                        uri:
-                          artifact.data.museum.imageUrl ||
-                          'https://via.placeholder.com/48x48/e5e7eb/9ca3af?text=Museum',
-                      }}
-                      className="w-12 h-12 rounded-lg mr-3"
-                    />
-                    <View className="flex-1">
-                      <Text className="text-foreground font-semibold text-base">{artifact.data.museum.name}</Text>
-                      {artifact.data.museum.address && (
-                        <Text className="text-muted-foreground text-sm mt-1">📍 {artifact.data.museum.address}</Text>
-                      )}
-                    </View>
-                    <Text className="text-primary text-lg">›</Text>
-                  </View>
-                </TouchableOpacity>
-              </CardContent>
-            </Card>
-          )}
         </View>
 
         {/* Bottom spacing */}
