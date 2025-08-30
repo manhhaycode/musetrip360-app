@@ -34,7 +34,6 @@ import { useMuseum } from '@/hooks/useMuseums';
 import { useReviews } from '@/hooks/useReviews';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
 
-// MuseumHeader component giống ArticleHeader
 function MuseumHeader() {
   const router = useRouter();
   return (
@@ -171,10 +170,9 @@ export default function MuseumDetailPage() {
 
         return (
           <View className="px-2">
-            {/* Introduction - Always show, prioritize contentHomePage over description */}
             <Card className="bg-card border border-border rounded-lg shadow-sm mb-8">
               <CardContent className="p-4">
-                <View className="flex-row items-center mb-3">
+                <View className="flex-row items-center mb-2">
                   <View className="w-8 h-8 bg-primary rounded-full items-center justify-center mr-3">
                     <BookOpen size={20} color="#fff" />
                   </View>
@@ -577,35 +575,34 @@ export default function MuseumDetailPage() {
         return (
           <View className="px-2">
             {virtualTours.map((tour: any) => (
-              <Card key={tour.id} className="bg-card border border-border rounded-lg mb-4 overflow-hidden">
-                <View className="flex-row">
-                  <Image
-                    source={{
-                      uri: tour.thumbnail || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Tour',
-                    }}
-                    className="w-24 h-24"
-                    resizeMode="cover"
-                  />
-                  <View className="flex-1 p-4 justify-between">
-                    <View className="flex-1">
-                      <Text className="font-semibold text-base text-foreground mb-2" numberOfLines={2}>
-                        {tour.title}
-                      </Text>
-                      <Text className="text-muted-foreground text-sm leading-5" numberOfLines={3}>
-                        {tour.description}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center justify-between mt-2">
-                      <Text className="text-muted-foreground text-xs">
-                        {tour.duration ? `${tour.duration} phút` : 'Thời lượng linh hoạt'}
-                      </Text>
-                      <View className="bg-secondary/10 border border-secondary rounded px-2 py-1">
-                        <Text className="text-xs text-secondary">Tour 360°</Text>
+              <TouchableOpacity key={tour.id} onPress={() => router.push(`/tour/${tour.id}`)} className="mb-4">
+                <Card className="bg-card border border-border rounded-lg mb-4 overflow-hidden">
+                  <View className="flex-row">
+                    <Image
+                      source={{
+                        uri: tour.thumbnail || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Tour',
+                      }}
+                      className="w-24 h-24"
+                      resizeMode="cover"
+                    />
+                    <View className="flex-1 p-4 justify-between">
+                      <View className="flex-1">
+                        <Text className="font-semibold text-base text-foreground mb-2" numberOfLines={2}>
+                          {tour.name}
+                        </Text>
+                        <Text className="text-primary text-sm leading-5" numberOfLines={3}>
+                          {tour.description}
+                        </Text>
+                      </View>
+                      <View className="flex-row items-center justify-between mt-2">
+                        <Text className="text-muted-foreground text-xs">
+                          {tour.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
+                        </Text>
                       </View>
                     </View>
                   </View>
-                </View>
-              </Card>
+                </Card>
+              </TouchableOpacity>
             ))}
 
             {/* Virtual Tours Pagination */}
@@ -736,7 +733,7 @@ export default function MuseumDetailPage() {
             </View>
           </View>
           {/* Info Section - Improved Layout & Alignment */}
-          <View className="flex-row gap-1 mb-2">
+          <View className="flex-row gap-3 mb-6">
             {/* Operating Hours */}
             <View className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]">
               <Clock size={18} color="#ff6600" />
@@ -754,7 +751,7 @@ export default function MuseumDetailPage() {
           </View>
           {/* Booking Button - Centered & Prominent */}
           {museum.contactPhone && (
-            <View className="mb-4 items-center">
+            <View className="mb-6 items-center">
               <TouchableOpacity
                 onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
                 className="w-full max-w-md bg-accent py-4 px-4 rounded-lg shadow-md active:bg-accent/80"
@@ -768,12 +765,12 @@ export default function MuseumDetailPage() {
           )}
           {/* Contact Information - Consistent Height & Spacing */}
           {(museum.contactPhone || museum.contactEmail) && (
-            <View className="flex-row gap-1 mb-2">
+            <View className="flex-row gap-3 mb-8">
               {/* Phone Card */}
               {museum.contactPhone && (
                 <TouchableOpacity
                   onPress={() => Linking.openURL(`tel:${museum.contactPhone}`)}
-                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
+                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]"
                 >
                   <Phone size={16} color="#ff6600" />
                   <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
@@ -785,7 +782,7 @@ export default function MuseumDetailPage() {
               {museum.contactEmail && (
                 <TouchableOpacity
                   onPress={() => Linking.openURL(`mailto:${museum.contactEmail}`)}
-                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[40px]"
+                  className="flex-1 bg-card border border-border rounded-lg px-1 py-2 items-center justify-center min-h-[50px]"
                 >
                   <Mail size={16} color="#ff6600" />
                   <Text className="text-foreground font-medium text-xs text-center" numberOfLines={3}>
@@ -796,7 +793,7 @@ export default function MuseumDetailPage() {
             </View>
           )}
           {/* Tabs */}
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-8">
             <View className="flex-row">
               {MUSEUM_TABS.map((tab) => (
                 <TouchableOpacity

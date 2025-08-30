@@ -12,7 +12,6 @@ import { Image } from '@/components/core/ui/image';
 import { Text } from '@/components/core/ui/text';
 import { useArticleDetail } from '@/hooks/useArticles';
 
-// Function ArticleHeader remains unchanged
 function ArticleHeader() {
   const router = useRouter();
   return (

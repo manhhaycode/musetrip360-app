@@ -9,7 +9,6 @@ import React, { useState } from 'react';
 import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// ArtifactHeader giống các header chi tiết
 type ArtifactHeaderProps = {
   router: ReturnType<typeof useRouter>;
 };
