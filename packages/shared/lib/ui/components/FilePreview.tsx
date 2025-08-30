@@ -5,10 +5,12 @@ import { UploadProgress, UploadStatus } from '@musetrip360/query-foundation';
 import { Button } from '@musetrip360/ui-core/button';
 import { cn } from '@musetrip360/ui-core/utils';
 import { AlertTriangle, CheckCircle, Download, FileText, Loader2, Upload, XCircle } from 'lucide-react';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { DropZone } from './DropZone';
 import { BulkUploadProps } from '@/contexts/UploadFileContext';
 import { saveAs } from 'file-saver';
+import { FormLabel } from '@musetrip360/ui-core/form';
+import { Switch } from '@musetrip360/ui-core/switch';
 
 // PreviewContainer Types
 interface PreviewContainerProps extends BulkUploadProps {
@@ -21,6 +23,7 @@ interface PreviewContainerProps extends BulkUploadProps {
   fileData: FileData;
   className?: string;
   isInteract?: boolean;
+  noAction?: boolean;
 }
 
 // PreviewContainer Component
@@ -34,6 +37,7 @@ function PreviewContainer({
   fileData,
   className,
   isInteract,
+  noAction,
 }: PreviewContainerProps) {
   return (
     <div className={cn('relative group', className)}>
@@ -111,17 +115,19 @@ function PreviewContainer({
               Tải xuống
             </Button>
           )}
-          <Button
-            variant="destructive"
-            size="sm"
-            type="button"
-            onClick={onRemove}
-            disabled={disabled}
-            className="opacity-90 hover:opacity-100"
-          >
-            <XCircle className="h-4 w-4 mr-1" />
-            Xóa
-          </Button>
+          {!noAction && (
+            <Button
+              variant="destructive"
+              size="sm"
+              type="button"
+              onClick={onRemove}
+              disabled={disabled}
+              className="opacity-90 hover:opacity-100"
+            >
+              <XCircle className="h-4 w-4 mr-1" />
+              Xóa
+            </Button>
+          )}
         </div>
       )}
 
@@ -161,17 +167,19 @@ function PreviewContainer({
               Tải xuống
             </Button>
           )}
-          <Button
-            variant="destructive"
-            size="sm"
-            type="button"
-            onClick={onRemove}
-            disabled={disabled}
-            className="opacity-90 hover:opacity-100"
-          >
-            <XCircle className="h-4 w-4 mr-1" />
-            Xóa
-          </Button>
+          {!noAction && (
+            <Button
+              variant="destructive"
+              size="sm"
+              type="button"
+              onClick={onRemove}
+              disabled={disabled}
+              className="opacity-90 hover:opacity-100"
+            >
+              <XCircle className="h-4 w-4 mr-1" />
+              Xóa
+            </Button>
+          )}
         </div>
       )}
     </div>
@@ -183,18 +191,21 @@ interface FilePreviewCardProps extends BulkUploadProps {
   fileData: FileData;
   mediaType: MediaType;
   onRemove: () => void;
+  onChange?: (file: FileData) => void;
   onUpload?: (url: string) => void; // Optional upload handler
   onInteract?: (file: FileData) => void;
   manualUpload?: boolean; // Optional prop to control manual upload
   disabled?: boolean;
   className?: string;
   ImageComponent?: React.ComponentType<any>; // Optional component to wrap image (e.g., Next.js Image)
+  noAction?: boolean;
 }
 
 // FilePreviewCard Component
 export function FilePreviewCard({
   fileData,
   mediaType,
+  onChange,
   onRemove,
   onUpload,
   onInteract,
@@ -204,6 +215,7 @@ export function FilePreviewCard({
   uploadId,
   autoRegister = true, // Default to true for auto-registration
   ImageComponent,
+  noAction = false,
 }: FilePreviewCardProps) {
   const { previewUrl, uploadProgress, validationErrors, handleUpload, getFileSize, getFileName } = useUploadPreview({
     onUpload,
@@ -212,6 +224,17 @@ export function FilePreviewCard({
     uploadId,
     autoRegister,
   });
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = fileData.audioOptions?.volume ?? 1;
+      audioRef.current.loop = fileData.audioOptions?.loop ?? false;
+      if (fileData.audioOptions?.autoPlay) {
+        audioRef.current.play();
+      }
+    }
+  }, [audioRef, fileData.audioOptions]);
 
   const renderPreview = () => {
     // Handle string files (URLs) - they should always render a preview
@@ -223,6 +246,7 @@ export function FilePreviewCard({
         manualUpload,
         disabled,
         fileData,
+        noAction,
       };
 
       switch (mediaType) {
@@ -266,10 +290,49 @@ export function FilePreviewCard({
             <PreviewContainer {...containerProps} isInteract>
               <div className="w-full pt-[56.25%] rounded-2xl relative flex flex-1">
                 <div className="absolute top-0 left-0 bottom-0 right-0 flex flex-col p-4 items-center justify-center h-full">
-                  <audio src={fileData.file} className="w-full" controls />
-                  <div className="mt-2 text-center">
+                  <audio
+                    onVolumeChange={(event) => {
+                      fileData.audioOptions = {
+                        ...fileData.audioOptions,
+                        volume: event.currentTarget.volume,
+                      };
+                      onChange?.(fileData);
+                    }}
+                    ref={audioRef}
+                    src={fileData.file}
+                    className="w-full"
+                    controls
+                  />
+                  <div className="mt-2 space-y-4 text-center">
                     <p className="text-sm font-medium">{getFileName()}</p>
-                    <p className="text-xs text-muted-foreground">Audio file</p>
+                    <div className="grid grid-cols-2">
+                      <div className="flex gap-2">
+                        <FormLabel>AutoPlay</FormLabel>
+                        <Switch
+                          checked={fileData.audioOptions?.autoPlay}
+                          onCheckedChange={(value) => {
+                            fileData.audioOptions = {
+                              ...fileData.audioOptions,
+                              autoPlay: value,
+                            };
+                            onChange?.(fileData);
+                          }}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <FormLabel>Loop</FormLabel>
+                        <Switch
+                          checked={fileData.audioOptions?.loop}
+                          onCheckedChange={(value) => {
+                            fileData.audioOptions = {
+                              ...fileData.audioOptions,
+                              loop: value,
+                            };
+                            onChange?.(fileData);
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -310,6 +373,7 @@ export function FilePreviewCard({
       manualUpload,
       disabled,
       fileData,
+      noAction: true,
     };
 
     switch (mediaType) {
@@ -353,10 +417,48 @@ export function FilePreviewCard({
           <PreviewContainer {...containerProps} isInteract>
             <div className="w-full pt-[56.25%] rounded-2xl relative flex flex-1">
               <div className="absolute top-0 left-0 bottom-0 p-4 flex flex-col justify-center items-center right-0 h-full">
-                <audio src={previewUrl} className="w-full" controls />
+                <audio
+                  onVolumeChange={(event) => {
+                    fileData.audioOptions = {
+                      ...fileData.audioOptions,
+                      volume: event.currentTarget.volume,
+                    };
+                    onChange?.(fileData);
+                  }}
+                  ref={audioRef}
+                  src={previewUrl}
+                  className="w-full"
+                />
                 <div className="mt-2 text-center">
                   <p className="text-sm font-medium">{getFileName()}</p>
-                  <p className="text-xs text-muted-foreground">Audio file</p>
+                  <div className="grid grid-cols-2">
+                    <div className="flex gap-2">
+                      <FormLabel>AutoPlay</FormLabel>
+                      <Switch
+                        checked={fileData.audioOptions?.autoPlay}
+                        onCheckedChange={(value) => {
+                          fileData.audioOptions = {
+                            ...fileData.audioOptions,
+                            autoPlay: value,
+                          };
+                          onChange?.(fileData);
+                        }}
+                      />
+                    </div>
+                    <div className="flex gap-2">
+                      <FormLabel>Loop</FormLabel>
+                      <Switch
+                        checked={fileData.audioOptions?.loop}
+                        onCheckedChange={(value) => {
+                          fileData.audioOptions = {
+                            ...fileData.audioOptions,
+                            loop: value,
+                          };
+                          onChange?.(fileData);
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -420,6 +522,7 @@ interface DropZoneWithPreviewProps extends BulkUploadProps {
   className?: string;
   manualUpload?: boolean; // Optional prop to control manual upload
   ImageComponent?: React.ComponentType<any>; // Optional component to wrap image (e.g., Next.js Image)
+  noAction?: boolean;
 }
 
 // DropZoneWithPreview Component
@@ -435,6 +538,7 @@ export function DropZoneWithPreview({
   uploadId,
   autoRegister,
   ImageComponent,
+  noAction,
 }: DropZoneWithPreviewProps) {
   const handleRemove = () => {
     // onChange(null);
@@ -457,11 +561,13 @@ export function DropZoneWithPreview({
             mediaType: mediaType,
           })
         }
+        onChange={onChange}
         onRemove={handleRemove}
         disabled={disabled}
         className={className}
         manualUpload={manualUpload}
         ImageComponent={ImageComponent}
+        noAction={noAction}
       />
     );
   }

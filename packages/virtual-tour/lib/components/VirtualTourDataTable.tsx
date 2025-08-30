@@ -19,11 +19,6 @@ import { Link, useNavigate } from 'react-router';
 export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: IVirtualTour[] = useMemo(() => [], []);
   const navigate = useNavigate();
-  //   const { data: filterOptions } = useVirtualTourByMuseum({
-  //     Page: 1,
-  //     PageSize: 10000,
-  //     museumId: museumId || '',
-  //   });
 
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
 
