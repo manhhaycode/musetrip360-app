@@ -18,3 +18,4 @@ export * from './StudioVirtualTour';
 export * from './VirtualTourViewer';
 export * from './PreviewArtifact';
 export * from './SceneNavigationMenu';
+export * from './ProgressivePanoramaSphere';

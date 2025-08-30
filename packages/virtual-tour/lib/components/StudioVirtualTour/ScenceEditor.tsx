@@ -58,11 +58,8 @@ function SceneEditorContent() {
   }, [getScenePolygons, selectedSceneId, isDirty]);
 
   const listImages = useMemo(() => {
-    return (
-      selectedScene?.data?.cubeMaps.flatMap((item) => {
-        return Object.values(item).map((cubeMap) => cubeMap);
-      }) || []
-    );
+    if (!selectedScene?.data?.cubeMaps[0]) return [];
+    return Object.values(selectedScene.data.cubeMaps[0]);
   }, [selectedScene]);
 
   const { isLoading, isError } = useCheckSceneExist(selectedSceneId, listImages);

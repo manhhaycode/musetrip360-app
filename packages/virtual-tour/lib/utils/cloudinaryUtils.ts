@@ -1,135 +1,108 @@
-export interface CloudinaryConfig {
-  cloudName: string;
-  apiKey?: string;
-  apiSecret?: string;
-}
-
-export interface PanoramaQuality {
-  level: 'instant' | 'preview' | 'standard' | 'high' | 'ultra';
-  width: number;
-  height: number;
-  bandwidth: number; // Required Mbps
-  description: string;
-}
-
-export interface CloudinaryOptions {
-  quality?: 'auto' | 'auto:low' | 'auto:good' | 'auto:best' | number;
-  format?: 'auto' | 'jpg' | 'png' | 'webp' | 'avif';
-  dpr?: 'auto' | number;
-  progressive?: boolean;
-}
+import type { CubeMapLevel } from '@/types/cubemap';
 
 /**
- * Cloudinary URL generator for panorama transformations
+ * Simple Cloudinary utilities for generating progressive cubemap levels
  */
-export class CloudinaryPanoramaGenerator {
-  private cloudName: string;
-  private baseUrl: string;
 
-  // Standard panorama qualities
-  public readonly qualities: PanoramaQuality[] = [
-    { level: 'instant', width: 512, height: 256, bandwidth: 0.5, description: 'Ultra-fast loading' },
-    { level: 'preview', width: 1024, height: 512, bandwidth: 2, description: 'Fast preview' },
-    { level: 'standard', width: 2048, height: 1024, bandwidth: 5, description: 'Standard quality' },
-    { level: 'high', width: 4096, height: 2048, bandwidth: 15, description: 'High quality' },
-    { level: 'ultra', width: 8192, height: 4096, bandwidth: 40, description: 'Ultra quality' },
-  ];
+/**
+ * Extract Cloudinary public ID from URL
+ *
+ * @param url - Cloudinary image URL
+ * @returns Public ID or null if invalid URL
+ *
+ * @example
+ * extractPublicId('https://res.cloudinary.com/demo/image/upload/sample.jpg')
+ * // returns: 'sample'
+ */
+export function extractPublicId(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
 
-  constructor(config: CloudinaryConfig) {
-    this.cloudName = config.cloudName;
-    this.baseUrl = `https://res.cloudinary.com/${this.cloudName}/image/upload`;
-  }
-
-  /**
-   * Generate panorama URL for specific quality level
-   */
-  generatePanoramaUrl(
-    publicId: string,
-    quality: PanoramaQuality['level'],
-    options: Partial<CloudinaryOptions> = {}
-  ): string {
-    const qualityConfig = this.qualities.find((q) => q.level === quality);
-    if (!qualityConfig) {
-      throw new Error(`Unknown quality level: ${quality}`);
+    // Check if it's a Cloudinary URL
+    if (!urlObj.hostname.includes('cloudinary.com')) {
+      return null;
     }
 
-    const transformations = [
-      `w_${qualityConfig.width}`,
-      `h_${qualityConfig.height}`,
-      'c_scale',
-      `q_${options.quality || 'auto'}`,
-      `f_${options.format || 'auto'}`,
-    ];
+    // Extract path segments
+    const pathSegments = urlObj.pathname.split('/').filter(Boolean);
 
-    if (options.dpr) {
-      transformations.push(`dpr_${options.dpr}`);
-    }
+    // Find upload index
+    const uploadIndex = pathSegments.findIndex((segment) => segment === 'upload');
+    if (uploadIndex === -1) return null;
 
-    if (options.progressive) {
-      transformations.push('fl_progressive');
-    }
+    // Get everything after upload (skipping version if present)
+    const afterUpload = pathSegments.slice(uploadIndex + 1);
 
-    return `${this.baseUrl}/${transformations.join(',')}/${publicId}`;
-  }
+    // Skip version if present (starts with v followed by numbers)
+    const startIndex = afterUpload[0]?.match(/^v\d+$/) ? 1 : 0;
 
-  /**
-   * Generate all quality URLs for a panorama
-   */
-  generateAllQualityUrls(publicId: string, options: Partial<CloudinaryOptions> = {}): Record<string, string> {
-    const urls: Record<string, string> = {};
+    // Join remaining segments and remove extension
+    const publicIdWithExt = afterUpload.slice(startIndex).join('/');
+    const publicId = publicIdWithExt.replace(/\.[^/.]+$/, ''); // Remove file extension
 
-    this.qualities.forEach((quality) => {
-      urls[quality.level] = this.generatePanoramaUrl(publicId, quality.level, options);
-    });
-
-    return urls;
-  }
-
-  /**
-   * Get optimal quality level based on network bandwidth
-   */
-  getOptimalQuality(bandwidthMbps: number): PanoramaQuality['level'] {
-    // Find the highest quality that fits within bandwidth
-    const suitable = this.qualities
-      .filter((q) => q.bandwidth <= bandwidthMbps)
-      .sort((a, b) => b.bandwidth - a.bandwidth);
-
-    return suitable.length > 0 ? suitable[0]!.level : 'instant';
-  }
-
-  /**
-   * Generate responsive URLs for different device pixel ratios
-   */
-  generateResponsiveUrls(
-    publicId: string,
-    quality: PanoramaQuality['level']
-  ): { '1x': string; '2x': string; '3x': string } {
-    return {
-      '1x': this.generatePanoramaUrl(publicId, quality, { dpr: 1 }),
-      '2x': this.generatePanoramaUrl(publicId, quality, { dpr: 2 }),
-      '3x': this.generatePanoramaUrl(publicId, quality, { dpr: 3 }),
-    };
+    return publicId || null;
+  } catch {
+    return null;
   }
 }
 
 /**
- * Default configuration utilities
+ * Add scale transformation to Cloudinary URL
+ *
+ * @param baseUrl - Original Cloudinary URL
+ * @param scale - Scale factor (0.25 = 25%, 0.5 = 50%, 0.75 = 75%)
+ * @returns Scaled URL
  */
-export const createCloudinaryGenerator = (cloudName: string): CloudinaryPanoramaGenerator => {
-  return new CloudinaryPanoramaGenerator({ cloudName });
-};
+function addCloudinaryScale(baseUrl: string, scale: number): string {
+  if (scale === 1.0) return baseUrl;
+
+  try {
+    const url = new URL(baseUrl);
+    const pathSegments = url.pathname.split('/');
+
+    // Find upload segment
+    const uploadIndex = pathSegments.findIndex((segment) => segment === 'upload');
+    if (uploadIndex === -1) return baseUrl;
+
+    // Add scale transformation
+    const scaleTransform = `c_scale,w_${scale}`;
+    pathSegments.splice(uploadIndex + 1, 0, scaleTransform);
+
+    const newUrl = new URL(url);
+    newUrl.pathname = pathSegments.join('/');
+    return newUrl.toString();
+  } catch {
+    return baseUrl;
+  }
+}
 
 /**
- * Utility function to extract public ID from Cloudinary URL
+ * Generate progressive cubemap levels from high-quality face URLs
+ *
+ * @param faceUrls - CubeMapLevel with high-quality Cloudinary URLs
+ * @returns Array of CubeMapLevel objects [25%, 50%, 75%, 100%]
  */
-export const extractPublicId = (cloudinaryUrl: string): string | null => {
-  const match = cloudinaryUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[^.]+)?$/);
-  return match ? match[1]! : null;
-};
+export function generateProgressiveCubemap(faceUrls: CubeMapLevel): CubeMapLevel[] {
+  const scales = [0.25, 0.5, 0.75, 1.0]; // 25%, 50%, 75%, 100%
+
+  return scales.map((scale) => ({
+    px: addCloudinaryScale(faceUrls.px as string, scale),
+    nx: addCloudinaryScale(faceUrls.nx as string, scale),
+    py: addCloudinaryScale(faceUrls.py as string, scale),
+    ny: addCloudinaryScale(faceUrls.ny as string, scale),
+    pz: addCloudinaryScale(faceUrls.pz as string, scale),
+    nz: addCloudinaryScale(faceUrls.nz as string, scale),
+  }));
+}
 
 /**
- * Utility function to validate Cloudinary configuration
+ * Validate if URL is a valid Cloudinary image URL
  */
-export const validateCloudinaryConfig = (config: CloudinaryConfig): boolean => {
-  return !!(config.cloudName && typeof config.cloudName === 'string' && config.cloudName.length > 0);
-};
+export function isValidCloudinaryUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.hostname.includes('cloudinary.com') && urlObj.pathname.includes('/upload/');
+  } catch {
+    return false;
+  }
+}
