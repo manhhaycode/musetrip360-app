@@ -16,6 +16,19 @@ export type Order = {
   createdByUser: IUser;
   createdAt: Date;
   updatedAt: Date;
+  orderEvents?: OrderEvent[];
+};
+
+export type OrderEvent = {
+  orderId: string;
+  eventId: string;
+  event?: {
+    id: string;
+    title: string;
+    description: string;
+    startTime: string;
+    endTime: string;
+  };
 };
 
 export enum PaymentStatusEnum {
@@ -159,12 +172,22 @@ export type Payout = {
   bankAccountId: string;
   amount: number;
   processedDate: string;
-  status: string;
+  status: PayoutStatusEnum;
   metadata?: PayoutMetadata;
+  bankAccount?: BankAccount;
+  museum?: {
+    id: string;
+    name: string;
+    description: string;
+    location: string;
+    contactEmail: string;
+    contactPhone: string;
+  };
 };
 
 export type PayoutMetadata = {
   imageUrl?: string;
+  note?: string;
 };
 
 export type PayoutCreate = {
@@ -180,3 +203,15 @@ export type PayoutUpdate = {
   amount?: number;
   metadata?: PayoutMetadata;
 };
+
+export type PayoutParams = {
+  museumId?: string;
+  bankAccountId?: string;
+  status?: PayoutStatusEnum;
+} & Pagination;
+
+export enum PayoutStatusEnum {
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}

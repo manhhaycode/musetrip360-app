@@ -1,9 +1,10 @@
-import { MuseumWallet, Payout, PayoutCreate, PayoutUpdate } from '@/types';
-import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
+import { MuseumWallet, Payout, PayoutCreate, PayoutParams, PayoutUpdate } from '@/types';
+import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
 
 export const payoutEndpoints = {
   museumWallet: (museumId: string) => `/wallets/museum/${museumId}`,
   payouts: `/wallets/payouts`,
+  payoutsAdmin: `/wallets/payouts/admin`,
   museumPayouts: (museumId: string) => `/wallets/payouts/museum/${museumId}`,
   payoutApprove: (payoutId: string) => `/wallets/payouts/${payoutId}/approve`,
   payoutReject: (payoutId: string) => `/wallets/payouts/${payoutId}/reject`,
@@ -21,6 +22,14 @@ export const getPayouts = async () => {
   return response.data;
 };
 
+export const getPayoutsAdmin = async (params: PayoutParams) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.get<APIResponse<PaginatedResponse<Payout>>>(payoutEndpoints.payoutsAdmin, {
+    params,
+  });
+  return response.data;
+};
+
 export const getMuseumPayouts = async (museumId: string) => {
   const httpClient = getHttpClient();
   const response = await httpClient.get<APIResponse<Payout[]>>(payoutEndpoints.museumPayouts(museumId));
@@ -35,12 +44,12 @@ export const createPayout = async (data: PayoutCreate) => {
 
 export const approvePayout = async (data: PayoutUpdate) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.post<APIResponse<Payout>>(payoutEndpoints.payoutApprove(data.id), data);
+  const response = await httpClient.put<APIResponse<Payout>>(payoutEndpoints.payoutApprove(data.id), data);
   return response.data;
 };
 
 export const rejectPayout = async (data: PayoutUpdate) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.post<APIResponse<Payout>>(payoutEndpoints.payoutReject(data.id), data);
+  const response = await httpClient.put<APIResponse<Payout>>(payoutEndpoints.payoutReject(data.id), data);
   return response.data;
 };

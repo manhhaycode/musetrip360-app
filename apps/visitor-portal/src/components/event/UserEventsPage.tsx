@@ -7,6 +7,7 @@ import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Calendar, Clock, MapPin, Users, Eye, Ticket } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const getEventTypeBadgeVariant = (type: EventTypeEnum) => {
   switch (type) {
@@ -84,6 +85,7 @@ const formatDate = (dateString: string) => {
 
 export function UserEventsPage() {
   const userId = useAuthStore((state) => state.userId);
+  const router = useRouter();
 
   const {
     data: eventParticipants,
@@ -223,7 +225,7 @@ export function UserEventsPage() {
 
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">{getEventStatusText(event.status)}</Badge>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => router.push(`/event/${event.id}`)}>
                           <Eye className="h-4 w-4 mr-2" />
                           Chi tiết
                         </Button>

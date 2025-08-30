@@ -32,7 +32,7 @@ import {
 } from '@musetrip360/ui-core/dialog';
 import { Form, FormLabel } from '@musetrip360/ui-core/form';
 import { cn, toast } from '@musetrip360/ui-core';
-import { FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
+import { formatCurrency, FormDropZone, MediaType, useFileUpload } from '@musetrip360/shared';
 import get from 'lodash.get';
 
 // Validation schema for confirmation dialog
@@ -236,13 +236,6 @@ const SubscriptionPlanPage = () => {
     };
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND',
-    }).format(price);
-  };
-
   const formatDuration = (days: number) => {
     if (days >= 365) {
       const years = Math.floor(days / 365);
@@ -434,9 +427,9 @@ const SubscriptionPlanPage = () => {
                       plan.discountPercent && plan.discountPercent > 0 && 'visible'
                     )}
                   >
-                    {formatPrice(plan.price)}
+                    {formatCurrency(plan.price)}
                   </p>
-                  <p className="text-3xl font-bold">{formatPrice(discountedPrice)}</p>
+                  <p className="text-3xl font-bold">{formatCurrency(discountedPrice)}</p>
                   <p className="text-sm text-muted-foreground">cho {formatDuration(plan.durationDays)}</p>
                 </div>
 
@@ -510,7 +503,7 @@ const SubscriptionPlanPage = () => {
                   <h3 className="font-semibold">{selectedPlan.name}</h3>
                   <div className="flex justify-between text-sm">
                     <span>Giá:</span>
-                    <span className="font-medium">{formatPrice(selectedPlan.price)}</span>
+                    <span className="font-medium">{formatCurrency(selectedPlan.price)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Thời hạn:</span>

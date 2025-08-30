@@ -2,6 +2,7 @@ import {
   APIError,
   CustomMutationOptions,
   CustomQueryOptions,
+  PaginatedResponse,
   useMutation,
   useQuery,
 } from '@musetrip360/query-foundation';
@@ -13,8 +14,9 @@ import {
   approvePayout,
   rejectPayout,
   getMuseumWallet,
+  getPayoutsAdmin,
 } from '../endpoints/payout';
-import { MuseumWallet, Payout, PayoutCreate, PayoutUpdate } from '@/types';
+import { MuseumWallet, Payout, PayoutCreate, PayoutUpdate, PayoutParams } from '@/types';
 
 export function usePayouts(options?: CustomQueryOptions<Payout[]>) {
   return useQuery(['payouts'], () => getPayouts(), options);
@@ -22,6 +24,10 @@ export function usePayouts(options?: CustomQueryOptions<Payout[]>) {
 
 export function useMuseumPayouts(museumId: string, options?: CustomQueryOptions<Payout[]>) {
   return useQuery(['payouts', museumId], () => getMuseumPayouts(museumId), options);
+}
+
+export function usePayoutsAdmin(params: PayoutParams, options?: CustomQueryOptions<PaginatedResponse<Payout>>) {
+  return useQuery(['payoutsAdmin', params], () => getPayoutsAdmin(params), options);
 }
 
 export function useMuseumWallet(museumId: string, options?: CustomQueryOptions<MuseumWallet>) {
