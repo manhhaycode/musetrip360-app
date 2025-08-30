@@ -1,3 +1,4 @@
+import { FileData } from '@musetrip360/shared';
 /**
  * @fileoverview Museum Management Types
  *
@@ -28,7 +29,13 @@ export interface ArtifactMetadata {
   type?: string;
   material?: string;
   discoveryLocation?: string;
-  images?: string[];
+  isUseVoiceAI?: boolean;
+  voiceAI?: FileData | null;
+  audio?: FileData | null;
+  images?: FileData[];
+  richDescription?: string;
+  imageName?: string;
+  model3DName?: string;
 }
 
 /**

@@ -1,20 +1,20 @@
 import { useFileUpload } from '@/api';
+import { BulkUploadProps, useBulkUpload } from '@/contexts/UploadFileContext';
+import { FileData, MediaType } from '@/types';
+import { formatFileSize, validateFileByMediaType } from '@/utils';
 import { UploadProgress, UploadStatus } from '@musetrip360/query-foundation';
 import React, { useCallback } from 'react';
-import { MediaType } from '@/types';
-import { formatFileSize, validateFileByMediaType } from '@/utils';
-import { BulkUploadProps, useBulkUpload } from '@/contexts/UploadFileContext';
 
 interface UseUploadPreviewProps extends BulkUploadProps {
   onUpload?: (url: string) => void;
   mediaType: MediaType;
-  file: File | string;
+  fileData: FileData;
 }
 
 export const useUploadPreview = ({
   onUpload,
   mediaType,
-  file,
+  fileData,
   uploadId,
   autoRegister = true,
 }: UseUploadPreviewProps) => {
@@ -55,27 +55,28 @@ export const useUploadPreview = ({
   }, []);
 
   const handleUpload = useCallback(async () => {
-    if (!(file instanceof File)) return null;
+    if (!(fileData.file instanceof File)) return null;
 
-    const fileValidation = validateFile(file, mediaType);
+    const fileValidation = validateFile(fileData.file, mediaType);
     if (!fileValidation) return null;
 
-    return uploadFileMutation.mutateAsync(file);
+    return uploadFileMutation.mutateAsync(fileData.file);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [file, mediaType, validateFile]);
+  }, [fileData.file, mediaType, validateFile]);
 
   // Validate file when it changes
   React.useEffect(() => {
-    if (file instanceof File) {
-      const validation = validateFileByMediaType(file, mediaType);
+    if (fileData.file instanceof File) {
+      const validation = validateFileByMediaType(fileData.file, mediaType);
       setValidationErrors(validation.isValid ? [] : validation.errors);
     } else {
       setValidationErrors([]);
     }
-  }, [file, mediaType]);
+  }, [fileData.file, mediaType]);
 
   // Register with bulk upload context if uploadId is provided
   React.useEffect(() => {
+    const file = fileData.file;
     if (uploadId && bulkUploadContext && autoRegister && file instanceof File) {
       bulkUploadContext.registerDropzone({
         id: uploadId,
@@ -90,28 +91,29 @@ export const useUploadPreview = ({
         bulkUploadContext.unregisterDropzone(uploadId);
       };
     }
-  }, [mediaType, file, handleUpload, validateFile, uploadId, bulkUploadContext, autoRegister]);
+  }, [mediaType, fileData.file, handleUpload, validateFile, uploadId, bulkUploadContext, autoRegister]);
 
   React.useEffect(() => {
-    if (file instanceof File) {
-      const url = URL.createObjectURL(file);
+    if (fileData.file instanceof File) {
+      const url = URL.createObjectURL(fileData.file);
       setPreviewUrl(url);
       return () => URL.revokeObjectURL(url);
     } else {
-      setPreviewUrl(file);
+      setPreviewUrl(fileData.file);
     }
-  }, [file]);
+  }, [fileData.file]);
 
   const getFileSize = () => {
-    if (file instanceof File) {
-      return formatFileSize(file.size);
+    if (fileData.file instanceof File) {
+      return formatFileSize(fileData.file.size);
     }
     return null;
   };
 
   const getFileName = () => {
-    if (file instanceof File) return file.name;
-    return file.split('/').pop() || 'Tệp không xác định';
+    if (fileData.fileName) return fileData.fileName;
+    if (fileData.file instanceof File) return fileData.file.name;
+    return fileData.file?.split('/').pop() || 'Unknow File';
   };
 
   return {

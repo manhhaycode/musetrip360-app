@@ -4,3 +4,5 @@
  * Central export point for all event management-related React Query hooks.
  */
 export * from './useEvent';
+export * from './useEventParticipant';
+export * from './useRoom';

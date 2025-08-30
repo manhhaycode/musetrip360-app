@@ -42,6 +42,10 @@ export type Event = {
 
 export type EventMetadata = {
   images?: string[];
+  price?: number;
+  roomCreateType?: 'AUTO' | 'NOW' | 'NONE';
+  thumbnail?: string;
+  richDescription?: string;
 };
 
 export enum EventTypeEnum {
@@ -80,6 +84,7 @@ export type EventCreateDto = {
   endTime: string;
   location: string;
   capacity: number;
+  price: number;
   availableSlots: number;
   bookingDeadline: string;
   metadata?: EventMetadata;
@@ -111,6 +116,41 @@ export type EventRoomCreateDto = {
   name: string;
   description?: string;
   status?: string;
+};
+
+// Room types based on swagger API
+export enum RoomStatusEnum {
+  Active = 'Active',
+  Inactive = 'Inactive',
+  PreMeeting = 'PreMeeting',
+}
+
+export type Room = {
+  id: string;
+  name: string;
+  description?: string;
+  status: RoomStatusEnum;
+  eventId: string;
+  metadata?: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+};
+
+export type RoomCreateDto = {
+  name: string;
+  description?: string;
+  status?: RoomStatusEnum;
+};
+
+export type RoomUpdateDto = {
+  name?: string;
+  description?: string;
+  status?: RoomStatusEnum;
+};
+
+export type RoomUpdateMetadataDto = {
+  metadata?: Record<string, any>;
 };
 
 export type EventParticipant = {
