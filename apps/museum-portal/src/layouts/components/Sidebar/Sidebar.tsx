@@ -55,6 +55,7 @@ import {
   PERMISSION_TOUR_MANAGEMENT,
   PERMISSION_USER_MANAGEMENT,
   PERMISSION_USER_VIEW,
+  PERMISSION_PAYMENT_MANAGEMENT,
   useRolebaseStore,
 } from '@musetrip360/rolebase-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
@@ -200,35 +201,6 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                 // },
               ],
             },
-            {
-              title: 'Quản lý lịch trình',
-              url: '/schedule',
-              icon: CalendarDaysIcon,
-              items: [
-                {
-                  title: 'Danh sách lịch trình',
-                  url: '/schedule',
-                  icon: ListChecksIcon,
-                },
-                {
-                  title: 'Tạo lịch trình mới',
-                  url: '/schedule/create',
-                  icon: PlusIcon,
-                },
-              ],
-            },
-            // {
-            //   title: 'Quản lý vé sự kiện',
-            //   url: '/event-ticket',
-            //   icon: TicketIcon,
-            //   items: [
-            //     {
-            //       title: 'Danh sách vé sự kiện',
-            //       url: '/event-ticket',
-            //       icon: ListChecksIcon,
-            //     },
-            //   ],
-            // },
           ]}
         />
 
@@ -239,6 +211,7 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
               title: 'Quản lý thanh toán',
               url: '/payment',
               icon: WalletIcon,
+              isHide: !hasAnyPermission(selectedMuseum?.id || '', [PERMISSION_PAYMENT_MANAGEMENT]),
               items: [
                 {
                   title: 'Ví bảo tàng',
