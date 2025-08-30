@@ -19,6 +19,7 @@
     "@musetrip360/payment-management": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/rolebase-management": "workspace:*",
+    "@musetrip360/shared": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",

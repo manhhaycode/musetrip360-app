@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { DataTable } from '@musetrip360/ui-core/data-table';
@@ -7,6 +7,8 @@ import { useDataTableState } from '@musetrip360/ui-core/data-table';
 import { useGetAdminOrders } from '@musetrip360/payment-management/api';
 import { Order, PaymentStatusEnum, OrderTypeEnum } from '@musetrip360/payment-management';
 import get from 'lodash/get';
+import { formatCurrency } from '@musetrip360/shared';
+import { Calendar, MapPin, Clock, Package } from 'lucide-react';
 
 const OrderListPage = () => {
   const {
@@ -113,20 +115,128 @@ const OrderListPage = () => {
         },
       },
       {
+        accessorKey: 'details',
+        header: 'Details',
+        cell: ({ row }) => {
+          const order = row.original;
+          const { orderType, metadata } = order;
+
+          // Common metadata fields
+          const description = metadata?.description || 'No description available';
+
+          switch (orderType) {
+            case OrderTypeEnum.Event:
+              return (
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-1 text-blue-600">
+                    <Calendar className="h-3 w-3" />
+                    <span className="font-medium">Event Order</span>
+                  </div>
+                  <div className="text-muted-foreground line-clamp-2">{description}</div>
+                  {metadata?.expiredAt && (
+                    <div className="flex items-center gap-1 text-orange-600">
+                      <Clock className="h-3 w-3" />
+                      <span className="text-xs">Expires: {new Date(metadata.expiredAt).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              );
+
+            case OrderTypeEnum.Subscription:
+              return (
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-1 text-purple-600">
+                    <Package className="h-3 w-3" />
+                    <span className="font-medium">Subscription Plan</span>
+                  </div>
+                  <div className="text-muted-foreground line-clamp-2">{description}</div>
+                  {metadata?.expiredAt && (
+                    <div className="flex items-center gap-1 text-orange-600">
+                      <Clock className="h-3 w-3" />
+                      <span className="text-xs">Valid until: {new Date(metadata.expiredAt).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              );
+
+            case OrderTypeEnum.Tour:
+              return (
+                <div className="space-y-1 text-sm">
+                  <div className="flex items-center gap-1 text-green-600">
+                    <MapPin className="h-3 w-3" />
+                    <span className="font-medium">Tour Booking</span>
+                  </div>
+                  <div className="text-muted-foreground line-clamp-2">{description}</div>
+                  {metadata?.expiredAt && (
+                    <div className="flex items-center gap-1 text-orange-600">
+                      <Clock className="h-3 w-3" />
+                      <span className="text-xs">Expires: {new Date(metadata.expiredAt).toLocaleDateString()}</span>
+                    </div>
+                  )}
+                </div>
+              );
+
+            default:
+              return (
+                <div className="space-y-1 text-sm">
+                  <div className="font-medium text-gray-600">{orderType} Order</div>
+                  <div className="text-muted-foreground line-clamp-2">{description}</div>
+                </div>
+              );
+          }
+        },
+        meta: {
+          variant: 'text',
+          placeholder: 'Search details',
+          label: 'Order Details',
+          unit: '',
+        },
+      },
+      {
         accessorKey: 'totalAmount',
         header: 'Amount',
-        cell: ({ row }) => <div className="font-mono">${row.original.totalAmount.toLocaleString()}</div>,
+        cell: ({ row }) => {
+          const amount = row.original.totalAmount;
+          return <div className="font-mono font-semibold">{formatCurrency(amount)}</div>;
+        },
+      },
+      {
+        accessorKey: 'metadata',
+        header: 'Payment Info',
+        cell: ({ row }) => {
+          const metadata = row.original.metadata;
+          if (!metadata) {
+            return <div className="text-muted-foreground text-sm">No payment info</div>;
+          }
+
+          return (
+            <div className="space-y-1 text-sm">
+              {metadata.orderCode && <div className="font-medium text-gray-700">Order #{metadata.orderCode}</div>}
+              {metadata.accountNumber && <div className="text-muted-foreground">Account: {metadata.accountNumber}</div>}
+              {metadata.bin && <div className="text-muted-foreground">Bank: {metadata.bin}</div>}
+              {metadata.paymentLinkId && <div className="text-xs text-blue-600">Payment Link Available</div>}
+            </div>
+          );
+        },
         meta: {
-          variant: 'number',
-          placeholder: 'Filter by amount',
-          label: 'Total Amount',
-          unit: 'VND',
+          variant: 'text',
+          placeholder: 'Search payment info',
+          label: 'Payment Information',
+          unit: '',
         },
       },
       {
         accessorKey: 'createdAt',
         header: 'Created',
-        cell: ({ row }) => <div className="text-sm">{new Date(row.original.createdAt).toLocaleDateString()}</div>,
+        cell: ({ row }) => {
+          const createdAt = new Date(row.original.createdAt);
+          return (
+            <div className="space-y-1 text-sm">
+              <div className="font-medium">{createdAt.toLocaleDateString()}</div>
+              <div className="text-muted-foreground text-xs">{createdAt.toLocaleTimeString()}</div>
+            </div>
+          );
+        },
         meta: {
           variant: 'date',
           placeholder: 'Filter by date',

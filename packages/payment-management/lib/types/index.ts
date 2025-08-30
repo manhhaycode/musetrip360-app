@@ -16,6 +16,19 @@ export type Order = {
   createdByUser: IUser;
   createdAt: Date;
   updatedAt: Date;
+  orderEvents?: OrderEvent[];
+};
+
+export type OrderEvent = {
+  orderId: string;
+  eventId: string;
+  event?: {
+    id: string;
+    title: string;
+    description: string;
+    startTime: string;
+    endTime: string;
+  };
 };
 
 export enum PaymentStatusEnum {
@@ -123,3 +136,82 @@ export type SubscriptionParams = {
   planId?: string;
   status?: SubscriptionStatusEnum;
 } & Pagination;
+
+export type BankAccount = {
+  id: string;
+  museumId: string;
+  userId: string;
+  holderName: string;
+  bankName: string;
+  accountNumber: string;
+  qrCode: string;
+};
+
+export type BankAccountCreate = {
+  museumId: string;
+  userId: string;
+  holderName: string;
+  bankName: string;
+  accountNumber: string;
+  qrCode: string;
+};
+
+export type BankAccountUpdate = Partial<BankAccountCreate> & { id: string };
+
+export type MuseumWallet = {
+  id: string;
+  museumId: string;
+  availableBalance: number;
+  pendingBalance: number;
+  totalBalance: number;
+};
+
+export type Payout = {
+  id: string;
+  museumId: string;
+  bankAccountId: string;
+  amount: number;
+  processedDate: string;
+  status: PayoutStatusEnum;
+  metadata?: PayoutMetadata;
+  bankAccount?: BankAccount;
+  museum?: {
+    id: string;
+    name: string;
+    description: string;
+    location: string;
+    contactEmail: string;
+    contactPhone: string;
+  };
+};
+
+export type PayoutMetadata = {
+  imageUrl?: string;
+  note?: string;
+};
+
+export type PayoutCreate = {
+  museumId: string;
+  bankAccountId: string;
+  amount: number;
+  metadata?: PayoutMetadata;
+};
+
+export type PayoutUpdate = {
+  id: string;
+  bankAccountId?: string;
+  amount?: number;
+  metadata?: PayoutMetadata;
+};
+
+export type PayoutParams = {
+  museumId?: string;
+  bankAccountId?: string;
+  status?: PayoutStatusEnum;
+} & Pagination;
+
+export enum PayoutStatusEnum {
+  Pending = 'Pending',
+  Approved = 'Approved',
+  Rejected = 'Rejected',
+}
