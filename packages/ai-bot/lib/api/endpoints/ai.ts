@@ -5,18 +5,25 @@
  */
 
 import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
-import { AIChatResp, AIChatReq } from '@/types';
+import { AIChatResp, AIChatReq, AIAudioRes } from '@/types';
 
 /**
  * AI API endpoints configuration
  */
 export const aiEndpoints = {
   chat: '/ai/chat',
+  audio: '/ai/audio',
 } as const;
 
 export const chatWithAi = async (data: AIChatReq) => {
   const httpClient = getHttpClient();
   const response = await httpClient.post<APIResponse<AIChatResp>>(aiEndpoints.chat, data);
+  return response.data;
+};
+
+export const generateAudio = async (prompt: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.post<APIResponse<AIAudioRes>>(aiEndpoints.audio, { prompt });
   return response.data;
 };
 

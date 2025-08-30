@@ -5,6 +5,7 @@
  */
 
 import { SignalRClient } from '@/api';
+import { EventParticipant } from '@musetrip360/event-management';
 import { z } from 'zod';
 
 // SignalR Connection Types
@@ -27,6 +28,8 @@ export interface SignalREvents {
   ReceiveAnswer: (connectionId: string, answerData: string) => void;
   ReceiveIceCandidate: (connectionId: string, candidateData: string, isPub: boolean) => void;
   ReceiveRoomState: (roomState: RoomState) => void;
+  ReceiveChatMessage: (message: string) => void; // New dedicated chat message event
+  ReceiveTourAction: (actionJson: string) => void; // New tour action sync event
 }
 
 // WebRTC Types
@@ -39,24 +42,71 @@ export interface PeerConnectionPair {
   subscriber: RTCPeerConnection | null;
 }
 
-// Room and Peer Management
+// Room Metadata Structure for Messages + Tour Actions
+export interface RoomMetadata {
+  CurrentTourState?: {
+    CurrentScene: string | null;
+    CurrentArtifact: string | null;
+    currentHostedId: string | null;
+    IsLive: boolean;
+  };
+}
+
+export interface TourActions {
+  Id: string;
+  ActionType: 'camera_change' | 'scene_change' | 'artifact_preview' | 'artifact_close';
+  ActionData: {
+    // Scene navigation
+    SceneId?: string;
+
+    // Artifact interaction
+    ArtifactId?: string;
+
+    // Camera position (spherical coordinates for panorama)
+    CameraPosition?: {
+      theta: number; // Horizontal angle in radians
+      phi: number; // Vertical angle in radians
+      fov: number; // Field of view in degrees
+    };
+  };
+  PerformedBy: string;
+  Timestamp: number;
+}
+
+// Chat message type alias for easier usage
+export type ChatMessage = {
+  Id: string;
+  SenderId: string;
+  SenderName: string;
+  Message: string;
+  Timestamp: number;
+  MessageType: 'text' | 'system';
+};
+
+// Room and Peer Management - Match .NET Backend Response
 export interface RoomState {
-  roomId: string;
-  participants: Participant[];
-  metadata?: Record<string, any>;
-  createdAt: Date;
-  isActive: boolean;
+  Id: string;
+  Name: string;
+  Description?: string;
+  Status: number;
+  EventId?: string;
+  Metadata?: RoomMetadata;
+  CreatedAt: Date;
+  UpdatedAt: Date;
+  IsActive: boolean;
 }
 
 export interface Participant {
   id: string;
   peerId: string;
   streamId: string;
+  userId: string;
   connectionId: string;
   metadata?: Record<string, any>;
   isLocalUser: boolean;
   mediaState: MediaState;
   joinedAt: Date;
+  participantInfo?: EventParticipant;
 }
 
 export interface MediaState {
@@ -190,8 +240,10 @@ export interface StreamingContextValue {
   // Room State
   roomState: RoomState | null;
   participants: Map<string, Participant>;
+  localParticipant: Participant | null;
   currentRoomId: string | null;
   isInRoom: boolean;
+  initialize: () => Promise<void>;
 
   // Actions
   joinRoom: (roomId: string, metadata?: Record<string, any>) => Promise<void>;

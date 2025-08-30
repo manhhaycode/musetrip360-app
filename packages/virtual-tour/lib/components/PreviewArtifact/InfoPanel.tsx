@@ -121,7 +121,7 @@ export function InfoPanel({ artifact, isOpen, onPrevious, onNext, hasMultiple }:
                   <div className="space-y-3">
                     <h3 className="font-semibold">Hình ảnh bổ sung</h3>
                     <div className="grid grid-cols-2 gap-2">
-                      {artifact.metadata.images.map((imageUrl, index) => (
+                      {artifact.metadata.images.map((item, index) => (
                         <div
                           key={index}
                           className="relative group overflow-hidden rounded-lg border border-border/50 hover:border-border cursor-pointer transition-colors"
@@ -130,7 +130,7 @@ export function InfoPanel({ artifact, isOpen, onPrevious, onNext, hasMultiple }:
                           }}
                         >
                           <img
-                            src={imageUrl}
+                            src={item.file as string}
                             alt={`${artifact.name} - Ảnh ${index + 1}`}
                             className="w-full h-20 object-cover group-hover:scale-105 transition-transform duration-200"
                           />

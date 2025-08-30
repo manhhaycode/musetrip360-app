@@ -4,11 +4,17 @@
  * Type definitions for museum management operations including museums,
  * exhibitions, and devices.
  */
+import { IUser } from '@musetrip360/user-management/types';
 
 export type AIChatReq = {
   prompt: string;
   isVector?: true;
   entityType?: DataEntityType;
+};
+
+export type AIAudioRes = {
+  audioUrl: string;
+  prompt: string;
 };
 
 export type AIChatResp = {
@@ -24,4 +30,48 @@ export type AIChatRelatedData = {
   title: string;
   description: string;
   similarityScore: number;
+};
+
+export type Conversation = {
+  id: string;
+  name?: string;
+  isBot: boolean;
+  metadata?: any;
+  createdAt: Date;
+  updatedAt: Date;
+  createdUser: IUser;
+};
+
+export type Message = {
+  id: string;
+  createdAt: Date;
+  isBot: boolean;
+  content: string;
+  conversationId: string;
+  createdBy: string;
+  createdUser: IUser;
+  metadata?: MessageMetadata;
+};
+
+export type MessageMetadata = {
+  relatedData: AIChatRelatedData[];
+};
+
+export type CreateConversation = {
+  name?: string;
+  metadata?: any;
+  isBot: boolean;
+};
+
+export type UpdateConversation = {
+  id: string;
+  name?: string;
+  metadata?: any;
+  isBot: boolean;
+};
+
+export type CreateMessage = {
+  content: string;
+  conversationId: string;
+  isBot: boolean;
 };

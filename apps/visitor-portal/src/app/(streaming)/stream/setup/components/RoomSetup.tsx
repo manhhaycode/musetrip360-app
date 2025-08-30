@@ -28,6 +28,7 @@ import {
 import { useStreamingContext } from '@musetrip360/streaming/contexts';
 import { ConnectionState } from '@musetrip360/streaming/types';
 import { useCurrentProfile } from '@musetrip360/user-management/api';
+import { useGetEventParticipants, useGetRoom } from '@musetrip360/event-management/api';
 
 interface RoomSetupProps {
   roomId: string;
@@ -45,6 +46,15 @@ export default function RoomSetup({ roomId }: RoomSetupProps) {
   const { data: userProfile } = useCurrentProfile();
   const { signalR, mediaStream, joinRoom, toggleVideo, toggleAudio } = useStreamingContext();
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const { data: room } = useGetRoom(roomId, {
+    enabled: !!roomId,
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { data: event } = useGetEventParticipants(room?.eventId!, {
+    enabled: !!room,
+  });
 
   const [setupSteps, setSetupSteps] = useState<SetupStep[]>([
     { id: 'signalr', label: 'Đang kết nối đến server', status: 'pending' },

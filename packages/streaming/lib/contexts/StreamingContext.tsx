@@ -4,15 +4,17 @@
  * Main context provider orchestrating all streaming functionality
  */
 
+import { chatService, tourActionService } from '@/api';
 import { useSignalR } from '@/hooks';
 import { useMediaStream } from '@/hooks/useMediaStream';
 import { useWebRTC } from '@/hooks/useWebRTC';
 import { participantActions, useParticipantStore } from '@/state/store/participantStore';
 import { roomActions, useRoomStore } from '@/state/store/roomStore';
-import { useStreamingStore } from '@/state/store/streamingStore';
+import { streamingActions, useStreamingStore } from '@/state/store/streamingStore';
 import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } from '@/types';
 import { useStreamingEvents } from '@/utils/eventBus';
 import { generateRoomId } from '@/utils/webrtc';
+import { useGetEventParticipants } from '@musetrip360/event-management/api';
 import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
 
@@ -47,10 +49,16 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const { currentRoom: roomState } = useRoomStore();
 
   // Derived state from RoomStore (single source of truth)
-  const currentRoomId = roomState?.roomId || null;
+  const currentRoomId = roomState?.Id || null;
   const isInRoom = roomState !== null;
 
-  const { participants: participantMap } = useParticipantStore();
+  const { participants: participantMap, localParticipant } = useParticipantStore();
+
+  const { data: eventParticipants } = useGetEventParticipants(roomState?.EventId || '', {
+    enabled: !!roomState?.EventId,
+    staleTime: 0.5 * 60 * 1000, // 30 seconds
+    gcTime: 0.5 * 60 * 1000, // 30 seconds
+  });
 
   /**
    * Initialize a streaming system
@@ -92,7 +100,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
    * Join streaming room
    */
   const joinRoom = useCallback(
-    async (roomId: string, metadata?: Record<string, any>): Promise<void> => {
+    async (roomId: string): Promise<void> => {
       try {
         console.log(`🚪 Joining room: ${roomId}`);
         let localStream = mediaStream.localStream;
@@ -109,12 +117,20 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         // Join room via SignalR
         await signalR.joinRoom(roomId, offer);
 
-        // Update room state
-        roomActions.createRoom(roomId, metadata);
+        chatService.setSignalRClient(signalR.getClient()!);
+        tourActionService.setSignalRClient(signalR.getClient()!);
 
         // Add local participant
         const connectionId = signalR.connectionId;
         if (connectionId && mediaStream.localStream) {
+          let userId = '';
+          // Set stream peer ID for tracking
+          const client = signalR.getClient();
+          if (client) {
+            await client.setStreamPeerId(mediaStream.localStream.id);
+            userId = (await client.getParticipantInfoByStreamId(mediaStream.localStream.id)) || '';
+          }
+
           participantActions.addParticipantWithStream({
             id: uuid(),
             peerId: connectionId,
@@ -123,13 +139,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             isLocalUser: true,
             mediaState: mediaStream.mediaState,
             joinedAt: new Date(),
+            userId: userId,
           });
-
-          // Set stream peer ID for tracking
-          const client = signalR.getClient();
-          if (client) {
-            await client.setStreamPeerId(mediaStream.localStream.id);
-          }
         }
 
         console.log(`✅ Successfully joined room: ${roomId}`);
@@ -138,20 +149,17 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         throw error;
       }
     },
-    [signalR, webRTC, mediaStream]
+    [mediaStream, webRTC, signalR]
   );
 
   /**
    * Create new room
    */
-  const createRoom = useCallback(
-    async (metadata?: Record<string, any>): Promise<string> => {
-      const roomId = generateRoomId();
-      await joinRoom(roomId, metadata);
-      return roomId;
-    },
-    [joinRoom]
-  );
+  const createRoom = useCallback(async (): Promise<string> => {
+    const roomId = generateRoomId();
+    await joinRoom(roomId);
+    return roomId;
+  }, [joinRoom]);
 
   /**
    * Leave current room
@@ -171,6 +179,10 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
       // Clean up participants
       useParticipantStore.getState().reset();
+
+      streamingActions.leaveRoomSafely();
+
+      isInitializedRef.current = false;
 
       console.log('✅ Successfully left room');
     } catch (error) {
@@ -242,11 +254,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
       try {
         // Resolve actual peer ID from SignalR
         const client = signalR.getClient();
+        let userId = '';
         let resolvedPeerId = peerId;
 
         if (client) {
           try {
             resolvedPeerId = await client.getPeerIdByStreamId(stream.id);
+            userId = (await client.getParticipantInfoByStreamId(stream.id)) || '';
           } catch {
             console.warn('Failed to resolve peer ID for stream:', stream.id);
           }
@@ -270,6 +284,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
             isLocalUser: false,
             mediaState: { video: true, audio: true },
             joinedAt: new Date(),
+            userId: userId,
           });
         }
 
@@ -291,6 +306,12 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     // For now, it's a placeholder for the integration
   }, [webRTC, mediaStream]);
 
+  useEffect(() => {
+    if (eventParticipants) {
+      setTimeout(() => participantActions.syncParticipantInfo(eventParticipants));
+    }
+  }, [eventParticipants]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -300,6 +321,7 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         leaveRoom().catch(console.error);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty array = only run cleanup on unmount
 
   const contextValue: StreamingContextValue = {
@@ -308,9 +330,12 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     webRTC,
     mediaStream,
 
+    initialize,
+
     // Room State
     roomState,
     participants: participantMap,
+    localParticipant,
     currentRoomId,
     isInRoom,
 

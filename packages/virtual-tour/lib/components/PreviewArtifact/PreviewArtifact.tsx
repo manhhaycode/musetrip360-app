@@ -71,7 +71,7 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
   // Loading state
   if (isLoading) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+      <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-center text-white p-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4 mx-auto"></div>
           <p className="text-gray-400">Đang tải thông tin artifact...</p>
@@ -83,7 +83,7 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
   // Error state
   if (error || (!isLoading && !artifact)) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+      <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-center text-white p-8">
           <h2 className="text-2xl font-bold mb-4">Lỗi</h2>
           <p className="text-gray-400 mb-6">{error?.message || 'Không thể tải thông tin artifact'}</p>
@@ -101,7 +101,7 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
   // Check if 3D model URL exists
   if (artifact && !artifact.model3DUrl) {
     return (
-      <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+      <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
         <div className="text-center text-white p-8">
           <h2 className="text-2xl font-bold mb-4">{artifact.name}</h2>
           <p className="text-gray-400 mb-6">Model 3D không có sẵn cho artifact này.</p>
@@ -122,7 +122,7 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
   if (!artifact) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black">
+    <div className="absolute inset-0 z-50 bg-black">
       {/* 3D Model Viewer */}
       <div className="absolute inset-0">
         <GLTFViewer

@@ -7,10 +7,12 @@
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { MediaState, MediaStreamInfo, Participant } from '@/types';
+import { EventParticipant } from '@musetrip360/event-management';
 
 interface ParticipantStoreState {
   // Participant tracking
   participants: Map<string, Participant>;
+  participantInfos: Map<string, EventParticipant>;
   localParticipant: Participant | null;
 
   // Stream mapping
@@ -50,6 +52,8 @@ interface ParticipantStoreActions {
   removeParticipant: (participantId: string) => void;
   updateParticipant: (participantId: string, updates: Partial<Participant>) => void;
   setLocalParticipant: (participant: Participant | null) => void;
+  setParticipantInfos: (participantInfos: Map<string, EventParticipant>) => void;
+  setParticipants: (participants: Map<string, Participant>) => void;
 
   // Media state management
   updateParticipantMediaState: (participantId: string, mediaState: Partial<MediaState>) => void;
@@ -104,6 +108,7 @@ type ParticipantStore = ParticipantStoreState & ParticipantStoreActions;
 
 const initialState: ParticipantStoreState = {
   participants: new Map(),
+  participantInfos: new Map(),
   localParticipant: null,
   streamToParticipant: new Map(),
   participantToStream: new Map(),
@@ -132,6 +137,10 @@ export const useParticipantStore = create<ParticipantStore>()(
             // Update stream mapping
             const newParticipantToStream = new Map(state.participantToStream);
             const newStreamToParticipant = new Map(state.streamToParticipant);
+
+            if (!participant.participantInfo) {
+              participant.participantInfo = state.participantInfos.get(participant.userId);
+            }
 
             newParticipantToStream.set(participant.id, participant.streamId);
             newStreamToParticipant.set(participant.streamId, participant.id);
@@ -220,6 +229,9 @@ export const useParticipantStore = create<ParticipantStore>()(
         ),
 
       setLocalParticipant: (participant) => set({ localParticipant: participant }, false, 'setLocalParticipant'),
+
+      setParticipantInfos: (participantInfos) => set({ participantInfos }, false, 'setParticipantInfos'),
+      setParticipants: (participants) => set({ participants }, false, 'setParticipants'),
 
       // Media state management
       updateParticipantMediaState: (participantId, mediaState) =>
@@ -485,7 +497,6 @@ export const participantActions = {
 
     console.log(`👥 Participant added: ${participant.id} (${participant.isLocalUser ? 'local' : 'remote'})`);
   },
-
   /**
    * Remove participant and cleanup all associated data
    */
@@ -517,5 +528,15 @@ export const participantActions = {
       video: mediaState.video !== undefined ? mediaState.video : participant.mediaState.video,
       audio: mediaState.audio !== undefined ? mediaState.audio : participant.mediaState.audio,
     });
+  },
+
+  syncParticipantInfo: (participantInfo: EventParticipant[]) => {
+    const { setParticipantInfos, participants, setParticipants } = useParticipantStore.getState();
+    const participantInfoMap = new Map(participantInfo.map((p) => [p.userId, p]));
+    setParticipantInfos(participantInfoMap);
+    for (const [, participant] of participants.entries()) {
+      participant.participantInfo = participantInfoMap.get(participant.userId);
+    }
+    setParticipants(participants);
   },
 };

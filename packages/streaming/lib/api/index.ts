@@ -2,3 +2,5 @@
 export * from './signaling';
 export * from './peer';
 export * from './stream';
+export * from './chat';
+export * from './tour';

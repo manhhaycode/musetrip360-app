@@ -54,6 +54,7 @@
     "@hookform/resolvers": "^5.1.1",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
+    "@musetrip360/shared": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",

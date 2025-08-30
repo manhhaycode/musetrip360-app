@@ -46,4 +46,5 @@ export * from './components/ui/theme-provider';
 export * from './components/ui/toggle';
 export * from './components/ui/toggle-group';
 export * from './components/ui/tooltip';
+export * from './components/ui/datetime-picker';
 export * from './libs/utils';

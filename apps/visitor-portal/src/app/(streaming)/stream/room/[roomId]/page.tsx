@@ -1,12 +1,15 @@
 'use client';
 
+import { useGetEventById } from '@musetrip360/event-management';
 import { useStreamingContext } from '@musetrip360/streaming/contexts';
-import { StreamingRoom } from '@musetrip360/streaming/ui';
+import { StreamingRoom, TourModeSelector } from '@musetrip360/streaming/ui';
 
-import { useVirtualTourById } from '@musetrip360/virtual-tour';
-import { Suspense, use, useEffect } from 'react';
+import { IVirtualTour } from '@musetrip360/virtual-tour';
+import { useRouter } from 'next/navigation';
+import React, { use, useEffect, useState } from 'react';
 
-const VirtualTourViewer = await import('@musetrip360/virtual-tour').then((mod) => mod.VirtualTourViewer);
+const SyncedVirtualTourViewer = await import('@musetrip360/streaming/ui').then((mod) => mod.SyncedVirtualTourViewer);
+type TourMode = 'free-explore' | 'follow-guide';
 
 interface StreamRoomPageProps {
   params: Promise<{ roomId: string }>;
@@ -14,26 +17,72 @@ interface StreamRoomPageProps {
 
 export default function StreamRoomPage({ params }: StreamRoomPageProps) {
   const { roomId } = use(params);
-  const { isInRoom, currentRoomId } = useStreamingContext();
-  const { data: virtualTour, isLoading } = useVirtualTourById('6821e06e-7195-4986-becc-ed571619d160');
+  const router = useRouter();
+  const { isInRoom, currentRoomId, roomState, localParticipant } = useStreamingContext();
+
+  // User's tour mode logic
+  const userRole = localParticipant?.participantInfo?.role;
+  const isTourGuide = userRole === 'TourGuide';
+
+  // Tour guides always use free-explore mode (broadcasting)
+  // Attendees can choose between modes
+  const defaultMode: TourMode = isTourGuide ? 'free-explore' : 'follow-guide';
+  const [userTourMode, setUserTourMode] = useState<TourMode>(defaultMode);
+
+  // Only attendees can switch modes
+  const canSwitchMode = Boolean(isInRoom && localParticipant && !isTourGuide);
+
+  // Force tour guides to stay in free-explore mode
+  const effectiveMode: TourMode = isTourGuide ? 'free-explore' : userTourMode;
+  const { data: event, isLoading } = useGetEventById(roomState?.EventId!, {
+    enabled: !!roomState?.EventId,
+  });
 
   // Redirect to setup if not in room or wrong room
   useEffect(() => {
+    console.log('Checking room status...');
+    console.log(`isInRoom: ${isInRoom}, currentRoomId: ${currentRoomId}, roomId: ${roomId}`);
     if (!isInRoom || currentRoomId !== roomId) {
-      window.location.href = `/stream/setup/${roomId}`;
+      router.replace(`/stream/setup/${roomId}`);
     }
   }, [isInRoom, currentRoomId, roomId]);
 
   return (
     <StreamingRoom>
-      {isLoading || !virtualTour ? (
+      {isLoading || !event?.tourOnlines || !localParticipant?.participantInfo?.role ? (
         <div className="flex items-center justify-center h-full text-primary">Loading...</div>
       ) : (
-        <Suspense
-          fallback={<div className="flex items-center justify-center h-full text-primary">Loading Virtual Tour...</div>}
-        >
-          <VirtualTourViewer virtualTour={virtualTour} />
-        </Suspense>
+        <div className="absolute inset-0 border overflow-hidden bg-gray-100">
+          <React.Suspense
+            fallback={
+              <div className="h-full flex items-center justify-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+              </div>
+            }
+          >
+            <div className="relative h-full">
+              <SyncedVirtualTourViewer
+                mode={effectiveMode}
+                virtualTour={event.tourOnlines[0] as IVirtualTour}
+                onModeChange={setUserTourMode}
+                allowModeSwitch={false} // Disabled - using separate component
+              />
+
+              {/* Tour Mode Selector - only show for attendees, positioned bottom-right */}
+              {!isTourGuide && canSwitchMode && (
+                <div className="absolute bottom-4 right-4 z-50">
+                  <TourModeSelector
+                    currentMode={userTourMode}
+                    onModeChange={setUserTourMode}
+                    disabled={false}
+                    userRole={userRole || null}
+                    isConnected={isInRoom}
+                  />
+                </div>
+              )}
+            </div>
+          </React.Suspense>
+        </div>
       )}
     </StreamingRoom>
   );

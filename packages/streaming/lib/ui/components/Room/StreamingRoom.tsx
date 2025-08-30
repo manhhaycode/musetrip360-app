@@ -32,9 +32,6 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
 
     // Connection state
     signalR: { isConnected },
-
-    // Errors
-    errors,
   } = useStreamingContext();
 
   const participantArray = Array.from(participants.values());
@@ -126,17 +123,7 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
         {/* Main Video Area */}
         <div className="flex-1 flex flex-col bg-black/95 relative">
           {/* Main Video Container */}
-          <div className="flex-1 relative overflow-hidden">
-            {/* <VideoGrid participants={participantArray} localStream={localStream} className="h-full w-full" /> */}
-            {children}
-            {/* Recording Timer Overlay */}
-            <div className="absolute top-4 left-4 flex items-center gap-2">
-              <div className="flex items-center gap-2 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1">
-                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                <span className="text-white text-sm font-mono">24:01:45</span>
-              </div>
-            </div>
-          </div>
+          <div className="flex-1 relative overflow-hidden">{children}</div>
 
           {/* Bottom Toolbar */}
           <div className="p-6 bg-gradient-to-t from-black/80 to-transparent absolute bottom-0 left-0 right-0 z-20">

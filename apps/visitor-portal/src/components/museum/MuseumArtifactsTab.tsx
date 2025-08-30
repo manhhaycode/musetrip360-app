@@ -372,7 +372,7 @@ export function MuseumArtifactsTab({ museumId, className }: MuseumArtifactsTabPr
 
                     {artifact.imageUrl ? (
                       <Image
-                        src={artifact.imageUrl}
+                        src={artifact.imageUrl.trim()}
                         alt={artifact.name}
                         width={400}
                         height={240}

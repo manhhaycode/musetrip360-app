@@ -92,7 +92,7 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
   };
 
   return (
-    <div className={`w-80 h-full flex flex-col ${className || ''}`}>
+    <div className={`w-96 h-full flex flex-col ${className || ''}`}>
       <div className="flex-skrink-0">{renderHeader()}</div>
       <div style={{ flex: '1 0 0' }} className="min-h-0 flex">
         <ScrollArea className="w-full h-full p-2">{renderContent()}</ScrollArea>

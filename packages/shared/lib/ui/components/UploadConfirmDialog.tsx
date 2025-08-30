@@ -7,7 +7,6 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@musetrip360/ui-core/dialog';
-import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { FileText, Image, Upload, Video } from 'lucide-react';
 
 interface UploadConfirmDialogProps {
@@ -54,7 +53,7 @@ export function UploadConfirmDialog({ open, onClose, onConfirm, files }: UploadC
           <DialogDescription>Bạn có chắc chắn muốn tải lên {files.length} tệp tin không?</DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="max-h-72 my-4">
+        <div className="max-h-72 my-4 pr-2 overflow-auto">
           <div className="space-y-3 pr-2">
             {files.map(({ id, file }) => (
               <div
@@ -71,7 +70,7 @@ export function UploadConfirmDialog({ open, onClose, onConfirm, files }: UploadC
               </div>
             ))}
           </div>
-        </ScrollArea>
+        </div>
 
         <div className="bg-muted rounded-lg p-4 border">
           <div className="flex items-center justify-between text-sm">
