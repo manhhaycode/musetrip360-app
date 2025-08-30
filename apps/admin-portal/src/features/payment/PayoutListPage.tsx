@@ -213,26 +213,6 @@ const PayoutListPage = () => {
         },
       },
       {
-        accessorKey: 'processedDate',
-        header: 'Processed Date',
-        cell: ({ row }) => {
-          const processedDate = new Date(row.original.processedDate);
-          return (
-            <div className="space-y-1 text-sm">
-              <div className="font-medium">{processedDate.toLocaleDateString('vi-VN')}</div>
-              <div className="text-muted-foreground text-xs">{processedDate.toLocaleTimeString('vi-VN')}</div>
-            </div>
-          );
-        },
-        meta: {
-          variant: 'date',
-          placeholder: 'Filter by date',
-          label: 'Processed Date',
-          unit: '',
-          isSortable: true,
-        },
-      },
-      {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => {
@@ -529,7 +509,7 @@ const PayoutListPage = () => {
 
       {/* Payout Details Modal */}
       <Dialog open={modalType === 'details'} onOpenChange={(open) => setModalType(open ? 'details' : null)}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Chi tiết yêu cầu rút tiền</DialogTitle>
             <DialogDescription>
@@ -580,6 +560,19 @@ const PayoutListPage = () => {
                   </div>
                 </div>
               </div>
+
+              {selectedPayout.bankAccount?.qrCode && (
+                <div>
+                  <label className="text-sm font-medium text-gray-600">QR Code tài khoản ngân hàng</label>
+                  <div className="mt-2">
+                    <img
+                      src={selectedPayout.bankAccount.qrCode}
+                      alt="Bank account QR code"
+                      className="max-w-xs h-auto rounded border"
+                    />
+                  </div>
+                </div>
+              )}
 
               {selectedPayout.metadata?.imageUrl && (
                 <div>

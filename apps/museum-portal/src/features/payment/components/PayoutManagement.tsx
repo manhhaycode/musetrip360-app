@@ -1,7 +1,19 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Plus, ArrowDownToLine, Building2, Clock, CheckCircle, XCircle } from 'lucide-react';
+import {
+  Plus,
+  ArrowDownToLine,
+  Building2,
+  Clock,
+  CheckCircle,
+  XCircle,
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Image,
+  Eye,
+} from 'lucide-react';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Badge } from '@musetrip360/ui-core/badge';
@@ -71,6 +83,9 @@ const getStatusBadge = (status: string) => {
 
 const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [expandedPayouts, setExpandedPayouts] = useState<Set<string>>(new Set());
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const {
     data: payouts = [],
@@ -105,6 +120,21 @@ const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
     setIsFormOpen(false);
     refetchPayouts();
     toast.success('Đã tạo yêu cầu rút tiền thành công');
+  };
+
+  const togglePayoutExpansion = (payoutId: string) => {
+    const newExpanded = new Set(expandedPayouts);
+    if (newExpanded.has(payoutId)) {
+      newExpanded.delete(payoutId);
+    } else {
+      newExpanded.add(payoutId);
+    }
+    setExpandedPayouts(newExpanded);
+  };
+
+  const openImageModal = (imageUrl: string) => {
+    setSelectedImage(imageUrl);
+    setImageModalOpen(true);
   };
 
   if (isLoadingPayouts || isLoadingWallet || isLoadingBankAccounts) {
@@ -192,8 +222,6 @@ const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
       ) : (
         <div className="space-y-4">
           {payouts.map((payout) => {
-            const bankAccount = bankAccounts.find((acc) => acc.id === payout.bankAccountId);
-
             return (
               <Card key={payout.id} className="transition-all hover:shadow-md">
                 <CardHeader>
@@ -218,10 +246,10 @@ const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
                       <Building2 className="h-4 w-4 text-gray-600 mt-1" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm text-gray-900">
-                          {bankAccount?.bankName || 'Tài khoản không xác định'}
+                          {payout.bankAccount?.bankName || 'Tài khoản không xác định'}
                         </p>
-                        <p className="text-sm text-gray-600">{bankAccount?.holderName || 'N/A'}</p>
-                        <p className="text-sm font-mono text-gray-500">{bankAccount?.accountNumber || 'N/A'}</p>
+                        <p className="text-sm text-gray-600">{payout.bankAccount?.holderName || 'N/A'}</p>
+                        <p className="text-sm font-mono text-gray-500">{payout.bankAccount?.accountNumber || 'N/A'}</p>
                       </div>
                     </div>
 
@@ -242,15 +270,62 @@ const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
                     </div>
                   </div>
 
-                  {/* Show image if available */}
-                  {payout.metadata?.imageUrl && (
+                  {/* Metadata Section */}
+                  {(payout.metadata?.imageUrl || payout.metadata?.note) && (
                     <div className="mt-4 pt-4 border-t">
-                      <p className="text-sm font-medium text-gray-600 mb-2">Hình ảnh đính kèm:</p>
-                      <img
-                        src={payout.metadata.imageUrl}
-                        alt="Payout attachment"
-                        className="max-w-xs h-auto rounded border"
-                      />
+                      <button
+                        onClick={() => togglePayoutExpansion(payout.id)}
+                        className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors mb-3"
+                      >
+                        <FileText className="h-4 w-4" />
+                        Chi tiết metadata
+                        {expandedPayouts.has(payout.id) ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </button>
+
+                      {expandedPayouts.has(payout.id) && (
+                        <div className="space-y-3">
+                          {/* Note Section */}
+                          {payout.metadata?.note && (
+                            <div className="p-3 bg-blue-50 rounded-lg">
+                              <div className="flex items-start gap-2">
+                                <FileText className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                                <div>
+                                  <h5 className="text-sm font-medium text-blue-900 mb-1">Ghi chú</h5>
+                                  <p className="text-sm text-blue-800">{payout.metadata.note}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Image Section */}
+                          {payout.metadata?.imageUrl && (
+                            <div className="p-3 bg-gray-50 rounded-lg">
+                              <div className="flex items-start gap-2 mb-2">
+                                <Image className="h-4 w-4 text-gray-600 mt-0.5 flex-shrink-0" />
+                                <h5 className="text-sm font-medium text-gray-900">Hình ảnh đính kèm</h5>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={payout.metadata.imageUrl}
+                                  alt="Payout attachment thumbnail"
+                                  className="w-20 h-20 object-cover rounded border"
+                                />
+                                <button
+                                  onClick={() => openImageModal(get(payout, 'metadata.imageUrl', ''))}
+                                  className="flex items-center gap-2 px-3 py-2 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                  Xem ảnh lớn
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -259,6 +334,24 @@ const PayoutManagement: React.FC<PayoutManagementProps> = ({ museumId }) => {
           })}
         </div>
       )}
+
+      {/* Image Modal */}
+      <Dialog open={imageModalOpen} onOpenChange={setImageModalOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Hình ảnh đính kèm</DialogTitle>
+          </DialogHeader>
+          {selectedImage && (
+            <div className="flex justify-center">
+              <img
+                src={selectedImage}
+                alt="Payout attachment full size"
+                className="max-w-full max-h-[70vh] object-contain rounded"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

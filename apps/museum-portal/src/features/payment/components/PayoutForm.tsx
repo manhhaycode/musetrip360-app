@@ -19,6 +19,7 @@ import { Input } from '@musetrip360/ui-core/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { useCreatePayout, BankAccount, MuseumWallet } from '@musetrip360/payment-management';
+import { toast } from '@musetrip360/ui-core/sonner';
 
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('vi-VN', {
@@ -60,9 +61,11 @@ const PayoutForm: React.FC<PayoutFormProps> = ({ museumId, wallet, bankAccounts,
   const { mutate: createPayout, isPending: isCreating } = useCreatePayout({
     onSuccess: () => {
       onSuccess();
+      toast.success('Tạo yêu cầu rút tiền thành công');
     },
     onError: (error) => {
       console.error('Create payout error:', error);
+      toast.error('Tạo yêu cầu rút tiền thất bại');
     },
   });
 

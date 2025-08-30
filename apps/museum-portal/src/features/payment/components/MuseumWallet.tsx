@@ -21,7 +21,14 @@ const formatCurrency = (amount: number): string => {
 };
 
 const MuseumWallet: React.FC<MuseumWalletProps> = ({ museumId }) => {
-  const { data: wallet, isLoading, error, refetch } = useMuseumWallet(museumId);
+  const {
+    data: wallet,
+    isLoading,
+    error,
+    refetch,
+  } = useMuseumWallet(museumId, {
+    refetchInterval: 5000,
+  });
 
   if (isLoading) {
     return (

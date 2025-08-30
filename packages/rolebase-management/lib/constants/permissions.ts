@@ -15,3 +15,4 @@ export const PERMISSION_TOUR_CREATE = 'tours.create';
 export const PERMISSION_TOUR_MANAGEMENT = 'tours.management';
 export const PERMISSION_ROLE_MANAGEMENT = 'role.management';
 export const PERMISSION_PERMISSION_MANAGEMENT = 'permission.management';
+export const PERMISSION_PAYMENT_MANAGEMENT = 'payment.management';
