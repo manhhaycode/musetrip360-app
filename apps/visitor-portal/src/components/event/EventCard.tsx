@@ -139,7 +139,9 @@ export function EventCard({ event, onBooking, className }: EventCardProps) {
       <CardFooter>
         <div className="flex flex-1 items-center justify-between pt-2 border-t">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-primary">{formatPrice(event.price)}</span>
+            <span className="text-lg font-semibold text-primary">
+              {event.price ? formatPrice(event.price) : 'Miễn phí'}
+            </span>
           </div>
           <Button
             disabled={isBookingAvailable()}
