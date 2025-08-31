@@ -34,7 +34,7 @@ export interface CustomMutationOptions<TData = unknown, TError = APIError, TVari
   requestConfig?: RequestConfig;
   optimisticUpdate?: boolean;
   backgroundSync?: boolean;
-  invalidateQueries?: QueryKey[];
+  removeQueries?: QueryKey[];
   revalidateQueries?: QueryKey[];
 }
 
