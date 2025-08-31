@@ -5,14 +5,15 @@
  */
 
 import {
+  APIError,
+  CustomMutationOptions,
+  Pagination,
   useMutation,
   useQuery,
-  CustomMutationOptions,
-  APIError,
-  Pagination,
   useQueryClient,
 } from '@musetrip360/query-foundation';
 
+import { virtualTourCacheKeys } from '../cache';
 import {
   createVirtualTourForMuseum,
   deleteVirtualTour,
@@ -20,8 +21,7 @@ import {
   getVirtualToursByMuseum,
   updateVirtualTour,
 } from '../endpoints/virtual-tour';
-import { IVirtualTour, IVirtualTourScene } from '../types';
-import { virtualTourCacheKeys } from '../cache';
+import { IVirtualTour } from '../types';
 
 /**
  * Custom hook to get a paginated list of virtual tours by museum
@@ -61,7 +61,7 @@ export function useCreateMuseumVirtualTour(
     {
       ...options,
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
+        queryClient.removeQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
         options?.onSuccess?.(data, variables, context);
       },
     }
@@ -73,13 +73,16 @@ export function useCreateMuseumVirtualTour(
  * @param options - Custom mutation options
  * @returns Mutation function to update a virtual tour
  */
-export function useUpdateVirtualTour(options?: CustomMutationOptions<IVirtualTour, APIError, IVirtualTour>) {
+export function useUpdateVirtualTour(
+  options?: CustomMutationOptions<IVirtualTour, APIError, IVirtualTour>,
+  isInvalidQuery: boolean = true
+) {
   const queryClient = useQueryClient();
 
   return useMutation<IVirtualTour, APIError, IVirtualTour>((variables) => updateVirtualTour(variables.id, variables), {
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -95,7 +98,7 @@ export function useDeleteVirtualTour(options?: CustomMutationOptions<void, APIEr
   return useMutation<void, APIError, string>(deleteVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
+      queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });

@@ -32,7 +32,7 @@ export const UserProvider = ({ children, strictMode = true }: { children: React.
 
   useEffect(() => {
     if (isHydrated && isAuthenticated) {
-      getQueryClient().invalidateQueries({ queryKey: userCacheKeys.profile() });
+      getQueryClient().removeQueries({ queryKey: userCacheKeys.profile() });
       refetch();
     }
     if (isHydrated && !isAuthenticated) {

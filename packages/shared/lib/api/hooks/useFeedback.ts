@@ -25,7 +25,7 @@ export function useCreateFeedback() {
       onSuccess: () => {
         const queryClient = getQueryClient();
         // Invalidate feedback query on success
-        queryClient.invalidateQueries({
+        queryClient.removeQueries({
           queryKey: sharedCacheKeys.feedback.list(),
         });
       },

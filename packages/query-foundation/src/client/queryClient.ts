@@ -455,7 +455,7 @@ export class QueryClientManager {
     // Resume or pause queries based on network status
     if (isOnline) {
       this.queryClient.resumePausedMutations();
-      this.queryClient.invalidateQueries();
+      this.queryClient.removeQueries();
     }
   }
 
