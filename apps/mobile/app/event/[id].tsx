@@ -11,8 +11,10 @@ import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EventDetailPage() {
+  const params = useLocalSearchParams();
+  console.log('Route params:', params);
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id } = params as { id: string };
   const [refreshing, setRefreshing] = useState(false);
 
   const { data: event, isLoading: isLoadingEvent, error: eventError, refetch: refetchEvent } = useGetEventById(id!);

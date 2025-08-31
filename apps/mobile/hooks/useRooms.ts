@@ -1,4 +1,4 @@
-/*import { useGetRoomByEvent } from '@musetrip360/event-management/api';
+import { useGetRoomByEvent } from '@musetrip360/event-management/api';
 
 interface RoomParams {
   eventId?: string;
@@ -27,4 +27,3 @@ export const useRooms = (params?: RoomParams, options?: { enabled?: boolean }) =
     refetch: apiResult.refetch,
   };
 };
-*/

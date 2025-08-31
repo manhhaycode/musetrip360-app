@@ -30,14 +30,14 @@ import { Text } from '@/components/core/ui/text';
 import { useArticles } from '@/hooks/useArticles';
 import { useArtifacts } from '@/hooks/useArtifacts';
 import { useEvents } from '@/hooks/useEvents';
+import { useFeedbacks } from '@/hooks/useFeedbacks';
 import { useMuseum } from '@/hooks/useMuseums';
-import { useReviews } from '@/hooks/useReviews';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
 
 function MuseumHeader() {
   const router = useRouter();
   return (
-    <View className="flex-row items-center justify-between px-4 py-4 bg-background border-b border-card">
+    <View className="flex-row items-center justify-between px-4 py-4 bg-background ">
       <TouchableOpacity onPress={() => router.back()} className="p-2">
         <ArrowLeft size={24} color="#1f2937" />
       </TouchableOpacity>
@@ -53,7 +53,7 @@ const MUSEUM_TABS = [
   { key: 'events', label: 'Sự kiện', icon: CalendarDays },
   { key: 'articles', label: 'Bài viết', icon: Newspaper },
   { key: 'tours', label: 'Tour ảo', icon: Globe2 },
-  { key: 'reviews', label: 'Đánh giá', icon: Star },
+  { key: 'feedbacks', label: 'Đánh giá', icon: Star },
 ] as const;
 
 type MuseumTabKey = (typeof MUSEUM_TABS)[number]['key'];
@@ -98,8 +98,11 @@ export default function MuseumDetailPage() {
     error: articlesError,
   } = useArticles({ museumId: id!, Page: articlesPage, PageSize: 12 });
 
-  // Reviews for this museum
-  const { data: reviewsData } = useReviews(id!, 'Museum');
+  const {
+    data: feedbacksData,
+    isLoading: feedbacksLoading,
+    error: feedbacksError,
+  } = useFeedbacks({ targetId: id!, targetType: 'Museum', Page: 1, PageSize: 20 });
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -138,6 +141,7 @@ export default function MuseumDetailPage() {
         source={{ html: htmlContent }}
         tagsStyles={tagsStyles}
         systemFonts={systemFonts}
+        ignoredDomTags={['a']}
         renderersProps={{
           img: {
             enableExperimentalPercentWidth: true,
@@ -618,54 +622,125 @@ export default function MuseumDetailPage() {
           </View>
         );
 
-      case 'reviews':
-        const reviews = reviewsData?.data?.list || [];
+      case 'feedbacks':
+        // Loading state
+        if (feedbacksLoading) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải đánh giá...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
 
+        // Error state
+        if (feedbacksError) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Frown size={32} color="#a67c52" className="mb-3" />
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải đánh giá</Text>
+                <Text className="text-muted-foreground text-center">
+                  {feedbacksError?.message || 'Không thể tải danh sách đánh giá'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        // Mapping đúng chuẩn visitor-portal
+        const feedbacks: any[] = (feedbacksData as any)?.list || (feedbacksData as any)?.data?.list || [];
+        const feedbackCount = feedbacks.length;
+        const averageRating = feedbackCount > 0 ? feedbacks.reduce((acc, f) => acc + f.rating, 0) / feedbackCount : 0;
+
+        // Star rating component
+        const StarRating = ({ rating }: { rating: number }) => (
+          <View className="flex-row items-center">
+            {[...Array(5)].map((_, i) => (
+              <Star
+                key={i}
+                size={16}
+                color={i < rating ? '#fbbf24' : '#d1d5db'}
+                fill={i < rating ? '#fbbf24' : 'none'}
+                style={{ marginRight: 2 }}
+              />
+            ))}
+            <Text className="ml-1 text-sm text-muted-foreground">({rating}/5)</Text>
+          </View>
+        );
+
+        // Empty state
+        if (feedbackCount === 0) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Star size={32} color="#fbbf24" className="mb-3" />
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có đánh giá</Text>
+                <Text className="text-muted-foreground text-center">Hãy là người đầu tiên đánh giá bảo tàng này!</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        // List state
         return (
           <View className="px-2">
-            {reviews.length > 0 ? (
-              reviews.map((review) => (
-                <Card key={review.id} className="bg-card border border-border rounded-lg mb-4">
-                  <CardContent className="p-4">
-                    <View className="flex-row items-center justify-between mb-3">
-                      <View className="flex-row items-center">
-                        <View className="w-10 h-10 bg-accent rounded-full items-center justify-center mr-3">
-                          <Text className="text-white text-sm font-semibold">
-                            {review.createdByUser.fullName.charAt(0).toUpperCase()}
-                          </Text>
-                        </View>
-                        <View>
-                          <Text className="font-semibold text-foreground">{review.createdByUser.fullName}</Text>
-                          <Text className="text-muted-foreground text-xs">
-                            {new Date(review.createdAt).toLocaleDateString('vi-VN')}
-                          </Text>
-                        </View>
+            {/* Summary Card */}
+            <Card className="bg-card border border-border rounded-lg mb-4">
+              <CardContent className="p-4 flex-row items-center justify-between">
+                <View className="items-center">
+                  <Text className="text-2xl font-bold text-primary mb-1">{averageRating.toFixed(1)}</Text>
+                  <StarRating rating={Math.round(averageRating)} />
+                </View>
+                <View className="items-center">
+                  <Text className="text-sm text-muted-foreground">{feedbackCount} đánh giá</Text>
+                </View>
+              </CardContent>
+            </Card>
+
+            {/* Feedback List */}
+            {feedbacks.map((review: any) => (
+              <Card key={review.id} className="bg-card border border-border rounded-lg mb-4">
+                <CardContent className="p-4">
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center">
+                      <View className="w-10 h-10 bg-accent rounded-full items-center justify-center mr-3">
+                        <Text className="text-white text-sm font-semibold">
+                          {review.createdByUser?.fullName?.charAt(0).toUpperCase() || '?'}
+                        </Text>
                       </View>
-                      <View className="flex-row items-center">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            size={16}
-                            color={i < review.rating ? '#fbbf24' : '#d1d5db'}
-                            fill={i < review.rating ? '#fbbf24' : 'none'}
-                          />
-                        ))}
+                      <View>
+                        <Text className="font-semibold text-foreground">
+                          {review.createdByUser?.fullName || 'Ẩn danh'}
+                        </Text>
+                        <Text className="text-muted-foreground text-xs">
+                          {new Date(review.createdAt).toLocaleDateString('vi-VN', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
+                        </Text>
                       </View>
                     </View>
-                    <Text className="text-foreground text-base leading-6">{review.comment}</Text>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              <Card className="bg-card border border-border rounded-lg">
-                <CardContent className="p-8 items-center">
-                  <Star size={32} color="#fbbf24" className="mb-3" />
-                  <Text className="text-lg font-semibold text-foreground mb-2">Chưa có đánh giá</Text>
-                  <Text className="text-muted-foreground text-center">
-                    Hãy là người đầu tiên đánh giá bảo tàng này!
-                  </Text>
+                    <StarRating rating={review.rating} />
+                  </View>
+                  <Text className="text-foreground text-base leading-6">{review.comment}</Text>
                 </CardContent>
               </Card>
+            ))}
+
+            {/* Pagination */}
+            {feedbacksData?.data?.total && Math.ceil(feedbacksData.data.total / 20) > 1 && (
+              <Pagination
+                currentPage={1} // Nếu muốn phân trang thực tế, cần lưu state page cho feedbacks
+                totalPages={Math.ceil(feedbacksData.data.total / 20)}
+                onPageChange={() => {}}
+                showPages={5}
+                className="pt-4"
+              />
             )}
           </View>
         );

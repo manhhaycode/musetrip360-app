@@ -64,6 +64,7 @@ export default function ArticleDetailPage() {
         source={{ html: htmlContent }}
         tagsStyles={tagsStyles}
         systemFonts={systemFonts}
+        ignoredDomTags={['a']}
         renderersProps={{
           img: {
             enableExperimentalPercentWidth: true,

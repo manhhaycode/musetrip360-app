@@ -88,7 +88,7 @@ export default function HomePage() {
             <View className="space-y-4">
               <Text className="text-center text-muted-foreground mb-2">Đang tải bảo tàng...</Text>
               {Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
+                <Card key={index} className="overflow-hidden bg-card border border-card rounded-xl shadow-md mb-6">
                   <CardContent className="p-0">
                     <View className="flex-row">
                       <View className="w-24 h-24 bg-muted" />
@@ -116,9 +116,11 @@ export default function HomePage() {
               </CardContent>
             </Card>
           ) : featuredMuseums.length > 0 ? (
-            <View className="space-y-4">
+            <View>
               {featuredMuseums.map((museum: Museum) => (
-                <MuseumCard key={museum.id} museum={museum} />
+                <View key={museum.id} className="mb-6">
+                  <MuseumCard museum={museum} />
+                </View>
               ))}
             </View>
           ) : (

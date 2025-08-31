@@ -1,4 +1,4 @@
-import { useFileUpload } from '@/api';
+import { useFileUpload } from '@/api/hooks/useUpload';
 import { BulkUploadProps, useBulkUpload } from '@/contexts/UploadFileContext';
 import { FileData, MediaType } from '@/types';
 import { formatFileSize, validateFileByMediaType } from '@/utils';

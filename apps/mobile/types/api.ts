@@ -49,36 +49,3 @@ export const DEFAULT_SEARCH_FILTERS: SearchFilters = {
   page: 1,
   pageSize: 12,
 };
-
-// Review Types
-export interface Review {
-  id: string;
-  targetId: string;
-  type: 'Museum' | 'Artifact' | 'Event' | 'Article';
-  rating: number;
-  comment: string;
-  createdBy: string;
-  createdByUser: {
-    id: string;
-    username: string;
-    fullName: string;
-    email: string;
-    avatarUrl?: string;
-    phoneNumber?: string;
-    birthDate?: string;
-    authType: string;
-    status: string;
-    lastLogin: string;
-  };
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ReviewsResponse {
-  data: {
-    list: Review[];
-    total: number;
-  };
-  code: number;
-  message: string;
-}

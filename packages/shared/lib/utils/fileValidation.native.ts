@@ -1,3 +1,4 @@
+// React Native/mobile version: only support basic file validation, no web APIs
 import { DEFAULT_VALIDATION_CONFIG, FileData, FileValidationConfig, FileValidationResult, MediaType } from '../types';
 
 export const getAcceptConfig = (mediaType: MediaType) => {
@@ -11,9 +12,6 @@ export const getAcceptConfig = (mediaType: MediaType) => {
   return accept;
 };
 
-/**
- * Validate a single file against the provided configuration
- */
 export function validateFile(
   file: File,
   config: FileValidationConfig = DEFAULT_VALIDATION_CONFIG.Image
@@ -57,17 +55,11 @@ export function validateFile(
   };
 }
 
-/**
- * Validate file by media type using default configurations
- */
 export function validateFileByMediaType(file: File, mediaType: MediaType): FileValidationResult {
   const config = DEFAULT_VALIDATION_CONFIG[mediaType];
   return validateFile(file, config);
 }
 
-/**
- * Get file validation configuration for a media type
- */
 export function getValidationConfig(mediaType: MediaType): FileValidationConfig {
   return DEFAULT_VALIDATION_CONFIG[mediaType];
 }
@@ -83,117 +75,22 @@ export function getFileName(fileData: FileData) {
   );
 }
 
-/**
- * Check if file is an image and validate dimensions
- */
 export function validateImageDimensions(file: File, config: FileValidationConfig): Promise<FileValidationResult> {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith('image/')) {
-      resolve({
-        isValid: false,
-        errors: ['Tệp không phải là hình ảnh'],
-        file,
-      });
-      return;
-    }
-
-    const img = new Image();
-    const canvas = document.createElement('canvas');
-
-    img.onload = () => {
-      const errors: string[] = [];
-
-      if (config.minWidth && img.width < config.minWidth) {
-        errors.push(`Chiều rộng hình ảnh phải ít nhất ${config.minWidth}px`);
-      }
-
-      if (config.maxWidth && img.width > config.maxWidth) {
-        errors.push(`Chiều rộng hình ảnh không được vượt quá ${config.maxWidth}px`);
-      }
-
-      if (config.minHeight && img.height < config.minHeight) {
-        errors.push(`Chiều cao hình ảnh phải ít nhất ${config.minHeight}px`);
-      }
-
-      if (config.maxHeight && img.height > config.maxHeight) {
-        errors.push(`Chiều cao hình ảnh không được vượt quá ${config.maxHeight}px`);
-      }
-
-      resolve({
-        isValid: errors.length === 0,
-        errors,
-        file,
-      });
-
-      // Cleanup
-      canvas.remove();
-    };
-
-    img.onerror = () => {
-      resolve({
-        isValid: false,
-        errors: ['Không thể tải hình ảnh để xác thực'],
-        file,
-      });
-      canvas.remove();
-    };
-
-    img.src = URL.createObjectURL(file);
+  return Promise.resolve({
+    isValid: false,
+    errors: ['Tính năng kiểm tra kích thước hình ảnh không hỗ trợ trên mobile'],
+    file,
   });
 }
 
-/**
- * Check if file is a video and validate duration
- */
 export function validateVideoDuration(file: File, config: FileValidationConfig): Promise<FileValidationResult> {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith('video/')) {
-      resolve({
-        isValid: false,
-        errors: ['Tệp không phải là video'],
-        file,
-      });
-      return;
-    }
-
-    const video = document.createElement('video');
-
-    video.onloadedmetadata = () => {
-      const errors: string[] = [];
-
-      if (config.maxDuration && video.duration > config.maxDuration) {
-        const maxDurationMin = Math.floor(config.maxDuration / 60);
-        errors.push(`Thời lượng video không được vượt quá ${maxDurationMin} phút`);
-      }
-
-      resolve({
-        isValid: errors.length === 0,
-        errors,
-        file,
-      });
-
-      // Cleanup
-      video.remove();
-      URL.revokeObjectURL(video.src);
-    };
-
-    video.onerror = () => {
-      resolve({
-        isValid: false,
-        errors: ['Không thể tải video để xác thực'],
-        file,
-      });
-      video.remove();
-      URL.revokeObjectURL(video.src);
-    };
-
-    video.src = URL.createObjectURL(file);
+  return Promise.resolve({
+    isValid: false,
+    errors: ['Tính năng kiểm tra thời lượng video không hỗ trợ trên mobile'],
+    file,
   });
 }
 
-/**
- * Format file size for display
- */
 export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
 
@@ -204,16 +101,10 @@ export function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-/**
- * Get file extension from filename
- */
 export function getFileExtension(filename: string): string {
   return '.' + filename.split('.').pop()?.toLowerCase() || '';
 }
 
-/**
- * Check if file type is supported by media type
- */
 export function isFileTypeSupported(file: File, mediaType: MediaType): boolean {
   const config = DEFAULT_VALIDATION_CONFIG[mediaType];
 
@@ -225,9 +116,6 @@ export function isFileTypeSupported(file: File, mediaType: MediaType): boolean {
   });
 }
 
-/**
- * Generate a unique file ID based on file properties
- */
 export function generateFileId(file: File): string {
   return `${file.name}-${file.size}-${file.lastModified}`;
 }
