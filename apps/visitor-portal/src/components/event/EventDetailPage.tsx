@@ -226,6 +226,7 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
         {order && (
           <Alert
             className={cn(
+              'flex',
               order.status === PaymentStatusEnum.Success
                 ? 'border-green-200 bg-green-50'
                 : order.status === PaymentStatusEnum.Canceled
@@ -233,7 +234,7 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
                   : 'border-blue-200 bg-blue-50'
             )}
           >
-            <div className="flex items-center gap-2 w-full">
+            <div className="flex flex-1 items-center gap-2">
               {order.status === PaymentStatusEnum.Success && <CheckCircle className="h-4 w-4 text-green-600" />}
               {order.status === PaymentStatusEnum.Pending && <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />}
               {order.status === PaymentStatusEnum.Canceled && <AlertCircle className="h-4 w-4 text-red-600" />}
@@ -260,9 +261,9 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
           {/* Event Details - Left Side */}
           <div className="lg:col-span-2 space-y-6">
             {/* Event Image */}
-            {event.metadata?.images?.[0] && (
+            {event.metadata?.thumbnail?.[0] && (
               <div className="relative aspect-video rounded-lg overflow-hidden">
-                <Image src={event.metadata.images[0]} alt={event.title} fill className="object-cover" unoptimized />
+                <Image src={event.metadata?.thumbnail[0]} alt={event.title} fill className="object-cover" unoptimized />
               </div>
             )}
 

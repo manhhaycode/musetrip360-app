@@ -24,6 +24,7 @@ import {
   createEventRoom,
   getEventParticipants,
   getUserEventParticipants,
+  searchEvents,
 } from '../endpoints';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';
@@ -40,6 +41,15 @@ export function useGetEventsByMuseumId(
       ...options,
     }
   );
+}
+
+export function useSearchEvents(
+  params: EventSearchParams,
+  options?: CustomQueryOptions<PaginatedResponse<Event>['data']>
+) {
+  return useQuery([eventManagementCacheKeys.events(), params], () => searchEvents(params), {
+    ...options,
+  });
 }
 
 export function useGetEventById(id: string, options?: CustomQueryOptions<Event>) {

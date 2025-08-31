@@ -8,8 +8,9 @@ import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
-import { Calendar, CreditCard, Package, Ticket, Users, Clock, MapPin, User, Star, Info } from 'lucide-react';
+import { Calendar, CreditCard, Package, Ticket, Users, Clock, MapPin, User, Star, Info, Eye } from 'lucide-react';
 import get from 'lodash/get';
+import { useRouter } from 'next/navigation';
 
 const getStatusBadgeVariant = (status: PaymentStatusEnum) => {
   switch (status) {
@@ -73,6 +74,7 @@ const formatCurrency = (amount: number) => {
 const PAGE_SIZE = 20;
 
 export function OrderListPage() {
+  const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStatus, setSelectedStatus] = useState<PaymentStatusEnum | undefined>();
   const [selectedType, setSelectedType] = useState<OrderTypeEnum | undefined>();
@@ -96,6 +98,10 @@ export function OrderListPage() {
   const handleTypeChange = (value: string) => {
     setSelectedType(value === 'all' ? undefined : (value as OrderTypeEnum));
     setCurrentPage(1);
+  };
+
+  const handleViewOrderDetails = (orderId: string) => {
+    router.push(`/orders/${orderId}`);
   };
 
   if (isLoading) {
@@ -350,6 +356,10 @@ export function OrderListPage() {
                         Thanh toán
                       </Button>
                     )}
+                    <Button onClick={() => handleViewOrderDetails(order.id)} variant="ghost" size="sm">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Chi tiết
+                    </Button>
                   </div>
                 </div>
 

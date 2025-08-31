@@ -12,6 +12,8 @@ const getMediaTypeText = (mediaType: MediaType) => {
     Image: 'hình ảnh',
     Video: 'video',
     Document: 'tài liệu',
+    Audio: 'âm thanh',
+    Model3D: 'mô hình 3D',
   };
   return mediaTypeText[mediaType] || mediaType.toLowerCase();
 };

@@ -10,6 +10,7 @@ import { cn } from '@musetrip360/ui-core/utils';
 import {
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   Calendar,
   CheckCircle,
   Clock,
@@ -32,6 +33,7 @@ export function OrderStatusComponent({ pageType, className }: OrderStatusCompone
   const searchParams = useSearchParams();
 
   const orderCode = searchParams.get('orderCode');
+  const continueUrl = searchParams.get('continueURL');
 
   const {
     data: order,
@@ -356,6 +358,13 @@ export function OrderStatusComponent({ pageType, className }: OrderStatusCompone
               <Link href="/">
                 <Button leftIcon={<Home className="h-4 w-4 mr-2" />}>Về trang chủ</Button>
               </Link>
+              {continueUrl && (
+                <Link href={continueUrl}>
+                  <Button variant="outline" leftIcon={<ArrowRight className="h-4 w-4 mr-2" />}>
+                    Tiếp tục trải nghiệm
+                  </Button>
+                </Link>
+              )}
               {order.orderType === 'Event' && (
                 <Link href="/events">
                   <Button variant="outline" leftIcon={<Calendar className="h-4 w-4 mr-2" />}>

@@ -10,7 +10,7 @@ import {
 
 import { OrderSearchParams, CreateOrder, Order, OrderMetadata } from '@/types';
 
-import { createOrder, getOrders, getAdminOrders, getOrderById, getOrderByCode } from '../endpoints';
+import { createOrder, getOrders, getAdminOrders, getOrderById, getOrderByCode, checkOrderExisted } from '../endpoints';
 import { orderManagementCacheKeys } from '../cache/cacheKeys';
 
 export function useGetOrders(params: OrderSearchParams, options?: CustomQueryOptions<PaginatedResponse<Order>>) {
@@ -37,6 +37,12 @@ export function useGetOrderById(id: string, options?: CustomQueryOptions<Order>)
 
 export function useGetOrderByCode(code: string, options?: CustomQueryOptions<Order>) {
   return useQuery(orderManagementCacheKeys.detail(code), () => getOrderByCode(code), {
+    ...options,
+  });
+}
+
+export function useCheckOrderExisted(id: string, options?: CustomQueryOptions<boolean>) {
+  return useQuery(orderManagementCacheKeys.checkExisted(id), () => checkOrderExisted(id), {
     ...options,
   });
 }

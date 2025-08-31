@@ -48,6 +48,9 @@ export class OrderManagementCacheKeys extends BaseCacheKeyFactory {
       params.status,
     ];
   }
+  checkExisted(id: string): QueryKey {
+    return [this.prefix, 'checkExisted', id];
+  }
 }
 
 /**

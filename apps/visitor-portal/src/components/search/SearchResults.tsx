@@ -32,6 +32,15 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
     if (item.type === 'Museum') {
       router.push(`/museum/${item.id}`);
     }
+    if (item.type === 'Artifact') {
+      router.push(`/artifact/${item.id}`);
+    }
+    if (item.type === 'Event') {
+      router.push(`/event/${item.id}`);
+    }
+    if (item.type === 'TourOnline') {
+      router.push(`/virtual-tour/${item.id}`);
+    }
     // TODO: Add navigation for other types when their detail pages are ready
   };
 
@@ -156,7 +165,7 @@ export function SearchResults({ results, isLoading = false, error }: SearchResul
             <div className="relative">
               {item.thumbnail ? (
                 <Image
-                  src={item.thumbnail}
+                  src={item.thumbnail.trim()}
                   alt={item.title}
                   width={400}
                   height={192}

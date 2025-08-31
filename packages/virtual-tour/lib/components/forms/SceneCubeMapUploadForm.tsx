@@ -10,13 +10,13 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Form } from '@musetrip360/ui-core/form';
 import { Loader2, Upload } from 'lucide-react';
 
+import { PanoramaSphere } from '@/canvas';
 import { useStudioStore } from '@/store';
 import { FACE_LABELS, FaceName } from '@/types/cubemap';
 import { useBulkUpload } from '@musetrip360/shared';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { PanoramaSphere } from '@/canvas';
 
 // Form schema for cube map upload
 export const sceneCubeMapUploadSchema = z
@@ -145,6 +145,8 @@ export function SceneCubeMapUploadForm({
           ],
         },
       });
+    } catch (error) {
+      console.error('Failed to upload cubemap:', error);
     } finally {
       setDisable(false);
     }

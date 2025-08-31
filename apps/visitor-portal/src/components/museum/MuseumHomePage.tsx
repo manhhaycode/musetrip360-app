@@ -10,6 +10,7 @@ import { MuseumIntroTab } from './MuseumIntroTab';
 import { MuseumArtifactsTab } from './MuseumArtifactsTab';
 import { MuseumEventsTab } from './MuseumEventsTab';
 import { MuseumArticlesTab } from './MuseumArticlesTab';
+import { MuseumVirtualToursTab } from './MuseumVirtualToursTab';
 import { MuseumFeedbackTab } from './MuseumFeedbackTab';
 
 interface MuseumHomePageProps {
@@ -98,7 +99,7 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             <TabsTrigger value="articles" className="text-sm">
               Bài viết
             </TabsTrigger>
-            <TabsTrigger value="tours" className="text-sm">
+            <TabsTrigger value="virtual-tours" className="text-sm">
               Tour ảo
             </TabsTrigger>
             <TabsTrigger value="feedback" className="text-sm">
@@ -122,15 +123,8 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             <MuseumArticlesTab museumId={museumId} />
           </TabsContent>
 
-          <TabsContent value="tours" className="mt-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="text-center py-12">
-                  <h3 className="text-lg font-semibold mb-2">Tour ảo</h3>
-                  <p className="text-muted-foreground">Tour ảo 3D sẽ được hiển thị ở đây</p>
-                </div>
-              </CardContent>
-            </Card>
+          <TabsContent value="virtual-tours" className="mt-6">
+            <MuseumVirtualToursTab museumId={museumId} />
           </TabsContent>
 
           <TabsContent value="feedback" className="mt-6">

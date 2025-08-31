@@ -1,10 +1,12 @@
 'use client';
 
 import { useStaggeredAnimation } from '@/hooks/useScrollAnimation';
+import { useMuseums } from '@musetrip360/museum-management/api';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent } from '@musetrip360/ui-core/card';
-import { ArrowRight, Camera, Clock, Eye, History, MapPin, Microscope, Palette, Star, Users } from 'lucide-react';
+import { ArrowRight, Eye, History, MapPin, Microscope, Palette, Star } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const museums = [
   {
@@ -94,7 +96,38 @@ const museums = [
 ];
 
 export function FeaturedMuseums() {
-  const { ref, visibleItems } = useStaggeredAnimation(museums.length, 150);
+  const router = useRouter();
+
+  // Fetch real museums data
+  const { data: museumsData, isLoading } = useMuseums({
+    Page: 1,
+    PageSize: 6,
+    Status: 'Active', // Only show active museums
+  });
+
+  // Use real data if available, fallback to fake data for layout preservation
+  const displayMuseums =
+    museumsData?.data && museumsData.data.list.length
+      ? museumsData.data.list.map((museum, index) => ({
+          id: museum.id,
+          name: museum.name,
+          location: museum.location || 'Địa chỉ chưa cập nhật',
+          category: museum.categories?.[0]?.name || 'Bảo tàng',
+          categoryIcon:
+            museum.categories?.[0]?.name === 'Art'
+              ? Palette
+              : museum.categories?.[0]?.name === 'Science'
+                ? Microscope
+                : museum.categories?.[0]?.name === 'History'
+                  ? History
+                  : Palette,
+          rating: museum.rating || 4.5,
+          image: museums[index % museums.length]?.image || 'bg-gradient-to-br from-gray-400 to-gray-500',
+          description: museum.description || museum.name,
+        }))
+      : museums;
+
+  const { ref, visibleItems } = useStaggeredAnimation(displayMuseums.length, 150);
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -152,108 +185,127 @@ export function FeaturedMuseums() {
 
         {/* Museums Grid */}
         <div ref={ref} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {museums.map((museum, index) => {
-            const CategoryIcon = museum.categoryIcon;
-            const isVisible = visibleItems.includes(index);
-
-            return (
-              <Card
-                key={museum.id}
-                className={`group cursor-pointer hover:shadow-xl transition-all duration-500 ${
-                  isVisible ? 'animate-slide-up opacity-100' : 'opacity-0'
-                }`}
-                style={{
-                  transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
-                }}
-              >
-                <CardContent className="p-0">
-                  {/* Museum Image/Preview */}
-                  <div className={`relative h-48 ${museum.image} overflow-hidden`}>
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
-
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
-                      <Badge className={getCategoryColor(museum.category)}>
-                        <CategoryIcon className="mr-1 h-3 w-3" />
-                        {museum.category}
-                      </Badge>
+          {isLoading
+            ? // Loading skeleton
+              Array.from({ length: 6 }).map((_, index) => (
+                <Card key={`skeleton-${index}`} className="animate-pulse">
+                  <CardContent className="p-0">
+                    <div className="h-48 bg-gray-200 dark:bg-gray-700" />
+                    <div className="p-6 space-y-4">
+                      <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2" />
                     </div>
+                  </CardContent>
+                </Card>
+              ))
+            : displayMuseums.map((museum, index) => {
+                const CategoryIcon = museum.categoryIcon;
+                const isVisible = visibleItems.includes(index);
 
-                    {/* Rating */}
-                    <div className="absolute top-4 right-4 flex items-center bg-white/90 dark:bg-gray-900/90 px-2 py-1 rounded-full shadow-sm">
-                      <Star className="h-3 w-3 text-yellow-500 fill-current mr-1" />
-                      <span className="text-xs font-medium">{museum.rating}</span>
-                    </div>
+                return (
+                  <Card
+                    key={museum.id}
+                    className={`group cursor-pointer hover:shadow-xl transition-all duration-500 ${
+                      isVisible ? 'animate-slide-up opacity-100' : 'opacity-0'
+                    }`}
+                    style={{
+                      transitionDelay: isVisible ? `${index * 150}ms` : '0ms',
+                    }}
+                  >
+                    <CardContent className="p-0">
+                      {/* Museum Image/Preview */}
+                      <div className={`relative h-48 ${museum.image} overflow-hidden`}>
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors duration-300" />
 
-                    {/* Feature Badges */}
-                    <div className="absolute bottom-4 left-4 flex flex-wrap gap-1">
-                      {museum.features.map((feature) => (
-                        <Badge key={feature} variant="secondary" className={`${getFeatureBadgeColor(feature)} text-sm`}>
-                          {feature === '360° VR' && <Eye className="mr-1 h-2 w-2" />}
-                          {feature === 'AR Ready' && <Camera className="mr-1 h-2 w-2" />}
-                          {feature === 'Interactive' && <Users className="mr-1 h-2 w-2" />}
-                          {feature}
-                        </Badge>
-                      ))}
-                    </div>
+                        {/* Category Badge */}
+                        <div className="absolute top-4 left-4">
+                          <Badge className={getCategoryColor(museum.category)}>
+                            <CategoryIcon className="mr-1 h-3 w-3" />
+                            {museum.category}
+                          </Badge>
+                        </div>
 
-                    {/* Play Button */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Button
-                        size="sm"
-                        className="rounded-full bg-white/90 text-gray-900 hover:bg-white hover:scale-110 transition-all duration-300"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                        {/* Rating */}
+                        <div className="absolute top-4 right-4 flex items-center bg-white/90 dark:bg-gray-900/90 px-2 py-1 rounded-full shadow-sm">
+                          <Star className="h-3 w-3 text-yellow-500 fill-current mr-1" />
+                          <span className="text-xs font-medium">{museum.rating}</span>
+                        </div>
 
-                  {/* Museum Info */}
-                  <div className="p-6 space-y-4">
-                    <div>
-                      <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
-                        {museum.name}
-                      </h3>
-                      <p className="text-sm text-muted-foreground flex items-center">
-                        <MapPin className="mr-1 h-3 w-3" />
-                        {museum.location}
-                      </p>
-                    </div>
+                        {/* Feature Badges */}
+                        {/* <div className="absolute bottom-4 left-4 flex flex-wrap gap-1">
+                          {museum.features.map((feature) => (
+                            <Badge
+                              key={feature}
+                              variant="secondary"
+                              className={`${getFeatureBadgeColor(feature)} text-sm`}
+                            >
+                              {feature === '360° VR' && <Eye className="mr-1 h-2 w-2" />}
+                              {feature === 'AR Ready' && <Camera className="mr-1 h-2 w-2" />}
+                              {feature === 'Interactive' && <Users className="mr-1 h-2 w-2" />}
+                              {feature}
+                            </Badge>
+                          ))}
+                        </div> */}
 
-                    <p className="text-sm text-muted-foreground line-clamp-2">{museum.description}</p>
-
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Clock className="mr-1 h-3 w-3" />
-                        {museum.openTime}
+                        {/* Play Button */}
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <Button
+                            size="sm"
+                            className="rounded-full bg-white/90 text-gray-900 hover:bg-white hover:scale-110 transition-all duration-300"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Users className="mr-1 h-3 w-3" />
-                        {museum.visitors} đã xem
-                      </div>
-                    </div>
 
-                    {/* Price and CTA */}
-                    <div className="flex items-center justify-between pt-2">
-                      <div>
-                        <span className="text-lg font-semibold text-primary">{museum.price}</span>
-                        <span className="text-sm text-muted-foreground ml-1">/ tour</span>
+                      {/* Museum Info */}
+                      <div className="p-6 space-y-4">
+                        <div>
+                          <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
+                            {museum.name}
+                          </h3>
+                          <p className="text-sm text-muted-foreground flex items-center">
+                            <MapPin className="mr-1 h-3 w-3" />
+                            {museum.location}
+                          </p>
+                        </div>
+
+                        <p className="text-sm text-muted-foreground line-clamp-2">{museum.description}</p>
+
+                        {/* Stats Grid */}
+                        {/* <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="mr-1 h-3 w-3" />
+                            {museum.openTime}
+                          </div>
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Users className="mr-1 h-3 w-3" />
+                            {museum.visitors} đã xem
+                          </div>
+                        </div> */}
+
+                        {/* Price and CTA */}
+                        <div className="flex items-center justify-between pt-2">
+                          {/* <div>
+                            <span className="text-lg font-semibold text-primary">{museum.price}</span>
+                            <span className="text-sm text-muted-foreground ml-1">/ tour</span>
+                          </div> */}
+                          <Button
+                            size="sm"
+                            className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
+                            onClick={() => router.push(`/museum/${museum.id}`)}
+                          >
+                            Xem tour
+                            <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </div>
                       </div>
-                      <Button
-                        size="sm"
-                        className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors"
-                      >
-                        Xem tour
-                        <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+                    </CardContent>
+                  </Card>
+                );
+              })}
         </div>
 
         {/* View All CTA */}

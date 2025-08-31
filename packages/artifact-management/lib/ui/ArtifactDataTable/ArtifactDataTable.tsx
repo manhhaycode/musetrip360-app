@@ -43,6 +43,26 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
     return Array.from(uniquePeriods).map((period) => ({ label: period, value: period }));
   }, [filterOptions]);
 
+  const filteredArtifactTypes: Option[] = useMemo(() => {
+    const uniqueTypes = new Set<string>();
+    filterOptions?.list.forEach((artifact) => {
+      if (artifact.metadata.type) {
+        uniqueTypes.add(artifact.metadata.type);
+      }
+    });
+    return Array.from(uniqueTypes).map((type) => ({ label: type, value: type }));
+  }, [filterOptions]);
+
+  const filteredArtifactMaterials: Option[] = useMemo(() => {
+    const uniqueMaterials = new Set<string>();
+    filterOptions?.list.forEach((artifact) => {
+      if (artifact.metadata.material) {
+        uniqueMaterials.add(artifact.metadata.material);
+      }
+    });
+    return Array.from(uniqueMaterials).map((material) => ({ label: material, value: material }));
+  }, [filterOptions]);
+
   const tableState = useDataTableState({ defaultPerPage: 10, defaultSort: [{ id: 'name', desc: false }] });
 
   const {
@@ -50,16 +70,16 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
     isLoading: loadingArtifacts,
     refetch: refetchArtifacts,
   } = useArtifactsByMuseum({
-    Page: tableState.pagination.pageIndex + 1,
-    PageSize: tableState.pagination.pageSize,
-    sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
-    Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
-    HistoricalPeriods:
-      (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
-    museumId: museumId || '',
-    // Page: 1,
-    // PageSize: 10000,
+    // Page: tableState.pagination.pageIndex + 1,
+    // PageSize: tableState.pagination.pageSize,
+    // sortList: tableState.sorting.map((columnSort) => `${columnSort.id}_${columnSort.desc ? 'desc' : 'asc'}`),
+    // Search: (tableState.columnFilters.find((filter) => filter.id === 'name')?.value as string) || '',
+    // HistoricalPeriods:
+    //   (tableState.columnFilters.find((filter) => filter.id === 'historicalPeriod')?.value as string[]) || [],
     // museumId: museumId || '',
+    Page: 1,
+    PageSize: 10000,
+    museumId: museumId || '',
   });
 
   // Activate/Deactivate mutations
@@ -179,12 +199,30 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
         ),
       },
       {
+        meta: {
+          variant: 'multiSelect',
+          placeholder: 'Filter types',
+          label: 'Artifact Type',
+          isSortable: true,
+          unit: '',
+          options: filteredArtifactTypes,
+        },
+        filterFn: 'arrIncludesSome',
         accessorKey: 'metadata.type',
         header: 'Type',
         enableSorting: true,
         cell: ({ row }) => <Badge variant="outline">{row.original.metadata.type}</Badge>,
       },
       {
+        meta: {
+          variant: 'multiSelect',
+          placeholder: 'Filter materials',
+          label: 'Artifact Material',
+          isSortable: true,
+          unit: '',
+          options: filteredArtifactMaterials,
+        },
+        filterFn: 'arrIncludesSome',
         accessorKey: 'metadata.material',
         header: 'Material',
         enableSorting: true,
@@ -254,8 +292,8 @@ const ArtifactMuseumDataTable = ({ museumId }: { museumId: string }) => {
   const { table } = useDataTable<Artifact, string>({
     data: artifactsData?.list || initialData,
     columns,
-    rowCount: artifactsData?.total,
-    manualHandle: true,
+    // rowCount: artifactsData?.total,
+    // manualHandle: true,
     getRowId: (row) => row.id.toString(),
     ...tableState,
   });

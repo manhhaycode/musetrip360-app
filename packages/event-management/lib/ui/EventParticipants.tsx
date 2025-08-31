@@ -1,12 +1,11 @@
 'use client';
 
-import { useMemo, useCallback, useState } from 'react';
-import { ColumnDef } from '@tanstack/react-table';
+import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent } from '@musetrip360/ui-core/card';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
-import { DataTable, DataTableToolbar, useDataTable, useDataTableState, Option } from '@musetrip360/ui-core/data-table';
+import { DataTable, DataTableToolbar, Option, useDataTable, useDataTableState } from '@musetrip360/ui-core/data-table';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,30 +14,31 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
-import { toast } from '@musetrip360/ui-core/sonner';
 import { Progress } from '@musetrip360/ui-core/progress';
-import {
-  Crown,
-  User,
-  GraduationCap,
-  Star,
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Mail,
-  UserCheck,
-  Clock,
-  UserX,
-  Users,
-  UserPlus,
-  Download,
-} from 'lucide-react';
+import { toast } from '@musetrip360/ui-core/sonner';
+import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
 import {
-  useGetEventParticipantsByEvent,
+  Clock,
+  Crown,
+  Download,
+  Edit,
+  GraduationCap,
+  Mail,
+  MoreHorizontal,
+  Star,
+  Trash2,
+  User,
+  UserCheck,
+  UserPlus,
+  UserX,
+  Users,
+} from 'lucide-react';
+import { useCallback, useMemo, useState } from 'react';
+import {
   useDeleteEventParticipant,
+  useGetEventParticipantsByEvent,
   useUpdateEventParticipant,
 } from '../api/hooks/useEventParticipant';
 import type { Event, EventParticipant } from '../types';
@@ -124,7 +124,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   });
 
   // API integration (client-side filtering only)
-  const { data: participants = [], isLoading, refetch } = useGetEventParticipantsByEvent(event.id);
+  const { data: participants, isLoading, refetch } = useGetEventParticipantsByEvent(event.id);
 
   // Mutations
   const { mutate: deleteParticipant } = useDeleteEventParticipant({
@@ -313,7 +313,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
 
   // Setup data table
   const { table } = useDataTable<EventParticipant, string>({
-    data: participants || initialData,
+    data: participants?.list || initialData,
     columns,
     getRowId: (row) => row.id.toString(),
     ...tableState,
@@ -321,10 +321,10 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
 
   // Calculate metrics
   const metrics = useMemo(() => {
-    const total = participants.length;
-    const confirmed = participants.filter((p: EventParticipant) => p.status === 'Confirmed').length;
-    const pending = participants.filter((p: EventParticipant) => p.status === 'Pending').length;
-    const cancelled = participants.filter((p: EventParticipant) => p.status === 'Cancelled').length;
+    const total = participants?.list.length;
+    const confirmed = participants?.list.filter((p: EventParticipant) => p.status === 'Confirmed').length || 0;
+    const pending = participants?.list.filter((p: EventParticipant) => p.status === 'Pending').length || 0;
+    const cancelled = participants?.list.filter((p: EventParticipant) => p.status === 'Cancelled').length || 0;
     const capacity = event.capacity || 100;
     const availableSlots = capacity - confirmed;
     const capacityPercentage = (confirmed / capacity) * 100;
