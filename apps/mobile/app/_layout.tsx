@@ -5,7 +5,7 @@ import React from 'react';
 import 'react-native-reanimated';
 import '../global.css';
 
-import { useIsAuthenticated } from '@musetrip360/auth-system';
+import { useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { AppProvider } from '../src/providers/AppProvider';
 import LoginScreen from './auth/LoginScreen';
 

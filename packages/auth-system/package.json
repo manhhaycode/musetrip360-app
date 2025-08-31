@@ -28,10 +28,6 @@
       "types": "./dist/types/ui.d.ts",
       "import": "./dist/es/ui/index.js"
     },
-    "./types": {
-      "types": "./dist/types/types.d.ts",
-      "import": "./dist/es/types/index.js"
-    },
     "./package.json": "./package.json"
   },
   "files": [

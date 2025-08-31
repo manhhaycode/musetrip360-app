@@ -1,5 +1,5 @@
-import { EventStatusEnum, EventTypeEnum } from '@musetrip360/event-management';
 import { useGetEventById, useGetEventsByMuseumId } from '@musetrip360/event-management/api';
+import { EventStatusEnum, EventTypeEnum } from '@musetrip360/event-management/types';
 
 interface EventSearchParams {
   Page?: number;

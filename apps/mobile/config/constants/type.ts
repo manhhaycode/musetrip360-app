@@ -1,4 +1,4 @@
-import { EventStatusEnum, EventTypeEnum, ParticipantRoleEnum } from '@musetrip360/event-management';
+import { EventStatusEnum, EventTypeEnum, ParticipantRoleEnum } from '@musetrip360/event-management/types';
 
 export const EventStatusName = {
   [EventStatusEnum.Draft]: 'Bản nháp',

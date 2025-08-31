@@ -1,5 +1,5 @@
 import { MaterialIcons } from '@expo/vector-icons';
-import { useAuthStore } from '@musetrip360/auth-system';
+import { useAuthStore } from '@musetrip360/auth-system/state';
 import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
