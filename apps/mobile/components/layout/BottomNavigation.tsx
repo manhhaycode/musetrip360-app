@@ -1,4 +1,4 @@
-import { Home, Search, User } from 'lucide-react-native';
+import { Home, MessageCircle, Search, User } from 'lucide-react-native';
 import React from 'react';
 import { Platform, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +25,12 @@ const tabs: TabItem[] = [
     label: 'Tìm kiếm',
     icon: Search,
     href: '/search',
+  },
+  {
+    name: 'chatbot',
+    label: 'Trợ lý ảo',
+    icon: MessageCircle,
+    href: '/chatbot',
   },
   {
     name: 'profile',

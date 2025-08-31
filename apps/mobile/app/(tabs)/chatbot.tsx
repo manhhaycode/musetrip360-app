@@ -1,81 +1,249 @@
-/*import { useCreateConversation, useCreateMessage, useGetConversationMessages } from '@musetrip360/ai-bot/lib/api/hooks/useChat';
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Button, FlatList, KeyboardAvoidingView, Platform, Text, TextInput, View } from 'react-native';
+import { Badge } from '@/components/core/ui/badge';
+import { useChatWithAI } from '@musetrip360/ai-bot/api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Bot, Loader, Send, User } from 'lucide-react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+// Sử dụng className với nativewind, bảng màu tailwind, theme lucid đã được define
+
+const defaultPrompts = [
+  'Tôi muốn tìm hiểu về bảo tàng lịch sử',
+  'Làm thế nào để đặt tour ảo?',
+  'Có những bảo tàng nào nổi tiếng?',
+  'Tính năng VR hoạt động như thế nào?',
+];
+
+// Định nghĩa kiểu dữ liệu tin nhắn
+export type ChatMessage = {
+  id: string;
+  content: string;
+  sender: 'user' | 'bot';
+  timestamp: number;
+};
+
+function AvatarBot() {
+  return (
+    <View className="w-8 h-8 rounded-full bg-primary justify-center items-center mr-2">
+      <Bot size={20} color="#fff" />
+    </View>
+  );
+}
+
+function AvatarUser() {
+  return (
+    <View className="w-8 h-8 rounded-full bg-muted justify-center items-center ml-2">
+      <User size={20} color="#3b82f6" />
+    </View>
+  );
+}
+
+function MarkdownRenderer({ content }: { content: string }) {
+  // TODO: Sử dụng react-native-markdown-display nếu cần render markdown phức tạp
+  return <Text className="text-base text-lucid-foreground">{content}</Text>;
+}
+
+function TypingIndicator() {
+  const [opacities, setOpacities] = useState([1, 0.5, 0.2]);
+  useEffect(() => {
+    let tick = 0;
+    const interval = setInterval(() => {
+      setOpacities([
+        0.2 + 0.8 * Math.abs(Math.sin((tick + 0) * 1.5)),
+        0.2 + 0.8 * Math.abs(Math.sin((tick + 1) * 1.5)),
+        0.2 + 0.8 * Math.abs(Math.sin((tick + 2) * 1.5)),
+      ]);
+      tick += 0.3;
+    }, 120);
+    return () => clearInterval(interval);
+  }, []);
+  return (
+    <View className="flex-row items-center mb-3">
+      <AvatarBot />
+      <View className="flex-row items-center bg-lucid-muted rounded-xl p-3">
+        {[0, 1, 2].map((i) => (
+          <View
+            key={i}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 4,
+              backgroundColor: '#64748b',
+              marginRight: i < 2 ? 2 : 0,
+              opacity: opacities[i],
+            }}
+          />
+        ))}
+      </View>
+    </View>
+  );
+}
 
 export default function ChatbotTab() {
-    const [input, setInput] = useState('');
-    const [conversationId, setConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const flatListRef = useRef<FlatList>(null);
 
-    const createConversation = useCreateConversation();
-    const sendMessage = useCreateMessage();
-    const getMessages = useGetConversationMessages();
+  const { mutate: chatWithAI, isPending } = useChatWithAI({
+    onSuccess: (response: { data?: string }) => {
+      const botMsg: ChatMessage = {
+        id: Date.now().toString(),
+        content: response?.data || 'Bot không trả lời được.',
+        sender: 'bot',
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, botMsg]);
+      setIsTyping(false);
+      saveMessages([...messages, botMsg]);
+    },
+    onError: () => {
+      const botMsg: ChatMessage = {
+        id: Date.now().toString(),
+        content: 'Bot gặp lỗi, vui lòng thử lại.',
+        sender: 'bot',
+        timestamp: Date.now(),
+      };
+      setMessages((prev) => [...prev, botMsg]);
+      setIsTyping(false);
+    },
+  });
 
-    // Tạo conversation mới khi vào tab
-    useEffect(() => {
-        if (!conversationId && !createConversation.isPending) {
-            createConversation.mutateAsync({ title: 'Chatbot AI' }).then(conv => {
-                setConversationId(conv.id);
-                getMessages.mutate({ conversationId: conv.id, page: 1, pageSize: 20 });
-            });
-        }
-    }, [conversationId]);
+  useEffect(() => {
+    loadMessages();
+  }, []);
 
-    // Gửi tin nhắn
-    const handleSend = async () => {
-        if (!conversationId || input.trim() === '') return;
-        await sendMessage.mutateAsync({ conversationId, content: input });
-        setInput('');
-        getMessages.mutate({ conversationId, page: 1, pageSize: 20 });
+  const saveMessages = async (msgs: ChatMessage[]) => {
+    await AsyncStorage.setItem('chatbot-messages', JSON.stringify(msgs));
+  };
+  const loadMessages = async () => {
+    const raw = await AsyncStorage.getItem('chatbot-messages');
+    if (raw) setMessages(JSON.parse(raw));
+  };
+
+  const formatTime = (timestamp: number) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const userMsg: ChatMessage = {
+      id: Date.now().toString(),
+      content: input,
+      sender: 'user',
+      timestamp: Date.now(),
     };
+    setMessages((prev) => [...prev, userMsg]);
+    saveMessages([...messages, userMsg]);
+    setIsTyping(true);
+    chatWithAI({ prompt: input, isVector: true });
+    setInput('');
+  };
 
-    const messages = getMessages.data?.data?.list || [];
+  const handlePromptClick = (prompt: string) => {
+    setInput(prompt);
+    setTimeout(() => handleSend(), 0);
+  };
 
-    return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
-            <KeyboardAvoidingView
-                style={{ flex: 1 }}
-                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-                keyboardVerticalOffset={80}
+  useEffect(() => {
+    if (flatListRef.current) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages, isTyping]);
+
+  return (
+    <SafeAreaView className="flex-1 bg-background">
+      <KeyboardAvoidingView
+        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={80}
+      >
+        <View className="flex-1 p-4">
+          {/* Header */}
+          <View className="flex-row items-center mb-3">
+            <AvatarBot />
+            <Text className="text-xl font-bold text-primary ml-2">Trợ lý AI MuseTrip</Text>
+            <Badge
+              variant={isPending ? 'secondary' : isTyping ? 'outline' : 'default'}
+              className="ml-2 bg-card border border-card"
             >
-                <View style={{ flex: 1, padding: 16 }}>
-                    <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 12 }}>Chatbot AI</Text>
-                    {getMessages.isPending ? (
-                        <ActivityIndicator size="large" color="#007AFF" style={{ marginTop: 32 }} />
+              <View className="flex-row items-center">
+                {isPending ? (
+                  <Loader size={12} color="#a67c52" />
+                ) : isTyping ? (
+                  <Loader size={12} color="#3b82f6" />
+                ) : (
+                  <Bot size={12} color="#22c55e" />
+                )}
+                <Text className="text-xs text-gray-700 ml-1">
+                  {isPending ? 'Đang tải' : isTyping ? 'Đang nhập' : 'Online'}
+                </Text>
+              </View>
+            </Badge>
+          </View>
+
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View className={`flex-row items-end mb-3 ${item.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                {item.sender === 'bot' && <AvatarBot />}
+                <View className="max-w-[75%]">
+                  <View
+                    className={`rounded-2xl p-3 shadow-md border border-card ${item.sender === 'user' ? 'bg-primary ml-8' : 'bg-card mr-8'}`}
+                  >
+                    {item.sender === 'bot' ? (
+                      <MarkdownRenderer content={item.content} />
                     ) : (
-                        <FlatList
-                            data={messages}
-                            keyExtractor={item => item.id}
-                            renderItem={({ item }) => (
-                                <View style={{ marginBottom: 12, alignSelf: item.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-                                    <Text style={{
-                                        backgroundColor: item.role === 'user' ? '#007AFF' : '#f1f1f1',
-                                        color: item.role === 'user' ? '#fff' : '#222',
-                                        padding: 10,
-                                        borderRadius: 16,
-                                        fontSize: 16,
-                                    }}>
-                                        {item.content}
-                                    </Text>
-                                </View>
-                            )}
-                            inverted
-                            contentContainerStyle={{ flexDirection: 'column-reverse' }}
-                        />
+                      <Text className="text-white text-base">{item.content}</Text>
                     )}
-                    <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 8 }}>
-                        <TextInput
-                            value={input}
-                            onChangeText={setInput}
-                            placeholder="Nhập tin nhắn..."
-                            style={{ flex: 1, borderWidth: 1, borderColor: '#ccc', borderRadius: 16, padding: 10, marginRight: 8 }}
-                            editable={!sendMessage.isPending}
-                        />
-                        <Button title="Gửi" onPress={handleSend} disabled={sendMessage.isPending || input.trim() === ''} />
-                    </View>
+                  </View>
+                  <Text className={`text-xs text-gray-500 mt-1 ${item.sender === 'user' ? 'text-right' : 'text-left'}`}>
+                    {formatTime(item.timestamp)}
+                  </Text>
                 </View>
-            </KeyboardAvoidingView>
-        </SafeAreaView>
-    );
+                {item.sender === 'user' && <AvatarUser />}
+              </View>
+            )}
+            ListFooterComponent={isTyping ? <TypingIndicator /> : null}
+          />
+
+          {messages.length === 0 && (
+            <View className="mt-6">
+              <Text className="text-center text-gray-400 mb-2">Bắt đầu cuộc trò chuyện với AI Assistant</Text>
+              {defaultPrompts.map((prompt, idx) => (
+                <TouchableOpacity
+                  key={idx}
+                  onPress={() => handlePromptClick(prompt)}
+                  className="p-3 border border-card rounded-xl mb-2 bg-card"
+                >
+                  <Text className="text-primary">{prompt}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+
+          <View className="flex-row items-center mt-2 bg-card rounded-2xl p-2 shadow-sm border border-card">
+            <TextInput
+              value={input}
+              onChangeText={setInput}
+              placeholder="Nhập tin nhắn..."
+              className="flex-1 border-0 rounded-xl p-2 mr-2 bg-white text-gray-900"
+              editable={!isPending && !isTyping}
+            />
+            <TouchableOpacity
+              onPress={handleSend}
+              disabled={isPending || isTyping || input.trim() === ''}
+              className="bg-primary py-2 px-4 rounded-xl flex-row items-center"
+            >
+              <Text className="text-white font-bold mr-2">Gửi</Text>
+              <Send size={18} color="#fff" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
 }
-*/
