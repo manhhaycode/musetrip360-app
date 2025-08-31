@@ -2,6 +2,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '@musetrip360/auth-system/state';
 import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { User } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -69,104 +70,108 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 pt-8 pb-6 bg-card rounded-2xl shadow-lg">
+      <View className="px-4 pt-8 pb-6 bg-white rounded-2xl shadow-lg">
         <View className="items-center mb-4">
           {profile?.avatarUrl ? (
             <Image source={{ uri: profile.avatarUrl }} className="w-20 h-20 rounded-full mb-2" />
           ) : (
             <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-2">
-              <MaterialIcons name="person" size={64} color="#fff" />
+              <User size={64} color="#fff" />
             </View>
           )}
         </View>
         <Text className="text-xl font-bold mb-4 text-primary">Thông tin cá nhân</Text>
-        <View className="flex-row items-center mb-3 w-full justify-between">
-          <Text className="text-base font-semibold text-muted-foreground w-32">Username:</Text>
-          <Text className="text-base text-foreground flex-1 text-right">{profile?.username || '-'}</Text>
-        </View>
-        <View className="flex-row items-center mb-3 w-full justify-between">
-          <Text className="text-base font-semibold text-muted-foreground w-32">Họ tên:</Text>
+        {/* Họ tên */}
+        <View className="mb-3 w-full">
+          <Text className="text-base font-semibold text-muted-foreground mb-1">Họ tên:</Text>
           {editMode ? (
             <TextInput
-              className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
+              className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
               value={fullName}
               onChangeText={setFullName}
               placeholder="Nhập họ tên"
-              placeholderTextColor="var(--muted-foreground)"
+              placeholderTextColor="#888"
             />
           ) : (
-            <Text className="text-base text-foreground flex-1 text-right">{profile?.fullName || '-'}</Text>
+            <Text className="text-base text-foreground w-full text-left">{profile?.fullName || '-'}</Text>
           )}
         </View>
-        <View className="flex-row items-center mb-3 w-full justify-between">
-          <Text className="text-base font-semibold text-muted-foreground w-32">Email:</Text>
-          <Text className="text-base text-foreground flex-1 text-right">{profile?.email || '-'}</Text>
+        {/* Email */}
+        <View className="mb-3 w-full">
+          <Text className="text-base font-semibold text-muted-foreground mb-1">Email:</Text>
+          <Text className="text-base text-foreground w-full text-left">{profile?.email || '-'}</Text>
         </View>
-        <View className="flex-row items-center mb-3 w-full justify-between">
-          <Text className="text-base font-semibold text-muted-foreground w-32">Số điện thoại:</Text>
+        {/* Số điện thoại */}
+        <View className="mb-3 w-full">
+          <Text className="text-base font-semibold text-muted-foreground mb-1">Số điện thoại:</Text>
           {editMode ? (
             <TextInput
-              className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
+              className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               placeholder="Nhập số điện thoại"
               keyboardType="phone-pad"
-              placeholderTextColor="var(--muted-foreground)"
+              placeholderTextColor="#888"
             />
           ) : (
-            <Text className="text-base text-foreground flex-1 text-right">{profile?.phoneNumber || '-'}</Text>
+            <Text className="text-base text-foreground w-full text-left">{profile?.phoneNumber || '-'}</Text>
           )}
         </View>
-        <View className="flex-row items-center mb-3 w-full justify-between">
-          <Text className="text-base font-semibold text-muted-foreground w-32">Ngày sinh:</Text>
+        {/* Ngày sinh */}
+        <View className="mb-3 w-full">
+          <Text className="text-base font-semibold text-muted-foreground mb-1">Ngày sinh:</Text>
           {editMode ? (
-            <>
-              <TouchableOpacity onPress={() => setShowDatePicker(true)} className="flex-1">
-                <View pointerEvents="none">
-                  <TextInput
-                    className="h-10 border border-primary rounded px-3 text-base bg-muted flex-1 text-right"
-                    value={birthDate}
-                    placeholder="dd-mm-yyyy"
-                    editable={false}
-                    placeholderTextColor="var(--muted-foreground)"
-                  />
-                </View>
-              </TouchableOpacity>
-              {showDatePicker && (
-                <DateTimePicker
-                  value={birthDate ? parseDate(birthDate) : new Date()}
-                  mode="date"
-                  display="calendar"
-                  onChange={handleDateChange}
+            <TouchableOpacity onPress={() => setShowDatePicker(true)} className="w-full">
+              <View pointerEvents="none">
+                <TextInput
+                  className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
+                  value={birthDate}
+                  placeholder="dd-mm-yyyy"
+                  editable={false}
+                  placeholderTextColor="#888"
                 />
-              )}
-            </>
+              </View>
+            </TouchableOpacity>
           ) : (
-            <Text className="text-base text-foreground flex-1 text-right">
+            <Text className="text-base text-foreground w-full text-left">
               {profile?.birthDate ? formatDate(profile.birthDate) : '-'}
             </Text>
           )}
+          {showDatePicker && (
+            <DateTimePicker
+              value={birthDate ? parseDate(birthDate) : new Date()}
+              mode="date"
+              display="calendar"
+              onChange={handleDateChange}
+            />
+          )}
         </View>
+        {/* Username */}
+        <View className="mb-3 w-full">
+          <Text className="text-base font-semibold text-muted-foreground mb-1">Username:</Text>
+          <Text className="text-base text-foreground w-full text-left">{profile?.username || '-'}</Text>
+        </View>
+        {/* Button */}
         <View className="mt-6 w-full">
           {editMode ? (
             <TouchableOpacity
-              className="py-3 px-6 rounded items-center mb-2 bg-primary"
+              className="py-3 px-6 rounded-xl items-center mb-2 bg-primary"
               onPress={handleSave}
               disabled={updateProfileMutation.isPending}
             >
-              <Text className="text-primary-foreground">Lưu</Text>
+              <Text className="text-primary-foreground text-base font-semibold">Lưu</Text>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              className="py-3 px-6 rounded items-center mb-2 bg-primary"
+              className="py-3 px-6 rounded-xl items-center mb-2 bg-primary"
               onPress={() => setEditMode(true)}
             >
-              <Text className="text-primary-foreground">Chỉnh sửa</Text>
+              <Text className="text-primary-foreground text-base font-semibold">Chỉnh sửa</Text>
             </TouchableOpacity>
           )}
           <View className="h-3" />
-          <TouchableOpacity className="py-3 px-6 rounded items-center bg-destructive" onPress={handleLogout}>
-            <Text className="text-destructive-foreground">Đăng xuất</Text>
+          <TouchableOpacity className="py-3 px-6 rounded-xl items-center bg-destructive" onPress={handleLogout}>
+            <Text className="text-destructive-foreground text-base font-semibold">Đăng xuất</Text>
           </TouchableOpacity>
         </View>
       </View>
