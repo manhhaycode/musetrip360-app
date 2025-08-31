@@ -137,7 +137,6 @@ export const searchUtils = {
     return {
       Search: filters.query || undefined,
       Type: filters.type && filters.type !== 'All' ? filters.type : undefined,
-      Status: 'Active', // Always set to Active
       Page: filters.page || 1,
       PageSize: filters.pageSize || 12,
     };

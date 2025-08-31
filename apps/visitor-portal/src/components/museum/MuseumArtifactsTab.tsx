@@ -22,6 +22,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 
 interface MuseumArtifactsTabProps {
@@ -65,6 +66,7 @@ const getArtifactTypeColor = (type?: string) => {
 };
 
 export function MuseumArtifactsTab({ museumId, className }: MuseumArtifactsTabProps) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [ratingFilter, setRatingFilter] = useState('all');
@@ -176,6 +178,10 @@ export function MuseumArtifactsTab({ museumId, className }: MuseumArtifactsTabPr
     setRatingFilter('all');
     setPeriodFilter('all');
     setPage(1);
+  };
+
+  const handleArtifactClick = (artifactId: string) => {
+    router.push(`/artifact/${artifactId}`);
   };
 
   if (error) {
@@ -365,6 +371,7 @@ export function MuseumArtifactsTab({ museumId, className }: MuseumArtifactsTabPr
                 <Card
                   key={artifact.id}
                   className="group overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-500 cursor-pointer border-0 shadow-lg bg-white h-fit"
+                  onClick={() => handleArtifactClick(artifact.id)}
                 >
                   <div className="relative overflow-hidden">
                     {/* Gradient Overlay */}
@@ -507,6 +514,7 @@ export function MuseumArtifactsTab({ museumId, className }: MuseumArtifactsTabPr
                 <Card
                   key={artifact.id}
                   className="group overflow-hidden hover:shadow-xl transition-all duration-300 cursor-pointer border-0 shadow-md"
+                  onClick={() => handleArtifactClick(artifact.id)}
                 >
                   <div className="flex">
                     <div className="relative w-48 h-32 flex-shrink-0 overflow-hidden">

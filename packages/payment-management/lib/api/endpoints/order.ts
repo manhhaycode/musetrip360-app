@@ -14,6 +14,7 @@ export const orderEndpoints = {
   orders: '/orders',
   orderById: (id: string) => `/orders/${id}`,
   orderByCode: (code: string) => `/orders/code/${code}`,
+  orderExisted: (id: string) => `/orders/item/${id}/verify-order-for-item-exist`,
   admin: '/orders/admin',
 } as const;
 
@@ -44,6 +45,12 @@ export const getOrderByCode = async (code: string) => {
 export const createOrder = async (data: CreateOrder) => {
   const httpClient = getHttpClient();
   const response = await httpClient.post<APIResponse<OrderMetadata>>(orderEndpoints.orders, data);
+  return response.data;
+};
+
+export const checkOrderExisted = async (id: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.post<APIResponse<boolean>>(orderEndpoints.orderExisted(id));
   return response.data;
 };
 

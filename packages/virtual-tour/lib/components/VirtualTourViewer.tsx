@@ -4,7 +4,6 @@ import { InteractiveHotspot } from '@/canvas/InteractiveHotspot';
 import { PanoramaSphere } from '@/canvas/PanoramaSphere';
 import { PolygonSelector } from '@/canvas/PolygonSelect';
 import type { Hotspot, Polygon } from '@/canvas/types';
-import { LoadingErrorDisplay } from '@/ui/ErrorHandling';
 import { PreviewArtifact } from './PreviewArtifact';
 import { SceneNavigationMenu } from './SceneNavigationMenu';
 
@@ -176,12 +175,9 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   if (error) {
     return (
       <div className="virtual-tour-viewer w-full h-full">
-        <LoadingErrorDisplay
-          error={{ message: error } as any}
-          onRetry={() => {
-            setError(null);
-          }}
-        />
+        <div className="flex items-center justify-center h-full">
+          <p className="text-gray-400">{error}</p>
+        </div>
       </div>
     );
   }

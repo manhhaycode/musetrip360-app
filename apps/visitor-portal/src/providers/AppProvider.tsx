@@ -9,7 +9,7 @@ import {
   useIsAuthenticated,
 } from '@musetrip360/auth-system';
 import { UserProvider } from '@musetrip360/user-management';
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { initConfigApp } from '@/config';
 
@@ -41,12 +41,14 @@ function AuthModalWrapper({ children }: { children: React.ReactNode }) {
 
 export default function AppProvider({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={getQueryClient()}>
-      <AuthProvider strictMode={false}>
-        <AuthModalWrapper>
-          <UserProvider strictMode={false}>{children}</UserProvider>
-        </AuthModalWrapper>
-      </AuthProvider>
-    </QueryClientProvider>
+    <Suspense fallback={null}>
+      <QueryClientProvider client={getQueryClient()}>
+        <AuthProvider strictMode={false}>
+          <AuthModalWrapper>
+            <UserProvider strictMode={false}>{children}</UserProvider>
+          </AuthModalWrapper>
+        </AuthProvider>
+      </QueryClientProvider>
+    </Suspense>
   );
 }

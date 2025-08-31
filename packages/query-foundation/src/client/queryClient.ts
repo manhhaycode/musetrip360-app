@@ -220,7 +220,7 @@ export class QueryClientManager {
   private indexedDBStorage: IndexedDBStorage;
   private isOnline: boolean = typeof window !== 'undefined' ? navigator.onLine : true;
   private syncStatus: SyncStatus = 'idle';
-  private syncTimer: NodeJS.Timeout | null = null;
+  private syncTimer: ReturnType<typeof setInterval> | null = null;
   private cacheConfig: QueryCacheConfig;
   private offlineConfig: OfflineQueryConfig;
   private backgroundSyncConfig: BackgroundSyncConfig;

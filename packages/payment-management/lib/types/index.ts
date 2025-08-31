@@ -6,6 +6,8 @@
  */
 import { Pagination } from '@musetrip360/query-foundation';
 import { IUser } from '@musetrip360/user-management/types';
+import { Event } from '@musetrip360/event-management/types';
+import { IVirtualTour } from '@musetrip360/virtual-tour/api';
 
 export type Order = {
   id: string;
@@ -16,20 +18,23 @@ export type Order = {
   createdByUser: IUser;
   createdAt: Date;
   updatedAt: Date;
-  orderEvents?: OrderEvent[];
+  orderEvents: OrderEvent[];
+  orderTours: OrderTour[];
 };
 
-export type OrderEvent = {
+export interface OrderEvent {
   orderId: string;
   eventId: string;
-  event?: {
-    id: string;
-    title: string;
-    description: string;
-    startTime: string;
-    endTime: string;
-  };
-};
+  unitPrice: number;
+  event: Event;
+}
+
+export interface OrderTour {
+  orderId: string;
+  tourId: string;
+  unitPrice: number;
+  tourOnline: IVirtualTour;
+}
 
 export enum PaymentStatusEnum {
   Pending = 'Pending',

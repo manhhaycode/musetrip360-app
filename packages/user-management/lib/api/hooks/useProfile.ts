@@ -5,7 +5,14 @@
  * profile updates, and password changes.
  */
 
-import { useQuery, useMutation, useQueryClient, CustomQueryOptions, APIError } from '@musetrip360/query-foundation';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  CustomQueryOptions,
+  APIError,
+  CustomMutationOptions,
+} from '@musetrip360/query-foundation';
 import { profileEndpoints, profileErrorHandler } from '../endpoints/profile';
 import type { UpdateProfileReq, ChangePasswordReq, IUser } from '@/types';
 import { userCacheKeys } from '../cache/cacheKeys';
@@ -22,11 +29,14 @@ export function useCurrentProfile(options?: CustomQueryOptions<IUser, APIError>)
 /**
  * Hook to update current user profile
  */
-export function useUpdateProfile() {
+export function useUpdateProfile(options?: CustomMutationOptions<IUser, APIError, UpdateProfileReq>) {
   const queryClient = useQueryClient();
 
   return useMutation((profileData: UpdateProfileReq) => profileEndpoints.updateProfile(profileData), {
-    onSuccess: (updatedProfile: IUser) => {
+    onSuccess: (updatedProfile: IUser, variables: UpdateProfileReq, context: unknown) => {
+      if (options?.onSuccess) {
+        options.onSuccess(updatedProfile, variables, context);
+      }
       // Update current profile cache
       queryClient.setQueryData<IUser>(userCacheKeys.profile(), updatedProfile);
 
@@ -46,7 +56,10 @@ export function useUpdateProfile() {
         queryKey: userCacheKeys.privileges(),
       });
     },
-    onError: (error: any) => {
+    onError: (error: any, variables: UpdateProfileReq, context: unknown) => {
+      if (options?.onError) {
+        options.onError(error, variables, context);
+      }
       console.error('Failed to update profile:', profileErrorHandler.handleError(error));
     },
   });
@@ -55,13 +68,19 @@ export function useUpdateProfile() {
 /**
  * Hook to change user password
  */
-export function useChangePassword() {
+export function useChangePassword(options?: CustomMutationOptions<void, APIError, ChangePasswordReq>) {
   return useMutation((passwordData: ChangePasswordReq) => profileEndpoints.changePassword(passwordData), {
-    onSuccess: () => {
+    onSuccess: (data, variables, context) => {
+      if (options?.onSuccess) {
+        options.onSuccess(data, variables, context);
+      }
       // Password change doesn't affect cached data, but might trigger re-auth
       console.log('Password changed successfully');
     },
-    onError: (error: any) => {
+    onError: (error: any, variables: ChangePasswordReq, context: unknown) => {
+      if (options?.onError) {
+        options.onError(error, variables, context);
+      }
       console.error('Failed to change password:', profileErrorHandler.handlePasswordChangeError(error));
     },
   });

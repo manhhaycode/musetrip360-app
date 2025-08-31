@@ -373,7 +373,7 @@ export function FilePreviewCard({
       manualUpload,
       disabled,
       fileData,
-      noAction: true,
+      noAction,
     };
 
     switch (mediaType) {

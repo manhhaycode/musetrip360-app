@@ -102,7 +102,8 @@ export const useStudioStore = create<StudioStore>()(
       description: '',
       rating: 0,
       isActive: false,
-      metadata: { scenes: [] },
+      price: 0,
+      metadata: { scenes: [], richDescription: '' },
       tourContent: [],
     }),
 
@@ -571,7 +572,8 @@ export const useStudioStore = create<StudioStore>()(
           description: '',
           rating: 0,
           isActive: false,
-          metadata: { scenes: [] },
+          price: 0,
+          metadata: { scenes: [], richDescription: '' },
           tourContent: [],
         })
       );
