@@ -1,5 +1,6 @@
 'use client';
 
+import { useCheckOrderExisted } from '@musetrip360/payment-management/api';
 import { Alert, AlertDescription } from '@musetrip360/ui-core/alert';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
@@ -191,10 +192,11 @@ export function VirtualTourDetailPage({ tourId, className }: VirtualTourDetailPa
   const [activeTab, setActiveTab] = useState<'scenes' | 'content'>('scenes');
 
   const { data: tour, isLoading, error } = useVirtualTourById(tourId);
+  const { data: isOrderExisted } = useCheckOrderExisted(tourId);
 
-  const handleSceneClick = (scene: IVirtualTourScene) => {
-    // Navigate to scene viewer - you might need to adjust this route
-    router.push(`/virtual-tour/${tourId}/scene/${scene.sceneId}`);
+  const handleStartTour = () => {
+    // Navigate to virtual tour viewer page
+    router.push(`/virtual-tour/${tourId}/viewer`);
   };
 
   const handleShare = async () => {
@@ -443,17 +445,47 @@ export function VirtualTourDetailPage({ tourId, className }: VirtualTourDetailPa
                 </CardContent>
               </Card>
 
-              {/* Start Tour Button */}
+              {/* Action Buttons */}
               <Card>
-                <CardContent className="p-6">
-                  <Button
-                    size="lg"
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                    onClick={() => mainScenes.length > 0 && handleSceneClick(mainScenes[0]!)}
-                  >
-                    <Play className="h-5 w-5 mr-2" />
-                    Bắt đầu tour ảo
-                  </Button>
+                <CardContent className="p-6 space-y-3">
+                  {isOrderExisted ? (
+                    <>
+                      {/* Tour Access Button - User already purchased */}
+                      <Button
+                        size="lg"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                        onClick={handleStartTour}
+                      >
+                        <Play className="h-5 w-5 mr-2" />
+                        Tham quan tour ảo
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        Bạn đã sở hữu tour này. Nhấn để bắt đầu trải nghiệm đầy đủ.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      {/* Purchase/Start Tour Button */}
+                      <Button
+                        size="lg"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                        onClick={() => router.push(`/virtual-tour/${tourId}/checkout`)}
+                      >
+                        <Play className="h-5 w-5 mr-2" />
+                        Mua & Trải nghiệm tour ảo
+                      </Button>
+
+                      {/* Preview Button */}
+                      <Button size="lg" variant="outline" className="w-full" onClick={handleStartTour}>
+                        <Eye className="h-5 w-5 mr-2" />
+                        Xem trước miễn phí
+                      </Button>
+
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        Xem trước để khám phá một phần tour, hoặc mua để trải nghiệm đầy đủ
+                      </p>
+                    </>
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -500,7 +532,7 @@ export function VirtualTourDetailPage({ tourId, className }: VirtualTourDetailPa
                           key={scene.sceneId}
                           scene={scene}
                           isMainScene={true}
-                          onSceneClick={handleSceneClick}
+                          onSceneClick={handleStartTour}
                         />
                       ))}
                     </div>
@@ -522,7 +554,7 @@ export function VirtualTourDetailPage({ tourId, className }: VirtualTourDetailPa
                           key={scene.sceneId}
                           scene={scene}
                           isMainScene={false}
-                          onSceneClick={handleSceneClick}
+                          onSceneClick={handleStartTour}
                         />
                       ))}
                     </div>

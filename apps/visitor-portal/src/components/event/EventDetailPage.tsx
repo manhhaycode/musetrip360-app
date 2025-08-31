@@ -219,6 +219,7 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
         {order && (
           <Alert
             className={cn(
+              'flex',
               order.status === PaymentStatusEnum.Success
                 ? 'border-green-200 bg-green-50'
                 : order.status === PaymentStatusEnum.Canceled
@@ -226,7 +227,7 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
                   : 'border-blue-200 bg-blue-50'
             )}
           >
-            <div className="flex items-center gap-2">
+            <div className="flex flex-1 items-center gap-2">
               {order.status === PaymentStatusEnum.Success && <CheckCircle className="h-4 w-4 text-green-600" />}
               {order.status === PaymentStatusEnum.Pending && <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />}
               {order.status === PaymentStatusEnum.Canceled && <AlertCircle className="h-4 w-4 text-red-600" />}

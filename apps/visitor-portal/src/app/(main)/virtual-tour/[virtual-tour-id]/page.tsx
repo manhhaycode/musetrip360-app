@@ -12,11 +12,9 @@ export default async function VirtualTourPage({ params }: VirtualTourPageProps) 
   return <VirtualTourDetailPage tourId={virtualTourId} />;
 }
 
-export async function generateMetadata({ params }: VirtualTourPageProps) {
-  const { 'virtual-tour-id': virtualTourId } = await params;
-
+export async function generateMetadata() {
   return {
-    title: `Tour ảo ${virtualTourId} | MuseTrip360`,
+    title: `Tour ảo | MuseTrip360`,
     description: 'Khám phá không gian 360° với công nghệ thực tế ảo hiện đại',
   };
 }

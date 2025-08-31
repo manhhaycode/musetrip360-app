@@ -1,14 +1,14 @@
 'use client';
 
-import { Card, CardContent, CardFooter, CardHeader } from '@musetrip360/ui-core/card';
+import { useGetEventParticipantsByEvent } from '@musetrip360/event-management';
+import { type Event, EventStatusEnum, EventTypeEnum } from '@musetrip360/event-management/types';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
-import { Calendar, MapPin, Users, Clock, DollarSign, Zap, Star, ArrowRight } from 'lucide-react';
-import { type Event, EventTypeEnum, EventStatusEnum } from '@musetrip360/event-management/types';
-import Image from 'next/image';
+import { Card, CardContent, CardFooter, CardHeader } from '@musetrip360/ui-core/card';
 import { Progress } from '@musetrip360/ui-core/progress';
 import { cn } from '@musetrip360/ui-core/utils';
-import { useGetEventParticipantsByEvent } from '@musetrip360/event-management';
+import { ArrowRight, Calendar, Clock, MapPin, Zap } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 interface EventCardProps {
