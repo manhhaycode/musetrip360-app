@@ -24,7 +24,7 @@ export function MuseumCard({ museum }: MuseumCardProps) {
     }
 
     // Fallback image
-    return 'https://via.placeholder.com/400x200/e5e7eb/9ca3af?text=Museum';
+    return 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg';
   };
 
   const formatRating = (rating: number) => {
