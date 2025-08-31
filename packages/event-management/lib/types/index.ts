@@ -68,10 +68,10 @@ export enum EventStatusEnum {
 
 export type EventSearchParams = {
   museumId?: string;
-  eventType?: EventTypeEnum;
-  status?: EventStatusEnum;
-  St?: string; // ISO date string
-  endDate?: string; // ISO date string
+  EventType?: EventTypeEnum;
+  Status?: EventStatusEnum;
+  StartDate?: string; // ISO date string
+  EndDate?: string; // ISO date string
   startBookingDeadline?: string; // ISO date string
   endBookingDeadline?: string; // ISO date string
 } & Pagination;

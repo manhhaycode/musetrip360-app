@@ -75,7 +75,7 @@ export function useDeleteEventParticipant(options?: CustomMutationOptions<any, A
  */
 export function useGetEventParticipantsByEvent(
   eventId: string,
-  options?: CustomQueryOptions<PaginatedResponse<[EventParticipant]>['data']>
+  options?: CustomQueryOptions<PaginatedResponse<EventParticipant>['data']>
 ) {
   return useQuery(
     eventManagementCacheKeys.eventParticipantsByEvent(eventId),

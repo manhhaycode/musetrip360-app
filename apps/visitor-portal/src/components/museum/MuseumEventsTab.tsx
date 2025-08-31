@@ -589,9 +589,9 @@ export function MuseumEventsTab({ museumId, className }: MuseumEventsTabProps) {
                               <div className="flex gap-4">
                                 {/* Event Image */}
                                 <div className="relative w-20 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-                                  {event.metadata?.images?.[0] ? (
+                                  {event.metadata?.thumbnail ? (
                                     <Image
-                                      src={event.metadata.images[0]}
+                                      src={event.metadata.thumbnail}
                                       alt={event.title}
                                       width={80}
                                       height={64}

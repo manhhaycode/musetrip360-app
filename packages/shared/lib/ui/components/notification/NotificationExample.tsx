@@ -1,5 +1,5 @@
-import { useNotifications, useMarkAsRead } from '@musetrip360/shared/api';
-import { Notification } from '@musetrip360/shared/types';
+import { useNotifications, useMarkAsRead } from '@/api';
+import { Notification } from '@/types';
 
 import { NotificationBell } from './NotificationBell';
 import { toast } from 'sonner';

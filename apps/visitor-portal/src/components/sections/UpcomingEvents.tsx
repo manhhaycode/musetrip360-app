@@ -9,13 +9,26 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { ArrowRight } from 'lucide-react';
 import { EventCard } from '../event/EventCard';
 import { useMemo } from 'react';
+import { EventStatusEnum } from '@musetrip360/event-management/types';
 
 export function UpcomingEvents() {
   // Fetch museums first to get their events
-  const { data: eventData, isLoading } = useSearchEvents({ Page: 1, PageSize: 10000 });
+  const { data: eventData, isLoading } = useSearchEvents({
+    Page: 1,
+    PageSize: 10000,
+  });
 
   const eventList = useMemo(() => {
-    return eventData?.list.filter((event) => new Date(event.startTime) >= new Date()).slice(0, 6) || [];
+    return (
+      eventData?.list
+        .filter(
+          (event) =>
+            event.status === EventStatusEnum.Published &&
+            (new Date(event.startTime) >= new Date() ||
+              (!event.price && new Date(event.endTime) >= new Date() && event.availableSlots > 0))
+        )
+        .slice(0, 6) || []
+    );
   }, [eventData]);
 
   const { ref, visibleItems } = useStaggeredAnimation(eventData?.total || 0, 150);

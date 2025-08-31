@@ -10,14 +10,13 @@ import { Button } from '@musetrip360/ui-core/button';
 import { Form } from '@musetrip360/ui-core/form';
 import { Loader2, Upload } from 'lucide-react';
 
+import { PanoramaSphere } from '@/canvas';
 import { useStudioStore } from '@/store';
-import { FACE_LABELS, FaceName, type CubeMapLevel } from '@/types/cubemap';
-import { generateProgressiveCubemap, isValidCloudinaryUrl } from '@/utils/cloudinaryUtils';
+import { FACE_LABELS, FaceName } from '@/types/cubemap';
 import { useBulkUpload } from '@musetrip360/shared';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { PanoramaSphere } from '@/canvas';
 
 // Form schema for cube map upload
 export const sceneCubeMapUploadSchema = z
@@ -127,31 +126,6 @@ export function SceneCubeMapUploadForm({
         }
       }
       const formData = form.getValues();
-
-      // Build high-quality cubemap level from uploaded URLs
-      const highQualityLevel: CubeMapLevel = {
-        px: typeof formData.px?.file === 'string' ? formData.px?.file : '',
-        nx: typeof formData.nx?.file === 'string' ? formData.nx?.file : '',
-        py: typeof formData.py?.file === 'string' ? formData.py?.file : '',
-        ny: typeof formData.ny?.file === 'string' ? formData.ny?.file : '',
-        pz: typeof formData.pz?.file === 'string' ? formData.pz?.file : '',
-        nz: typeof formData.nz?.file === 'string' ? formData.nz?.file : '',
-      };
-
-      // Generate progressive levels if all faces are valid Cloudinary URLs
-      let cubeMaps: CubeMapLevel[];
-      const allCloudinaryUrls = Object.values(highQualityLevel).every((url) => url && isValidCloudinaryUrl(url));
-
-      if (allCloudinaryUrls) {
-        // Generate progressive levels: [25%, 50%, 75%, 100%]
-        cubeMaps = generateProgressiveCubemap(highQualityLevel);
-        console.log('✅ Generated progressive cubemap levels:', cubeMaps.length);
-      } else {
-        // Fallback: single level for non-Cloudinary URLs
-        cubeMaps = [highQualityLevel];
-        console.log('⚠️ Non-Cloudinary URLs detected, using single level');
-      }
-
       updateScene(selectedSceneId!, {
         data: {
           ...(selectedScene.data || {
@@ -159,7 +133,16 @@ export function SceneCubeMapUploadForm({
             hotspots: [],
             polygons: [],
           }),
-          cubeMaps,
+          cubeMaps: [
+            {
+              px: typeof formData.px?.file === 'string' ? formData.px?.file : '',
+              nx: typeof formData.nx?.file === 'string' ? formData.nx?.file : '',
+              py: typeof formData.py?.file === 'string' ? formData.py?.file : '',
+              ny: typeof formData.ny?.file === 'string' ? formData.ny?.file : '',
+              pz: typeof formData.pz?.file === 'string' ? formData.pz?.file : '',
+              nz: typeof formData.nz?.file === 'string' ? formData.nz?.file : '',
+            },
+          ],
         },
       });
     } catch (error) {

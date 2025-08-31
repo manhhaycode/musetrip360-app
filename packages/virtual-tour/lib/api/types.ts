@@ -7,7 +7,10 @@ export interface IVirtualTour {
   description: string;
   rating: number;
   isActive: boolean;
+  price: number;
   metadata: {
+    richDescription: string;
+    images?: FileData[];
     scenes: IVirtualTourScene[];
   };
   tourContent: string[];
