@@ -2,7 +2,7 @@ import { Button } from '@/components/core/ui/button';
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Text } from '@/components/core/ui/text';
-import { useGetEventById, useGetEventParticipants } from '@musetrip360/event-management';
+import { useGetEventById, useGetEventParticipants } from '@musetrip360/event-management/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowLeft, Calendar, Clock, MapPin, UserCheck, Users } from 'lucide-react-native';
@@ -12,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function EventDetailPage() {
   const params = useLocalSearchParams();
-  console.log('Route params:', params);
   const router = useRouter();
   const { id } = params as { id: string };
   const [refreshing, setRefreshing] = useState(false);
@@ -97,8 +96,8 @@ export default function EventDetailPage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Event Image */}
-        {event.metadata?.images && event.metadata.images.length > 0 && (
-          <Image source={{ uri: event.metadata.images[0] }} className="w-full h-64" resizeMode="cover" />
+        {event.metadata?.thumbnail && (
+          <Image source={{ uri: event.metadata.thumbnail }} className="w-full h-64" resizeMode="cover" />
         )}
         <View className="px-4 py-4 space-y-6">
           {/* Event Info */}

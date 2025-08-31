@@ -1,6 +1,6 @@
 import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '@musetrip360/auth-system';
-import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management';
+import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';

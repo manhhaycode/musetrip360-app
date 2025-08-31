@@ -180,11 +180,11 @@ export default function SearchPage() {
             <View className={`w-24 ${imageHeight} bg-gray-100`}>
               <Image
                 source={{
-                  uri: item.thumbnail || 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Image',
+                  uri: item.thumbnail || 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg',
                 }}
                 className={`w-24 ${imageHeight}`}
                 resizeMode="cover"
-                defaultSource={{ uri: 'https://via.placeholder.com/96x96/e5e7eb/9ca3af?text=Loading' }}
+                defaultSource={{ uri: 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg' }}
               />
             </View>
             <View className="flex-1 p-3 justify-between">

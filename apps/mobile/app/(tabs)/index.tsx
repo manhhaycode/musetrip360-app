@@ -3,7 +3,7 @@ import { Input } from '@/components/core/ui/input';
 import { Text } from '@/components/core/ui/text';
 import { MuseumCard } from '@/components/MuseumCard';
 import { useMuseums } from '@/hooks/useMuseums';
-import type { Museum } from '@musetrip360/museum-management';
+import { Museum } from '@musetrip360/museum-management/types';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { ArrowRight, Frown, Landmark, Search } from 'lucide-react-native';

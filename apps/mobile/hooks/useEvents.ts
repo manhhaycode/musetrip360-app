@@ -18,10 +18,10 @@ export const useEvents = (params?: EventSearchParams, options?: { enabled?: bool
     {
       Page: params?.Page || 1,
       PageSize: params?.PageSize || 12,
-      eventType: params?.eventType,
-      status: params?.status,
-      startDate: params?.startDate,
-      endDate: params?.endDate,
+      EventType: params?.eventType,
+      Status: params?.status,
+      StartDate: params?.startDate,
+      EndDate: params?.endDate,
     },
     {
       enabled: options?.enabled !== false && !!params?.museumId,

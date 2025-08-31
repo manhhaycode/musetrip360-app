@@ -7,8 +7,8 @@ export * from './useArticles';
 // Event hooks
 export * from './useEvents';
 
-// Review hooks
-export * from './useReviews';
+// Feedback hooks
+export * from './useFeedbacks';
 
 // Museum hooks
 export * from './useMuseums';

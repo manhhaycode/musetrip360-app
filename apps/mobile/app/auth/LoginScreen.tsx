@@ -1,4 +1,5 @@
-import { AuthTypeEnum, useLogin } from '@musetrip360/auth-system';
+import { useLogin } from '@musetrip360/auth-system/api';
+import { AuthTypeEnum } from '@musetrip360/auth-system/types';
 import React, { useState } from 'react';
 import { ActivityIndicator, Button, StyleSheet, Text, TextInput, View } from 'react-native';
 

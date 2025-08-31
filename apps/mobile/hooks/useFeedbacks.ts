@@ -1,5 +1,5 @@
-import type { Feedback, FeedbackSearchParams } from '@musetrip360/shared';
 import { useFeedback } from '@musetrip360/shared/api';
+import type { Feedback, FeedbackSearchParams } from '@musetrip360/shared/types';
 
 export const useFeedbacks = (params: FeedbackSearchParams) => {
   const result = useFeedback(params);
