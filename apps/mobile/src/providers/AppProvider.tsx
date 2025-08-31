@@ -1,4 +1,4 @@
-import { AuthProvider } from '@musetrip360/auth-system';
+import { AuthProvider } from '@musetrip360/auth-system/state';
 import { QueryClient, QueryClientProvider } from '@musetrip360/query-foundation';
 import React from 'react';
 import { initConfigApp } from '../../config';
