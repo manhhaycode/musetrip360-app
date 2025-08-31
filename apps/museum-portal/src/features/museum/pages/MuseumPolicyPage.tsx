@@ -88,7 +88,10 @@ const policySchema = z.object({
   title: z.string().min(1, 'Tiêu đề là bắt buộc').min(3, 'Tiêu đề phải có ít nhất 3 ký tự'),
   content: z.string().min(1, 'Nội dung là bắt buộc').min(10, 'Nội dung phải có ít nhất 10 ký tự'),
   policyType: z.nativeEnum(PolicyTypeEnum, { required_error: 'Loại chính sách là bắt buộc' }),
-  zOrder: z.number().min(0, 'Thứ tự hiển thị phải là số không âm'),
+  zOrder: z
+    .number()
+    .min(0, 'Thứ tự hiển thị phải là số không âm')
+    .max(1000, 'Thứ tự hiển thị không được vượt quá 1000'),
 });
 
 type PolicyFormData = z.infer<typeof policySchema>;

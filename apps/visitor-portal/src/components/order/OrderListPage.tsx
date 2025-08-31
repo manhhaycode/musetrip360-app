@@ -8,7 +8,7 @@ import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
-import { Calendar, CreditCard, Eye, Package, Ticket, Users } from 'lucide-react';
+import { Calendar, CreditCard, Package, Ticket, Users, Clock, MapPin, User, Star, Info, Eye } from 'lucide-react';
 import get from 'lodash/get';
 import { useRouter } from 'next/navigation';
 
@@ -208,10 +208,142 @@ export function OrderListPage() {
                 </div>
               </CardHeader>
               <CardContent>
+                {/* Enhanced Details Section Based on Order Type */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                  {order.orderType === OrderTypeEnum.Event && (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-blue-700 font-medium">
+                        <Calendar className="h-4 w-4" />
+                        Chi tiết sự kiện
+                      </div>
+
+                      {/* Display actual event information from OrderEvent */}
+                      {order.orderEvents && order.orderEvents.length > 0 ? (
+                        <div className="space-y-3">
+                          {order.orderEvents.map((orderEvent, index) => (
+                            <div
+                              key={orderEvent.eventId || index}
+                              className="border-l-4 border-blue-200 pl-4 bg-blue-50 p-3 rounded"
+                            >
+                              {orderEvent.event ? (
+                                <div className="space-y-2">
+                                  <h4 className="font-semibold text-blue-900">{orderEvent.event.title}</h4>
+                                  <p className="text-sm text-blue-800">{orderEvent.event.description}</p>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                                    <div className="flex items-center gap-1 text-green-700">
+                                      <Clock className="h-3 w-3" />
+                                      <span>
+                                        Bắt đầu: {new Date(orderEvent.event.startTime).toLocaleString('vi-VN')}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-1 text-orange-700">
+                                      <Clock className="h-3 w-3" />
+                                      <span>
+                                        Kết thúc: {new Date(orderEvent.event.endTime).toLocaleString('vi-VN')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <div className="text-sm text-blue-700">Sự kiện ID: {orderEvent.eventId}</div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                          {order.metadata?.expiredAt && (
+                            <div className="flex items-center gap-1 text-orange-600">
+                              <Clock className="h-3 w-3" />
+                              <span>Hạn: {new Date(order.metadata.expiredAt).toLocaleDateString('vi-VN')}</span>
+                            </div>
+                          )}
+                          {order.metadata?.description && (
+                            <div className="flex items-start gap-1">
+                              <Info className="h-3 w-3 mt-0.5 text-gray-500" />
+                              <span className="text-gray-600 line-clamp-2">{order.metadata.description}</span>
+                            </div>
+                          )}
+                          {order.metadata?.paymentLinkId && (
+                            <div className="flex items-center gap-1 text-green-600">
+                              <CreditCard className="h-3 w-3" />
+                              <span>Link thanh toán khả dụng</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1 text-gray-500 col-span-full">
+                            <Info className="h-3 w-3" />
+                            <span>Chi tiết sự kiện sẽ được cập nhật sau khi thanh toán</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {order.orderType === OrderTypeEnum.Subscription && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-purple-700 font-medium">
+                        <Package className="h-4 w-4" />
+                        Chi tiết gói đăng ký
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        {order.metadata?.expiredAt && (
+                          <div className="flex items-center gap-1 text-orange-600">
+                            <Clock className="h-3 w-3" />
+                            <span>Hết hạn: {new Date(order.metadata.expiredAt).toLocaleDateString('vi-VN')}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 text-purple-600">
+                          <Star className="h-3 w-3" />
+                          <span>Gói thành viên cao cấp</span>
+                        </div>
+                        {order.metadata?.description && (
+                          <div className="flex items-start gap-1 col-span-full">
+                            <Info className="h-3 w-3 mt-0.5 text-gray-500" />
+                            <span className="text-gray-600">{order.metadata.description}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {order.orderType === OrderTypeEnum.Tour && (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-green-700 font-medium">
+                        <MapPin className="h-4 w-4" />
+                        Chi tiết tour
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                        {order.metadata?.expiredAt && (
+                          <div className="flex items-center gap-1 text-orange-600">
+                            <Clock className="h-3 w-3" />
+                            <span>Hạn đặt: {new Date(order.metadata.expiredAt).toLocaleDateString('vi-VN')}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1 text-green-600">
+                          <User className="h-3 w-3" />
+                          <span>Tour hướng dẫn viên</span>
+                        </div>
+                        {order.metadata?.description && (
+                          <div className="flex items-start gap-1 col-span-full">
+                            <Info className="h-3 w-3 mt-0.5 text-gray-500" />
+                            <span className="text-gray-600">{order.metadata.description}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment Information */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-semibold text-lg">{formatCurrency(order.totalAmount)}</span>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-semibold text-lg">{formatCurrency(order.totalAmount)}</span>
+                    </div>
+                    {order.metadata?.orderCode && (
+                      <div className="text-xs text-muted-foreground">Mã đơn: #{order.metadata.orderCode}</div>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {order.metadata?.checkoutUrl && order.status === PaymentStatusEnum.Pending && (
@@ -230,8 +362,17 @@ export function OrderListPage() {
                     </Button>
                   </div>
                 </div>
-                {order.metadata?.description && (
-                  <p className="text-sm text-muted-foreground mt-2">{order.metadata.description}</p>
+
+                {/* Additional Order Information */}
+                {(order.metadata?.accountNumber || order.metadata?.bin || order.metadata?.qrCode) && (
+                  <div className="mt-3 p-2 bg-blue-50 rounded border">
+                    <div className="text-xs text-blue-700 font-medium mb-1">Thông tin thanh toán</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs text-blue-600">
+                      {order.metadata?.bin && <div>Ngân hàng: {order.metadata.bin}</div>}
+                      {order.metadata?.accountNumber && <div>STK: {order.metadata.accountNumber}</div>}
+                      {order.metadata?.qrCode && <div className="col-span-full text-green-600">✓ QR Code có sẵn</div>}
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>

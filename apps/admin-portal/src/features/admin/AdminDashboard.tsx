@@ -5,17 +5,17 @@ import {
   WeeklyEventCount,
 } from '@musetrip360/museum-management';
 import { Card, CardContent, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
-import { Building2, CheckCircle, Clock, Users } from 'lucide-react';
+import { Building2, Calendar, Clock, CreditCard, Users } from 'lucide-react';
 import { useRef, useState, useMemo } from 'react';
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import get from 'lodash/get';
+import { formatCurrency } from '@musetrip360/shared';
 
 export default function AdminDashboard() {
   const { data, isLoading } = useAdminAnalyticsOverview();
   const { data: weeklyEventData, isLoading: isLoadingEvents } = useAdminWeeklyEventCounts();
 
   const overviewData = data as AdminAnalyticsOverview | undefined;
-  console.log('Admin Dashboard Data:', data);
 
   const [hoveredSlice, setHoveredSlice] = useState<number | null>(null);
   const donutRef = useRef<SVGSVGElement>(null);
@@ -28,8 +28,6 @@ export default function AdminDashboard() {
       formattedPeriod: week.weekLabel,
     })) as { weekLabel: string; eventCount: number; formattedPeriod: string }[];
   }, [weeklyEventData]);
-
-  console.log('ChartData', chartData);
 
   // Process museum categories from API data
   const museumCategories = useMemo(() => {
@@ -178,8 +176,8 @@ export default function AdminDashboard() {
   if (isLoading || isLoadingEvents) {
     return (
       <div className="space-y-6">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          {[...Array(5)].map((_, i) => (
             <Card key={i} className="rounded-2xl border bg-white shadow-sm">
               <CardContent className="p-6">
                 <div className="animate-pulse">
@@ -198,10 +196,10 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       {/* Statistics Cards - Updated with real data */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-900">Tổng Người Dùng</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-900">Người Dùng</CardTitle>
             <div className="h-8 w-8 rounded-lg bg-orange-100 flex items-center justify-center">
               <Users className="h-4 w-4 text-orange-600" />
             </div>
@@ -213,7 +211,7 @@ export default function AdminDashboard() {
 
         <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-900">Bảo Tàng Hoạt Động</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-900">Bảo Tàng</CardTitle>
             <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
               <Building2 className="h-4 w-4 text-amber-600" />
             </div>
@@ -225,13 +223,25 @@ export default function AdminDashboard() {
 
         <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-900">Tour Ảo</CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <CheckCircle className="h-4 w-4 text-yellow-600" />
+            <CardTitle className="text-sm font-medium text-slate-900">Sự Kiện</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-slate-900">{overviewData?.totalTours || 0}</div>
+            <div className="text-2xl font-bold text-slate-900">{formatNumber(overviewData?.totalEvents || 0)}</div>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl border bg-white shadow-sm hover:shadow-md transition-all duration-300">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-slate-900">Doanh Thu</CardTitle>
+            <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <CreditCard className="h-4 w-4 text-emerald-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-slate-900">{formatCurrency(overviewData?.totalRevenue || 0)}</div>
           </CardContent>
         </Card>
 

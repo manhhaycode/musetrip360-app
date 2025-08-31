@@ -56,6 +56,9 @@ importers:
       '@musetrip360/rolebase-management':
         specifier: workspace:*
         version: link:../../packages/rolebase-management
+      '@musetrip360/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@musetrip360/ui-core':
         specifier: workspace:*
         version: link:../../packages/ui-core

@@ -37,6 +37,7 @@ import {
   UsersIcon,
   TicketsPlaneIcon,
   NewspaperIcon,
+  WalletIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
@@ -52,9 +53,9 @@ import {
   PERMISSION_MUSEUM_DETAIL_MANAGEMENT,
   PERMISSION_TOUR_CREATE,
   PERMISSION_TOUR_MANAGEMENT,
-  PERMISSION_TOUR_VIEW,
   PERMISSION_USER_MANAGEMENT,
   PERMISSION_USER_VIEW,
+  PERMISSION_PAYMENT_MANAGEMENT,
   useRolebaseStore,
 } from '@musetrip360/rolebase-management';
 import { useMuseumStore } from '@musetrip360/museum-management';
@@ -200,37 +201,28 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                 // },
               ],
             },
+          ]}
+        />
+
+        <SidebarGroupItem
+          groupLabel="Quản lý tài chính"
+          items={[
             {
-              title: 'Quản lý lịch trình',
-              url: '/schedule',
-              icon: CalendarDaysIcon,
+              title: 'Quản lý thanh toán',
+              url: '/payment',
+              icon: WalletIcon,
+              isHide: !hasAnyPermission(selectedMuseum?.id || '', [PERMISSION_PAYMENT_MANAGEMENT]),
               items: [
                 {
-                  title: 'Danh sách lịch trình',
-                  url: '/schedule',
-                  icon: ListChecksIcon,
-                },
-                {
-                  title: 'Tạo lịch trình mới',
-                  url: '/schedule/create',
-                  icon: PlusIcon,
+                  title: 'Ví bảo tàng',
+                  url: '/payment',
+                  icon: WalletIcon,
                 },
               ],
             },
-            // {
-            //   title: 'Quản lý vé sự kiện',
-            //   url: '/event-ticket',
-            //   icon: TicketIcon,
-            //   items: [
-            //     {
-            //       title: 'Danh sách vé sự kiện',
-            //       url: '/event-ticket',
-            //       icon: ListChecksIcon,
-            //     },
-            //   ],
-            // },
           ]}
         />
+
         <SidebarGroupItem
           groupLabel="Quản lý nội dung tour ảo"
           items={[

@@ -192,13 +192,12 @@ export function OrderStatusComponent({ pageType, className }: OrderStatusCompone
       <div className="space-y-6">
         {/* Status Header */}
         <Card>
-          <CardContent className="p-8 text-center">
+          <CardContent className="p-8 text-center flex items-center gap-2">
             <div className="mb-6">{statusConfig.icon}</div>
-            <h1 className="text-3xl font-bold mb-2">{statusConfig.title}</h1>
-            <p className="text-gray-600 mb-6">{statusConfig.description}</p>
+            <h1 className="text-3xl font-bold mb-2 flex-1">{statusConfig.title}</h1>
             <Badge
               className={cn(
-                'text-base px-4 py-2',
+                'text-base px-4 py-2 w-fit',
                 isSuccess && 'bg-green-100 text-green-800 border-green-200',
                 isPending &&
                   (pageType === 'success'

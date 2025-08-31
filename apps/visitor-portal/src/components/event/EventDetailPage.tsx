@@ -37,6 +37,7 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from '@musetrip360/ui-core';
 
 // Join Event Button Component - copied from MuseumEventsTab
 const JoinEventButton = ({ eventId }: { eventId: string }) => {
@@ -114,10 +115,14 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
   const userId = useAuthStore((state) => state.userId);
 
   const { data: event, isLoading: isLoadingEvent, error: eventError } = useGetEventById(eventId);
-  const { data: userParticipants } = useGetUserEventParticipants(userId || '', {
+  const { data: userParticipants, refetch: refetchUserParticipants } = useGetUserEventParticipants(userId || '', {
     enabled: !!userId,
   });
-  const { data: eventParticipants, isLoading: isLoadingParticipants } = useGetEventParticipants(eventId);
+  const {
+    data: eventParticipants,
+    isLoading: isLoadingParticipants,
+    refetch: refetchEventParticipants,
+  } = useGetEventParticipants(eventId);
 
   const { data: order } = useGetOrderByCode(orderCode || '', {
     enabled: !!orderCode,
@@ -133,6 +138,10 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
       if (data.checkoutUrl) {
         window.open(data.checkoutUrl, '_blank');
       }
+
+      refetchEventParticipants();
+      refetchUserParticipants();
+      toast.success('Đơn hàng đã được tạo thành công');
     },
     onError: (error) => {
       console.error('Order creation failed:', error);
@@ -204,8 +213,6 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
     eventParticipants?.some((participant) => participant.userId === userId) ||
     false;
 
-  console.log(hasParticipated, userParticipants);
-
   return (
     <div className={cn('container mx-auto py-8', className)}>
       <div className="space-y-6">
@@ -231,20 +238,21 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
               {order.status === PaymentStatusEnum.Success && <CheckCircle className="h-4 w-4 text-green-600" />}
               {order.status === PaymentStatusEnum.Pending && <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />}
               {order.status === PaymentStatusEnum.Canceled && <AlertCircle className="h-4 w-4 text-red-600" />}
-              <AlertDescription
-                className={cn(
-                  order.status === PaymentStatusEnum.Success
-                    ? 'text-green-800'
-                    : order.status === PaymentStatusEnum.Canceled
-                      ? 'text-red-800'
-                      : 'text-blue-800'
-                )}
-              >
-                {order.status === PaymentStatusEnum.Success && 'Thanh toán thành công! Bạn đã đăng ký sự kiện.'}
-                {order.status === PaymentStatusEnum.Pending && 'Đang xử lý thanh toán... (Tự động cập nhật mỗi 5 giây)'}
-                {order.status === PaymentStatusEnum.Canceled && 'Thanh toán thất bại. Vui lòng thử lại.'}
-              </AlertDescription>
             </div>
+            <AlertDescription
+              className={cn(
+                order.status === PaymentStatusEnum.Success
+                  ? 'text-green-800'
+                  : order.status === PaymentStatusEnum.Canceled
+                    ? 'text-red-800'
+                    : 'text-blue-800',
+                'inline flex-1'
+              )}
+            >
+              {order.status === PaymentStatusEnum.Success && 'Thanh toán thành công! Bạn đã đăng ký sự kiện.'}
+              {order.status === PaymentStatusEnum.Pending && 'Đang xử lý thanh toán... (Tự động cập nhật mỗi 5 giây)'}
+              {order.status === PaymentStatusEnum.Canceled && 'Thanh toán thất bại. Vui lòng thử lại.'}
+            </AlertDescription>
           </Alert>
         )}
 
