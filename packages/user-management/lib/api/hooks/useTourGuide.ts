@@ -33,7 +33,7 @@ export function useCreateTourGuide(options?: CustomMutationOptions<unknown, APIE
         options.onSuccess?.(data, variables, context);
       }
 
-      queryClient.invalidateQueries({ queryKey: ['tourGuides'] });
+      queryClient.removeQueries({ queryKey: ['tourGuides'] });
     },
     onError: (error: APIError) => {
       console.error('Failed to create tour guide:', error);
@@ -52,7 +52,7 @@ export function useUpdateTourGuide(options?: CustomMutationOptions<unknown, APIE
           options.onSuccess?.(data, variables, context);
         }
         // Invalidate the specific tour guide query to refetch updated data
-        queryClient.invalidateQueries({ queryKey: ['tourGuides'] });
+        queryClient.removeQueries({ queryKey: ['tourGuides'] });
       },
       onError: (error: APIError) => {
         console.error('Failed to update tour guide:', error);

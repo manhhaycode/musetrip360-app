@@ -63,7 +63,7 @@ export function useCreateUser(options?: CustomMutationOptions<ApiResponse<IUser>
   return useMutation((userData: UserCreateDto) => userEndpoints.createUser(userData), {
     onSuccess: (data, variables, context) => {
       // Invalidate users list to refetch with new user
-      queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
+      queryClient.removeQueries({ queryKey: userCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error: any, variables, context) => {
@@ -129,17 +129,17 @@ export function useAddUserRole(options?: CustomMutationOptions<unknown, APIError
         options.onSuccess?.(_, variables, context);
       }
       // Invalidate user permissions query
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.privileges(),
       });
 
       // Invalidate user details if cached
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.detail(variables.userId),
       });
 
       // Invalidate user lists to refresh role information
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.lists(),
       });
     },
@@ -164,17 +164,17 @@ export function useRemoveUserRole(options?: CustomMutationOptions<unknown, APIEr
         options.onSuccess?.(_, variables, context);
       }
       // Invalidate user permissions query
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.privileges(),
       });
 
       // Invalidate user details if cached
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.detail(variables.userId),
       });
 
       // Invalidate user lists to refresh role information
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.lists(),
       });
     },
@@ -219,8 +219,8 @@ export function useBulkUserOperations() {
     {
       onSuccess: () => {
         // Invalidate all user-related queries after bulk operations
-        queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
-        queryClient.invalidateQueries({ queryKey: userCacheKeys.profile() });
+        queryClient.removeQueries({ queryKey: userCacheKeys.lists() });
+        queryClient.removeQueries({ queryKey: userCacheKeys.profile() });
       },
     }
   );
@@ -240,8 +240,8 @@ export function useBulkRoleAssignment() {
     },
     {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: userCacheKeys.lists() });
-        queryClient.invalidateQueries({ queryKey: userCacheKeys.privileges() });
+        queryClient.removeQueries({ queryKey: userCacheKeys.lists() });
+        queryClient.removeQueries({ queryKey: userCacheKeys.privileges() });
       },
     }
   );

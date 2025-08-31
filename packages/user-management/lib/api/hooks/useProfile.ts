@@ -52,7 +52,7 @@ export function useUpdateProfile(options?: CustomMutationOptions<IUser, APIError
       });
 
       // Invalidate privileges in case role information changed
-      queryClient.invalidateQueries({
+      queryClient.removeQueries({
         queryKey: userCacheKeys.privileges(),
       });
     },

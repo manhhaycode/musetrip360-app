@@ -4,7 +4,8 @@
  * API endpoints for event participant operations.
  */
 
-import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
+import { EventParticipant } from '@/types';
+import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
 
 /**
  * Event Participant API endpoints configuration
@@ -85,7 +86,9 @@ export const deleteEventParticipant = async (id: string) => {
  */
 export const getEventParticipantsByEvent = async (eventId: string) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.get<APIResponse<any>>(eventParticipantEndpoints.getByEvent(eventId));
+  const response = await httpClient.get<PaginatedResponse<EventParticipant>>(
+    eventParticipantEndpoints.getByEvent(eventId)
+  );
   return response.data;
 };
 
