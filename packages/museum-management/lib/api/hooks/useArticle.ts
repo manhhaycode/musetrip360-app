@@ -2,6 +2,7 @@ import {
   APIError,
   CustomMutationOptions,
   CustomQueryOptions,
+  getQueryClient,
   PaginatedResponse,
   Pagination,
   useMutation,
@@ -43,8 +44,6 @@ export function useGetAdminArticlesByMuseum(
     [museumArticleManagementCacheKeys.museumArticles(museumId, params)],
     () => getAdminArticles(museumId, params),
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000, // 10 minutes
       ...options,
     }
   );
@@ -52,20 +51,59 @@ export function useGetAdminArticlesByMuseum(
 
 export function useGetArticle(articleId: string, options?: CustomQueryOptions<Article>) {
   return useQuery([museumArticleManagementCacheKeys.article(articleId)], () => getArticle(articleId), {
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes
     ...options,
   });
 }
 
 export function useCreateArticle(options?: CustomMutationOptions<Article, APIError, ArticleCreate>) {
-  return useMutation((data: ArticleCreate) => createArticle(data), options);
+  const queryClient = getQueryClient();
+  const { onSuccess, ...optionMutate } = options || {};
+
+  return useMutation((data: ArticleCreate) => createArticle(data), {
+    ...optionMutate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      queryClient.removeQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useUpdateArticle(options?: CustomMutationOptions<Article, APIError, ArticleUpdate>) {
-  return useMutation((data: ArticleUpdate) => updateArticle(data.id, data), options);
+  const queryClient = getQueryClient();
+  const { onSuccess, ...optionMutate } = options || {};
+  return useMutation((data: ArticleUpdate) => updateArticle(data.id, data), {
+    ...optionMutate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      queryClient.removeQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useDeleteArticle(options?: CustomMutationOptions<Article, APIError, string>) {
-  return useMutation((id: string) => deleteArticle(id), options);
+  const queryClient = getQueryClient();
+  const { onSuccess, ...optionMutate } = options || {};
+
+  return useMutation((id: string) => deleteArticle(id), {
+    ...optionMutate,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      queryClient.removeQueries({
+        queryKey: ['museumArticleManagement', 'museumArticles'],
+      });
+      onSuccess?.(data, variables, context);
+    },
+  });
 }

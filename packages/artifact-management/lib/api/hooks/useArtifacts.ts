@@ -8,12 +8,12 @@
 import {
   useQuery,
   useMutation,
-  useQueryClient,
   CustomQueryOptions,
   CustomMutationOptions,
   APIError,
   APIResponse,
   PaginatedResponse,
+  getQueryClient,
 } from '@musetrip360/query-foundation';
 import {
   getArtifacts,
@@ -87,13 +87,14 @@ export function useArtifactsByMuseum(
 export function useCreateArtifact(
   options?: CustomMutationOptions<APIResponse<any>, APIError, { museumId: string; data: ArtifactCreateDto }, unknown>
 ) {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const { onSuccess, ...optionMutate } = options || {};
 
   return useMutation(
     ({ museumId, data }: { museumId: string; data: ArtifactCreateDto }) => createArtifactForMuseum(museumId, data),
     {
       mutationKey: artifactCacheKeys.create(),
+      ...optionMutate,
       onSuccess: (data, variables, context) => {
         // Invalidate relevant queries
         queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
@@ -105,7 +106,6 @@ export function useCreateArtifact(
       onError: (error: APIError) => {
         console.error('Failed to create artifact:', artifactErrorHandler.handleCreateError(error));
       },
-      ...optionMutate,
     }
   );
 }
@@ -116,11 +116,12 @@ export function useCreateArtifact(
 export function useUpdateArtifact(
   options?: CustomMutationOptions<APIResponse<any>, APIError, { id: string; data: ArtifactUpdateDto }, unknown>
 ) {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const { onSuccess, ...optionMutate } = options || {};
 
   return useMutation(({ id, data }: { id: string; data: ArtifactUpdateDto }) => updateArtifact(id, data), {
     mutationKey: artifactCacheKeys.update(),
+    ...optionMutate,
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
@@ -132,7 +133,6 @@ export function useUpdateArtifact(
     onError: (error: APIError) => {
       console.error('Failed to update artifact:', artifactErrorHandler.handleUpdateError(error));
     },
-    ...optionMutate,
   });
 }
 
@@ -140,11 +140,12 @@ export function useUpdateArtifact(
  * Hook for deleting artifact
  */
 export function useDeleteArtifact(options?: CustomMutationOptions<APIResponse<any>, APIError, string, unknown>) {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const { onSuccess, ...optionMutate } = options || {};
 
   return useMutation((id: string) => deleteArtifact(id), {
     mutationKey: artifactCacheKeys.delete(),
+    ...optionMutate,
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
@@ -156,7 +157,6 @@ export function useDeleteArtifact(options?: CustomMutationOptions<APIResponse<an
     onError: (error: APIError) => {
       console.error('Failed to delete artifact:', artifactErrorHandler.handleDeleteError(error));
     },
-    ...optionMutate,
   });
 }
 
@@ -164,11 +164,12 @@ export function useDeleteArtifact(options?: CustomMutationOptions<APIResponse<an
  * Hook for activating artifact
  */
 export function useActivateArtifact(options?: CustomMutationOptions<APIResponse<any>, APIError, string, unknown>) {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const { onSuccess, ...optionMutate } = options || {};
 
   return useMutation((id: string) => activateArtifact(id), {
     mutationKey: artifactCacheKeys.activate(),
+    ...optionMutate,
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
@@ -180,7 +181,6 @@ export function useActivateArtifact(options?: CustomMutationOptions<APIResponse<
     onError: (error: APIError) => {
       console.error('Failed to activate artifact:', artifactErrorHandler.handleUpdateError(error));
     },
-    ...optionMutate,
   });
 }
 
@@ -188,11 +188,12 @@ export function useActivateArtifact(options?: CustomMutationOptions<APIResponse<
  * Hook for deactivating artifact
  */
 export function useDeactivateArtifact(options?: CustomMutationOptions<APIResponse<any>, APIError, string, unknown>) {
-  const queryClient = useQueryClient();
+  const queryClient = getQueryClient();
   const { onSuccess, ...optionMutate } = options || {};
 
   return useMutation((id: string) => deactivateArtifact(id), {
     mutationKey: artifactCacheKeys.deactivate(),
+    ...optionMutate,
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
@@ -204,6 +205,5 @@ export function useDeactivateArtifact(options?: CustomMutationOptions<APIRespons
     onError: (error: APIError) => {
       console.error('Failed to deactivate artifact:', artifactErrorHandler.handleUpdateError(error));
     },
-    ...optionMutate,
   });
 }

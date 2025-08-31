@@ -146,7 +146,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
         name: artifact.name,
         description: artifact.description,
         historicalPeriod: artifact.historicalPeriod,
-        image: artifact.model3DUrl
+        image: artifact.imageUrl
           ? {
               file: artifact.imageUrl,
               mediaType: MediaType.IMAGE,
