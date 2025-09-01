@@ -174,7 +174,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             className="py-3 px-6 rounded-xl items-center mb-4 bg-secondary"
             onPress={() => {
-              router.push('/change-password');
+              router.push('/(tabs)/change-password');
             }}
           >
             <Text className="text-foreground text-base font-semibold">Đổi mật khẩu</Text>

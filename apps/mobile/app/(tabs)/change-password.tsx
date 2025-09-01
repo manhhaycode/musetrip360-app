@@ -17,7 +17,10 @@ function validatePassword(pw: string) {
 export default function ChangePasswordScreen() {
   const { mutate: changePassword, isPending } = useChangePassword({
     onSuccess: () => setSuccess('Đổi mật khẩu thành công!'),
-    onError: () => setError('Mật khẩu cũ không đúng hoặc lỗi hệ thống'),
+    onError: (error: any) => {
+      const errorMsg = error?.message || error?.response?.data?.message || 'Mật khẩu cũ không đúng hoặc lỗi hệ thống';
+      setError(errorMsg);
+    },
   });
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

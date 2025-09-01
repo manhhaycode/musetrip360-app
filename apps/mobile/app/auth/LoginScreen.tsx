@@ -1,6 +1,6 @@
 import { useLogin } from '@musetrip360/auth-system/api';
 import { AuthTypeEnum } from '@musetrip360/auth-system/types';
-import { Globe, Lock } from 'lucide-react-native';
+import { Eye, EyeOff, Globe } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { ActivityIndicator, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -66,7 +66,7 @@ export default function LoginScreen() {
             placeholderTextColor="#888"
           />
           <TouchableOpacity className="absolute right-2 top-2" onPress={() => setShowPassword((s) => !s)}>
-            <Lock size={20} color="#a67c52" />
+            {showPassword ? <EyeOff size={20} color="#a67c52" /> : <Eye size={20} color="#a67c52" />}
           </TouchableOpacity>
         </View>
       </View>

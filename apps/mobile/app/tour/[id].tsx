@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useVirtualTourDetail } from '../../hooks/useVirtualTours';
 
 export default function VirtualTourDetailPage() {
+  // Hàm kiểm tra url ảnh hợp lệ
+  const isValidImageUrl = (url?: unknown): url is string => typeof url === 'string' && url.startsWith('http');
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [refreshing, setRefreshing] = useState(false);
@@ -81,20 +83,24 @@ export default function VirtualTourDetailPage() {
         className="flex-1 bg-background"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Tour Main Image (metadata.images[0].file) */}
-        {tour.metadata?.images?.[0]?.file &&
-          typeof tour.metadata.images[0].file === 'string' &&
-          tour.metadata.images[0].file.startsWith('http') && (
-            <Image source={{ uri: tour.metadata.images[0].file }} className="w-full h-64 mb-2" resizeMode="cover" />
-          )}
-        {/* Tour Thumbnail (first scene) */}
-        {tour.metadata?.scenes?.[0]?.thumbnail &&
-          typeof tour.metadata.scenes[0].thumbnail === 'string' &&
-          tour.metadata.scenes[0].thumbnail.startsWith('http') && (
-            <Image source={{ uri: tour.metadata.scenes[0].thumbnail }} className="w-full h-64" resizeMode="cover" />
-          )}
+        {/* Ảnh đại diện tour nếu có */}
+        {isValidImageUrl(tour.metadata?.images?.[0]?.file) && (
+          <Image
+            source={{ uri: tour.metadata.images?.[0]?.file as string }}
+            className="w-full h-64 mb-2"
+            resizeMode="cover"
+          />
+        )}
+        {/* Ảnh thumbnail cảnh đầu tiên nếu có */}
+        {isValidImageUrl(tour.metadata?.scenes?.[0]?.thumbnail) && (
+          <Image
+            source={{ uri: tour.metadata.scenes?.[0]?.thumbnail as string }}
+            className="w-full h-64"
+            resizeMode="cover"
+          />
+        )}
         <View className="px-4 py-4 space-y-6">
-          {/* Tour Info */}
+          {/* Thông tin tour */}
           <View className="pb-2">
             <Text className="text-2xl font-bold text-foreground mb-1">{tour.name}</Text>
             <View className="flex-row items-center mb-1">
@@ -135,7 +141,7 @@ export default function VirtualTourDetailPage() {
             )}
           </View>
 
-          {/* Description */}
+          {/* Mô tả */}
           <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
             <CardContent className="px-3 py-2">
               <Text className="text-lg font-semibold text-primary mb-2">Mô tả tour ảo</Text>
@@ -145,7 +151,7 @@ export default function VirtualTourDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Scenes List */}
+          {/* Danh sách cảnh */}
           {tour.metadata?.scenes && tour.metadata.scenes.length > 0 && (
             <Card className="bg-card border border-border rounded-lg shadow-sm mb-5">
               <CardContent className="p-4">
