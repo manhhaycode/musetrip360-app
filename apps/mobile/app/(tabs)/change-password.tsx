@@ -18,7 +18,7 @@ export default function ChangePasswordScreen() {
   const { mutate: changePassword, isPending } = useChangePassword({
     onSuccess: () => setSuccess('Đổi mật khẩu thành công!'),
     onError: (error: any) => {
-      const errorMsg = error?.message || error?.response?.data?.message || 'Mật khẩu cũ không đúng hoặc lỗi hệ thống';
+      const errorMsg = error?.message || error?.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại';
       setError(errorMsg);
     },
   });

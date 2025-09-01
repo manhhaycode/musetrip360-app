@@ -13,6 +13,10 @@ import { useVirtualTourDetail } from '../../hooks/useVirtualTours';
 export default function VirtualTourDetailPage() {
   // Hàm kiểm tra url ảnh hợp lệ
   const isValidImageUrl = (url?: unknown): url is string => typeof url === 'string' && url.startsWith('http');
+
+  // Hằng số tiền tệ
+  const CURRENCY_SYMBOL = '₫';
+
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [refreshing, setRefreshing] = useState(false);
@@ -83,22 +87,20 @@ export default function VirtualTourDetailPage() {
         className="flex-1 bg-background"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Ảnh đại diện tour nếu có */}
-        {isValidImageUrl(tour.metadata?.images?.[0]?.file) && (
+        {/* Hiển thị ảnh theo thứ tự ưu tiên: ảnh đại diện tour trước, nếu không có thì hiển thị thumbnail cảnh đầu tiên */}
+        {isValidImageUrl(tour.metadata?.images?.[0]?.file) ? (
           <Image
             source={{ uri: tour.metadata.images?.[0]?.file as string }}
-            className="w-full h-64 mb-2"
+            className="w-full h-64"
             resizeMode="cover"
           />
-        )}
-        {/* Ảnh thumbnail cảnh đầu tiên nếu có */}
-        {isValidImageUrl(tour.metadata?.scenes?.[0]?.thumbnail) && (
+        ) : isValidImageUrl(tour.metadata?.scenes?.[0]?.thumbnail) ? (
           <Image
             source={{ uri: tour.metadata.scenes?.[0]?.thumbnail as string }}
             className="w-full h-64"
             resizeMode="cover"
           />
-        )}
+        ) : null}
         <View className="px-4 py-4 space-y-6">
           {/* Thông tin tour */}
           <View className="pb-2">
@@ -111,7 +113,7 @@ export default function VirtualTourDetailPage() {
             {typeof tour.price === 'number' && (
               <View className="flex-row items-center mb-1">
                 <Text className="text-muted-foreground text-md ml-2">
-                  Giá: {tour.price === 0 ? 'Miễn phí' : tour.price.toLocaleString('vi-VN') + '₫'}
+                  Giá: {tour.price === 0 ? 'Miễn phí' : tour.price.toLocaleString('vi-VN') + CURRENCY_SYMBOL}
                 </Text>
               </View>
             )}
