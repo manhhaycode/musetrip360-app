@@ -36,10 +36,22 @@ import { useVirtualTours } from '@/hooks/useVirtualTours';
 
 function MuseumHeader() {
   const router = useRouter();
+  const { from } = useLocalSearchParams<{ from?: string }>();
+
+  const handleBackPress = () => {
+    if (from === 'artifact') {
+      // Nếu đến từ artifact detail, navigate về home hoặc search
+      router.replace('/(tabs)/' as any);
+    } else {
+      // Normal back behavior
+      router.back();
+    }
+  };
+
   return (
     <View className="flex-row items-center justify-between px-4 py-4 bg-background ">
-      <TouchableOpacity onPress={() => router.back()} className="p-2">
-        <ArrowLeft size={24} color="#1f2937" />
+      <TouchableOpacity onPress={handleBackPress} className="p-2">
+        <ArrowLeft size={24} color="#2d1f13" />
       </TouchableOpacity>
       <Text className="text-lg font-semibold text-foreground">Chi tiết bảo tàng</Text>
       <View className="w-10" />
@@ -250,8 +262,8 @@ export default function MuseumDetailPage() {
                 const displayImages = museum.metadata?.coverImageUrl
                   ? availableImages
                   : museum.metadata.images
-                    .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
-                    .slice(1); // Skip first image as it's used as cover
+                      .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
+                      .slice(1); // Skip first image as it's used as cover
 
                 if (displayImages.length === 0) return null;
 
@@ -584,13 +596,17 @@ export default function MuseumDetailPage() {
                   <View className="flex-row h-28">
                     <View className="w-24 h-28 bg-gray-100">
                       {/* Hiển thị ảnh theo thứ tự ưu tiên: ảnh đại diện tour trước, nếu không có thì hiển thị thumbnail cảnh đầu tiên */}
-                      {tour.metadata?.images?.[0]?.file && typeof tour.metadata.images[0].file === 'string' && tour.metadata.images[0].file.startsWith('http') ? (
+                      {tour.metadata?.images?.[0]?.file &&
+                      typeof tour.metadata.images[0].file === 'string' &&
+                      tour.metadata.images[0].file.startsWith('http') ? (
                         <Image
                           source={{ uri: tour.metadata.images[0].file }}
                           className="w-24 h-28"
                           resizeMode="cover"
                         />
-                      ) : tour.metadata?.scenes?.[0]?.thumbnail && typeof tour.metadata.scenes[0].thumbnail === 'string' && tour.metadata.scenes[0].thumbnail.startsWith('http') ? (
+                      ) : tour.metadata?.scenes?.[0]?.thumbnail &&
+                        typeof tour.metadata.scenes[0].thumbnail === 'string' &&
+                        tour.metadata.scenes[0].thumbnail.startsWith('http') ? (
                         <Image
                           source={{ uri: tour.metadata.scenes[0].thumbnail }}
                           className="w-24 h-28"
@@ -765,7 +781,7 @@ export default function MuseumDetailPage() {
               <Pagination
                 currentPage={1} // Nếu muốn phân trang thực tế, cần lưu state page cho feedbacks
                 totalPages={Math.ceil(feedbacksData.data.total / 20)}
-                onPageChange={() => { }}
+                onPageChange={() => {}}
                 showPages={5}
                 className="pt-4"
               />
@@ -909,8 +925,9 @@ export default function MuseumDetailPage() {
                     setToursPage(1);
                     setArticlesPage(1);
                   }}
-                  className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
-                    }`}
+                  className={`px-4 py-2 rounded-full border mr-6 ${
+                    activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
+                  }`}
                 >
                   <View className="flex-row items-center">
                     <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />

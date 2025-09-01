@@ -78,7 +78,7 @@ export default function ProfileScreen() {
             <Image source={{ uri: profile.avatarUrl }} className="w-20 h-20 rounded-full mb-2" />
           ) : (
             <View className="w-20 h-20 rounded-full bg-primary items-center justify-center mb-2">
-              <User size={64} color="#fff" />
+              <User size={64} color="#fff6ed" />
             </View>
           )}
         </View>
@@ -92,7 +92,7 @@ export default function ProfileScreen() {
               value={fullName}
               onChangeText={setFullName}
               placeholder="Nhập họ tên"
-              placeholderTextColor="#888"
+              placeholderTextColor="#a67c52"
             />
           ) : (
             <Text className="text-base text-foreground w-full text-left">{profile?.fullName || '-'}</Text>
@@ -113,7 +113,7 @@ export default function ProfileScreen() {
               onChangeText={setPhoneNumber}
               placeholder="Nhập số điện thoại"
               keyboardType="phone-pad"
-              placeholderTextColor="#888"
+              placeholderTextColor="#a67c52"
             />
           ) : (
             <Text className="text-base text-foreground w-full text-left">{profile?.phoneNumber || '-'}</Text>
@@ -130,7 +130,7 @@ export default function ProfileScreen() {
                   value={birthDate}
                   placeholder="dd-mm-yyyy"
                   editable={false}
-                  placeholderTextColor="#888"
+                  placeholderTextColor="#a67c52"
                 />
               </View>
             </TouchableOpacity>
@@ -180,7 +180,7 @@ export default function ProfileScreen() {
             <Text className="text-foreground text-base font-semibold">Đổi mật khẩu</Text>
           </TouchableOpacity>
           <TouchableOpacity className="py-3 px-6 rounded-xl items-center mb-4 bg-secondary" onPress={handleLogout}>
-            <Text className="text-red-500 text-base font-semibold">Đăng xuất</Text>
+            <Text className="text-destructive text-base font-semibold">Đăng xuất</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -3,6 +3,7 @@ import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
 import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
+import { useEntityImage } from '@/hooks/useEntityImage';
 import { searchUtils, useGlobalSearch } from '@/hooks/useSearch';
 import type { SearchFilters, SearchResultItem } from '@/types/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -40,7 +41,7 @@ function SearchHeader({
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-          <SearchIcon size={20} color="#ff941d" />
+          <SearchIcon size={20} color="#ff914d" />
         </TouchableOpacity>
         <TouchableOpacity className="absolute right-4 top-3">
           <Filter size={20} color="#a67c52" />
@@ -56,7 +57,7 @@ function SearchHeader({
               className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'}`}
             >
               <View className="flex-row items-center">
-                <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />
+                <tab.icon size={16} color={activeTab === tab.key ? '#fff6ed' : '#a67c52'} style={{ marginRight: 4 }} />
                 <Text
                   className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
                 >
@@ -168,19 +169,29 @@ export default function SearchPage() {
     }
   };
 
-  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => {
+  const SearchResultCard = React.memo(({ item }: { item: SearchResultItem }) => {
+    // Sử dụng hook để lấy ảnh thực tế khi search API không có thumbnail
+    const { data: entityImage } = useEntityImage({
+      id: item.id,
+      type: item.type as 'Museum' | 'Artifact' | 'Event' | 'TourOnline', // Cast để tránh lỗi Article type
+      enabled: !item.thumbnail, // Chỉ fetch khi search API không có thumbnail
+    });
+
+    const finalImageSource =
+      item.thumbnail || entityImage || 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg';
+
     // Tăng chiều cao cho bảo tàng vì có nhiều text hơn
     const cardHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
     const imageHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
 
     return (
       <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
-        <Card className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
+        <Card className="overflow-hidden bg-card border border-card rounded-lg shadow-md">
           <View className={`flex-row ${cardHeight}`}>
-            <View className={`w-24 ${imageHeight} bg-gray-100`}>
+            <View className={`w-24 ${imageHeight} bg-muted`}>
               <Image
                 source={{
-                  uri: item.thumbnail || 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg',
+                  uri: finalImageSource,
                 }}
                 className={`w-24 ${imageHeight}`}
                 resizeMode="cover"
@@ -198,7 +209,7 @@ export default function SearchPage() {
                       const tab = SEARCH_TABS.find((tab) => tab.key === item.type);
                       if (!tab) return null;
                       const Icon = tab.icon;
-                      return <Icon size={14} color="#fff" style={{ marginRight: 4 }} />;
+                      return <Icon size={14} color="#fff6ed" style={{ marginRight: 4 }} />;
                     })()}
                     <Text className="text-xs text-primary-foreground">
                       {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
@@ -218,7 +229,10 @@ export default function SearchPage() {
         </Card>
       </TouchableOpacity>
     );
-  };
+  });
+  SearchResultCard.displayName = 'SearchResultCard';
+
+  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => <SearchResultCard item={item} />;
 
   return (
     <SafeAreaView className="flex-1 bg-background">
@@ -249,11 +263,11 @@ export default function SearchPage() {
         </View>
       ) : error ? (
         <View className="px-4">
-          <Card className="bg-white border border-red-200 rounded-lg">
+          <Card className="bg-card border border-destructive rounded-lg">
             <CardContent className="p-8 items-center">
-              <Frown size={40} color="#ff941d" className="mb-3" />
-              <Text className="text-lg font-semibold text-red-900 mb-2">Lỗi tìm kiếm</Text>
-              <Text className="text-red-600 text-center">{error?.message || 'Không thể thực hiện tìm kiếm'}</Text>
+              <Frown size={40} color="#ff914d" className="mb-3" />
+              <Text className="text-lg font-semibold text-destructive mb-2">Lỗi tìm kiếm</Text>
+              <Text className="text-destructive text-center">{error?.message || 'Không thể thực hiện tìm kiếm'}</Text>
             </CardContent>
           </Card>
         </View>
@@ -284,13 +298,13 @@ export default function SearchPage() {
         </View>
       ) : (
         <View className="px-4">
-          <Card className="bg-white border border-gray-200 rounded-lg">
+          <Card className="bg-card border border-border rounded-lg">
             <CardContent className="p-8 items-center">
-              <SearchIcon size={40} color="#ff941d" className="mb-3" />
-              <Text className="text-lg font-semibold text-gray-900 mb-2">
+              <SearchIcon size={40} color="#ff914d" className="mb-3" />
+              <Text className="text-lg font-semibold text-foreground mb-2">
                 {filters.query ? 'Không tìm thấy kết quả' : 'Nhập từ khóa để tìm kiếm'}
               </Text>
-              <Text className="text-gray-600 text-center">
+              <Text className="text-muted-foreground text-center">
                 {filters.query
                   ? 'Thử tìm kiếm với từ khóa khác hoặc chọn tab khác'
                   : 'Tìm kiếm bảo tàng, hiện vật, sự kiện và tour ảo'}
