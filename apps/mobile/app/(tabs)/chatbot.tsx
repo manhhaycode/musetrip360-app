@@ -1,7 +1,7 @@
 import { Badge } from '@/components/core/ui/badge';
 import { useChatWithAI } from '@musetrip360/ai-bot/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Bot, Loader, Send, User } from 'lucide-react-native';
+import { Bot, Globe, Loader, Send, User } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -154,6 +154,16 @@ export default function ChatbotTab() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
+      {/* Branding header */}
+      <View className="flex-row items-center justify-center mt-6 mb-2">
+        <View className="w-14 h-14 rounded-lg bg-primary items-center justify-center mr-3">
+          <Globe size={32} color="#fff" />
+        </View>
+        <View>
+          <Text className="text-xl font-bold text-foreground">MuseTrip360</Text>
+          <Text className="text-xs text-muted-foreground">Digital Museum Platform</Text>
+        </View>
+      </View>
       <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}

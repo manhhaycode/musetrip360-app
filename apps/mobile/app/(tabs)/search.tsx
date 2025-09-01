@@ -163,7 +163,7 @@ export default function SearchPage() {
         router.push(`/article/${item.id}` as any);
         break;
       case 'TourOnline':
-        // Tour online details can be implemented later
+        router.push(`/tour/${item.id}` as any);
         break;
     }
   };
