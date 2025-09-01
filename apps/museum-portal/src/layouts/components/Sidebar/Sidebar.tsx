@@ -15,6 +15,7 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
 import {
   ArchiveIcon,
+  BookOpenIcon,
   BookUserIcon,
   CalendarRangeIcon,
   ChartBar,
@@ -240,6 +241,11 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                     PERMISSION_TOUR_CREATE,
                     PERMISSION_TOUR_MANAGEMENT,
                   ]),
+                },
+                {
+                  title: 'Hướng dẫn tạo tour',
+                  url: '/virtual-tour/guide',
+                  icon: BookOpenIcon,
                 },
               ],
             },

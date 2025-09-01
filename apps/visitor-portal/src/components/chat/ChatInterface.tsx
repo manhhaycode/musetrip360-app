@@ -14,8 +14,9 @@ import { RelatedDataPopover } from './RelatedDataPopover';
 
 interface ChatInterfaceProps {
   messages: Message[];
-  isLoading?: boolean;
-  isTyping?: boolean;
+  isLoading?: boolean; // For initial conversation/messages loading
+  isTyping?: boolean; // For AI response typing indicator
+  isSending?: boolean; // For user message sending state
   onSendMessage: (content: string) => void;
   selectedConversation: string | null;
 }
@@ -24,13 +25,13 @@ const defaultPrompts = [
   'Tôi muốn tìm hiểu về bảo tàng lịch sử',
   'Làm thế nào để đặt tour ảo?',
   'Có những bảo tàng nào nổi tiếng?',
-  'Tính năng VR hoạt động như thế nào?',
 ];
 
 export function ChatInterface({
   messages,
   isLoading = false,
   isTyping = false,
+  isSending = false,
   onSendMessage,
   selectedConversation,
 }: ChatInterfaceProps) {
@@ -133,17 +134,22 @@ export function ChatInterface({
               {isLoading ? (
                 <>
                   <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-muted-foreground">Đang tải tin nhắn...</span>
+                  <span className="text-sm text-muted-foreground">Đang tải cuộc trò chuyện...</span>
                 </>
               ) : isTyping ? (
                 <>
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-muted-foreground">Đang nhập...</span>
+                  <span className="text-sm text-muted-foreground">AI đang trả lời...</span>
+                </>
+              ) : isSending ? (
+                <>
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <span className="text-sm text-muted-foreground">Đang gửi...</span>
                 </>
               ) : (
                 <>
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span className="text-sm text-muted-foreground">Đang hoạt động</span>
+                  <span className="text-sm text-muted-foreground">Sẵn sàng</span>
                 </>
               )}
             </div>
@@ -156,9 +162,9 @@ export function ChatInterface({
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full" ref={messagesContainerRef}>
             <div className="p-4">
-              {isLoading ? (
+              {isLoading && messages.length === 0 ? (
                 <div className="space-y-4">
-                  {/* Message loading skeletons */}
+                  {/* Message loading skeletons - only when no messages exist */}
                   {Array.from({ length: 3 }).map((_, index) => (
                     <div key={index} className="flex gap-3">
                       <div className="w-8 h-8 rounded-full bg-muted animate-pulse flex-shrink-0"></div>
@@ -188,7 +194,7 @@ export function ChatInterface({
                         size="sm"
                         className="w-full text-left justify-start h-auto whitespace-normal p-3"
                         onClick={() => handlePromptClick(prompt)}
-                        disabled={isLoading}
+                        disabled={isLoading || isSending || isTyping}
                       >
                         {prompt}
                       </Button>
@@ -281,10 +287,14 @@ export function ChatInterface({
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               className="flex-1"
-              disabled={isLoading}
+              disabled={isLoading || isSending || isTyping}
             />
-            <Button size="sm" onClick={handleSendMessage} disabled={!inputValue.trim() || isLoading || isTyping}>
-              {isTyping ? (
+            <Button
+              size="sm"
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim() || isLoading || isSending || isTyping}
+            >
+              {isSending || isTyping ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Send className="h-4 w-4" />

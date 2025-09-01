@@ -45,7 +45,7 @@ const getRedirectLink = (item: AIChatRelatedData) => {
     case 'Artifact':
       return `/artifact/${item.id}`;
     case 'TourOnline':
-      return `/tour/${item.id}`;
+      return `/virtual-tour/${item.id}`;
     default:
       return '#';
   }

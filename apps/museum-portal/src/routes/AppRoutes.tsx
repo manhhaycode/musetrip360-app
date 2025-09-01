@@ -27,6 +27,7 @@ import EventCreatePage from '@/features/event/pages/EventCreatePage';
 import EventEditPage from '@/features/event/pages/EventEditPage';
 import SubscriptionPlanPage from '@/features/subscription/pages/SubscriptionPlanPage';
 import PaymentManagementPage from '@/features/payment/pages/PaymentManagementPage';
+import TourCreationGuidePage from '@/features/guide/pages/TourCreationGuidePage';
 
 export default function AppRoutes() {
   return (
@@ -88,6 +89,9 @@ export default function AppRoutes() {
 
           {/* 360 Tour Management */}
           <Route path="/virtual-tour" element={<VirtualTourManagement />} />
+
+          {/* Tour Creation Guide */}
+          <Route path="/virtual-tour/guide" element={<TourCreationGuidePage />} />
 
           {/* 360 Tour Settings */}
           <Route path="/virtual-tour/settings" element={<div>Cài đặt tour ảo 360</div>} />
