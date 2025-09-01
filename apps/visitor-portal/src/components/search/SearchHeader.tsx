@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LayoutGrid, LayoutList, Search, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { TYPE_OPTIONS, type SearchFilters } from '../../types/search';
+import { DynamicIcon } from 'lucide-react/dynamic';
 
 interface SearchHeaderProps {
   filters: SearchFilters;
@@ -96,7 +97,9 @@ export function SearchHeader({
               className="cursor-pointer hover:bg-primary hover:text-primary-foreground transition-all duration-200 hover:scale-105 px-4 py-2 text-sm font-medium"
               onClick={() => handleTypeQuickFilter(type.value)}
             >
-              <span className="mr-2 text-base">{type.icon}</span>
+              <span className="mr-2 text-base">
+                <DynamicIcon name={type.icon} className="h-4 w-4" />
+              </span>
               {type.label}
               {typeAggregations[type.value] && (
                 <span className="ml-2 text-xs opacity-75 bg-background/20 px-2 py-0.5 rounded-full">

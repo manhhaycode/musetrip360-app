@@ -3,6 +3,7 @@ import {
   APIError,
   CustomMutationOptions,
   CustomQueryOptions,
+  getQueryClient,
   PaginatedResponse,
   useMutation,
   useQuery,
@@ -63,17 +64,35 @@ export function useGetEventById(id: string, options?: CustomQueryOptions<Event>)
 }
 
 export function useCreateEvent(options?: CustomMutationOptions<Event, APIError, EventCreateDto>) {
-  return useMutation((data: EventCreateDto) => createEventRequest(data.museumId, data), options);
+  const { onSuccess, ...optionMutate } = options || {};
+
+  return useMutation((data: EventCreateDto) => createEventRequest(data.museumId, data), {
+    onSuccess: (data, variables, context) => {
+      const queryClient = getQueryClient();
+      queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.lists() });
+      onSuccess?.(data, variables, context);
+    },
+    ...optionMutate,
+  });
 }
 
 export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, EventUpdateDto>) {
+  const { onSuccess, ...optionMutate } = options || {};
   return useMutation(
     (
       data: EventUpdateDto & {
         eventId: string;
       }
     ) => updateEvent(data.eventId, data),
-    options
+    {
+      onSuccess: (data, variables, context) => {
+        const queryClient = getQueryClient();
+        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.event(variables.eventId) });
+        onSuccess?.(data, variables, context);
+      },
+      ...optionMutate,
+    }
   );
 }
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { useGetEventParticipantsByEvent } from '@musetrip360/event-management';
 import { type Event, EventStatusEnum, EventTypeEnum } from '@musetrip360/event-management/types';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
@@ -36,8 +35,7 @@ const statusLabels = {
 
 export function EventCard({ event, className }: EventCardProps) {
   const router = useRouter();
-  const { data: participants } = useGetEventParticipantsByEvent(event.id);
-  const capacityPercentage = participants ? ((participants?.length - event.capacity) / event.capacity) * 100 : 0;
+  const capacityPercentage = ((event.capacity - event.availableSlots) / event.capacity) * 100;
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -113,7 +111,7 @@ export function EventCard({ event, className }: EventCardProps) {
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Đã đăng ký</span>
               <span className="font-medium">
-                {participants?.length ? participants?.length - event.capacity : 0}/{event.capacity}
+                {event.capacity - event.availableSlots}/{event.capacity}
               </span>
             </div>
             <Progress value={capacityPercentage} className="h-2" />

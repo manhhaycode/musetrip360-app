@@ -151,6 +151,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
       title: '',
       description: '',
       eventType: EventTypeEnum.Other,
+      status: EventStatusEnum.Draft,
       startTime: '',
       endTime: '',
       location: '',
@@ -185,6 +186,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         title: '',
         description: '',
         eventType: EventTypeEnum.Other,
+        status: EventStatusEnum.Draft,
         startTime: '',
         endTime: '',
         location: '',
@@ -263,7 +265,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         title: data.title,
         description: data.description,
         eventType: data.eventType,
-        ...((event?.status === EventStatusEnum.Draft || event?.status === EventStatusEnum.Pending) && {
+        ...((!event || event.status === EventStatusEnum.Draft || event.status === EventStatusEnum.Pending) && {
           startTime: new Date(data.startTime as string).toISOString(),
           endTime: new Date(data.endTime as string).toISOString(),
           bookingDeadline: new Date(data.bookingDeadline as string).toISOString(),

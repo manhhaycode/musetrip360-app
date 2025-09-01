@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@musetrip360/ui-core/radio-group';
 import { Filter, RotateCcw, Search } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TYPE_OPTIONS, type SearchFilters as SearchFiltersType } from '@/types/search';
+import { DynamicIcon } from 'lucide-react/dynamic';
 
 interface SearchFiltersProps {
   filters: SearchFiltersType;
@@ -79,7 +80,7 @@ export function SearchFilters({
                 <RadioGroupItem value={type.value} id={type.value} />
                 <Label htmlFor={type.value} className="flex-1 flex items-center justify-between cursor-pointer">
                   <span className="flex items-center gap-2">
-                    <span>{type.icon}</span>
+                    <DynamicIcon name={type.icon} className="h-4 w-4 text-primary" />
                     {type.label}
                   </span>
                   {typeAggregations[type.value] && (

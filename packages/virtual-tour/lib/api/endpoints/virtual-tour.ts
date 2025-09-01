@@ -42,6 +42,11 @@ export const getVirtualToursByMuseum = async (museumId: string, params: Paginati
   ).data;
 };
 
+export const getVirtualTours = async (params: Pagination) => {
+  const httpClient = getHttpClient();
+  return (await httpClient.get<PaginatedResponse<IVirtualTour>>(virtualTourEndpoints.list(), { params })).data;
+};
+
 /**
  * Get details of a specific virtual tour by ID
  * @param virtualTourId - The ID of the virtual tour

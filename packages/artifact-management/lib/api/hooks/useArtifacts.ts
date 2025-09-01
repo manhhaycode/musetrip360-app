@@ -96,9 +96,9 @@ export function useCreateArtifact(
       mutationKey: artifactCacheKeys.create(),
       onSuccess: (data, variables, context) => {
         // Invalidate relevant queries
-        queryClient.removeQueries({ queryKey: artifactCacheKeys.list() });
-        queryClient.removeQueries({ queryKey: artifactCacheKeys.adminList() });
-        queryClient.removeQueries({ queryKey: artifactCacheKeys.byMuseum() });
+        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
+        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
+        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum() });
 
         onSuccess?.(data, variables, context);
       },
@@ -123,10 +123,10 @@ export function useUpdateArtifact(
     mutationKey: artifactCacheKeys.update(),
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.list() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.byMuseum() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.adminList() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables.id) });
 
       onSuccess?.(data, variables, context);
     },
@@ -148,9 +148,9 @@ export function useDeleteArtifact(options?: CustomMutationOptions<APIResponse<an
     mutationKey: artifactCacheKeys.delete(),
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.list() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.adminList() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables) });
 
       onSuccess?.(data, variables, context);
     },
@@ -172,9 +172,9 @@ export function useActivateArtifact(options?: CustomMutationOptions<APIResponse<
     mutationKey: artifactCacheKeys.activate(),
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.list() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.adminList() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables) });
 
       onSuccess?.(data, variables, context);
     },
@@ -196,9 +196,9 @@ export function useDeactivateArtifact(options?: CustomMutationOptions<APIRespons
     mutationKey: artifactCacheKeys.deactivate(),
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.list() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.adminList() });
-      queryClient.removeQueries({ queryKey: artifactCacheKeys.detail(variables) });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables) });
 
       onSuccess?.(data, variables, context);
     },
