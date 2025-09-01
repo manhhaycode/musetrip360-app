@@ -34,7 +34,7 @@ export interface VirtualTourViewerProps {
   // NEW: Navigation style
   /** Use hamburger menu instead of button stack */
   useHamburgerMenu?: boolean;
-  initialSceneId: string | null;
+  initialSceneId?: string | null;
 }
 
 export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({

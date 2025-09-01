@@ -94,7 +94,7 @@ export function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <NavigationMenu className="hidden lg:flex">
+        <NavigationMenu className="hidden justify-start lg:flex">
           <NavigationMenuList>
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
@@ -105,7 +105,7 @@ export function Header() {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuTrigger
                 className={twMerge(
                   buttonVariants({ variant: 'ghost' }),
@@ -157,16 +157,16 @@ export function Header() {
                   </div>
                 </div>
               </NavigationMenuContent>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
 
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
                 <Link href="/event">
                   <Calendar className="mr-2 h-6 w-6 hover:text-primary" />
                   Sự kiện
                 </Link>
               </NavigationMenuLink>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
@@ -177,14 +177,14 @@ export function Header() {
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
                 <Link href="/stream">
                   <Video className="mr-2 h-6 w-6 hover:text-primary" />
                   Streaming
                 </Link>
               </NavigationMenuLink>
-            </NavigationMenuItem>
+            </NavigationMenuItem> */}
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>

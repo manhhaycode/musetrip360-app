@@ -7,6 +7,8 @@
 import {
   APIError,
   CustomMutationOptions,
+  CustomQueryOptions,
+  PaginatedResponse,
   Pagination,
   useMutation,
   useQuery,
@@ -22,6 +24,7 @@ import {
   updateVirtualTour,
   activateVirtualTour,
   deactivateVirtualTour,
+  getVirtualTours,
 } from '../endpoints/virtual-tour';
 import { IVirtualTour } from '../types';
 
@@ -34,6 +37,13 @@ import { IVirtualTour } from '../types';
 export function useVirtualTourByMuseum(params: Pagination & { museumId: string }) {
   const { museumId, ...rest } = params;
   return useQuery(virtualTourCacheKeys.listByMuseum(museumId, rest), () => getVirtualToursByMuseum(museumId, rest));
+}
+
+export function useVirtualTours(
+  params: Pagination,
+  options?: CustomQueryOptions<PaginatedResponse<IVirtualTour>['data'], APIError>
+) {
+  return useQuery(virtualTourCacheKeys.lists(), () => getVirtualTours(params), options);
 }
 
 /**
