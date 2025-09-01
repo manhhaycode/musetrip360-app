@@ -1,23 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  Article,
+  ArticleCreate,
+  ArticleStatusEnum,
+  DataEntityType,
+  useCreateArticle,
+  useUpdateArticle,
+} from '@musetrip360/museum-management';
+import { PERMISSION_CONTENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import { FormDropZone, MediaType, useBulkUpload, useFileUpload, ZodFileData } from '@musetrip360/shared';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
-import { Textarea } from '@musetrip360/ui-core/textarea';
-import { toast } from '@musetrip360/ui-core/sonner';
-import { FileText, Save, Send } from 'lucide-react';
-import { useForm, useWatch } from 'react-hook-form';
-import React, { useState } from 'react';
-import { z } from 'zod';
-import {
-  DataEntityType,
-  Article,
-  useCreateArticle,
-  useUpdateArticle,
-  ArticleStatusEnum,
-  ArticleCreate,
-} from '@musetrip360/museum-management';
-import { useFileUpload, MediaType, DropZoneWithPreview } from '@musetrip360/shared';
-import { PERMISSION_CONTENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import {
   Sheet,
   SheetContent,
@@ -26,6 +20,11 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@musetrip360/ui-core/sheet';
+import { toast } from '@musetrip360/ui-core/sonner';
+import { FileText, Save, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 import { Card, CardContent } from '@musetrip360/ui-core/card';
 
@@ -38,9 +37,12 @@ const RichEditor = React.lazy(() =>
 const articleFormSchema = z.object({
   title: z.string().min(1, 'Tiêu đề là bắt buộc').max(255, 'Tiêu đề phải có ít nhất 255 ký tự'),
   content: z.string().min(1, 'Nội dung là bắt buộc'),
-  imageUrl: z.string().optional(),
-  mainImageUpload: z.any().optional(),
   previewContent: z.string().optional(),
+  metadata: z
+    .object({
+      thumbnail: ZodFileData.nullable().optional(),
+    })
+    .optional(),
 });
 
 type ArticleFormData = z.infer<typeof articleFormSchema>;
@@ -58,21 +60,21 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
   const [openSheet, setOpenSheet] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const { hasPermission } = useRolebaseStore();
-
-  // File upload mutation for images
-  const uploadFileMutation = useFileUpload();
+  const bulkUpload = useBulkUpload();
 
   const form = useForm<ArticleFormData>({
     resolver: zodResolver(articleFormSchema),
     defaultValues: {
       title: article?.title || '',
       content: article?.content || '',
-      imageUrl: article?.metadata?.thumbnail || '',
-      mainImageUpload: null,
+      metadata: {
+        thumbnail: {
+          file: article?.metadata?.thumbnail || null,
+          mediaType: MediaType.IMAGE,
+        },
+      },
     },
   });
-
-  const mainImageUpload = useWatch({ control: form.control, name: 'mainImageUpload' });
 
   const { mutate: createArticle, isPending: isCreating } = useCreateArticle({
     onSuccess: (data) => {
@@ -105,23 +107,26 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
       }
       setIsUploadingImages(true);
 
-      // Upload main image if provided via FormDropZone
-      let finalImageUrl = data.imageUrl;
-      if (data.mainImageUpload?.file && data.mainImageUpload.file instanceof File) {
-        const mainImageResult = await uploadFileMutation.mutateAsync(data.mainImageUpload.file);
-        finalImageUrl = mainImageResult.data.url;
+      // Handle bulk upload like EventBasicInfoForm
+      if (bulkUpload && bulkUpload?.getPendingFiles()?.length > 0) {
+        const isAccept = await bulkUpload?.openConfirmDialog();
+        if (isAccept) {
+          await bulkUpload?.uploadAll();
+        }
       }
 
+      const formData = form.getValues();
+
       const articleData: ArticleCreate | (Article & { id: string }) = {
-        title: data.title,
-        content: data.content,
+        title: formData.title,
+        content: formData.content,
         status,
         publishedAt: status === ArticleStatusEnum.Published ? new Date().toISOString() : '',
         museumId: museumId,
         dataEntityType: DataEntityType.Museum,
         entityId: museumId,
         metadata: {
-          thumbnail: finalImageUrl,
+          thumbnail: (formData.metadata?.thumbnail?.file as string) || '',
         },
       };
 
@@ -214,47 +219,16 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
           </Sheet>
 
           {/* Thumbnail Upload */}
-          <FormField
+          <FormDropZone
+            label="Thumbnail"
+            description=""
+            manualUpload={false}
+            withUrl={true}
+            urlPlaceholder="https://example.com/image.jpg"
+            className="min-h-[100px]"
+            name="metadata.thumbnail"
             control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-gray-600">Hình thu nhỏ</FormLabel>
-                <FormControl>
-                  <div className="space-y-3">
-                    {/* URL Input (for existing images or manual URLs) */}
-                    <Input type="url" placeholder="https://example.com/image.jpg" disabled={isPending} {...field} />
-
-                    {/* File Upload */}
-                    <div className="text-sm text-gray-500">Hoặc tải lên file:</div>
-                    <DropZoneWithPreview
-                      uploadId="mainImageUpload"
-                      autoRegister={true}
-                      value={
-                        mainImageUpload && mainImageUpload.file ? mainImageUpload.file : article?.metadata?.thumbnail
-                      }
-                      onChange={(newValue) => {
-                        if (!newValue) {
-                          form.setValue('mainImageUpload', null);
-                          return;
-                        }
-                        form.setValue('mainImageUpload', {
-                          file: newValue,
-                          mediaType: MediaType.IMAGE,
-                          fileName: newValue instanceof File ? newValue.name : '',
-                        });
-                      }}
-                      onRemove={() => form.setValue('mainImageUpload', null)}
-                      mediaType={MediaType.IMAGE}
-                      disabled={isPending}
-                      manualUpload={true}
-                      className="min-h-[100px]"
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            mediaType={MediaType.IMAGE}
           />
 
           <div className="flex flex-col sm:flex-row gap-3 pt-4">

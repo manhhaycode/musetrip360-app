@@ -4,6 +4,7 @@ import { Article } from '@musetrip360/museum-management';
 import { useMuseumStore } from '@musetrip360/museum-management/state';
 import ArticleForm from '@/features/article/ArticleForm';
 import Divider from '@/components/Divider';
+import { BulkUploadProvider } from '@musetrip360/shared';
 
 const ArticleCreatePage = () => {
   const navigate = useNavigate();
@@ -50,8 +51,9 @@ const ArticleCreatePage = () => {
       <Divider />
 
       {/* Article Creation Form */}
-
-      <ArticleForm museumId={selectedMuseum.id} onSuccess={handleSuccess} onCancel={handleCancel} />
+      <BulkUploadProvider>
+        <ArticleForm museumId={selectedMuseum.id} onSuccess={handleSuccess} onCancel={handleCancel} />
+      </BulkUploadProvider>
     </div>
   );
 };

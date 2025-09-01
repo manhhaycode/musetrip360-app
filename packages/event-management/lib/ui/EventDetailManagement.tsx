@@ -13,8 +13,6 @@ export function EventDetailManagement({ event, onUpdated }: { event: Event; onUp
           <TabsTrigger value="basic-info">Thông tin chung</TabsTrigger>
           <TabsTrigger value="virtual-tour">Liên kết tour ảo</TabsTrigger>
           <TabsTrigger value="participants">Người tham dự</TabsTrigger>
-          <TabsTrigger value="registration">Đăng ký</TabsTrigger>
-          <TabsTrigger value="bulk-notice">Thông báo hàng loạt</TabsTrigger>
         </TabsList>
         <TabsContent style={{ flex: '1 0 0' }} className="flex min-h-0" value="basic-info">
           <EventBasicInfoForm museumId={event.museumId} event={event} onSuccess={onUpdated} />

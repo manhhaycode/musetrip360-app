@@ -73,10 +73,7 @@ export function useDeleteEventParticipant(options?: CustomMutationOptions<any, A
 /**
  * Get event participants by event ID
  */
-export function useGetEventParticipantsByEvent(
-  eventId: string,
-  options?: CustomQueryOptions<PaginatedResponse<EventParticipant>['data']>
-) {
+export function useGetEventParticipantsByEvent(eventId: string, options?: CustomQueryOptions<EventParticipant[]>) {
   return useQuery(
     eventManagementCacheKeys.eventParticipantsByEvent(eventId),
     () => getEventParticipantsByEvent(eventId),

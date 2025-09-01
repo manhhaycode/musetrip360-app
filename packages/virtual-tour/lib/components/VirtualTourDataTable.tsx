@@ -1,4 +1,10 @@
-import { IVirtualTour, useVirtualTourByMuseum, useUpdateVirtualTour, useDeleteVirtualTour } from '@/api';
+import {
+  IVirtualTour,
+  useVirtualTourByMuseum,
+  useActivateVirtualTour,
+  useDeactivateVirtualTour,
+  useDeleteVirtualTour,
+} from '@/api';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
 import { toast } from '@musetrip360/ui-core/sonner';
@@ -65,10 +71,19 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
   });
 
   // API mutations
-  const { mutate: updateVirtualTour } = useUpdateVirtualTour(
+  const { mutate: activateVirtualTour } = useActivateVirtualTour(
     {
       onError: (error) => {
-        console.error('Update failed:', error);
+        console.error('Activate failed:', error);
+      },
+    },
+    !bulkProgress.isProcessing
+  );
+
+  const { mutate: deactivateVirtualTour } = useDeactivateVirtualTour(
+    {
+      onError: (error) => {
+        console.error('Deactivate failed:', error);
       },
     },
     !bulkProgress.isProcessing
@@ -132,11 +147,10 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
         try {
           if (operation === 'delete') {
             deleteVirtualTour(tour.id);
-          } else {
-            updateVirtualTour({
-              ...tour,
-              isActive: operation === 'activate',
-            });
+          } else if (operation === 'activate') {
+            activateVirtualTour(tour.id);
+          } else if (operation === 'deactivate') {
+            deactivateVirtualTour(tour.id);
           }
           successCount++;
 
@@ -167,7 +181,7 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
       // Refetch data only once after all operations complete
       refetch();
     },
-    [updateVirtualTour, deleteVirtualTour, refetch]
+    [activateVirtualTour, deactivateVirtualTour, deleteVirtualTour, refetch]
   );
 
   // Status change handlers
