@@ -1,6 +1,5 @@
-import { useArtifact } from '@musetrip360/artifact-management/api';
+import { getArtifactsByMuseum, useArtifact } from '@musetrip360/artifact-management/api';
 import { useQuery } from '@tanstack/react-query';
-
 interface ArtifactSearchParams {
   Page?: number;
   PageSize?: number;
@@ -28,7 +27,7 @@ export const useArtifacts = (params?: ArtifactSearchParams, options?: { enabled?
       }
 
       // Gọi trực tiếp function từ package thay vì hook để tránh cache conflict
-      const { getArtifactsByMuseum } = await import('@musetrip360/artifact-management/api');
+
       return await getArtifactsByMuseum({
         museumId: params.museumId,
         Page: params.Page || 1,
