@@ -1,5 +1,6 @@
 import { Separator } from '@musetrip360/ui-core/separator';
 import { Globe, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
   return (
@@ -24,24 +25,19 @@ export default function Footer() {
             <h3 className="font-semibold mb-4">Khám phá</h3>
             <ul className="space-y-2 text-slate-300">
               <li>
-                <a href="/museums" className="hover:text-white transition-colors">
+                <Link href="/search?type=Museum" className="hover:text-white transition-colors">
                   Bảo tàng
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/events" className="hover:text-white transition-colors">
+                <Link href="/search?type=Event" className="hover:text-white transition-colors">
                   Sự kiện
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/tours" className="hover:text-white transition-colors">
+                <Link href="/search?type=VirtualTour" className="hover:text-white transition-colors">
                   Tour ảo
-                </a>
-              </li>
-              <li>
-                <a href="/collections" className="hover:text-white transition-colors">
-                  Bộ sưu tập
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -50,24 +46,24 @@ export default function Footer() {
             <h3 className="font-semibold mb-4">Hỗ trợ</h3>
             <ul className="space-y-2 text-slate-300">
               <li>
-                <a href="/help" className="hover:text-white transition-colors">
+                <Link href="/contact" className="hover:text-white transition-colors">
                   Trợ giúp
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/contact" className="hover:text-white transition-colors">
+                <Link href="/contact" className="hover:text-white transition-colors">
                   Liên hệ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/faq" className="hover:text-white transition-colors">
+                <Link href="/contact" className="hover:text-white transition-colors">
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/privacy" className="hover:text-white transition-colors">
+                <Link href="/" className="hover:text-white transition-colors">
                   Chính sách riêng tư
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -77,11 +73,11 @@ export default function Footer() {
             <ul className="space-y-2 text-slate-300">
               <li className="flex items-center">
                 <Phone className="h-4 w-4 mr-2" />
-                +84 (0) 123 456 789
+                +84 123 456 789
               </li>
               <li className="flex items-center">
                 <Mail className="h-4 w-4 mr-2" />
-                info@musetrip360.com
+                info@musetrip360.vn
               </li>
               <li className="flex items-center">
                 <MapPin className="h-4 w-4 mr-2" />
@@ -96,15 +92,15 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center text-slate-300">
           <p>&copy; 2024 MuseTrip360. Tất cả quyền được bảo lưu.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="/terms" className="hover:text-white transition-colors">
+            <Link href="/" className="hover:text-white transition-colors">
               Điều khoản sử dụng
-            </a>
-            <a href="/privacy" className="hover:text-white transition-colors">
+            </Link>
+            <Link href="/" className="hover:text-white transition-colors">
               Bảo mật
-            </a>
-            <a href="/cookies" className="hover:text-white transition-colors">
+            </Link>
+            <Link href="/" className="hover:text-white transition-colors">
               Cookies
-            </a>
+            </Link>
           </div>
         </div>
       </div>
