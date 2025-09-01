@@ -241,7 +241,7 @@ export const DateTimePicker = React.forwardRef<DateTimePickerRef, DateTimePicker
             </Label>
           )}
           <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger disabled={disabled} asChild>
               <Button variant="outline" id="date-picker" className="w-36 justify-between font-normal">
                 {value ? format(value, 'dd/MM/yyyy') : placeholder}
                 <ChevronDownIcon className="ml-2 h-4 w-4 shrink-0" />

@@ -63,6 +63,7 @@
     "@musetrip360/ui-core": "workspace:*",
     "@musetrip360/user-management": "workspace:*",
     "@musetrip360/virtual-tour": "workspace:*",
+    "@musetrip360/rolebase-management": "workspace:*",
     "@tailwindcss/vite": "^4.1.8",
     "@tanstack/react-query": "^5.81.5",
     "date-fns": "^4.1.0",

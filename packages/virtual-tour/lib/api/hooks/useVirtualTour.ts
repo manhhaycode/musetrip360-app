@@ -20,6 +20,8 @@ import {
   getVirtualTourById,
   getVirtualToursByMuseum,
   updateVirtualTour,
+  activateVirtualTour,
+  deactivateVirtualTour,
 } from '../endpoints/virtual-tour';
 import { IVirtualTour } from '../types';
 
@@ -99,6 +101,48 @@ export function useDeleteVirtualTour(options?: CustomMutationOptions<void, APIEr
     ...options,
     onSuccess: (data, variables, context) => {
       queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+/**
+ * Custom hook to activate a virtual tour
+ * @param options - Custom mutation options
+ * @param isInvalidQuery - Whether to invalidate queries on success
+ * @returns Mutation function to activate a virtual tour
+ */
+export function useActivateVirtualTour(
+  options?: CustomMutationOptions<void, APIError, string>,
+  isInvalidQuery: boolean = true
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, APIError, string>(activateVirtualTour, {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
+}
+
+/**
+ * Custom hook to deactivate a virtual tour
+ * @param options - Custom mutation options
+ * @param isInvalidQuery - Whether to invalidate queries on success
+ * @returns Mutation function to deactivate a virtual tour
+ */
+export function useDeactivateVirtualTour(
+  options?: CustomMutationOptions<void, APIError, string>,
+  isInvalidQuery: boolean = true
+) {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, APIError, string>(deactivateVirtualTour, {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });

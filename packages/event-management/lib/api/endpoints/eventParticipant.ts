@@ -4,7 +4,7 @@
  * API endpoints for event participant operations.
  */
 
-import { EventParticipant } from '@/types';
+import { EventParticipant, ParticipantRoleEnum, ParticipantStatus } from '@/types';
 import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
 
 /**
@@ -28,12 +28,12 @@ export const eventParticipantEndpoints = {
 export interface EventParticipantCreateDto {
   eventId: string;
   userId: string;
-  role?: 'Attendee' | 'Organizer' | 'TourGuide' | 'Guest';
+  role?: ParticipantRoleEnum;
 }
 
 export interface EventParticipantUpdateDto {
-  role?: 'Attendee' | 'Organizer' | 'TourGuide' | 'Guest';
-  status?: 'Pending' | 'Confirmed' | 'Attended' | 'Cancelled';
+  role?: ParticipantRoleEnum;
+  status?: ParticipantStatus;
 }
 
 /**
@@ -86,9 +86,7 @@ export const deleteEventParticipant = async (id: string) => {
  */
 export const getEventParticipantsByEvent = async (eventId: string) => {
   const httpClient = getHttpClient();
-  const response = await httpClient.get<PaginatedResponse<EventParticipant>>(
-    eventParticipantEndpoints.getByEvent(eventId)
-  );
+  const response = await httpClient.get<APIResponse<EventParticipant[]>>(eventParticipantEndpoints.getByEvent(eventId));
   return response.data;
 };
 

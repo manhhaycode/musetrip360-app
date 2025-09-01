@@ -144,7 +144,7 @@ export const DEFAULT_VALIDATION_CONFIG: Record<MediaType, FileValidationConfig> 
 
 export type FileData = {
   file: File | string | null; // File object or URL
-  mediaType: MediaType; // Type of the file
+  mediaType?: MediaType; // Type of the file
   fileName?: string; // Optional file name
   audioOptions?: {
     autoPlay?: boolean;
@@ -155,7 +155,7 @@ export type FileData = {
 
 export const ZodFileData = z.object({
   file: z.union([z.instanceof(File), z.string()]).nullable(),
-  mediaType: z.nativeEnum(MediaType),
+  mediaType: z.nativeEnum(MediaType).optional(),
   fileName: z.string().optional(),
 }) satisfies ZodType<FileData>;
 
