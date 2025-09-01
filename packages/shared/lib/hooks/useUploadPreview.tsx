@@ -1,9 +1,9 @@
-import { useFileUpload } from '@/api';
-import { UploadProgress, UploadStatus } from '@musetrip360/query-foundation';
-import React, { useCallback } from 'react';
+import { useFileUpload } from '@/api/hooks/useUpload';
+import { BulkUploadProps, useBulkUpload } from '@/contexts/UploadFileContext';
 import { FileData, MediaType } from '@/types';
 import { formatFileSize, validateFileByMediaType } from '@/utils';
-import { BulkUploadProps, useBulkUpload } from '@/contexts/UploadFileContext';
+import { UploadProgress, UploadStatus } from '@musetrip360/query-foundation';
+import React, { useCallback } from 'react';
 
 interface UseUploadPreviewProps extends BulkUploadProps {
   onUpload?: (url: string) => void;

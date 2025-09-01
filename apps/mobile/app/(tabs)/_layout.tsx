@@ -6,10 +6,12 @@ import { BottomNavigation } from '@/components/layout/BottomNavigation';
 
 export default function TabLayout() {
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-background">
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="search" />
+        <Stack.Screen name="chatbot" />
+        <Stack.Screen name="profile" />
       </Stack>
       <BottomNavigation />
     </View>

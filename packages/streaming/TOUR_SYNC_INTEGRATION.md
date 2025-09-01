@@ -22,11 +22,7 @@ function MyTourApp() {
 
   return (
     <StreamingProvider config={signalRConfig}>
-      <SyncedVirtualTourViewer 
-        virtualTour={myVirtualTourData}
-        mode={tourMode}
-        onModeChange={setTourMode}
-      />
+      <SyncedVirtualTourViewer virtualTour={myVirtualTourData} mode={tourMode} onModeChange={setTourMode} />
     </StreamingProvider>
   );
 }
@@ -39,7 +35,7 @@ import { SyncedVirtualTourViewer } from '@musetrip360/streaming/ui/components';
 
 function AdvancedTourApp() {
   return (
-    <SyncedVirtualTourViewer 
+    <SyncedVirtualTourViewer
       virtualTour={virtualTourData}
       mode="guide"
       virtualTourProps={{
@@ -59,18 +55,12 @@ import { useTourSyncIntegration } from '@musetrip360/streaming/ui/components';
 import { VirtualTourViewer } from '@musetrip360/virtual-tour/components';
 
 function CustomTourComponent() {
-  const { syncedProps, isConnected } = useTourSyncIntegration(
-    virtualTourData, 
-    'guide'
-  );
+  const { syncedProps, isConnected } = useTourSyncIntegration(virtualTourData, 'guide');
 
   return (
     <div>
       {!isConnected && <div>⚠️ Tour sync unavailable</div>}
-      <VirtualTourViewer 
-        virtualTour={virtualTourData}
-        {...syncedProps}
-      />
+      <VirtualTourViewer virtualTour={virtualTourData} {...syncedProps} />
     </div>
   );
 }
@@ -79,13 +69,15 @@ function CustomTourComponent() {
 ## Tour Actions
 
 ### Automatic Actions (Guide Mode)
+
 When in guide mode, these user actions are automatically synchronized:
 
 - **Camera Changes**: Mouse drag, wheel zoom, touch gestures
-- **Scene Navigation**: Clicking scene navigation buttons  
+- **Scene Navigation**: Clicking scene navigation buttons
 - **Artifact Interactions**: Clicking polygons to preview artifacts
 
 ### Manual Actions (Programmatic)
+
 You can also send tour actions programmatically:
 
 ```tsx
@@ -99,10 +91,10 @@ function TourControls() {
   };
 
   const handleCameraReset = () => {
-    guideModeUtils.sendCameraChange({ 
-      theta: 0, 
-      phi: Math.PI / 2, 
-      fov: 75 
+    guideModeUtils.sendCameraChange({
+      theta: 0,
+      phi: Math.PI / 2,
+      fov: 75,
     });
   };
 
@@ -137,13 +129,14 @@ SyncedVirtualTourViewer
 ## Tour Action Types
 
 ### Camera Change
+
 ```typescript
 {
   ActionType: 'camera_change',
   ActionData: {
     CameraPosition: {
       theta: number,  // Horizontal angle (radians)
-      phi: number,    // Vertical angle (radians)  
+      phi: number,    // Vertical angle (radians)
       fov: number     // Field of view (degrees)
     }
   }
@@ -151,6 +144,7 @@ SyncedVirtualTourViewer
 ```
 
 ### Scene Change
+
 ```typescript
 {
   ActionType: 'scene_change',
@@ -161,6 +155,7 @@ SyncedVirtualTourViewer
 ```
 
 ### Artifact Preview
+
 ```typescript
 {
   ActionType: 'artifact_preview',
@@ -171,6 +166,7 @@ SyncedVirtualTourViewer
 ```
 
 ### Artifact Close
+
 ```typescript
 {
   ActionType: 'artifact_close',
@@ -181,6 +177,7 @@ SyncedVirtualTourViewer
 ## State Management
 
 ### Guide Mode State
+
 ```typescript
 const { guideModeUtils } = useSyncedVirtualTour();
 
@@ -195,13 +192,14 @@ await guideModeUtils.sendArtifactClose();
 ```
 
 ### Attendee Mode State
+
 ```typescript
 const { attendeeModeUtils } = useSyncedVirtualTour();
 
 // Get controlled props for VirtualTourViewer
-attendeeModeUtils.controlledSceneId;        // string | undefined
+attendeeModeUtils.controlledSceneId; // string | undefined
 attendeeModeUtils.controlledCameraPosition; // { theta, phi, fov } | undefined
-attendeeModeUtils.controlledArtifactId;     // string | null
+attendeeModeUtils.controlledArtifactId; // string | null
 
 // Clear controlled state
 attendeeModeUtils.clearControlledState();
@@ -210,18 +208,20 @@ attendeeModeUtils.clearControlledState();
 ## Connection Management
 
 ### Connection Info
+
 ```typescript
 const { connectionInfo } = useSyncedVirtualTour();
 
-connectionInfo.isConnected;      // boolean
-connectionInfo.connectionStatus; // string  
-connectionInfo.roomId;          // string | null
-connectionInfo.currentUserId;   // string | null
+connectionInfo.isConnected; // boolean
+connectionInfo.connectionStatus; // string
+connectionInfo.roomId; // string | null
+connectionInfo.currentUserId; // string | null
 ```
 
 ### Setup Requirements
 
 1. **StreamingProvider**: Must wrap your app with streaming context
+
 ```tsx
 <StreamingProvider config={signalRConfig}>
   <YourTourApp />
@@ -229,6 +229,7 @@ connectionInfo.currentUserId;   // string | null
 ```
 
 2. **SignalR Configuration**: Provide valid SignalR connection config
+
 ```typescript
 const signalRConfig = {
   serverUrl: 'https://your-signalr-hub.com/streamingHub',
@@ -237,6 +238,7 @@ const signalRConfig = {
 ```
 
 3. **Room Joining**: User must join a streaming room for tour sync to work
+
 ```typescript
 const { joinRoom } = useStreamingContext();
 await joinRoom('tour-room-id');
@@ -245,6 +247,7 @@ await joinRoom('tour-room-id');
 ## Error Handling
 
 ### Connection Errors
+
 ```tsx
 const { connectionInfo } = useSyncedVirtualTour();
 
@@ -254,6 +257,7 @@ if (!connectionInfo.isConnected) {
 ```
 
 ### Send Action Errors
+
 Tour action methods return promises and can throw errors:
 
 ```tsx
@@ -268,23 +272,21 @@ try {
 ## Development & Testing
 
 ### Debug Mode
+
 Use the example component with debug info:
 
 ```tsx
 import { TourSyncExample } from '@musetrip360/streaming/ui/components';
 
-<TourSyncExample 
-  virtualTour={tourData}
-  showDebugInfo={true}
-  initialMode="guide"
-/>
+<TourSyncExample virtualTour={tourData} showDebugInfo={true} initialMode="guide" />;
 ```
 
 ### Mode Switching
+
 In development, you can switch between guide and attendee modes:
 
 ```tsx
-<SyncedVirtualTourViewer 
+<SyncedVirtualTourViewer
   virtualTour={tourData}
   mode={currentMode}
   onModeChange={setMode} // Only works in development
@@ -294,25 +296,28 @@ In development, you can switch between guide and attendee modes:
 ## Performance Considerations
 
 1. **Debouncing**: Camera changes are debounced to avoid spamming SignalR
-2. **Selective Updates**: Only significant camera changes trigger sync events  
+2. **Selective Updates**: Only significant camera changes trigger sync events
 3. **Connection Management**: Automatic reconnection and error handling
 4. **Memory Management**: Event listeners are properly cleaned up
 
 ## Troubleshooting
 
 ### Tour Actions Not Syncing
+
 1. Check SignalR connection status
 2. Verify user is in guide mode and has permissions
 3. Ensure both users are in the same room
 4. Check browser console for errors
 
 ### Performance Issues
+
 1. Check network connection quality
-2. Monitor SignalR connection stability  
+2. Monitor SignalR connection stability
 3. Reduce camera change sensitivity
 4. Check for JavaScript errors blocking event handlers
 
 ### Integration Issues
+
 1. Verify virtual-tour package version compatibility
 2. Check that StreamingProvider wraps the component tree
 3. Ensure proper TypeScript types are imported

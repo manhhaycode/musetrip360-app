@@ -15,12 +15,12 @@ import {
 import { Room, RoomCreateDto, RoomUpdateDto, RoomUpdateMetadataDto } from '@/types';
 
 import {
-  getRoomById,
-  getRoomByEvent,
   createRoomByEvent,
+  deleteRoom,
+  getRoomByEvent,
+  getRoomById,
   updateRoom,
   updateRoomMetadata,
-  deleteRoom,
 } from '../endpoints/rooms';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';

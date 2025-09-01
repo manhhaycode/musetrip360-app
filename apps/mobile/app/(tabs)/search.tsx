@@ -1,10 +1,3 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { Filter, MapPin, Search as SearchIcon } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
-import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-
 import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
@@ -12,12 +5,77 @@ import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
 import { searchUtils, useGlobalSearch } from '@/hooks/useSearch';
 import type { SearchFilters, SearchResultItem } from '@/types/api';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
+import { CalendarDays, Filter, Frown, Globe2, Landmark, Package, Search as SearchIcon } from 'lucide-react-native';
+import React, { useMemo, useState } from 'react';
+import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+// SearchHeader component: search bar + tabs
+type SearchHeaderProps = {
+  searchQuery: string;
+  handleSearchInputChange: (text: string) => void;
+  handleSearch: () => void;
+  activeTab: SearchTabKey;
+  handleTabChange: (tab: SearchTabKey) => void;
+};
+
+function SearchHeader({
+  searchQuery,
+  handleSearchInputChange,
+  handleSearch,
+  activeTab,
+  handleTabChange,
+}: SearchHeaderProps) {
+  return (
+    <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
+      {/* Search Bar */}
+      <View className="relative mb-8 bg-card rounded-xl">
+        <Input
+          className="bg-card text-card-foreground border-primary pl-12 h-12 text-base rounded-lg"
+          placeholder="Tìm kiếm..."
+          value={searchQuery}
+          onChangeText={handleSearchInputChange}
+          onSubmitEditing={handleSearch}
+        />
+        <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
+          <SearchIcon size={20} color="#ff941d" />
+        </TouchableOpacity>
+        <TouchableOpacity className="absolute right-4 top-3">
+          <Filter size={20} color="#a67c52" />
+        </TouchableOpacity>
+      </View>
+      {/* Search Tabs */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+        <View className="flex-row">
+          {SEARCH_TABS.map((tab) => (
+            <TouchableOpacity
+              key={tab.key}
+              onPress={() => handleTabChange(tab.key)}
+              className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'}`}
+            >
+              <View className="flex-row items-center">
+                <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />
+                <Text
+                  className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
+                >
+                  {tab.label}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
 
 const SEARCH_TABS = [
-  { key: 'Museum', label: 'Bảo tàng', icon: '🏛️' },
-  { key: 'Artifact', label: 'Hiện vật', icon: '🏺' },
-  { key: 'Event', label: 'Sự kiện', icon: '📅' },
-  { key: 'TourOnline', label: 'Tour ảo', icon: '🌐' },
+  { key: 'Museum', label: 'Bảo tàng', icon: Landmark },
+  { key: 'Artifact', label: 'Hiện vật', icon: Package },
+  { key: 'Event', label: 'Sự kiện', icon: CalendarDays },
+  { key: 'TourOnline', label: 'Tour ảo', icon: Globe2 },
 ] as const;
 
 type SearchTabKey = (typeof SEARCH_TABS)[number]['key'];
@@ -47,16 +105,6 @@ export default function SearchPage() {
 
   // Global search API call
   const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
-
-  // Debug API response
-  React.useEffect(() => {
-    console.log('=== 🔍 SEARCH DEBUG ===');
-    console.log('🔍 API Params:', apiParams);
-    console.log('🔍 Search Response:', searchResponse);
-    console.log('🔍 Search Loading:', isLoading);
-    console.log('🔍 Search Error:', error);
-    console.log('=== END SEARCH DEBUG ===');
-  }, [apiParams, searchResponse, isLoading, error]);
 
   const searchResults = useMemo(() => {
     return searchResponse?.data?.items || [];
@@ -103,184 +151,154 @@ export default function SearchPage() {
   const navigateToDetail = (item: SearchResultItem) => {
     switch (item.type) {
       case 'Museum':
-        router.push(`/museum/${item.id}`);
+        router.push(`/museum/${item.id}` as any);
         break;
       case 'Artifact':
+        router.push(`/artifact/${item.id}` as any);
+        break;
       case 'Event':
+        router.push(`/event/${item.id}` as any);
+        break;
+      case 'Article':
+        router.push(`/article/${item.id}` as any);
+        break;
       case 'TourOnline':
-        // For now, show a message that detail pages are coming soon
-        console.log(`Navigate to ${item.type} detail:`, item.id);
+        // Tour online details can be implemented later
         break;
     }
   };
 
-  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => (
-    <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
-      <Card className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-        <CardContent className="p-0">
-          <View className="flex-row">
-            <Image
-              source={item.thumbnail || 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400'}
-              className="w-24 h-24 rounded-l-lg"
-              resizeMode="cover"
-            />
-            <View className="flex-1 p-4">
-              <View className="flex-row items-start justify-between mb-2">
-                <Text className="font-semibold text-base text-gray-900 flex-1 mr-2" numberOfLines={2}>
-                  {item.title}
+  const renderSearchResultCard = ({ item }: { item: SearchResultItem }) => {
+    // Tăng chiều cao cho bảo tàng vì có nhiều text hơn
+    const cardHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
+    const imageHeight = item.type === 'Museum' ? 'h-32' : 'h-28';
+
+    return (
+      <TouchableOpacity onPress={() => navigateToDetail(item)} className="mb-4">
+        <Card className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
+          <View className={`flex-row ${cardHeight}`}>
+            <View className={`w-24 ${imageHeight} bg-gray-100`}>
+              <Image
+                source={{
+                  uri: item.thumbnail || 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg',
+                }}
+                className={`w-24 ${imageHeight}`}
+                resizeMode="cover"
+                defaultSource={{ uri: 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg' }}
+              />
+            </View>
+            <View className="flex-1 p-3 justify-between">
+              <View className="flex-1">
+                <View className="flex-row items-start justify-between mb-2">
+                  <Text className="font-semibold text-base text-foreground flex-1 mr-2" numberOfLines={2}>
+                    {item.title}
+                  </Text>
+                  <View className="bg-primary border border-primary rounded px-2 py-1 shrink-0 flex-row items-center">
+                    {(() => {
+                      const tab = SEARCH_TABS.find((tab) => tab.key === item.type);
+                      if (!tab) return null;
+                      const Icon = tab.icon;
+                      return <Icon size={14} color="#fff" style={{ marginRight: 4 }} />;
+                    })()}
+                    <Text className="text-xs text-primary-foreground">
+                      {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}
+                    </Text>
+                  </View>
+                </View>
+
+                <Text
+                  className="text-muted-foreground text-sm leading-5"
+                  numberOfLines={item.type === 'Museum' ? 4 : 3}
+                >
+                  {item.description}
                 </Text>
-                <View className="bg-blue-100 border border-blue-200 rounded px-2 py-1">
-                  <Text className="text-xs text-blue-800">
-                    <Text>{SEARCH_TABS.find((tab) => tab.key === item.type)?.icon}</Text>
-                    <Text> {SEARCH_TABS.find((tab) => tab.key === item.type)?.label}</Text>
-                  </Text>
-                </View>
               </View>
-
-              <Text className="text-gray-600 text-sm mb-2" numberOfLines={2}>
-                {item.description}
-              </Text>
-
-              {item.location && (
-                <View className="flex-row items-center">
-                  <MapPin size={12} color="#6b7280" />
-                  <Text className="text-gray-500 text-xs ml-1" numberOfLines={1}>
-                    {item.location}
-                  </Text>
-                </View>
-              )}
             </View>
           </View>
-        </CardContent>
-      </Card>
-    </TouchableOpacity>
-  );
+        </Card>
+      </TouchableOpacity>
+    );
+  };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
-
-      {/* Header */}
-      <View className="px-4 pt-4 pb-2 bg-white border-b border-gray-200">
-        <Text className="text-2xl font-bold text-gray-900 mb-4">Tìm kiếm</Text>
-
-        {/* Search Bar */}
-        <View className="relative mb-4">
-          <Input
-            placeholder="Tìm kiếm bảo tàng, hiện vật, sự kiện..."
-            value={searchQuery}
-            onChangeText={handleSearchInputChange}
-            onSubmitEditing={handleSearch}
-            className="pl-12 h-12 bg-gray-50 border-gray-200 text-base rounded-lg"
-          />
-          <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-            <SearchIcon size={20} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity className="absolute right-4 top-3">
-            <Filter size={20} color="#6b7280" />
-          </TouchableOpacity>
-        </View>
-
-        {/* Search Tabs */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-2">
-          <View className="flex-row space-x-2">
-            {SEARCH_TABS.map((tab) => (
-              <TouchableOpacity
-                key={tab.key}
-                onPress={() => handleTabChange(tab.key)}
-                className={`px-4 py-2 rounded-full border ${
-                  activeTab === tab.key ? 'bg-blue-600 border-blue-600' : 'bg-white border-gray-300'
-                }`}
-              >
-                <Text className={`text-sm font-medium ${activeTab === tab.key ? 'text-white' : 'text-gray-700'}`}>
-                  <Text>{tab.icon}</Text>
-                  <Text> {tab.label}</Text>
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </ScrollView>
-      </View>
-
-      {/* Results */}
-      <View className="flex-1">
-        <View className="flex-row items-center justify-between mb-4 px-4">
-          <Text className="text-lg font-semibold text-gray-900">
-            {SEARCH_TABS.find((tab) => tab.key === activeTab)?.label}
-          </Text>
-          <Text className="text-gray-600">{searchResults.length} kết quả</Text>
-        </View>
-
-        {isLoading ? (
-          <View className="px-4 space-y-4">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg">
-                <CardContent className="p-0">
-                  <View className="flex-row">
-                    <View className="w-24 h-24 bg-gray-200" />
-                    <View className="flex-1 p-4">
-                      <View className="w-3/4 h-4 bg-gray-200 rounded mb-2" />
-                      <View className="w-1/2 h-3 bg-gray-200 rounded mb-2" />
-                      <View className="w-1/3 h-3 bg-gray-200 rounded" />
-                    </View>
+      <SearchHeader
+        searchQuery={searchQuery}
+        handleSearchInputChange={handleSearchInputChange}
+        handleSearch={handleSearch}
+        activeTab={activeTab}
+        handleTabChange={handleTabChange}
+      />
+      {isLoading ? (
+        <View className="px-4">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Card key={index} className="overflow-hidden bg-white border border-gray-200 rounded-lg mb-4">
+              <CardContent className="p-0">
+                <View className="flex-row">
+                  <View className="w-24 h-24 bg-gray-200" />
+                  <View className="flex-1 p-4">
+                    <View className="w-3/4 h-4 bg-gray-200 rounded mb-2" />
+                    <View className="w-1/2 h-3 bg-gray-200 rounded mb-2" />
+                    <View className="w-1/3 h-3 bg-gray-200 rounded" />
                   </View>
-                </CardContent>
-              </Card>
-            ))}
-          </View>
-        ) : error ? (
-          <View className="px-4">
-            <Card className="bg-white border border-red-200 rounded-lg">
-              <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">⚠️</Text>
-                <Text className="text-lg font-semibold text-red-900 mb-2">Lỗi tìm kiếm</Text>
-                <Text className="text-red-600 text-center">{error?.message || 'Không thể thực hiện tìm kiếm'}</Text>
-              </CardContent>
-            </Card>
-          </View>
-        ) : searchResults.length > 0 ? (
-          <View className="flex-1">
-            <FlatList
-              data={searchResults}
-              renderItem={renderSearchResultCard}
-              keyExtractor={(item) => item.id}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 16 }}
-              ItemSeparatorComponent={() => <View className="h-2" />}
-              ListFooterComponent={() => (
-                <View className="pt-4 pb-20">
-                  {/* Pagination */}
-                  {searchResponse?.data?.total && totalPages > 1 && (
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      onPageChange={handlePageChange}
-                      showPages={5}
-                      className="pt-4"
-                    />
-                  )}
                 </View>
-              )}
-            />
-          </View>
-        ) : (
-          <View className="px-4">
-            <Card className="bg-white border border-gray-200 rounded-lg">
-              <CardContent className="p-8 items-center">
-                <Text className="text-4xl mb-3">🔍</Text>
-                <Text className="text-lg font-semibold text-gray-900 mb-2">
-                  {filters.query ? 'Không tìm thấy kết quả' : 'Nhập từ khóa để tìm kiếm'}
-                </Text>
-                <Text className="text-gray-600 text-center">
-                  {filters.query
-                    ? 'Thử tìm kiếm với từ khóa khác hoặc chọn tab khác'
-                    : 'Tìm kiếm bảo tàng, hiện vật, sự kiện và tour ảo'}
-                </Text>
               </CardContent>
             </Card>
-          </View>
-        )}
-      </View>
+          ))}
+        </View>
+      ) : error ? (
+        <View className="px-4">
+          <Card className="bg-white border border-red-200 rounded-lg">
+            <CardContent className="p-8 items-center">
+              <Frown size={40} color="#ff941d" className="mb-3" />
+              <Text className="text-lg font-semibold text-red-900 mb-2">Lỗi tìm kiếm</Text>
+              <Text className="text-red-600 text-center">{error?.message || 'Không thể thực hiện tìm kiếm'}</Text>
+            </CardContent>
+          </Card>
+        </View>
+      ) : searchResults.length > 0 ? (
+        <View className="flex-1">
+          <FlatList
+            data={searchResults}
+            renderItem={renderSearchResultCard}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16 }}
+            ItemSeparatorComponent={() => <View className="h-4" />}
+            ListFooterComponent={() => (
+              <View className="pt-4 pb-20">
+                {/* Pagination */}
+                {searchResponse?.data?.total && totalPages > 1 && (
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    showPages={5}
+                    className="pt-4"
+                  />
+                )}
+              </View>
+            )}
+          />
+        </View>
+      ) : (
+        <View className="px-4">
+          <Card className="bg-white border border-gray-200 rounded-lg">
+            <CardContent className="p-8 items-center">
+              <SearchIcon size={40} color="#ff941d" className="mb-3" />
+              <Text className="text-lg font-semibold text-gray-900 mb-2">
+                {filters.query ? 'Không tìm thấy kết quả' : 'Nhập từ khóa để tìm kiếm'}
+              </Text>
+              <Text className="text-gray-600 text-center">
+                {filters.query
+                  ? 'Thử tìm kiếm với từ khóa khác hoặc chọn tab khác'
+                  : 'Tìm kiếm bảo tàng, hiện vật, sự kiện và tour ảo'}
+              </Text>
+            </CardContent>
+          </Card>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
