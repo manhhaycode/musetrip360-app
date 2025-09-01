@@ -29,8 +29,8 @@ export class ArtifactManagementCacheKeys extends BaseCacheKeyFactory {
     return [this.prefix, 'artifact', id];
   }
 
-  byMuseum(): QueryKey {
-    return [this.prefix, 'artifacts', 'byMuseum'];
+  byMuseum(id: string): QueryKey {
+    return [this.prefix, 'artifacts', 'byMuseum', id];
   }
 
   // Mutation keys

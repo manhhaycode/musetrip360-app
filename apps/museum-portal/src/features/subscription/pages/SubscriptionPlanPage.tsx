@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, Loader2, CreditCard, CheckCircle, XCircle, X, FileText, Download } from 'lucide-react';
+import { Check, Loader2, CreditCard, CheckCircle, XCircle, X, FileText, Download, ExternalLink } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
 import { useForm, useFieldArray, useWatch } from 'react-hook-form';
@@ -370,8 +370,32 @@ const SubscriptionPlanPage = () => {
           <Alert className="mt-4">
             <Check className="h-4 w-4" />
             <AlertDescription>
-              Bạn đang sử dụng gói <strong>{activeSubscription.plan?.name}</strong> (hết hạn:{' '}
-              {new Date(activeSubscription.endDate).toLocaleDateString('vi-VN')})
+              <div className="space-y-2">
+                <p>
+                  Bạn đang sử dụng gói <strong>{activeSubscription.plan?.name}</strong> (hết hạn:{' '}
+                  {new Date(activeSubscription.endDate).toLocaleDateString('vi-VN')})
+                </p>
+
+                {activeSubscription.metadata?.documents && activeSubscription.metadata.documents.length > 0 && (
+                  <div className="pt-2 border-t border-border/30">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FileText className="h-4 w-4" />
+                      <span className="text-sm font-medium">Hợp đồng đính kèm</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {activeSubscription.metadata.documents.map((docUrl: string, index: number) => (
+                        <a href={docUrl} target="_blank" rel="noopener noreferrer" className="gap-2">
+                          <Button key={index} variant="outline" size="sm" className="h-8 text-xs justify-start">
+                            <Download className="h-3 w-3" />
+                            <span>Tài liệu {index + 1}</span>
+                            <ExternalLink className="h-3 w-3 ml-auto" />
+                          </Button>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
             </AlertDescription>
           </Alert>
         )}
