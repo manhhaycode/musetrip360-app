@@ -181,9 +181,9 @@ const DEFAULT_QUERY_CACHE_CONFIG: QueryCacheConfig = {
   maxAge: 24 * 60 * 60 * 1000, // 24 hours
   maxQueries: 1000,
   retryDelay: () => 0,
-  retryOnMount: false,
-  refetchOnMount: false,
-  refetchOnWindowFocus: false,
+  retryOnMount: true,
+  refetchOnMount: true,
+  refetchOnWindowFocus: true,
   refetchOnReconnect: true,
 };
 

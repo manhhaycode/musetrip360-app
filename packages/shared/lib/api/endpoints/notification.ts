@@ -10,6 +10,7 @@ import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/quer
 export const notificationEndpoints = {
   notification: 'messaging/notifications',
   readNotification: 'messaging/notifications/read',
+  notificationById: (id: string) => `messaging/notifications/${id}`,
 };
 
 export const getNotifications = async (params: NotificationSearchParams) => {
@@ -24,5 +25,11 @@ export const getNotifications = async (params: NotificationSearchParams) => {
 export const updateReadNotification = async (data: UpdateReadNotification) => {
   const httpClient = getHttpClient();
   const response = await httpClient.put<APIResponse<Notification>>(notificationEndpoints.readNotification, data);
+  return response.data;
+};
+
+export const deleteNotification = async (id: string) => {
+  const httpClient = getHttpClient();
+  const response = await httpClient.delete<APIResponse<void>>(notificationEndpoints.notificationById(id));
   return response.data;
 };
