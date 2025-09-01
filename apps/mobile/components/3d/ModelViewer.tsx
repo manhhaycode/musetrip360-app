@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { Text } from '@/components/core/ui/text';
+import { cn } from '@/libs/utils';
+import React, { useRef, useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import { WebView } from 'react-native-webview';
+import { ModelViewerControls } from './ModelViewerControls';
 
 interface ModelViewerProps {
   modelUrl: string;
@@ -10,8 +13,27 @@ interface ModelViewerProps {
 export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [, setHasError] = useState(false);
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
+  const webViewRef = useRef<WebView>(null);
 
-  // Create HTML content for 3D model viewing using model-viewer
+  // Functions to control 3D model via WebView messages
+  const toggleRotation = () => {
+    const script = `
+      toggleRotation();
+      true; // Required for injectedJavaScript
+    `;
+    webViewRef.current?.injectJavaScript(script);
+  };
+
+  const resetCamera = () => {
+    const script = `
+      resetCamera();
+      true; // Required for injectedJavaScript
+    `;
+    webViewRef.current?.injectJavaScript(script);
+  };
+
+  // Create HTML content for 3D model viewing using model-viewer with design system
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -21,20 +43,42 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
       <title>3D Model Viewer</title>
       <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
       <style>
+        :root {
+          /* Import design system variables */
+          --background: #fff6ed;
+          --foreground: #2d1f13;
+          --card: #ffffff;
+          --card-foreground: #2d1f13;
+          --primary: #ff914d;
+          --primary-foreground: #fff6ed;
+          --secondary: #ffe3cc;
+          --secondary-foreground: #2d1f13;
+          --muted: #f5e9dd;
+          --muted-foreground: #a67c52;
+          --accent: #ffb672;
+          --accent-foreground: #2d1f13;
+          --destructive: #f87171;
+          --destructive-foreground: #fff6ed;
+          --border: #ffd2b2;
+          --input: #ffd2b2;
+          --ring: #ff914d;
+          --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+          --radius: 10px;
+        }
         body {
           margin: 0;
           padding: 0;
-          background: #000;
-          font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+          background: var(--background);
+          font-family: var(--font-sans);
           overflow: hidden;
         }
         
         model-viewer {
           width: 100vw;
           height: 100vh;
-          background-color: #000;
+          background-color: var(--background);
           --poster-color: transparent;
-          --progress-bar-color: #ff914d;
+          --progress-bar-color: var(--primary);
           --progress-mask: transparent;
         }
         
@@ -43,7 +87,7 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          color: white;
+          color: var(--foreground);
           text-align: center;
           z-index: 1000;
         }
@@ -53,47 +97,11 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          color: #ff6b6b;
+          color: var(--destructive);
           text-align: center;
           z-index: 1000;
           padding: 20px;
           max-width: 80%;
-        }
-
-        .controls {
-          position: absolute;
-          bottom: 20px;
-          left: 50%;
-          transform: translateX(-50%);
-          background: rgba(0, 0, 0, 0.7);
-          backdrop-filter: blur(10px);
-          border-radius: 25px;
-          padding: 10px 20px;
-          display: flex;
-          gap: 15px;
-          align-items: center;
-          z-index: 1000;
-        }
-
-        .control-btn {
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 20px;
-          color: white;
-          padding: 8px 16px;
-          font-size: 12px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-        }
-
-        .control-btn:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.5);
-        }
-
-        .control-btn.active {
-          background: #ff914d;
-          border-color: #ff914d;
         }
       </style>
     </head>
@@ -108,33 +116,30 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
         src="${modelUrl}"
         alt="3D Model của hiện vật"
         auto-rotate
+        auto-rotate-delay="1000"
+        rotation-per-second="30deg"
         camera-controls
+        camera-orbit="0deg 75deg 105%"
+        max-camera-orbit="Infinity 180deg auto"
+        min-camera-orbit="-Infinity 0deg 50%"
+        max-field-of-view="45deg"
+        min-field-of-view="25deg"
         touch-action="pan-y"
         interaction-prompt="none"
         environment-image="neutral"
         shadow-intensity="1"
+        shadow-softness="1"
         style="opacity: 0; transition: opacity 0.5s ease;"
         loading="eager"
       ></model-viewer>
-
-      <div class="controls" id="controls" style="display: none;">
-        <button class="control-btn" id="rotateBtn" onclick="toggleRotation()">
-          <span id="rotateText">Tắt xoay</span>
-        </button>
-        <button class="control-btn" onclick="resetCamera()">
-          Đặt lại góc nhìn
-        </button>
-      </div>
       
       <script>
         let modelElement = document.getElementById('model');
         let isAutoRotating = true;
         
         modelElement.addEventListener('load', function() {
-          console.log('Model loaded successfully');
           document.getElementById('loading').style.display = 'none';
           document.getElementById('model').style.opacity = '1';
-          document.getElementById('controls').style.display = 'flex';
           
           // Send success message to React Native
           window.ReactNativeWebView?.postMessage(JSON.stringify({
@@ -144,7 +149,6 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
         });
         
         modelElement.addEventListener('error', function() {
-          console.log('Model failed to load');
           document.getElementById('loading').innerHTML = \`
             <div class="error">
               <div>❌</div>
@@ -161,16 +165,43 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
             success: false
           }));
         });
+
+        // Remove message listener since we're using injectedJavaScript
+        // window.addEventListener('message', function(event) {
+        //   try {
+        //     const data = JSON.parse(event.data);
+        //     if (data.type === 'toggleRotation') {
+        //       toggleRotation();
+        //     } else if (data.type === 'resetCamera') {
+        //       resetCamera();
+        //     }
+        //   } catch (error) {
+        //     console.log('Error parsing message from React Native:', error);
+        //   }
+        // });
         
         function toggleRotation() {
           isAutoRotating = !isAutoRotating;
           modelElement.autoRotate = isAutoRotating;
-          document.getElementById('rotateText').innerText = isAutoRotating ? 'Tắt xoay' : 'Bật xoay';
+          
+          // Send message to React Native
+          window.ReactNativeWebView?.postMessage(JSON.stringify({
+            type: 'rotationToggled',
+            isAutoRotating: isAutoRotating
+          }));
         }
         
         function resetCamera() {
+          // Reset both turntable and camera position
           modelElement.resetTurntableRotation();
+          modelElement.cameraOrbit = '0deg 75deg 105%';
           modelElement.jumpCameraToGoal();
+          
+          // Send message to React Native
+          window.ReactNativeWebView?.postMessage(JSON.stringify({
+            type: 'cameraReset',
+            success: true
+          }));
         }
         
         // Hide loading after timeout
@@ -187,23 +218,39 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
   const handleWebViewMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
-      if (data.type === 'modelLoaded') {
-        setIsLoading(false);
-        setHasError(false);
-      } else if (data.type === 'modelError') {
-        setIsLoading(false);
-        setHasError(true);
+
+      switch (data.type) {
+        case 'modelLoaded':
+          setIsLoading(false);
+          setHasError(false);
+          break;
+
+        case 'modelError':
+          setIsLoading(false);
+          setHasError(true);
+          break;
+
+        case 'rotationToggled':
+          setIsAutoRotating(data.isAutoRotating);
+          break;
+
+        case 'cameraReset':
+          break;
+
+        default:
+          break;
       }
-    } catch (error) {
-      console.log('Error parsing WebView message:', error);
+    } catch {
+      // Handle parsing errors silently
     }
   };
 
   return (
-    <View className={className} style={styles.container}>
+    <View className={cn('flex-1 bg-background', className)}>
       <WebView
+        ref={webViewRef}
         source={{ html: htmlContent }}
-        style={styles.webview}
+        className="flex-1 bg-background"
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={false}
@@ -211,12 +258,10 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
         mediaPlaybackRequiresUserAction={false}
         onMessage={handleWebViewMessage}
         onError={(error) => {
-          console.log('WebView error:', error);
           setHasError(true);
           setIsLoading(false);
         }}
         onHttpError={(error) => {
-          console.log('HTTP error:', error);
           setHasError(true);
           setIsLoading(false);
         }}
@@ -224,39 +269,22 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
 
       {/* React Native Loading Overlay */}
       {isLoading && (
-        <View style={styles.loadingOverlay}>
+        <View className="absolute inset-0 bg-background/90 justify-center items-center z-50">
           <ActivityIndicator size="large" color="#ff914d" />
-          <Text style={styles.loadingText}>Đang khởi tạo 3D viewer...</Text>
+          <Text className="text-foreground mt-4 text-sm text-center">Đang khởi tạo 3D viewer...</Text>
+        </View>
+      )}
+
+      {/* Native Controls using design system */}
+      {!isLoading && (
+        <View className="absolute bottom-0 left-0 right-0 items-center pb-5">
+          <ModelViewerControls
+            onToggleRotation={toggleRotation}
+            onResetCamera={resetCamera}
+            isAutoRotating={isAutoRotating}
+          />
         </View>
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  webview: {
-    flex: 1,
-    backgroundColor: '#000',
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000,
-  },
-  loadingText: {
-    color: 'white',
-    marginTop: 15,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-});
