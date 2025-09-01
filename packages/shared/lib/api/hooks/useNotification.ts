@@ -24,7 +24,7 @@ export function useMarkAsRead(options: CustomMutationOptions<Notification, APIEr
       options.onSuccess?.(data, variables, context);
       const queryClient = getQueryClient();
 
-      queryClient.removeQueries({
+      queryClient.invalidateQueries({
         queryKey: ['notifications'],
       });
     },

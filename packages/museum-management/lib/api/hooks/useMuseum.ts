@@ -63,9 +63,9 @@ export function useCreateMuseum(options?: CustomMutationOptions<Museum, APIError
     mutationKey: museumManagementCacheKeys.createMuseum(),
     onSuccess: (data, variables, context) => {
       // Invalidate museums list to refresh the data
-      queryClient.removeQueries({ queryKey: museumManagementCacheKeys.museums() });
+      queryClient.invalidateQueries({ queryKey: museumManagementCacheKeys.museums() });
       // Also invalidate admin museums list
-      queryClient.removeQueries({ queryKey: museumManagementCacheKeys.museumsAdmin() });
+      queryClient.invalidateQueries({ queryKey: museumManagementCacheKeys.museumsAdmin() });
 
       onSuccess?.(data, variables, context);
     },

@@ -44,6 +44,11 @@ export const virtualTourFormSchema = z.object({
     .optional(),
 });
 
+export const virtualTourFormCreateSchema = z.object({
+  name: z.string().nonempty('Tour name is required').max(100, 'Tour name must be less than 100 characters'),
+  description: z.string().max(500, 'Description must be less than 500 characters').optional(),
+});
+
 export type VirtualTourFormData = z.infer<typeof virtualTourFormSchema>;
 
 export interface VirtualTourFormProps {
@@ -91,9 +96,13 @@ export function VirtualTourForm({
   });
 
   const form = useForm<VirtualTourFormData>({
-    mode: 'onBlur',
     disabled: createVirtualTourMutation.isPending,
-    resolver: zodResolver(virtualTourFormSchema),
+    resolver: (data, context, options) => {
+      if (mode === 'edit') {
+        return zodResolver(virtualTourFormSchema)(data, context, options);
+      }
+      return zodResolver(virtualTourFormCreateSchema)(data, context, options);
+    },
     defaultValues: {
       name: '',
       description: '',
@@ -104,6 +113,7 @@ export function VirtualTourForm({
       },
     },
   });
+  console.log('VirtualTourForm render with virtualTour:', virtualTour);
 
   const { control } = form;
 
@@ -194,22 +204,6 @@ export function VirtualTourForm({
               </FormItem>
             )}
           />
-
-          <FormField
-            control={form.control}
-            name="price"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Giá tour (VNĐ)</FormLabel>
-                <FormControl>
-                  <NumberInput placeholder="Nhập giá tour ảo" min="0" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* Description with Rich Editor */}
           <Sheet
             open={openSheet}
             onOpenChange={(open) => {
@@ -265,49 +259,68 @@ export function VirtualTourForm({
               </React.Suspense>
             </SheetContent>
           </Sheet>
+
+          {/* Description with Rich Editor */}
+          {mode === 'edit' && (
+            <FormField
+              control={form.control}
+              name="price"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Giá tour (VNĐ)</FormLabel>
+                  <FormControl>
+                    <NumberInput placeholder="Nhập giá tour ảo" min="0" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          )}
         </div>
 
         {/* Media Section */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Hình ảnh tour ảo</h3>
-
-          {/* Multiple Images Upload (Dynamic) */}
+        {mode === 'edit' && (
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <FormLabel className="text-gray-600">Hình ảnh mô tả</FormLabel>
-              <span className="text-sm text-muted-foreground">
-                Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {fields.map((field, index) => (
-                <div key={field.id} className="border rounded-lg p-4 space-y-2 relative">
-                  <FormDropZone
-                    name={`metadata.images.${index}`}
-                    control={form.control}
-                    mediaType={MediaType.IMAGE}
-                    description=""
-                    manualUpload={false}
-                    withUrl={true}
-                    urlPlaceholder="https://example.com/image.jpg"
-                    className="min-h-[100px]"
-                  />
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      onClick={() => remove(index)}
-                      variant="destructive"
-                      size="sm"
-                      className="absolute top-0 transform -translate-y-1/2 right-1"
-                    >
-                      Xóa
-                    </Button>
-                  )}
-                </div>
-              ))}
+            <h3 className="text-lg font-semibold">Hình ảnh tour ảo</h3>
+
+            {/* Multiple Images Upload (Dynamic) */}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <FormLabel className="text-gray-600">Hình ảnh mô tả</FormLabel>
+                <span className="text-sm text-muted-foreground">
+                  Thêm nhiều hình ảnh, trường mới sẽ tự động xuất hiện
+                </span>
+              </div>
+              <div className="grid grid-cols-1 gap-4">
+                {fields.map((field, index) => (
+                  <div key={field.id} className="border rounded-lg p-4 space-y-2 relative">
+                    <FormDropZone
+                      name={`metadata.images.${index}`}
+                      control={form.control}
+                      mediaType={MediaType.IMAGE}
+                      description=""
+                      manualUpload={false}
+                      withUrl={true}
+                      urlPlaceholder="https://example.com/image.jpg"
+                      className="min-h-[100px]"
+                    />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-0 transform -translate-y-1/2 right-1"
+                      >
+                        Xóa
+                      </Button>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-6 border-t">

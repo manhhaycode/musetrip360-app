@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@musetrip360/ui-core/badge';
 import Divider from '@/components/Divider';
 import { MuseumStatusBadge } from '../MuseumStatusBadge';
-import { Category, FormDropZone, MediaType, useCategory, useFileUpload } from '@musetrip360/shared';
+import { Category, FormDropZone, MediaType, useCategory, useFileUpload, ZodFileData } from '@musetrip360/shared';
 import get from 'lodash.get';
 import { PERMISSION_MUSEUM_DETAIL_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
@@ -26,7 +26,7 @@ const museumUpdateSchema = z.object({
   location: z.string().min(1, 'Địa chỉ là bắt buộc').min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
   contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
-  images: z.array(z.union([z.string(), z.any()])).optional(),
+  images: z.array(ZodFileData.nullable()).optional(),
   categoryIds: z.array(z.string()).optional(),
 });
 
@@ -95,18 +95,15 @@ const MuseumDetailPage = () => {
 
   useEffect(() => {
     if (imageFields.length === 0) {
-      appendImage('');
+      appendImage(null);
     }
   }, [imageFields.length, appendImage]);
-
-  console.log('Watched images:', watchedImages);
-  console.log('Image fields:', imageFields);
 
   // Auto-append new field if all are filled
   useEffect(() => {
     const allImagesHaveValue = watchedImages?.every((img) => !!img);
     if (imageFields.length > 0 && allImagesHaveValue) {
-      appendImage('');
+      appendImage(null);
     }
   }, [watchedImages, imageFields, appendImage]);
 
@@ -119,7 +116,12 @@ const MuseumDetailPage = () => {
         location: museum.location,
         contactEmail: museum.contactEmail,
         contactPhone: museum.contactPhone,
-        images: museum.metadata?.images || [],
+        images:
+          museum.metadata?.images?.map((img) => ({
+            file: img,
+            mediaType: MediaType.IMAGE,
+            fileName: 'Ảnh bảo tàng',
+          })) || [],
         categoryIds: get(museum, 'categories', []).map((cat: Category) => cat.id) || [],
       });
     }
@@ -172,7 +174,12 @@ const MuseumDetailPage = () => {
       location: museum.location,
       contactEmail: museum.contactEmail,
       contactPhone: museum.contactPhone,
-      images: museum.metadata?.images || [],
+      images:
+        museum.metadata?.images?.map((img) => ({
+          file: img,
+          mediaType: MediaType.IMAGE,
+          fileName: 'Ảnh bảo tàng',
+        })) || [],
       categoryIds: get(museum, 'categories', []).map((cat: Category) => cat.id) || [],
     });
   };
@@ -182,7 +189,7 @@ const MuseumDetailPage = () => {
       setUpdateError(null);
       setIsUploadingImages(true);
 
-      const validImages = (data.images || []).filter(Boolean).map((img) => img.file);
+      const validImages = (data.images || []).filter(Boolean).map((img) => img!.file);
       const uploadedImageUrls: string[] = [];
       for (const img of validImages) {
         if (typeof img === 'object' && img !== null && 'name' in img && 'type' in img) {

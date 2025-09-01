@@ -1,16 +1,20 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SearchHeader } from '@/components/search/SearchHeader';
 import { SearchFilters } from '@/components/search/SearchFilters';
 import { SearchResults } from '@/components/search/SearchResults';
 import { SearchPagination } from '@/components/search/SearchPagination';
-import { useGlobalSearch, searchUtils } from '@/api/search';
 import { DEFAULT_SEARCH_FILTERS, type SearchFilters as SearchFiltersType } from '../../../types/search';
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
+  const [paginationData, setPaginationData] = useState({
+    totalItems: 0,
+    currentPageItems: 0,
+    hasResults: false,
+  });
   const [filters, setFilters] = useState<SearchFiltersType>(() => {
     // Initialize filters from URL params
     const initialFilters = { ...DEFAULT_SEARCH_FILTERS };
@@ -31,17 +35,17 @@ export default function SearchPage() {
     return initialFilters;
   });
 
-  // Convert filters to API parameters
-  const apiParams = useMemo(() => searchUtils.formatFiltersForAPI(filters), [filters]);
+  // Use real data from SearchResults component
+  const totalItems = paginationData.totalItems;
+  const totalPages = Math.ceil(totalItems / filters.pageSize);
 
-  // Search query
-  const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
-
-  // Calculate pagination
-  const totalPages = useMemo(() => {
-    if (!searchResponse?.data) return 0;
-    return searchUtils.calculateTotalPages(searchResponse.data.total, filters.pageSize);
-  }, [searchResponse?.data, filters.pageSize]);
+  // Handle data loaded from SearchResults - use useCallback to prevent infinite re-renders
+  const handleDataLoaded = useCallback(
+    (data: { totalItems: number; currentPageItems: number; hasResults: boolean }) => {
+      setPaginationData(data);
+    },
+    []
+  );
 
   // Handle filter changes
   const handleFiltersChange = (newFilters: SearchFiltersType) => {
@@ -64,10 +68,23 @@ export default function SearchPage() {
     handleFiltersChange({ ...filters, page });
   };
 
+  // Simple debounce function
+  const debounce = (func: Function, wait: number) => {
+    let timeout: number;
+    return function executedFunction(...args: any[]) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
   // Debounced search function
   const debouncedSearch = useMemo(
     () =>
-      searchUtils.debounceSearch((newFilters: SearchFiltersType) => {
+      debounce((newFilters: SearchFiltersType) => {
         handleFiltersChange(newFilters);
       }, 500),
     []
@@ -91,9 +108,9 @@ export default function SearchPage() {
       <SearchHeader
         filters={filters}
         onFiltersChange={handleSearchFiltersChange}
-        resultCount={searchResponse?.data?.total || 0}
-        isLoading={isLoading}
-        typeAggregations={searchResponse?.data?.typeAggregations}
+        resultCount={paginationData.totalItems}
+        isLoading={false}
+        typeAggregations={{}}
       />
 
       {/* Main Content */}
@@ -105,8 +122,8 @@ export default function SearchPage() {
               <SearchFilters
                 filters={filters}
                 onFilterChange={handleFiltersChange}
-                typeAggregations={searchResponse?.data?.typeAggregations}
-                isLoading={isLoading}
+                typeAggregations={{}}
+                isLoading={false}
               />
             </div>
           </aside>
@@ -116,20 +133,24 @@ export default function SearchPage() {
             <div className="space-y-8">
               {/* Search Results */}
               <SearchResults
-                results={searchResponse?.data?.items || []}
-                isLoading={isLoading}
-                error={error?.message || null}
+                searchQuery={filters.query}
+                selectedType={filters.type}
+                page={filters.page}
+                pageSize={filters.pageSize}
+                isLoading={false}
+                error={null}
+                onDataLoaded={handleDataLoaded}
               />
 
               {/* Pagination */}
-              {searchResponse?.data && searchResponse.data.total > 0 && (
+              {totalItems > 0 && (
                 <SearchPagination
                   currentPage={filters.page}
                   totalPages={totalPages}
-                  totalItems={searchResponse.data.total}
+                  totalItems={totalItems}
                   pageSize={filters.pageSize}
                   onPageChange={handlePageChange}
-                  isLoading={isLoading}
+                  isLoading={false}
                 />
               )}
             </div>

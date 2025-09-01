@@ -213,7 +213,7 @@ export const SceneNavigationMenu: React.FC<SceneNavigationMenuProps> = ({
             </div>
             <h3 className="font-semibold text-foreground">{currentScene.sceneName}</h3>
             {currentScene.sceneDescription && (
-              <p className="text-sm text-muted-foreground mt-1">{currentScene.sceneDescription}</p>
+              <p className="text-sm text-muted-foreground mt-1 line-clamp-3">{currentScene.sceneDescription}</p>
             )}
           </div>
           <Separator />

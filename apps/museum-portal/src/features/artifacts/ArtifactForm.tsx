@@ -142,39 +142,11 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
   // Form setup with default values
   const getFormDefaultValues = (): ArtifactFormData => {
     if (mode === 'edit' && artifact) {
-      console.log({
-        name: artifact.name,
-        description: artifact.description,
-        historicalPeriod: artifact.historicalPeriod,
-        image: artifact.model3DUrl
-          ? {
-              file: artifact.imageUrl,
-              mediaType: MediaType.IMAGE,
-              fileName: artifact.metadata.imageName || 'Image',
-            }
-          : null,
-        model3D: artifact.model3DUrl
-          ? {
-              file: artifact.model3DUrl,
-              mediaType: MediaType.MODEL3D,
-              fileName: artifact.metadata.model3DName,
-            }
-          : null,
-        isActive: artifact.isActive,
-        type: artifact.metadata?.type || '',
-        material: artifact.metadata?.material || '',
-        discoveryLocation: artifact.metadata?.discoveryLocation || '',
-        metadata: {
-          audio: artifact.metadata?.audio,
-          images: artifact.metadata?.images || [],
-          richDescription: artifact.metadata?.richDescription || artifact.description || '',
-        },
-      });
       return {
         name: artifact.name,
         description: artifact.description,
         historicalPeriod: artifact.historicalPeriod,
-        image: artifact.model3DUrl
+        image: artifact.imageUrl
           ? {
               file: artifact.imageUrl,
               mediaType: MediaType.IMAGE,

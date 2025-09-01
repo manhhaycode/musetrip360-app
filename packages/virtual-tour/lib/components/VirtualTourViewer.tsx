@@ -34,6 +34,7 @@ export interface VirtualTourViewerProps {
   // NEW: Navigation style
   /** Use hamburger menu instead of button stack */
   useHamburgerMenu?: boolean;
+  initialSceneId?: string | null;
 }
 
 export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
@@ -50,10 +51,11 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   enableUserControls = true,
   // Navigation style
   useHamburgerMenu = false,
+  initialSceneId,
 }) => {
   // Current scene state
   const [currentSceneId, setCurrentSceneId] = useState<string>(() => {
-    return virtualTour.metadata.scenes[0]?.sceneId || '';
+    return initialSceneId || virtualTour.metadata.scenes[0]?.sceneId || '';
   });
 
   const [error, setError] = useState<string | null>(null);
@@ -166,10 +168,6 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
       onClick: () => handleHotspotClick(hotspot),
     }));
   }, [currentScene?.data?.hotspots, handleHotspotClick]);
-
-  useEffect(() => {
-    setCurrentSceneId(virtualTour.metadata.scenes[0]?.sceneId || '');
-  }, [virtualTour]);
 
   // Error state
   if (error) {

@@ -7,6 +7,8 @@
 import {
   APIError,
   CustomMutationOptions,
+  CustomQueryOptions,
+  PaginatedResponse,
   Pagination,
   useMutation,
   useQuery,
@@ -22,6 +24,7 @@ import {
   updateVirtualTour,
   activateVirtualTour,
   deactivateVirtualTour,
+  getVirtualTours,
 } from '../endpoints/virtual-tour';
 import { IVirtualTour } from '../types';
 
@@ -34,6 +37,13 @@ import { IVirtualTour } from '../types';
 export function useVirtualTourByMuseum(params: Pagination & { museumId: string }) {
   const { museumId, ...rest } = params;
   return useQuery(virtualTourCacheKeys.listByMuseum(museumId, rest), () => getVirtualToursByMuseum(museumId, rest));
+}
+
+export function useVirtualTours(
+  params: Pagination,
+  options?: CustomQueryOptions<PaginatedResponse<IVirtualTour>['data'], APIError>
+) {
+  return useQuery(virtualTourCacheKeys.lists(), () => getVirtualTours(params), options);
 }
 
 /**
@@ -63,7 +73,7 @@ export function useCreateMuseumVirtualTour(
     {
       ...options,
       onSuccess: (data, variables, context) => {
-        queryClient.removeQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
         options?.onSuccess?.(data, variables, context);
       },
     }
@@ -84,7 +94,7 @@ export function useUpdateVirtualTour(
   return useMutation<IVirtualTour, APIError, IVirtualTour>((variables) => updateVirtualTour(variables.id, variables), {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -100,7 +110,7 @@ export function useDeleteVirtualTour(options?: CustomMutationOptions<void, APIEr
   return useMutation<void, APIError, string>(deleteVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -121,7 +131,7 @@ export function useActivateVirtualTour(
   return useMutation<void, APIError, string>(activateVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -142,7 +152,7 @@ export function useDeactivateVirtualTour(
   return useMutation<void, APIError, string>(deactivateVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });

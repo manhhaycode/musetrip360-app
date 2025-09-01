@@ -109,14 +109,19 @@ export function VirtualTourStudioHeader() {
         isOpen={isPreviewOpen}
         onClose={handleClosePreview}
         title="Virtual Scene Preview"
-        size="xl"
+        size="fullscreen"
         showBackButton
         closeOnBackdropClick
         closeOnEscape
         lazyChildren
       >
         <div className="flex-1 p-6">
-          <VirtualTourViewer virtualTour={virtualTour} />
+          <VirtualTourViewer
+            initialSceneId={selectedSceneId}
+            virtualTour={virtualTour}
+            enableUserControls={true}
+            useHamburgerMenu={true}
+          />
         </div>
       </PreviewModal>
     </header>

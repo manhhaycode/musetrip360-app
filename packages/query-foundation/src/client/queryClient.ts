@@ -455,7 +455,7 @@ export class QueryClientManager {
     // Resume or pause queries based on network status
     if (isOnline) {
       this.queryClient.resumePausedMutations();
-      this.queryClient.removeQueries();
+      this.queryClient.invalidateQueries();
     }
   }
 
@@ -533,7 +533,7 @@ export class QueryClientManager {
     switch (error.code) {
       case 'UNAUTHORIZED':
         // Clear auth-related queries
-        // this.queryClient.removeQueries({ queryKey: ['auth'] });
+        // this.queryClient.invalidateQueries({ queryKey: ['auth'] });
         break;
       case 'FORBIDDEN':
         // Handle permission errors

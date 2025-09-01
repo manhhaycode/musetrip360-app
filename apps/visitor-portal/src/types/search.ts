@@ -82,9 +82,9 @@ export const STATUS_OPTIONS = [
  * Type options for filtering
  */
 export const TYPE_OPTIONS = [
-  { value: 'All', label: 'Tất cả', icon: '🔍' },
-  { value: 'Museum', label: 'Bảo tàng', icon: '🏛️' },
-  { value: 'Artifact', label: 'Hiện vật', icon: '🏺' },
-  { value: 'Event', label: 'Sự kiện', icon: '📅' },
-  { value: 'TourOnline', label: 'Tour ảo', icon: '🌐' },
+  { value: 'All', label: 'Tất cả', icon: 'search' },
+  { value: 'Museum', label: 'Bảo tàng', icon: 'building-2' },
+  { value: 'Artifact', label: 'Hiện vật', icon: 'palette' },
+  { value: 'Event', label: 'Sự kiện', icon: 'calendar' },
+  { value: 'TourOnline', label: 'Tour ảo', icon: 'globe' },
 ] as const;
