@@ -245,6 +245,10 @@ export interface StreamingContextValue {
   isInRoom: boolean;
   initialize: () => Promise<void>;
 
+  // Tour State
+  isTourReady: boolean;
+  setTourReady: (ready: boolean) => void;
+
   // Actions
   joinRoom: (roomId: string, metadata?: Record<string, any>) => Promise<void>;
   createRoom: (metadata?: Record<string, any>) => Promise<string>;

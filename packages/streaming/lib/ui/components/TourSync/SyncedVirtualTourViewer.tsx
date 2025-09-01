@@ -1,7 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useEffect } from 'react';
 import type { IVirtualTour, CubeMapData } from '@musetrip360/virtual-tour';
 import { VirtualTourViewer, VirtualTourViewerProps } from '@musetrip360/virtual-tour/components';
 import { useTourActionState, useTourActionReceiver } from '@/state/hooks/useTourActionState';
+import { useStreamingContext } from '@/contexts/StreamingContext';
+import { Users, WifiOff, Loader2 } from 'lucide-react';
 
 export type TourMode = 'free-explore' | 'follow-guide';
 
@@ -20,6 +22,12 @@ export interface SyncedVirtualTourViewerProps {
 
   /** Whether mode switching is allowed for this user */
   allowModeSwitch?: boolean;
+
+  /** Whether the tour should be rendered. If false, shows loading screen. */
+  shouldRenderTour?: boolean;
+
+  /** Custom loading message when tour is not rendered */
+  loadingMessage?: string;
 }
 
 /**
@@ -31,16 +39,46 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
   virtualTour,
   mode,
   virtualTourProps = {},
+  shouldRenderTour,
+  loadingMessage,
 }) => {
   // Tour action hooks
   const tourActionState = useTourActionState();
   const tourActionReceiver = useTourActionReceiver();
+
+  // Streaming context for centralized tour control
+  const { isTourReady, setTourReady } = useStreamingContext();
 
   // Determine interaction mode and permissions
   const isFreeExploreMode = mode === 'free-explore';
 
   // Can send actions if in free-explore mode AND user has tour guide role
   const canSendActions = isFreeExploreMode && tourActionState.canSendTourActions;
+
+  // Auto-update tour readiness based on mode and first action received
+  useEffect(() => {
+    if (isFreeExploreMode && !canSendActions) {
+      // Free explore mode for non-tour guides: always ready
+      setTourReady(true);
+    } else if (tourActionReceiver.hasReceivedFirstAction && !isTourReady) {
+      // Follow guide mode: ready when first action received
+      setTourReady(true);
+      console.log('🎯 Tour ready: First guide action received');
+    }
+    // Note: Tour guides (canSendActions=true) in free-explore mode do NOT auto-start
+    // They must manually trigger tour start through external controls
+  }, [isFreeExploreMode, canSendActions, tourActionReceiver.hasReceivedFirstAction, isTourReady, setTourReady]);
+
+  // Determine if tour should be rendered
+  const shouldShowTour = useMemo(() => {
+    // If explicit shouldRenderTour prop is provided, use it (override centralized state)
+    if (shouldRenderTour !== undefined) {
+      return shouldRenderTour;
+    }
+
+    // Use centralized tour ready state from context
+    return isTourReady;
+  }, [shouldRenderTour, isTourReady]);
 
   // Handle camera changes - send to other participants if guide
   const handleCameraChange = useCallback(
@@ -80,6 +118,49 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
     },
     [canSendActions, tourActionState, virtualTourProps]
   );
+
+  // Loading Screen Component
+  const LoadingScreen = useCallback(() => {
+    const isConnected = tourActionState.isServiceAvailable;
+    let defaultMessage = 'Preparing tour...';
+
+    if (!isFreeExploreMode) {
+      defaultMessage = 'Waiting for tour guide to start...';
+    } else if (canSendActions) {
+      defaultMessage = 'Tour guide preparing...';
+    }
+
+    const message = loadingMessage || defaultMessage;
+
+    return (
+      <div className="flex items-center justify-center h-full bg-gradient-to-b from-slate-900 to-slate-800">
+        <div className="text-center text-white px-6">
+          {isConnected ? (
+            <>
+              <div className="mb-6">
+                <Users className="w-16 h-16 text-blue-400 mx-auto mb-4 animate-bounce" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Ready to Follow Guide</h3>
+              <p className="text-slate-300 mb-4">{message}</p>
+              <div className="flex items-center justify-center text-sm text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                <span>Connected • Listening for guide actions</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="mb-6">
+                <WifiOff className="w-16 h-16 text-red-400 mx-auto mb-4" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-red-400">Connection Issue</h3>
+              <p className="text-slate-300">Unable to connect to tour session</p>
+              <div className="text-sm text-slate-400 mt-2">Please check your connection and try again</div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }, [tourActionState.isServiceAvailable, isFreeExploreMode, canSendActions, loadingMessage]);
 
   // Prepare controlled props based on mode
   const controlledProps = useMemo(() => {
@@ -122,6 +203,11 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
     ...controlledProps,
     ...eventCallbacks,
   };
+
+  // Conditional rendering based on shouldShowTour
+  if (!shouldShowTour) {
+    return <LoadingScreen />;
+  }
 
   return (
     <>
@@ -169,6 +255,7 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
 export const useSyncedVirtualTour = () => {
   const tourActionState = useTourActionState();
   const tourActionReceiver = useTourActionReceiver();
+  const { isTourReady, setTourReady } = useStreamingContext();
 
   // Tour guide utilities
   const guideModeUtils = {
@@ -184,6 +271,7 @@ export const useSyncedVirtualTour = () => {
     controlledSceneId: tourActionReceiver.controlledSceneId,
     controlledCameraPosition: tourActionReceiver.controlledCameraPosition,
     controlledArtifactId: tourActionReceiver.controlledArtifactId,
+    hasReceivedFirstAction: tourActionReceiver.hasReceivedFirstAction,
     clearControlledState: tourActionReceiver.clearControlledState,
   };
 
@@ -195,9 +283,16 @@ export const useSyncedVirtualTour = () => {
     currentUserId: tourActionState.currentUserId,
   };
 
+  // Tour control utilities
+  const tourControlUtils = {
+    isTourReady,
+    setTourReady,
+  };
+
   return {
     guideModeUtils,
     attendeeModeUtils,
     connectionInfo,
+    tourControlUtils,
   };
 };

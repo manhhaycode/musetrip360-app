@@ -15,7 +15,7 @@ import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } fr
 import { useStreamingEvents } from '@/utils/eventBus';
 import { generateRoomId } from '@/utils/webrtc';
 import { useGetEventParticipants } from '@musetrip360/event-management/api';
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 const StreamingContext = createContext<StreamingContextValue | null>(null);
@@ -34,6 +34,9 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   autoInitializeMedia = true,
 }) => {
   const isInitializedRef = useRef(false);
+
+  // Tour state - centralized control for tour readiness
+  const [isTourReady, setIsTourReady] = useState<boolean>(false);
 
   // Hooks
   const webRTC = useWebRTC();
@@ -181,6 +184,9 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
       useParticipantStore.getState().reset();
 
       streamingActions.leaveRoomSafely();
+
+      // Reset tour state
+      setIsTourReady(false);
 
       isInitializedRef.current = false;
 
@@ -338,6 +344,10 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     localParticipant,
     currentRoomId,
     isInRoom,
+
+    // Tour State
+    isTourReady,
+    setTourReady: setIsTourReady,
 
     // Actions
     joinRoom,

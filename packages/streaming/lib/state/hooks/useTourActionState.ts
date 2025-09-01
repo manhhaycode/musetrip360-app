@@ -151,6 +151,9 @@ export const useTourActionReceiver = () => {
   const [currentSceneId, setCurrentSceneId] = useState<string | undefined>(undefined);
   const [currentArtifactId, setCurrentArtifactId] = useState<string | null>(null);
 
+  // Track if user has received first tour action (for deferred initialization)
+  const [hasReceivedFirstAction, setHasReceivedFirstAction] = useState<boolean>(false);
+
   // Setup SignalR event listener for receiving tour actions
   useEffect(() => {
     const client = tourActionService.getSignalRClient();
@@ -162,6 +165,12 @@ export const useTourActionReceiver = () => {
         const tourAction: TourActions = JSON.parse(actionJson);
 
         console.log('🎭 Received tour action:', tourAction);
+
+        // Mark that we've received first tour action (for deferred initialization)
+        if (!hasReceivedFirstAction) {
+          setHasReceivedFirstAction(true);
+          console.log('✅ First tour action received - enabling tour display');
+        }
 
         // Handle different action types
         switch (tourAction.ActionType) {
@@ -208,11 +217,15 @@ export const useTourActionReceiver = () => {
     controlledSceneId: currentSceneId,
     controlledArtifactId: currentArtifactId,
 
+    // State flags
+    hasReceivedFirstAction,
+
     // Actions to clear controlled state (when switching to guide mode)
     clearControlledState: useCallback(() => {
       setCurrentCameraPosition(undefined);
       setCurrentSceneId(undefined);
       setCurrentArtifactId(null);
+      setHasReceivedFirstAction(false);
     }, []),
   };
 };
