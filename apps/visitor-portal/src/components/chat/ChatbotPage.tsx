@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConversationSidebar } from './ConversationSidebar';
 import { ChatInterface } from './ChatInterface';
@@ -29,12 +29,12 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
 
-  // API Hooks
-  const { mutate: fetchConversations, isPending: isLoadingConversations } = useGetUserConversations({
-    onSuccess: (response) => {
+  // API Hooks with memoized callbacks
+  const handleConversationsSuccess = useCallback(
+    (response: any) => {
       if (response && Array.isArray(response)) {
         const sortedConversations = response.sort(
-          (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+          (a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
         );
         setConversations(sortedConversations);
 
@@ -48,35 +48,56 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
         }
 
         // If initial conversation ID provided, select it if it exists
-        if (initialConversationId && sortedConversations.some((conv) => conv.id === initialConversationId)) {
+        if (initialConversationId && sortedConversations.some((conv: any) => conv.id === initialConversationId)) {
           setSelectedConversation(initialConversationId);
         }
       }
     },
-    onError: (error) => {
-      console.error('Failed to fetch conversations:', error);
-      toast.error('Không thể tải cuộc trò chuyện');
-    },
-  });
+    [selectedConversation, initialConversationId, router]
+  );
 
-  const { mutate: fetchMessages, isPending: isLoadingMessages } = useGetConversationMessages({
-    onSuccess: (response) => {
-      const messages = get(response, 'messages', []) as Message[];
-      if (Array.isArray(messages)) {
-        const sortedMessages = messages.sort(
-          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
-        setMessages(sortedMessages);
-      }
-    },
-    onError: (error) => {
-      console.error('Failed to fetch messages:', error);
-      toast.error('Không thể tải tin nhắn');
-    },
-  });
+  const handleConversationsError = useCallback((error: any) => {
+    console.error('Failed to fetch conversations:', error);
+    toast.error('Không thể tải cuộc trò chuyện');
+  }, []);
 
-  const { mutate: createConversation, isPending: isCreatingConversation } = useCreateConversation({
-    onSuccess: (response) => {
+  const { mutate: fetchConversations, isPending: isLoadingConversations } = useGetUserConversations(
+    useMemo(
+      () => ({
+        onSuccess: handleConversationsSuccess,
+        onError: handleConversationsError,
+      }),
+      [handleConversationsSuccess, handleConversationsError]
+    )
+  );
+
+  const handleMessagesSuccess = useCallback((response: any) => {
+    const messages = get(response, 'messages', []) as Message[];
+    if (Array.isArray(messages)) {
+      const sortedMessages = messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+      setMessages(sortedMessages);
+      setIsTyping(false); // Stop typing indicator when messages are loaded
+    }
+  }, []);
+
+  const handleMessagesError = useCallback((error: any) => {
+    console.error('Failed to fetch messages:', error);
+    toast.error('Không thể tải tin nhắn');
+    setIsTyping(false); // Reset typing state on error
+  }, []);
+
+  const { mutate: fetchMessages, isPending: isLoadingMessages } = useGetConversationMessages(
+    useMemo(
+      () => ({
+        onSuccess: handleMessagesSuccess,
+        onError: handleMessagesError,
+      }),
+      [handleMessagesSuccess, handleMessagesError]
+    )
+  );
+
+  const handleCreateConversationSuccess = useCallback(
+    (response: any) => {
       if (response) {
         const newConversation = response;
         setConversations((prev) => [newConversation, ...prev]);
@@ -86,146 +107,206 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
         toast.success('Đã tạo cuộc trò chuyện mới');
       }
     },
-    onError: (error) => {
-      console.error('Failed to create conversation:', error);
-      toast.error('Không thể tạo cuộc trò chuyện');
-    },
+    [router]
+  );
+
+  const handleCreateConversationError = useCallback((error: any) => {
+    console.error('Failed to create conversation:', error);
+    toast.error('Không thể tạo cuộc trò chuyện');
+  }, []);
+
+  const { mutate: createConversation, isPending: isCreatingConversation } = useCreateConversation({
+    onSuccess: handleCreateConversationSuccess,
+    onError: handleCreateConversationError,
   });
 
-  const { mutate: deleteConversation } = useDeleteConversation({
-    onSuccess: (_, conversationId) => {
-      setConversations((prev) => prev.filter((conv) => conv.id !== conversationId));
-      if (selectedConversation === conversationId) {
-        const remaining = conversations.filter((conv) => conv.id !== conversationId);
-        if (remaining && remaining.length > 0) {
-          const nextConversationId = get(remaining, '[0].id');
-          setSelectedConversation(nextConversationId);
-          if (nextConversationId) {
-            router.replace(`/chatbot/${nextConversationId}`, { scroll: false });
+  const handleDeleteConversationSuccess = useCallback(
+    (_: unknown, conversationId: string) => {
+      setConversations((prev) => {
+        const filtered = prev.filter((conv) => conv.id !== conversationId);
+
+        // Handle navigation logic only if deleting current conversation
+        if (selectedConversation === conversationId) {
+          if (filtered && filtered.length > 0) {
+            const nextConversationId = get(filtered, '[0].id');
+            setSelectedConversation(nextConversationId);
+            if (nextConversationId) {
+              router.replace(`/chatbot/${nextConversationId}`, { scroll: false });
+            }
+          } else {
+            setSelectedConversation(null);
+            router.replace('/chatbot', { scroll: false });
           }
-        } else {
-          setSelectedConversation(null);
-          router.replace('/chatbot', { scroll: false });
         }
-      }
+
+        return filtered;
+      });
       toast.success('Đã xóa cuộc trò chuyện');
     },
-    onError: (error) => {
-      console.error('Failed to delete conversation:', error);
-      toast.error('Không thể xóa cuộc trò chuyện');
-    },
+    [selectedConversation, router]
+  );
+
+  const handleDeleteConversationError = useCallback((error: any) => {
+    console.error('Failed to delete conversation:', error);
+    toast.error('Không thể xóa cuộc trò chuyện');
+  }, []);
+
+  const { mutate: deleteConversation } = useDeleteConversation({
+    onSuccess: handleDeleteConversationSuccess,
+    onError: handleDeleteConversationError,
   });
 
-  const { mutate: createMessage, isPending: isSendingMessage } = useCreateMessage({
-    onSuccess: (response) => {
+  const handleCreateMessageSuccess = useCallback(
+    (response: any) => {
       if (response) {
         const newMessage = response;
-        setMessages((prev) => [...prev, newMessage]);
 
-        // If this was a user message, refetch messages to get AI response
+        // Update messages immediately to avoid UI lag
+        setMessages((prev) => {
+          // Check if message already exists to prevent duplicates
+          const messageExists = prev.some((msg) => msg.id === newMessage.id);
+          if (messageExists) {
+            return prev;
+          }
+          return [...prev, newMessage];
+        });
+
+        // If this was a user message, set typing indicator and wait for AI response
         if (!newMessage.isBot && selectedConversation) {
           setIsTyping(true);
-          // Refetch messages after a short delay to get AI response
+
+          // Use a longer timeout for AI to process and respond
           setTimeout(() => {
             fetchMessages({
               conversationId: selectedConversation,
               Page: 1,
               PageSize: 100,
             });
-          }, 1000);
+          }, 2000); // Increased timeout to reduce rapid API calls
         } else if (newMessage.isBot) {
           setIsTyping(false);
         }
       }
     },
-    onError: (error) => {
-      setIsTyping(false);
-      console.error('Failed to create message:', error);
-      toast.error('Không thể gửi tin nhắn');
-    },
+    [selectedConversation, fetchMessages]
+  );
+
+  const handleCreateMessageError = useCallback((error: any) => {
+    setIsTyping(false);
+    console.error('Failed to create message:', error);
+    toast.error('Không thể gửi tin nhắn');
+  }, []);
+
+  const { mutate: createMessage, isPending: isSendingMessage } = useCreateMessage({
+    onSuccess: handleCreateMessageSuccess,
+    onError: handleCreateMessageError,
   });
 
-  // Load conversations on component mount
+  // Load conversations on component mount (only once)
   useEffect(() => {
     fetchConversations(null);
-  }, [fetchConversations]);
+  }, [fetchConversations]); // Include fetchConversations in dependencies
 
   // Load messages when conversation changes
   useEffect(() => {
     if (selectedConversation) {
+      setMessages([]); // Clear messages immediately
+      setIsTyping(false); // Reset typing state when switching conversations
       fetchMessages({
         conversationId: selectedConversation,
         Page: 1,
         PageSize: 100,
       });
     }
-  }, [selectedConversation, fetchMessages]);
+  }, [selectedConversation, fetchMessages]); // Include fetchMessages in dependencies
 
-  const handleSelectConversation = (conversationId: string) => {
-    setSelectedConversation(conversationId);
-    setMessages([]); // Clear messages while loading
-    router.push(`/chatbot/${conversationId}`, { scroll: false });
-  };
+  const handleSelectConversation = useCallback(
+    (conversationId: string) => {
+      if (conversationId === selectedConversation) return; // Prevent unnecessary updates
 
-  const handleCreateConversation = () => {
+      setSelectedConversation(conversationId);
+      router.push(`/chatbot/${conversationId}`, { scroll: false });
+    },
+    [selectedConversation, router]
+  );
+
+  const handleCreateConversation = useCallback(() => {
     createConversation({
       isBot: true, // Always true for AI conversations
       name: `Trò chuyện mới ${conversations.length + 1}`,
     });
-  };
+  }, [createConversation, conversations.length]);
 
-  const handleDeleteConversation = (conversationId: string) => {
-    if (conversations.length <= 1) {
-      toast.error('Không thể xóa cuộc trò chuyện cuối cùng');
-      return;
+  const handleDeleteConversation = useCallback(
+    (conversationId: string) => {
+      if (conversations.length <= 1) {
+        toast.error('Không thể xóa cuộc trò chuyện cuối cùng');
+        return;
+      }
+      deleteConversation(conversationId);
+    },
+    [conversations.length, deleteConversation]
+  );
+
+  const handleUpdateConversationSuccess = useCallback((response: any) => {
+    if (response) {
+      const updatedConversation = response;
+      setConversations((prev) => prev.map((conv) => (conv.id === updatedConversation.id ? updatedConversation : conv)));
+      toast.success('Đã cập nhật tên cuộc trò chuyện');
     }
-    deleteConversation(conversationId);
-  };
+  }, []);
+
+  const handleUpdateConversationError = useCallback((error: any) => {
+    console.error('Failed to update conversation:', error);
+    toast.error('Không thể cập nhật tên cuộc trò chuyện');
+  }, []);
 
   const { mutate: updateConversation } = useUpdateConversation({
-    onSuccess: (response) => {
-      if (response) {
-        const updatedConversation = response;
-        setConversations((prev) =>
-          prev.map((conv) => (conv.id === updatedConversation.id ? updatedConversation : conv))
-        );
-        toast.success('Đã cập nhật tên cuộc trò chuyện');
-      }
-    },
-    onError: (error) => {
-      console.error('Failed to update conversation:', error);
-      toast.error('Không thể cập nhật tên cuộc trò chuyện');
-    },
+    onSuccess: handleUpdateConversationSuccess,
+    onError: handleUpdateConversationError,
   });
 
-  const handleUpdateConversation = (conversationId: string, name: string) => {
-    updateConversation({
-      id: conversationId,
-      name,
-      isBot: true,
-    });
-  };
+  const handleUpdateConversation = useCallback(
+    (conversationId: string, name: string) => {
+      updateConversation({
+        id: conversationId,
+        name,
+        isBot: true,
+      });
+    },
+    [updateConversation]
+  );
 
-  const handleSendMessage = (content: string) => {
-    if (!selectedConversation) {
-      toast.error('Vui lòng chọn hoặc tạo cuộc trò chuyện trước');
-      return;
-    }
+  const handleSendMessage = useCallback(
+    (content: string) => {
+      if (!selectedConversation) {
+        toast.error('Vui lòng chọn hoặc tạo cuộc trò chuyện trước');
+        return;
+      }
 
-    if (isSendingMessage) {
-      toast.error('Vui lòng đợi tin nhắn trước được gửi');
-      return;
-    }
+      if (isSendingMessage) {
+        toast.error('Vui lòng đợi tin nhắn trước được gửi');
+        return;
+      }
 
-    createMessage({
-      conversationId: selectedConversation,
-      content,
-      isBot: true,
-    });
-  };
+      createMessage({
+        conversationId: selectedConversation,
+        content,
+        isBot: true,
+      });
+    },
+    [selectedConversation, isSendingMessage, createMessage]
+  );
 
-  // Combine different loading states for typing indicator
-  const isAnyLoading = isSendingMessage || isTyping;
+  // Memoize loading states for better performance
+  const chatLoadingStates = useMemo(
+    () => ({
+      isLoading: isLoadingMessages,
+      isTyping: isTyping,
+      isSending: isSendingMessage,
+    }),
+    [isLoadingMessages, isTyping, isSendingMessage]
+  );
 
   return (
     <div className="h-[calc(100vh-80px)] flex gap-4 p-4">
@@ -247,8 +328,9 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
       <div className="flex-1">
         <ChatInterface
           messages={messages}
-          isLoading={isLoadingMessages}
-          isTyping={isAnyLoading}
+          isLoading={chatLoadingStates.isLoading}
+          isTyping={chatLoadingStates.isTyping}
+          isSending={chatLoadingStates.isSending}
           onSendMessage={handleSendMessage}
           selectedConversation={selectedConversation}
         />
