@@ -209,7 +209,7 @@ export interface UseMediaStreamReturn {
   isInitializingMedia: boolean;
   initializeMedia: (constraints?: StreamConstraints) => Promise<MediaStream>;
   toggleVideo: () => void;
-  toggleAudio: () => void;
+  toggleAudio: () => boolean;
   stopStream: () => void;
   startScreenShare: () => Promise<MediaStream>;
   stopScreenShare: () => void;
@@ -262,7 +262,7 @@ export interface StreamingContextValue {
 // Component Props Types
 export interface VideoComponentProps {
   stream?: MediaStream;
-  muted?: boolean;
+  audioState?: boolean;
   autoPlay?: boolean;
   playsInline?: boolean;
   className?: string;

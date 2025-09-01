@@ -210,13 +210,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
    * Toggle audio
    */
   const toggleAudio = useCallback((): void => {
-    mediaStream.toggleAudio();
+    const audioState = mediaStream.toggleAudio();
 
     // Update local participant state
     const localParticipant = Array.from(participantMap.values()).find((p) => p.isLocalUser);
     if (localParticipant) {
       participantActions.updateMediaStateWithLog(localParticipant.id, {
-        audio: mediaStream.mediaState.audio,
+        audio: audioState,
       });
     }
   }, [mediaStream, participantMap]);

@@ -5,7 +5,6 @@
  */
 
 import type { MediaStreamInfo, Participant } from '@/types';
-import { ScrollArea, ScrollBar } from '@musetrip360/ui-core/scroll-area';
 import React from 'react';
 import { LocalVideo } from './LocalVideo';
 import { RemoteVideo } from './RemoteVideo';
@@ -30,7 +29,7 @@ export const ParticipantsVideo: React.FC<ParticipantThumbnailProps> = ({
             if (participant.isLocalUser) {
               return (
                 <LocalVideo
-                  muted={participant.mediaState.audio}
+                  audioState={participant.mediaState.audio}
                   key={participant.id}
                   participant={participant}
                   stream={localStream!}

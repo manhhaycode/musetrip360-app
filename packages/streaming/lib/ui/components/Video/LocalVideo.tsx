@@ -16,7 +16,7 @@ interface LocalVideoComponentProps extends LocalVideoProps {
 
 export const LocalVideo: React.FC<LocalVideoComponentProps> = ({
   stream,
-  muted = true,
+  audioState = true,
   autoPlay = true,
   playsInline = true,
   className,
@@ -84,7 +84,7 @@ export const LocalVideo: React.FC<LocalVideoComponentProps> = ({
         ref={videoRef}
         autoPlay={autoPlay}
         playsInline={playsInline}
-        muted={muted}
+        muted={true}
         controls={showControls}
         className="w-full h-full object-cover"
         {...props}
@@ -114,7 +114,7 @@ export const LocalVideo: React.FC<LocalVideoComponentProps> = ({
       </div>
 
       {/* Muted indicator for local video */}
-      {muted && (
+      {!audioState && (
         <div className="absolute top-2 right-2">
           <Badge variant="destructive" className="p-1">
             <MicOff className="w-3 h-3" />
