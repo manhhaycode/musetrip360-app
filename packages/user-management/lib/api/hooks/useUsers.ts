@@ -67,7 +67,7 @@ export function useCreateUser(options?: CustomMutationOptions<ApiResponse<IUser>
       options?.onSuccess?.(data, variables, context);
     },
     onError: (error: any, variables, context) => {
-      const errorMessage = userApiErrorHandler.handleError(error);
+      userApiErrorHandler.handleError(error);
       options?.onError?.(error, variables, context);
     },
   });
@@ -110,7 +110,7 @@ export function useUpdateUser(
         options?.onSuccess?.(response, variables, context);
       },
       onError: (error: any, variables, context) => {
-        const errorMessage = userApiErrorHandler.handleError(error);
+        userApiErrorHandler.handleError(error);
         options?.onError?.(error, variables, context);
       },
     }
@@ -266,4 +266,8 @@ export function useUserSearch(searchTerm: string, delay: number = 300) {
   return useQuery(userCacheKeys.search(debouncedSearchTerm), () =>
     userEndpoints.getUsers({ search: debouncedSearchTerm })
   );
+}
+
+export function useIsSuperAdmin() {
+  return useQuery(userCacheKeys.superAdmin(), () => userEndpoints.getIsSuperAdmin());
 }

@@ -93,6 +93,13 @@ export const userEndpoints = {
     });
     return response;
   },
+
+  // GET /users/super-admin - Check if current user is super admin
+  getIsSuperAdmin: async () => {
+    const client = getHttpClient();
+    const response = await client.get<ApiResponse<boolean>>(`${API_BASE}/super-admin`);
+    return response.data;
+  },
 } as const;
 
 /**
