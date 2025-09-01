@@ -4,11 +4,9 @@ import { Button, buttonVariants } from '@musetrip360/ui-core/button';
 import { Input } from '@musetrip360/ui-core/input';
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from '@musetrip360/ui-core/navigation-menu';
 import {
   Sheet,
@@ -33,7 +31,6 @@ import {
   Home,
   Info,
   LogOut,
-  MapPin,
   Menu,
   Phone,
   Search,
@@ -188,15 +185,6 @@ export function Header() {
 
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
-                <Link href="/about">
-                  <Info className="mr-2 h-6 w-6 hover:text-primary" />
-                  Giới thiệu
-                </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
-
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild className={twMerge(buttonVariants({ variant: 'ghost' }), '!flex-row')}>
                 <Link href="/contact">
                   <Phone className="mr-2 h-6 w-6 hover:text-primary" />
                   Liên hệ
@@ -300,18 +288,6 @@ export function Header() {
                 <nav className="grid gap-2">
                   <Button variant="link" className="justify-start">
                     Trang chủ
-                  </Button>
-                  <Button variant="link" className="justify-start">
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Bảo tàng
-                  </Button>
-                  <Button variant="link" className="justify-start">
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Sự kiện
-                  </Button>
-                  <Button variant="link" className="justify-start">
-                    <GraduationCap className="mr-2 h-4 w-4" />
-                    Giáo dục
                   </Button>
                   <Link href="/stream" className={twMerge(buttonVariants({ variant: 'link' }), 'justify-start')}>
                     <Video className="mr-2 h-4 w-4" />

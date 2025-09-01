@@ -2,7 +2,7 @@ import { Museum } from '@musetrip360/museum-management';
 import { Card, CardContent } from '@musetrip360/ui-core/card';
 import { Button } from '@musetrip360/ui-core/button';
 import { Badge } from '@musetrip360/ui-core/badge';
-import { MapPin, Phone, Mail, Star, Globe, Clock, Ticket, Map } from 'lucide-react';
+import { MapPin, Phone, Mail, Star, Globe, Clock } from 'lucide-react';
 import { cn } from '@musetrip360/ui-core/utils';
 import { ImageGrid } from './ImageGrid';
 
@@ -164,18 +164,6 @@ export function MuseumIntroTab({ museum, className }: MuseumIntroTabProps) {
 
                 {/* Social Links */}
                 {renderSocialLinks()}
-
-                {/* Action Buttons with Modern Styling */}
-                <div className="flex gap-3 pt-2">
-                  <Button className="flex-1 h-12 rounded-xl shadow-lg hover:shadow-xl transition-all">
-                    <Ticket className="h-5 w-5 mr-2" />
-                    Đặt vé tham quan
-                  </Button>
-                  <Button variant="outline" className="h-12 px-6 rounded-xl border-2">
-                    <Map className="h-5 w-5 mr-2" />
-                    Xem bản đồ
-                  </Button>
-                </div>
               </div>
             </div>
           </CardContent>

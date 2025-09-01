@@ -11,6 +11,7 @@ import { ArrowRight, Building2, Camera, Globe, Heart, Play, Quote, Star, Zap } f
 import { useMuseums } from '@musetrip360/museum-management/api';
 import { useArtifacts } from '@musetrip360/artifact-management/api';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function Home() {
   const [stats, setStats] = useState({
@@ -277,17 +278,21 @@ export default function Home() {
             Tham gia nền tảng MuseTrip360 để đưa bảo tàng của bạn đến với hàng triệu người trên thế giới
           </p>
           <div className="space-x-4">
-            <Button size="lg" variant="secondary">
-              Đăng ký ngay
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
-            >
-              Tìm hiểu thêm
-            </Button>
+            <Link href={'https://museum.musetrip360.site/'}>
+              <Button size="lg" variant="secondary">
+                Đăng ký ngay
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            <Link href="/search?type=Museum">
+              <Button
+                size="lg"
+                variant="outline"
+                className="bg-transparent border-white text-white hover:bg-white hover:text-primary"
+              >
+                Tìm hiểu thêm
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
