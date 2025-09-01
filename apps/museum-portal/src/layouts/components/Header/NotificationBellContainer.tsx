@@ -1,4 +1,10 @@
-import { useNotifications, useMarkAsRead, NotificationBell, Notification } from '@musetrip360/shared';
+import {
+  useNotifications,
+  useMarkAsRead,
+  NotificationBell,
+  Notification,
+  useDeleteNotification,
+} from '@musetrip360/shared';
 import { toast } from 'sonner';
 import get from 'lodash/get';
 
@@ -17,6 +23,16 @@ export function NotificationBellContainer() {
     onError: (error) => {
       toast.error('Failed to mark notification as read');
       console.error('Mark as read error:', error);
+    },
+  });
+
+  const removeNotification = useDeleteNotification({
+    onSuccess: () => {
+      toast.success('Notification removed');
+    },
+    onError: (error) => {
+      toast.error('Failed to remove notification');
+      console.error('Remove notification error:', error);
     },
   });
 
@@ -40,8 +56,7 @@ export function NotificationBellContainer() {
   };
 
   const handleRemove = (id: string) => {
-    toast.info('Remove notification functionality needs to be implemented in the API');
-    console.log('Remove notification:', id);
+    removeNotification.mutate(id);
   };
 
   return (

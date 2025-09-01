@@ -6,6 +6,7 @@ import {
   Pagination,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@musetrip360/query-foundation';
 import { Article, ArticleCreate, ArticleUpdate } from '@/types';
 import {
@@ -59,13 +60,45 @@ export function useGetArticle(articleId: string, options?: CustomQueryOptions<Ar
 }
 
 export function useCreateArticle(options?: CustomMutationOptions<Article, APIError, ArticleCreate>) {
-  return useMutation((data: ArticleCreate) => createArticle(data), options);
+  const queryClient = useQueryClient();
+  return useMutation((data: ArticleCreate) => createArticle(data), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumArticleManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useUpdateArticle(options?: CustomMutationOptions<Article, APIError, ArticleUpdate>) {
-  return useMutation((data: ArticleUpdate) => updateArticle(data.id, data), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((data: ArticleUpdate) => updateArticle(data.id, data), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumArticleManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useDeleteArticle(options?: CustomMutationOptions<Article, APIError, string>) {
-  return useMutation((id: string) => deleteArticle(id), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((id: string) => deleteArticle(id), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumArticleManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }

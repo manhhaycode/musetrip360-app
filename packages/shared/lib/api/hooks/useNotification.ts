@@ -1,7 +1,7 @@
 import { useMutation, useQuery, getQueryClient, CustomMutationOptions, APIError } from '@musetrip360/query-foundation';
 
 import { NotificationSearchParams, UpdateReadNotification, Notification } from '@/types';
-import { getNotifications, updateReadNotification } from '../endpoints';
+import { getNotifications, updateReadNotification, deleteNotification } from '../endpoints';
 
 export function useNotifications(params: NotificationSearchParams) {
   return useQuery(
@@ -20,7 +20,22 @@ export function useNotifications(params: NotificationSearchParams) {
 
 export function useMarkAsRead(options: CustomMutationOptions<Notification, APIError, UpdateReadNotification>) {
   return useMutation((data: UpdateReadNotification) => updateReadNotification(data), {
+    ...options,
     onSuccess: (data: Notification, variables: UpdateReadNotification, context: unknown) => {
+      options.onSuccess?.(data, variables, context);
+      const queryClient = getQueryClient();
+
+      queryClient.invalidateQueries({
+        queryKey: ['notifications'],
+      });
+    },
+  });
+}
+
+export function useDeleteNotification(options: CustomMutationOptions<void, APIError, string>) {
+  return useMutation((id: string) => deleteNotification(id), {
+    ...options,
+    onSuccess: (data: void, variables: string, context: unknown) => {
       options.onSuccess?.(data, variables, context);
       const queryClient = getQueryClient();
 
