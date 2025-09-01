@@ -16,7 +16,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip36
 import {
   ArchiveIcon,
   BookUserIcon,
-  CalendarDaysIcon,
   CalendarRangeIcon,
   ChartBar,
   ChevronRight,
@@ -31,9 +30,6 @@ import {
   LucideIcon,
   PlusIcon,
   ScaleIcon,
-  SettingsIcon,
-  // StarIcon,
-  // TicketIcon,
   UsersIcon,
   TicketsPlaneIcon,
   NewspaperIcon,
@@ -194,11 +190,6 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                     PERMISSION_EVENT_MANAGEMENT,
                   ]),
                 },
-                // {
-                //   title: 'Đánh giá sự kiện',
-                //   url: '/event/evaluate',
-                //   icon: StarIcon,
-                // },
               ],
             },
           ]}
@@ -252,29 +243,11 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
                 },
               ],
             },
-            {
-              title: 'Cài đặt tour ảo',
-              url: '/virtual-tour/settings',
-              icon: SettingsIcon,
-              items: [
-                {
-                  title: 'Cài đặt chung',
-                  url: '/virtual-tour/settings',
-                  icon: SettingsIcon,
-                },
-              ],
-            },
           ]}
         />
       </SidebarContent>
       <SidebarFooter className="border-t-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className={twMerge(sidebarButtonClasses, 'font-medium')}>
-              <SettingsIcon />
-              <span>Cài đặt</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton className={twMerge(sidebarButtonClasses, 'font-medium')}>
               <LogOutIcon />

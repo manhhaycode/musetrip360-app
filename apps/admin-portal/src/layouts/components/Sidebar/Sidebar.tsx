@@ -23,7 +23,6 @@ import {
   Home,
   LogOutIcon,
   LucideIcon,
-  Settings,
   TicketCheck,
   Users,
   Wallet,
@@ -137,12 +136,6 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
       </SidebarContent>
       <SidebarFooter className="border-t-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className={twMerge(sidebarButtonClasses, 'font-medium')}>
-              <Settings />
-              <span>Cài đặt</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               className={twMerge(sidebarButtonClasses, 'font-medium')}

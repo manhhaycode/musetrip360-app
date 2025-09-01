@@ -6,6 +6,7 @@ import {
   Pagination,
   useMutation,
   useQuery,
+  useQueryClient,
 } from '@musetrip360/query-foundation';
 import { MuseumRequest, MuseumRequestCreate, MuseumRequestSearchParams } from '../../types';
 import { museumRequestManagementCacheKeys } from '../cache/cacheKeys';
@@ -20,19 +21,63 @@ import {
 } from '../endpoints';
 
 export function useCreateMuseumRequest(options?: CustomMutationOptions<MuseumRequest, APIError, MuseumRequestCreate>) {
-  return useMutation((data: MuseumRequestCreate) => createMuseumRequest(data), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((data: MuseumRequestCreate) => createMuseumRequest(data), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumRequestManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useUpdateMuseumRequest(options?: CustomMutationOptions<MuseumRequest, APIError, MuseumRequest>) {
-  return useMutation((data: MuseumRequest) => updateMuseumRequest(data.id!, data), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((data: MuseumRequest) => updateMuseumRequest(data.id!, data), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumRequestManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useApproveMuseumRequest(options?: CustomMutationOptions<MuseumRequest, APIError, string>) {
-  return useMutation((id: string) => approveMuseumRequest(id), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((id: string) => approveMuseumRequest(id), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumRequestManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useRejectMuseumRequest(options?: CustomMutationOptions<MuseumRequest, APIError, string>) {
-  return useMutation((id: string) => rejectMuseumRequest(id), options);
+  const queryClient = useQueryClient();
+
+  return useMutation((id: string) => rejectMuseumRequest(id), {
+    ...options,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: [museumRequestManagementCacheKeys.all],
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+  });
 }
 
 export function useGetMuseumRequestById(id: string, options?: CustomQueryOptions<MuseumRequest>) {

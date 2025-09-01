@@ -74,7 +74,7 @@ export function useArtifactsByMuseum(
   params: ArtifactMuseumSearchParams,
   options?: CustomQueryOptions<PaginatedResponse<Artifact>['data'], APIError>
 ) {
-  return useQuery(artifactCacheKeys.byMuseum(), () => getArtifactsByMuseum(params), {
+  return useQuery(artifactCacheKeys.byMuseum(params.museumId), () => getArtifactsByMuseum(params), {
     enabled: !!params.museumId,
     placeholderData: (previousData: PaginatedResponse<Artifact>['data'] | undefined) => previousData,
     ...options,
@@ -98,7 +98,7 @@ export function useCreateArtifact(
         // Invalidate relevant queries
         queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
         queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
-        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum() });
+        queryClient.invalidateQueries({ queryKey: artifactCacheKeys.all });
 
         onSuccess?.(data, variables, context);
       },
@@ -124,7 +124,7 @@ export function useUpdateArtifact(
     onSuccess: (data, variables, context) => {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.list() });
-      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.byMuseum() });
+      queryClient.invalidateQueries({ queryKey: artifactCacheKeys.all });
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.adminList() });
       queryClient.invalidateQueries({ queryKey: artifactCacheKeys.detail(variables.id) });
 
