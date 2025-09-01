@@ -160,7 +160,7 @@ export type EventParticipant = {
   userId: string;
   joinedAt: string; // ISO date string
   role: ParticipantRoleEnum;
-  status: string;
+  status: ParticipantStatus;
   user?: IUser;
   event?: Event;
 };
@@ -170,4 +170,11 @@ export enum ParticipantRoleEnum {
   Organizer = 'Organizer',
   TourGuide = 'TourGuide',
   Guest = 'Guest',
+}
+
+export enum ParticipantStatus {
+  Pending = 'Pending',
+  Confirmed = 'Confirmed',
+  Attended = 'Attended',
+  Cancelled = 'Cancelled',
 }

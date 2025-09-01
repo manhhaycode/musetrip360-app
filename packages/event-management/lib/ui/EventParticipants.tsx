@@ -7,6 +7,14 @@ import { Card, CardContent } from '@musetrip360/ui-core/card';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { DataTable, DataTableToolbar, Option, useDataTable, useDataTableState } from '@musetrip360/ui-core/data-table';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@musetrip360/ui-core/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -14,7 +22,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@musetrip360/ui-core/dropdown-menu';
+import { Label } from '@musetrip360/ui-core/label';
 import { Progress } from '@musetrip360/ui-core/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@musetrip360/ui-core/select';
 import { toast } from '@musetrip360/ui-core/sonner';
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
@@ -41,7 +51,7 @@ import {
   useGetEventParticipantsByEvent,
   useUpdateEventParticipant,
 } from '../api/hooks/useEventParticipant';
-import type { Event, EventParticipant } from '../types';
+import { Event, EventParticipant, ParticipantStatus } from '../types';
 import { ParticipantRoleEnum } from '../types';
 import { AddParticipantDialog } from './AddParticipantDialog';
 
@@ -77,15 +87,15 @@ const getRoleVariant = (role: ParticipantRoleEnum): 'default' | 'secondary' | 'o
   }
 };
 
-const getStatusVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
+const getStatusVariant = (status: ParticipantStatus): 'default' | 'secondary' | 'outline' | 'destructive' => {
   switch (status) {
-    case 'Confirmed':
+    case ParticipantStatus.Confirmed:
       return 'default';
-    case 'Pending':
+    case ParticipantStatus.Pending:
       return 'secondary';
-    case 'Cancelled':
+    case ParticipantStatus.Cancelled:
       return 'destructive';
-    case 'Attended':
+    case ParticipantStatus.Attended:
       return 'default';
     default:
       return 'outline';
@@ -95,6 +105,16 @@ const getStatusVariant = (status: string): 'default' | 'secondary' | 'outline' |
 export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   const initialData: EventParticipant[] = useMemo(() => [], []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedParticipant, setSelectedParticipant] = useState<EventParticipant | null>(null);
+  const [editForm, setEditForm] = useState<{
+    role: ParticipantRoleEnum;
+    status: ParticipantStatus;
+  }>({
+    role: ParticipantRoleEnum.Attendee,
+    status: ParticipantStatus.Pending,
+  });
 
   // Role and status filter options
   const roleOptions: Option[] = useMemo(
@@ -138,7 +158,6 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
     },
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { mutate: updateParticipant } = useUpdateEventParticipant({
     onSuccess: () => {
       toast.success('Cập nhật thành công');
@@ -154,19 +173,46 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   const handleAction = useCallback(
     () => ({
       onEdit: (data: EventParticipant) => {
-        // Edit participant role/status logic
-        console.log('Edit participant:', data);
+        setSelectedParticipant(data);
+        setEditForm({
+          role: data.role,
+          status: data.status,
+        });
+        setIsEditDialogOpen(true);
       },
       onDelete: (data: EventParticipant) => {
-        deleteParticipant(data.id);
+        setSelectedParticipant(data);
+        setIsDeleteDialogOpen(true);
       },
       onSendMessage: (data: EventParticipant) => {
         // Send message logic
         console.log('Send message to:', data);
       },
     }),
-    [deleteParticipant]
+    []
   );
+
+  // Handle edit form submission
+  const handleEditSubmit = useCallback(() => {
+    if (!selectedParticipant) return;
+
+    updateParticipant({
+      id: selectedParticipant.id,
+      role: editForm.role,
+      status: editForm.status,
+    });
+    setIsEditDialogOpen(false);
+    setSelectedParticipant(null);
+  }, [selectedParticipant, editForm, updateParticipant]);
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = useCallback(() => {
+    if (!selectedParticipant) return;
+
+    deleteParticipant(selectedParticipant.id);
+    setIsDeleteDialogOpen(false);
+    setSelectedParticipant(null);
+  }, [selectedParticipant, deleteParticipant]);
 
   // Table columns
   const columns = useMemo<ColumnDef<EventParticipant>[]>(
@@ -258,9 +304,9 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
           const status = row.original.status;
           return (
             <Badge variant={getStatusVariant(status)}>
-              {status === 'Confirmed' && <UserCheck className="mr-1 h-3 w-3" />}
-              {status === 'Pending' && <Clock className="mr-1 h-3 w-3" />}
-              {status === 'Cancelled' && <UserX className="mr-1 h-3 w-3" />}
+              {status === ParticipantStatus.Confirmed && <UserCheck className="mr-1 h-3 w-3" />}
+              {status === ParticipantStatus.Pending && <Clock className="mr-1 h-3 w-3" />}
+              {status === ParticipantStatus.Cancelled && <UserX className="mr-1 h-3 w-3" />}
               {status}
             </Badge>
           );
@@ -292,7 +338,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Sửa vai trò
+                Cập nhật thông tin
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => handleAction().onSendMessage(row.original)}>
                 <Mail className="mr-2 h-4 w-4" />
@@ -313,7 +359,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
 
   // Setup data table
   const { table } = useDataTable<EventParticipant, string>({
-    data: participants?.list || initialData,
+    data: participants || initialData,
     columns,
     getRowId: (row) => row.id.toString(),
     ...tableState,
@@ -321,10 +367,14 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
 
   // Calculate metrics
   const metrics = useMemo(() => {
-    const total = participants?.list.length;
-    const confirmed = participants?.list.filter((p: EventParticipant) => p.status === 'Confirmed').length || 0;
-    const pending = participants?.list.filter((p: EventParticipant) => p.status === 'Pending').length || 0;
-    const cancelled = participants?.list.filter((p: EventParticipant) => p.status === 'Cancelled').length || 0;
+    const total = participants?.length;
+    const confirmed =
+      participants?.filter(
+        (p: EventParticipant) => p.status === ParticipantStatus.Confirmed || p.status === ParticipantStatus.Attended
+      ).length || 0;
+    const pending = participants?.filter((p: EventParticipant) => p.status === ParticipantStatus.Pending).length || 0;
+    const cancelled =
+      participants?.filter((p: EventParticipant) => p.status === ParticipantStatus.Cancelled).length || 0;
     const capacity = event.capacity || 100;
     const availableSlots = capacity - confirmed;
     const capacityPercentage = (confirmed / capacity) * 100;
@@ -422,6 +472,81 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
           onUpdated?.();
         }}
       />
+
+      {/* Edit Participant Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Cập nhật thông tin người tham gia</DialogTitle>
+            <DialogDescription>
+              Cập nhật vai trò và trạng thái cho {selectedParticipant?.user?.fullName}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2 w-full">
+              <Label htmlFor="role">Vai trò</Label>
+              <Select
+                value={editForm.role}
+                onValueChange={(value) => setEditForm({ ...editForm, role: value as ParticipantRoleEnum })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn vai trò" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={ParticipantRoleEnum.Organizer}>Organizer</SelectItem>
+                  <SelectItem value={ParticipantRoleEnum.Attendee}>Attendee</SelectItem>
+                  <SelectItem value={ParticipantRoleEnum.TourGuide}>TourGuide</SelectItem>
+                  <SelectItem value={ParticipantRoleEnum.Guest}>Guest</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 w-full">
+              <Label htmlFor="status">Trạng thái</Label>
+              <Select
+                value={editForm.status}
+                onValueChange={(value) => setEditForm({ ...editForm, status: value as ParticipantStatus })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Chọn trạng thái" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Confirmed">Confirmed</SelectItem>
+                  <SelectItem value="Pending">Pending</SelectItem>
+                  <SelectItem value="Cancelled">Cancelled</SelectItem>
+                  <SelectItem value="Attended">Attended</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button onClick={handleEditSubmit}>Cập nhật</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Xác nhận xóa</DialogTitle>
+            <DialogDescription>
+              Bạn có chắc chắn muốn xóa {selectedParticipant?.user?.fullName} khỏi sự kiện này không? Hành động này
+              không thể hoàn tác.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Hủy
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteConfirm}>
+              Xóa
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

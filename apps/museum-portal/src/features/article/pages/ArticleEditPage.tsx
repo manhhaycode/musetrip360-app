@@ -4,6 +4,7 @@ import { Article, useGetArticle } from '@musetrip360/museum-management';
 import { useMuseumStore } from '@musetrip360/museum-management/state';
 import ArticleForm from '@/features/article/ArticleForm';
 import Divider from '@/components/Divider';
+import { BulkUploadProvider } from '@musetrip360/shared';
 
 const ArticleEditPage = () => {
   const { id } = useParams();
@@ -80,7 +81,9 @@ const ArticleEditPage = () => {
       <Divider />
 
       {/* Article Edit Form */}
-      <ArticleForm article={article} museumId={selectedMuseum.id} onSuccess={handleSuccess} onCancel={handleCancel} />
+      <BulkUploadProvider>
+        <ArticleForm article={article} museumId={selectedMuseum.id} onSuccess={handleSuccess} onCancel={handleCancel} />
+      </BulkUploadProvider>
     </div>
   );
 };

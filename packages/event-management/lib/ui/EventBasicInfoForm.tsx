@@ -91,6 +91,28 @@ const eventInfoFormSchema = z.object({
   }),
 });
 
+const eventPublishedSchema = z.object({
+  title: z.string().min(1, 'Tên sự kiện là bắt buộc').max(100, 'Tên sự kiện phải ngắn hơn 100 ký tự'),
+  description: z.string().min(1, 'Mô tả là bắt buộc').max(1000, 'Mô tả phải ngắn hơn 1000 ký tự'),
+  eventType: z.nativeEnum(EventTypeEnum, {
+    required_error: 'Loại sự kiện là bắt buộc',
+  }),
+  status: z.nativeEnum(EventStatusEnum).optional(),
+  location: z.string().optional(),
+  capacity: z.number().min(1, 'Sức chứa phải ít nhất là 1'),
+  endTime: z.string().min(1, 'Thời gian kết thúc là bắt buộc'),
+  startTime: z.string().min(1, 'Thời gian bắt đầu là bắt buộc'),
+  bookingDeadline: z.string().min(1, 'Hạn đăng ký là bắt buộc'),
+  price: z.number().min(0, 'Giá phải là số dương'),
+  requiresApproval: z.boolean().optional(),
+  metadata: z.object({
+    roomCreateType: z.enum(['AUTO', 'NOW', 'NONE']).optional(),
+    thumbnail: ZodFileData.nullable().optional(),
+    images: z.array(ZodFileData.nullable()).nullable().optional(),
+    richDescription: z.string().optional(),
+  }),
+});
+
 type EventInfoFormData = z.infer<typeof eventInfoFormSchema>;
 
 interface EventInfoFormProps {
@@ -118,8 +140,13 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
   const bulkUpload = useBulkUpload();
 
   const form = useForm<EventInfoFormData>({
-    disabled: isSubmitting,
-    resolver: zodResolver(eventInfoFormSchema),
+    disabled: isSubmitting || event?.status === EventStatusEnum.Expired,
+    resolver: (data, context, options) => {
+      if (event?.status === EventStatusEnum.Published) {
+        return zodResolver(eventPublishedSchema)(data, context, options);
+      }
+      return zodResolver(eventInfoFormSchema)(data, context, options);
+    },
     defaultValues: {
       title: '',
       description: '',
@@ -147,6 +174,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
           ...event.metadata,
           thumbnail: {
             file: event.metadata?.thumbnail || '',
+            mediaType: MediaType.IMAGE,
           },
           images: event.metadata?.images || [],
           richDescription: event.metadata?.richDescription ?? event.description,
@@ -230,19 +258,20 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
       setIsSubmitting(true);
       const data = form.getValues();
 
-      console.log(data.metadata.thumbnail);
       const eventData: Partial<Event> = {
         museumId,
         title: data.title,
         description: data.description,
         eventType: data.eventType,
-        startTime: new Date(data.startTime as string).toISOString(),
-        endTime: new Date(data.endTime as string).toISOString(),
+        ...((event?.status === EventStatusEnum.Draft || event?.status === EventStatusEnum.Pending) && {
+          startTime: new Date(data.startTime as string).toISOString(),
+          endTime: new Date(data.endTime as string).toISOString(),
+          bookingDeadline: new Date(data.bookingDeadline as string).toISOString(),
+          price: data.price,
+        }),
         location: data.location || 'Sự kiện trực tuyến',
         capacity: data.capacity,
         availableSlots: data.capacity,
-        bookingDeadline: new Date(data.bookingDeadline as string).toISOString(),
-        price: data.price,
         metadata: {
           roomCreateType: data.metadata.roomCreateType,
           thumbnail: data.metadata.thumbnail?.file as string,
@@ -260,12 +289,14 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
     }
   };
 
+  console.log(form.formState.disabled || event?.status === EventStatusEnum.Published);
+
   return (
     <Form {...form}>
       <form
         style={{ flex: '1 0 0' }}
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex min-h-0 overflow-auto gap-8 relative"
+        className="flex min-h-0 overflow-auto pt-2 gap-8 relative"
       >
         <div className="basis-1/3 sticky top-0 flex-shrink-0">
           <FormDropZone
@@ -284,7 +315,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                 <FormItem className="flex gap-3">
                   <FormLabel className="text-gray-600 font-medium">Loại sự kiện</FormLabel>
                   <FormControl>
-                    <Select {...field}>
+                    <Select key={field.value} onValueChange={field.onChange} value={field.value}>
                       <FormItem>
                         <SelectTrigger>
                           <PencilRuler className="h-5 w-5 text-gray-400" />
@@ -310,7 +341,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select {...field}>
+                    <Select disabled key={field.value} onValueChange={field.onChange} value={field.value}>
                       <FormItem>
                         <SelectTrigger>
                           <Globe className="h-5 w-5 text-gray-400" />
@@ -321,6 +352,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                         <SelectItem value={EventStatusEnum.Draft}>Nháp</SelectItem>
                         <SelectItem value={EventStatusEnum.Published}>Công khai</SelectItem>
                         <SelectItem value={EventStatusEnum.Expired}>Lưu trữ</SelectItem>
+                        <SelectItem value={EventStatusEnum.Cancelled}>Huỷ</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -363,6 +395,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                             <span className="font-medium text-gray-600">Bắt đầu</span>
                           </div>
                           <DateTimePicker
+                            disabled={form.formState.disabled || event?.status === EventStatusEnum.Published}
                             value={field.value ? new Date(field.value) : undefined}
                             onChange={(date) => {
                               field.onChange(date?.toISOString());
@@ -390,6 +423,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                             <span className="font-medium text-gray-600">Kết thúc</span>
                           </div>
                           <DateTimePicker
+                            disabled={form.formState.disabled || event?.status === EventStatusEnum.Published}
                             ref={endTimePickerRef}
                             value={field.value ? new Date(field.value) : undefined}
                             onChange={(date) => field.onChange(date?.toISOString())}
@@ -411,6 +445,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                             <span className="font-medium text-gray-600">Hạn đăng ký</span>
                           </div>
                           <DateTimePicker
+                            disabled={form.formState.disabled || event?.status === EventStatusEnum.Published}
                             ref={bookingDeadlinePickerRef}
                             value={field.value ? new Date(field.value) : undefined}
                             onChange={(date) => {
@@ -438,7 +473,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
           </div>
 
           <Popover>
-            <PopoverTrigger asChild>
+            <PopoverTrigger disabled={form.formState.disabled} asChild>
               <Card className="bg-secondary/40 hover:bg-secondary/80! hover:cursor-pointer flex-1">
                 <CardContent className="flex gap-2 relative">
                   {form.watch('metadata.roomCreateType') === 'NONE' ? (
@@ -542,6 +577,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                     form.setValue('metadata.richDescription', content);
                     setIsOpen(false);
                   }}
+                  readOnly={form.formState.disabled}
                   toolbarConfig={{ showFontFamily: false }}
                   showToolbar
                   placeholder="Nhập nội dung..."
@@ -552,13 +588,21 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
           <FormLabel className="text-gray-600 font-medium">Tuỳ chọn sự kiện</FormLabel>
           <Dialog>
             <DialogTrigger asChild>
-              <Card className="bg-secondary/40 flex-1 cursor-pointer">
+              <Card
+                onClick={(e) => {
+                  if (form.formState.disabled || event?.status === EventStatusEnum.Published) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  }
+                }}
+                className="bg-secondary/40 flex-1 cursor-pointer"
+              >
                 <CardContent className="flex justify-between">
                   <div className="flex gap-2">
                     <Ticket className="h-5 w-5 text-gray-400" />
                     <span className="text-sm font-medium text-gray-600">Giá vé sự kiện</span>
                     <span className="text-sm font-medium text-gray-400">
-                      {form.watch('price') ? `: ${Number(form.watch('price')).toLocaleString()} đ` : 'Chưa có'}
+                      {form.watch('price') ? `: ${Number(form.watch('price')).toLocaleString()} đ` : 'Miễn phí'}
                     </span>
                   </div>
                 </CardContent>
