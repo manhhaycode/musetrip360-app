@@ -19,6 +19,8 @@ export default function RoomSetupPage({ params }: RoomSetupPageProps) {
           initialize().catch(console.error);
         })
         .catch(console.error);
+    } else {
+      initialize().catch(console.error);
     }
   }, []);
 

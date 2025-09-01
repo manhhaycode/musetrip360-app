@@ -201,6 +201,7 @@ export const useSignalR = (): UseSignalRReturn => {
     try {
       // Cleanup room state
       roomActions.leaveRoom();
+      disconnect();
       console.log('👋 Left room');
     } catch (error) {
       console.error('❌ Error leaving room:', error);

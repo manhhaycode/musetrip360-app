@@ -69,6 +69,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const initialize = useCallback(async () => {
     if (isInitializedRef.current) return;
 
+    isInitializedRef.current = true;
+
     try {
       console.log('🚀 Initializing streaming system...');
 
@@ -86,7 +88,6 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         await signalR.connect(config);
       }
 
-      isInitializedRef.current = true;
       console.log('✅ Streaming system initialized');
     } catch (error) {
       console.error('❌ Failed to initialize streaming system:', error);
