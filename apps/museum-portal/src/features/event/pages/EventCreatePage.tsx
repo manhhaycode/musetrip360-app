@@ -7,6 +7,7 @@ import { useMuseumStore } from '@musetrip360/museum-management';
 import withPermission from '@/hocs/withPermission';
 import { PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
 import { toast } from '@musetrip360/ui-core/sonner';
+import { BulkUploadProvider } from '@musetrip360/shared';
 
 const EventCreatePage = withPermission(() => {
   const navigate = useNavigate();
@@ -55,12 +56,14 @@ const EventCreatePage = withPermission(() => {
       </div>
 
       {/* Form Card */}
-      <EventBasicInfoForm
-        onSuccess={handleEventCreated}
-        className="flex-1"
-        museumId={museumId}
-        onCancel={handleCancel}
-      />
+      <BulkUploadProvider>
+        <EventBasicInfoForm
+          onSuccess={handleEventCreated}
+          className="flex-1"
+          museumId={museumId}
+          onCancel={handleCancel}
+        />
+      </BulkUploadProvider>
     </div>
   );
 }, [PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT]);

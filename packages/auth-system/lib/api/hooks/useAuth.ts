@@ -89,8 +89,8 @@ export function useRefreshToken() {
     onError: (error: any) => {
       console.error('Token refresh failed:', authErrorHandler.handleRefreshError(error));
       // Clear invalid tokens
-      queryClient.removeQueries({ queryKey: authCacheKeys.tokens() });
-      queryClient.removeQueries({ queryKey: authCacheKeys.currentUser() });
+      queryClient.invalidateQueries({ queryKey: authCacheKeys.tokens() });
+      queryClient.invalidateQueries({ queryKey: authCacheKeys.currentUser() });
     },
   });
 }

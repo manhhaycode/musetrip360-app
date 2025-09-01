@@ -270,7 +270,7 @@ import { usePostMutation, cacheKeys } from '@musetrip360/query-foundation';
 
 function CreateEventForm() {
   const createEvent = usePostMutation('/events', undefined, {
-    removeQueries: [cacheKeys.events.all],
+    invalidateQueries: [cacheKeys.events.all],
     optimisticUpdate: true,
     onSuccess: (data) => {
       console.log('Event created:', data);

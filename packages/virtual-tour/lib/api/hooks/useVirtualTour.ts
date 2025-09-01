@@ -63,7 +63,7 @@ export function useCreateMuseumVirtualTour(
     {
       ...options,
       onSuccess: (data, variables, context) => {
-        queryClient.removeQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
         options?.onSuccess?.(data, variables, context);
       },
     }
@@ -84,7 +84,7 @@ export function useUpdateVirtualTour(
   return useMutation<IVirtualTour, APIError, IVirtualTour>((variables) => updateVirtualTour(variables.id, variables), {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -100,7 +100,7 @@ export function useDeleteVirtualTour(options?: CustomMutationOptions<void, APIEr
   return useMutation<void, APIError, string>(deleteVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -121,7 +121,7 @@ export function useActivateVirtualTour(
   return useMutation<void, APIError, string>(activateVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });
@@ -142,7 +142,7 @@ export function useDeactivateVirtualTour(
   return useMutation<void, APIError, string>(deactivateVirtualTour, {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.removeQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
       options?.onSuccess?.(data, variables, context);
     },
   });

@@ -381,7 +381,7 @@ export class SignalRClient {
     });
 
     // Handle tour actions
-    this.connection.on('ReceiveTourAction', (actionJson: string) => {
+    this.connection.on('ReceiveTourAction', (roomId, actionJson: string) => {
       console.log('🎭 Received tour action', actionJson);
       this.eventHandlers.ReceiveTourAction?.(actionJson);
     });
