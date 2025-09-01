@@ -6,7 +6,7 @@ import { useMuseums } from '@/hooks/useMuseums';
 import { Museum } from '@musetrip360/museum-management/types';
 import { useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { ArrowRight, Frown, Landmark, Search } from 'lucide-react-native';
+import { ArrowRight, Frown, Globe, Landmark, Search } from 'lucide-react-native';
 import React from 'react';
 import { RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -68,6 +68,16 @@ export default function HomePage() {
   return (
     <SafeAreaView className="flex-1 bg-background">
       <StatusBar style="dark" />
+      {/* Branding header */}
+      <View className="flex-row items-center justify-center mt-6 mb-2">
+        <View className="w-14 h-14 rounded-lg bg-primary items-center justify-center mr-3">
+          <Globe size={32} color="#fff" />
+        </View>
+        <View>
+          <Text className="text-xl font-bold text-foreground">MuseTrip360</Text>
+          <Text className="text-xs text-muted-foreground">Digital Museum Platform</Text>
+        </View>
+      </View>
       <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleSearch={handleSearch} />
       <ScrollView
         className="flex-1"

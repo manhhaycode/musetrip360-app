@@ -2,11 +2,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { useAuthStore } from '@musetrip360/auth-system/state';
 import { useCurrentProfile, useUpdateProfile } from '@musetrip360/user-management/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useRouter } from 'expo-router';
 import { User } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Image, Modal, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { data: profile, isLoading, error } = useCurrentProfile();
   const { resetStore } = useAuthStore();
   const updateProfileMutation = useUpdateProfile();
@@ -70,7 +72,7 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-background">
-      <View className="px-4 pt-8 pb-6 bg-white rounded-2xl shadow-lg">
+      <View className="px-4 pt-8 pb-6 bg-background rounded-2xl shadow-lg">
         <View className="items-center mb-4">
           {profile?.avatarUrl ? (
             <Image source={{ uri: profile.avatarUrl }} className="w-20 h-20 rounded-full mb-2" />
@@ -86,7 +88,7 @@ export default function ProfileScreen() {
           <Text className="text-base font-semibold text-muted-foreground mb-1">Họ tên:</Text>
           {editMode ? (
             <TextInput
-              className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
+              className="h-12 px-4 py-2 border-2 border-primary rounded-2xl text-base bg-card w-full text-left text-foreground"
               value={fullName}
               onChangeText={setFullName}
               placeholder="Nhập họ tên"
@@ -106,7 +108,7 @@ export default function ProfileScreen() {
           <Text className="text-base font-semibold text-muted-foreground mb-1">Số điện thoại:</Text>
           {editMode ? (
             <TextInput
-              className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
+              className="h-12 px-4 py-2 border-2 border-primary rounded-2xl text-base bg-card w-full text-left text-foreground"
               value={phoneNumber}
               onChangeText={setPhoneNumber}
               placeholder="Nhập số điện thoại"
@@ -124,7 +126,7 @@ export default function ProfileScreen() {
             <TouchableOpacity onPress={() => setShowDatePicker(true)} className="w-full">
               <View pointerEvents="none">
                 <TextInput
-                  className="h-10 p-2 border border-gray-300 rounded-xl text-base bg-white w-full text-left text-gray-900"
+                  className="h-12 px-4 py-2 border-2 border-primary rounded-2xl text-base bg-card w-full text-left text-foreground"
                   value={birthDate}
                   placeholder="dd-mm-yyyy"
                   editable={false}
@@ -155,7 +157,7 @@ export default function ProfileScreen() {
         <View className="mt-6 w-full">
           {editMode ? (
             <TouchableOpacity
-              className="py-3 px-6 rounded-xl items-center mb-2 bg-primary"
+              className="py-3 px-6 rounded-xl items-center mb-4 bg-primary"
               onPress={handleSave}
               disabled={updateProfileMutation.isPending}
             >
@@ -163,15 +165,22 @@ export default function ProfileScreen() {
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
-              className="py-3 px-6 rounded-xl items-center mb-2 bg-primary"
+              className="py-3 px-6 rounded-xl items-center mb-4 bg-primary"
               onPress={() => setEditMode(true)}
             >
               <Text className="text-primary-foreground text-base font-semibold">Chỉnh sửa</Text>
             </TouchableOpacity>
           )}
-          <View className="h-3" />
-          <TouchableOpacity className="py-3 px-6 rounded-xl items-center bg-destructive" onPress={handleLogout}>
-            <Text className="text-destructive-foreground text-base font-semibold">Đăng xuất</Text>
+          <TouchableOpacity
+            className="py-3 px-6 rounded-xl items-center mb-4 bg-secondary"
+            onPress={() => {
+              router.push('/change-password');
+            }}
+          >
+            <Text className="text-foreground text-base font-semibold">Đổi mật khẩu</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="py-3 px-6 rounded-xl items-center mb-4 bg-secondary" onPress={handleLogout}>
+            <Text className="text-red-500 text-base font-semibold">Đăng xuất</Text>
           </TouchableOpacity>
         </View>
       </View>

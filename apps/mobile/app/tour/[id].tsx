@@ -81,16 +81,18 @@ export default function VirtualTourDetailPage() {
         className="flex-1 bg-background"
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
-        {/* Tour Image */}
-        {tour.metadata?.scenes?.[0]?.thumbnail && (
-          <Image
-            source={{
-              uri: typeof tour.metadata.scenes[0].thumbnail === 'string' ? tour.metadata.scenes[0].thumbnail : '',
-            }}
-            className="w-full h-64"
-            resizeMode="cover"
-          />
-        )}
+        {/* Tour Main Image (metadata.images[0].file) */}
+        {tour.metadata?.images?.[0]?.file &&
+          typeof tour.metadata.images[0].file === 'string' &&
+          tour.metadata.images[0].file.startsWith('http') && (
+            <Image source={{ uri: tour.metadata.images[0].file }} className="w-full h-64 mb-2" resizeMode="cover" />
+          )}
+        {/* Tour Thumbnail (first scene) */}
+        {tour.metadata?.scenes?.[0]?.thumbnail &&
+          typeof tour.metadata.scenes[0].thumbnail === 'string' &&
+          tour.metadata.scenes[0].thumbnail.startsWith('http') && (
+            <Image source={{ uri: tour.metadata.scenes[0].thumbnail }} className="w-full h-64" resizeMode="cover" />
+          )}
         <View className="px-4 py-4 space-y-6">
           {/* Tour Info */}
           <View className="pb-2">
@@ -99,6 +101,14 @@ export default function VirtualTourDetailPage() {
               <Globe2 size={18} color="#0ea5e9" />
               <Text className="ml-2 text-md text-[#0ea5e9]">Tour 360°</Text>
             </View>
+            {/* Giá tour: chỉ hiển thị nếu có giá trị */}
+            {typeof tour.price === 'number' && (
+              <View className="flex-row items-center mb-1">
+                <Text className="text-muted-foreground text-md ml-2">
+                  Giá: {tour.price === 0 ? 'Miễn phí' : tour.price.toLocaleString('vi-VN') + '₫'}
+                </Text>
+              </View>
+            )}
             <View className="flex-row items-center mb-1">
               <Clock size={16} color="#9ca3af" />
               <Text className="text-muted-foreground text-md ml-2">
@@ -115,6 +125,14 @@ export default function VirtualTourDetailPage() {
                 {tour.isActive ? 'Đang hoạt động' : 'Tạm dừng'}
               </Text>
             </View>
+            {/* Ngày cập nhật */}
+            {tour.updatedAt && (
+              <View className="flex-row items-center mt-1">
+                <Text className="text-muted-foreground text-md ml-2">
+                  Cập nhật: {new Date(tour.updatedAt).toLocaleDateString('vi-VN')}
+                </Text>
+              </View>
+            )}
           </View>
 
           {/* Description */}

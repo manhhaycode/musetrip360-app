@@ -96,9 +96,11 @@ export default function EventDetailPage() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       >
         {/* Event Image */}
-        {event.metadata?.thumbnail && (
+        {event.metadata?.thumbnail &&
+        typeof event.metadata.thumbnail === 'string' &&
+        event.metadata.thumbnail.startsWith('http') ? (
           <Image source={{ uri: event.metadata.thumbnail }} className="w-full h-64" resizeMode="cover" />
-        )}
+        ) : null}
         <View className="px-4 py-4 space-y-6">
           {/* Event Info */}
           <View className="pb-2">
