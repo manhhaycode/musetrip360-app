@@ -1,8 +1,3 @@
-/**
- * @fileoverview Search API Integration for Mobile
- * Provides search functionality across different entity types using global search API
- */
-
 import type { SearchParams, SearchResponse } from '@/types/api';
 import { getHttpClient, useQuery } from '@musetrip360/query-foundation';
 

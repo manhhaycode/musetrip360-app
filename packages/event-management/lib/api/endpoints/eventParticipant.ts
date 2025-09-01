@@ -5,7 +5,7 @@
  */
 
 import { EventParticipant, ParticipantRoleEnum, ParticipantStatus } from '@/types';
-import { APIResponse, getHttpClient, PaginatedResponse } from '@musetrip360/query-foundation';
+import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
 
 /**
  * Event Participant API endpoints configuration

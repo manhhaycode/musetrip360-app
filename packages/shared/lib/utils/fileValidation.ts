@@ -1,4 +1,4 @@
-import { MediaType, FileValidationConfig, FileValidationResult, DEFAULT_VALIDATION_CONFIG, FileData } from '../types';
+import { DEFAULT_VALIDATION_CONFIG, FileData, FileValidationConfig, FileValidationResult, MediaType } from '../types';
 
 export const getAcceptConfig = (mediaType: MediaType) => {
   const config = getValidationConfig(mediaType);

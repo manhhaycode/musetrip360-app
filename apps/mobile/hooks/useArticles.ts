@@ -1,4 +1,4 @@
-import { useGetArticlesByMuseum } from '@musetrip360/museum-management/api';
+import { useGetArticle, useGetArticlesByMuseum } from '@musetrip360/museum-management/api';
 
 interface ArticleSearchParams {
   Page?: number;
@@ -7,10 +7,7 @@ interface ArticleSearchParams {
 }
 
 export const useArticles = (params?: ArticleSearchParams, options?: { enabled?: boolean }) => {
-  console.log('📰 useArticles called with params:', params);
-  console.log('📰 useArticles options:', options);
-
-  // Use real API - fix function name
+  // Use real API
   const apiResult = useGetArticlesByMuseum(
     params?.museumId || '',
     {
@@ -23,10 +20,19 @@ export const useArticles = (params?: ArticleSearchParams, options?: { enabled?: 
     }
   );
 
-  console.log('📰 useArticles API result:', {
+  return {
     data: apiResult.data,
     isLoading: apiResult.isLoading,
     error: apiResult.error,
+    refetch: apiResult.refetch,
+  };
+};
+
+// New hook for getting article details by ID
+export const useArticleDetail = (articleId: string, options?: { enabled?: boolean }) => {
+  const apiResult = useGetArticle(articleId, {
+    enabled: options?.enabled !== false && !!articleId,
+    refetchOnWindowFocus: false,
   });
 
   return {
@@ -36,3 +42,5 @@ export const useArticles = (params?: ArticleSearchParams, options?: { enabled?: 
     refetch: apiResult.refetch,
   };
 };
+
+export type { ArticleSearchParams };

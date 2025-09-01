@@ -26,7 +26,7 @@ import { TableCellNode, TableNode, TableRowNode } from '@lexical/table';
 import { BulkUploadProvider } from '@musetrip360/shared/contexts';
 import { cn } from '@musetrip360/ui-core/utils';
 import { $getRoot } from 'lexical';
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
 
 const createInitialConfig = (onError?: (error: Error) => void, readOnly?: boolean) => ({
   namespace: 'MuseTrip360RichEditor',

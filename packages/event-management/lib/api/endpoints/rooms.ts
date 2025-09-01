@@ -4,8 +4,8 @@
  * API endpoints for room management operations
  */
 
-import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
 import { Room, RoomCreateDto, RoomUpdateDto, RoomUpdateMetadataDto } from '@/types';
+import { APIResponse, getHttpClient } from '@musetrip360/query-foundation';
 
 export const roomEndpoints = {
   // Room CRUD operations

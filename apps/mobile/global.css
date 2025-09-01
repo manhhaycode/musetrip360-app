@@ -4,43 +4,42 @@
 
 @layer base {
   :root {
-    /* Base colors */
-    --border: #fff;
-    --background: 56 8% 98.5%;
-    --foreground: 3 1.3% 33.5%;
+    /* Base colors - matching visitor-portal, dùng HEX cho mobile/nativewind */
+    --background: #fff6ed;
+    --foreground: #2d1f13;
 
-    /* Card colors */
-    --card: 0 0% 100%;
-    --card-foreground: 3 1.3% 33.5%;
+    /* Card colors - matching visitor-portal (web: trắng) */
+    --card: #ffffff;
+    --card-foreground: #2d1f13;
 
     /* Popover colors */
-    --popover: 0 0% 100%;
-    --popover-foreground: 3 1.3% 33.5%;
+    --popover: #fff6ed;
+    --popover-foreground: #2d1f13;
 
-    /* Primary colors */
-    --primary: 35 16.4% 73.6%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary colors - matching visitor-portal */
+    --primary: #ff914d;
+    --primary-foreground: #fff6ed;
 
-    /* Secondary colors */
-    --secondary: 29 2% 96%;
-    --secondary-foreground: 33 12.9% 55.9%;
+    /* Secondary colors - matching visitor-portal */
+    --secondary: #ffe3cc;
+    --secondary-foreground: #2d1f13;
 
-    /* Muted colors */
-    --muted: 39 1.8% 96.6%;
-    --muted-foreground: 58 1.2% 55.3%;
+    /* Muted colors - matching visitor-portal */
+    --muted: #f5e9dd;
+    --muted-foreground: #a67c52;
 
-    /* Accent colors */
-    --accent: 58 11.3% 82.8%;
-    --accent-foreground: 3 1.3% 33.5%;
+    /* Accent colors - matching visitor-portal */
+    --accent: #ffb672;
+    --accent-foreground: #2d1f13;
 
-    /* Destructive colors */
-    --destructive: 22 20.8% 61.2%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive colors - matching visitor-portal */
+    --destructive: #f87171;
+    --destructive-foreground: #fff6ed;
 
-    /* Border, input, ring colors */
-    --border: 39 3.7% 93%;
-    --input: 39 3.7% 93%;
-    --ring: 35 16.4% 73.6%;
+    /* Border, input, ring colors - matching visitor-portal */
+    --border: #ffd2b2;
+    --input: #ffd2b2;
+    --ring: #ff914d;
 
     /* Font families - removed quotes for React Native compatibility */
     --font-sans: Montserrat;
@@ -51,42 +50,42 @@
   }
 
   .dark:root {
-    /* Base colors */
-    --background: 352 1.7% 25.7%;
-    --foreground: 51 1.2% 94%;
+    /* Base colors - dark mode HEX */
+    --background: #1a1208;
+    --foreground: #ffe3cc;
 
-    /* Card colors */
-    --card: 341 1.8% 31.8%;
-    --card-foreground: 51 1.2% 94%;
+    /* Card colors - dark mode HEX */
+    --card: #23180c;
+    --card-foreground: #ffe3cc;
 
     /* Popover colors */
-    --popover: 341 1.8% 31.8%;
-    --popover-foreground: 51 1.2% 94%;
+    --popover: #23180c;
+    --popover-foreground: #ffe3cc;
 
-    /* Primary colors */
-    --primary: 35 16.4% 73.6%;
-    --primary-foreground: 0 0% 100%;
+    /* Primary colors - dark mode HEX */
+    --primary: #ff914d;
+    --primary-foreground: #fff6ed;
 
-    /* Secondary colors */
-    --secondary: 342 2% 36.4%;
-    --secondary-foreground: 51 1.2% 94%;
+    /* Secondary colors - dark mode HEX */
+    --secondary: #2d1f13;
+    --secondary-foreground: #ffe3cc;
 
-    /* Muted colors */
-    --muted: 341 1.8% 31.8%;
-    --muted-foreground: 53 2.4% 83.8%;
+    /* Muted colors - dark mode HEX */
+    --muted: #23180c;
+    --muted-foreground: #a67c52;
 
-    /* Accent colors */
-    --accent: 58 11.3% 82.8%;
-    --accent-foreground: 352 1.7% 25.7%;
+    /* Accent colors - dark mode HEX */
+    --accent: #ffb672;
+    --accent-foreground: #1a1208;
 
-    /* Destructive colors */
-    --destructive: 22 20.8% 61.2%;
-    --destructive-foreground: 0 0% 100%;
+    /* Destructive colors - dark mode HEX */
+    --destructive: #f87171;
+    --destructive-foreground: #fff6ed;
 
-    /* Border, input, ring colors */
-    --border: 342 2% 36.4%;
-    --input: 342 2% 36.4%;
-    --ring: 35 16.4% 73.6%;
+    /* Border, input, ring colors - dark mode HEX */
+    --border: #2d1f13;
+    --input: #2d1f13;
+    --ring: #ff914d;
 
     /* Font families - removed quotes for React Native compatibility */
     --font-sans: Montserrat;

@@ -9,17 +9,17 @@ import {
 } from '@musetrip360/query-foundation';
 
 import {
+  checkUserInEvent,
+  createEventParticipant,
+  createEventParticipantClient,
+  deleteEventParticipant,
   EventParticipantCreateDto,
   EventParticipantUpdateDto,
   getAllEventParticipants,
   getEventParticipantById,
-  createEventParticipant,
-  updateEventParticipant,
-  deleteEventParticipant,
   getEventParticipantsByEvent,
   getEventParticipantsByUser,
-  checkUserInEvent,
-  createEventParticipantClient,
+  updateEventParticipant,
 } from '../endpoints/eventParticipant';
 
 import { eventManagementCacheKeys } from '../cache/cacheKeys';

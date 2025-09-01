@@ -24,7 +24,7 @@ export function MuseumCard({ museum }: MuseumCardProps) {
     }
 
     // Fallback image
-    return 'https://images.unsplash.com/photo-1554757387-ea8f60cde1f0?w=400';
+    return 'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg';
   };
 
   const formatRating = (rating: number) => {
@@ -60,7 +60,7 @@ export function MuseumCard({ museum }: MuseumCardProps) {
   return (
     <TouchableOpacity
       onPress={handlePress}
-      className="bg-white rounded-xl shadow-sm border border-gray-100 mb-4 overflow-hidden"
+      className="bg-card rounded-xl shadow-md border border-card mb-4 overflow-hidden"
       activeOpacity={0.7}
     >
       {/* Image */}

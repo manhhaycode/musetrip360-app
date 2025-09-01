@@ -1,16 +1,16 @@
+import { BulkUploadProps } from '@/contexts/UploadFileContext';
 import { useUploadPreview } from '@/hooks/useUploadPreview';
 import { FileData, MediaType } from '@/types';
 import { formatFileSize, getFileName } from '@/utils';
 import { UploadProgress, UploadStatus } from '@musetrip360/query-foundation';
 import { Button } from '@musetrip360/ui-core/button';
+import { FormLabel } from '@musetrip360/ui-core/form';
+import { Switch } from '@musetrip360/ui-core/switch';
 import { cn } from '@musetrip360/ui-core/utils';
+import { saveAs } from 'file-saver';
 import { AlertTriangle, CheckCircle, Download, FileText, Loader2, Upload, XCircle } from 'lucide-react';
 import React, { useEffect, useRef } from 'react';
 import { DropZone } from './DropZone';
-import { BulkUploadProps } from '@/contexts/UploadFileContext';
-import { saveAs } from 'file-saver';
-import { FormLabel } from '@musetrip360/ui-core/form';
-import { Switch } from '@musetrip360/ui-core/switch';
 
 // PreviewContainer Types
 interface PreviewContainerProps extends BulkUploadProps {
