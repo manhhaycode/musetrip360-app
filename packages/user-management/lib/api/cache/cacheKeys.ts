@@ -45,6 +45,10 @@ export class UserCacheKeys extends BaseCacheKeyFactory {
   museumUsers(museumId: string): QueryKey {
     return [this.prefix, 'museumUsers', museumId];
   }
+
+  superAdmin(): QueryKey {
+    return [this.prefix, 'superAdmin'];
+  }
 }
 
 export const userCacheKeys = new UserCacheKeys();
