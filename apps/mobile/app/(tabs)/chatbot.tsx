@@ -23,7 +23,18 @@ import {
   User,
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  Alert,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import RenderHtml from 'react-native-render-html';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const defaultPrompts = [
@@ -50,7 +61,63 @@ function AvatarUser() {
 }
 
 function MarkdownRenderer({ content }: { content: string }) {
-  return <Text className="text-base text-lucid-foreground">{content}</Text>;
+  const { width } = useWindowDimensions();
+
+  // Convert markdown-like syntax to HTML
+  const convertToHtml = (text: string) => {
+    return (
+      text
+        // Bold **text**
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic *text*
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Line breaks
+        .replace(/\n/g, '<br/>')
+        // Code `text`
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        // Headers
+        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    );
+  };
+
+  const htmlContent = convertToHtml(content);
+
+  const tagsStyles = {
+    body: {
+      color: '#1f2937', // text-gray-800
+    },
+    strong: {
+      fontWeight: 'bold' as const,
+    },
+    em: {
+      fontStyle: 'italic' as const,
+    },
+    code: {
+      backgroundColor: '#f3f4f6',
+      padding: 2,
+      borderRadius: 4,
+      fontFamily: 'monospace',
+    },
+    h1: {
+      fontSize: 18,
+      fontWeight: 'bold' as const,
+      marginBottom: 8,
+    },
+    h2: {
+      fontSize: 16,
+      fontWeight: 'bold' as const,
+      marginBottom: 6,
+    },
+    h3: {
+      fontSize: 14,
+      fontWeight: 'bold' as const,
+      marginBottom: 4,
+    },
+  };
+
+  return <RenderHtml contentWidth={width} source={{ html: htmlContent }} tagsStyles={tagsStyles} />;
 }
 
 function TypingIndicator() {
@@ -132,12 +199,8 @@ function RelatedDataSuggestions({ relatedData }: { relatedData: AIChatRelatedDat
     const itemId = (item as any).Id || item.id;
     const itemType = (item as any).Type || item.type;
 
-    console.log('Navigation debug:', { item, path, itemId, itemType });
-
     if (path) {
       try {
-        console.log('Attempting to navigate to:', path);
-
         if (itemType === 'Museum') {
           router.push(`/museum/${itemId}` as any);
         } else if (itemType === 'Event') {
@@ -147,22 +210,15 @@ function RelatedDataSuggestions({ relatedData }: { relatedData: AIChatRelatedDat
         } else if (itemType === 'TourOnline') {
           router.push(`/tour/${itemId}` as any);
         } else {
-          console.log('Unknown type, trying default navigation');
           router.push(path as any);
         }
-
-        console.log('Navigation completed');
-      } catch (error) {
-        console.error('Navigation error:', error);
-        console.log('Fallback: trying to navigate to home');
+      } catch {
         try {
           router.push('/(tabs)/' as any);
-        } catch (fallbackError) {
-          console.error('Fallback navigation also failed:', fallbackError);
+        } catch {
+          // Silent fallback
         }
       }
-    } else {
-      console.log('No valid path found for item:', item);
     }
   };
 
@@ -230,8 +286,8 @@ export default function ChatbotTab() {
         }
       }
     },
-    onError: (error: any) => {
-      console.error('Failed to fetch conversations:', error);
+    onError: () => {
+      // Silent error
     },
   });
 
@@ -246,8 +302,7 @@ export default function ChatbotTab() {
         setIsTyping(false);
       }
     },
-    onError: (error: any) => {
-      console.error('Failed to fetch messages:', error);
+    onError: () => {
       setIsTyping(false);
     },
   });
@@ -261,8 +316,8 @@ export default function ChatbotTab() {
         setMessages([]);
       }
     },
-    onError: (error: any) => {
-      console.error('Failed to create conversation:', error);
+    onError: () => {
+      // Silent error
     },
   });
 
@@ -276,8 +331,8 @@ export default function ChatbotTab() {
         setMessages([]);
       }
     },
-    onError: (error: any) => {
-      console.error('Failed to delete conversation:', error);
+    onError: () => {
+      // Silent error
     },
   });
 
@@ -294,9 +349,8 @@ export default function ChatbotTab() {
         }, 1500);
       }
     },
-    onError: (error: any) => {
+    onError: () => {
       setIsTyping(false);
-      console.error('Failed to create message:', error);
     },
   });
 
