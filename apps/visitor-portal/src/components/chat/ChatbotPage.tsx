@@ -72,11 +72,15 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
   );
 
   const handleMessagesSuccess = useCallback((response: any) => {
-    const messages = get(response, 'messages', []) as Message[];
-    if (Array.isArray(messages)) {
-      const sortedMessages = messages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+    const newMessages = get(response, 'messages', []) as Message[];
+    if (Array.isArray(newMessages)) {
+      const sortedMessages = newMessages.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+
+      // Replace all temporary messages with real messages from server
       setMessages(sortedMessages);
-      setIsTyping(false); // Stop typing indicator when messages are loaded
+      setIsTyping(false); // Stop typing indicator when real messages are loaded
     }
   }, []);
 
@@ -161,30 +165,24 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
       if (response) {
         const newMessage = response;
 
-        // Update messages immediately to avoid UI lag
+        // Since API call has isBot: true, the response will contain both user and AI messages
+        // We need to keep our mocked user message and wait for the real AI response
         setMessages((prev) => {
-          // Check if message already exists to prevent duplicates
-          const messageExists = prev.some((msg) => msg.id === newMessage.id);
-          if (messageExists) {
-            return prev;
-          }
-          return [...prev, newMessage];
+          // Just wait for the polling to fetch real messages
+          // Keep our temporary messages until real ones arrive
+          return prev;
         });
 
-        // If this was a user message, set typing indicator and wait for AI response
-        if (!newMessage.isBot && selectedConversation) {
-          setIsTyping(true);
-
-          // Use a longer timeout for AI to process and respond
+        // Always wait for AI response when message is sent
+        if (selectedConversation) {
+          // Keep typing indicator active - will be turned off when real messages arrive
           setTimeout(() => {
             fetchMessages({
               conversationId: selectedConversation,
               Page: 1,
               PageSize: 100,
             });
-          }, 2000); // Increased timeout to reduce rapid API calls
-        } else if (newMessage.isBot) {
-          setIsTyping(false);
+          }, 1500);
         }
       }
     },
@@ -289,10 +287,27 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
         return;
       }
 
+      // 1. Add only AI placeholder message with loading animation
+      const tempAiMessage: Message = {
+        id: `temp-ai-${Date.now()}`,
+        conversationId: selectedConversation,
+        content: '...', // Will be replaced by real response
+        isBot: true,
+        createdAt: new Date(),
+        createdBy: 'ai-bot',
+        createdUser: { id: 'ai-bot', name: 'AI Assistant' } as any,
+        metadata: { isTemporary: true }, // Mark as placeholder
+      };
+
+      // 2. Update UI with only AI loading placeholder
+      setMessages((prev) => [...prev, tempAiMessage]);
+      setIsTyping(true);
+
+      // 4. Send to API with isBot: true to trigger AI response
       createMessage({
         conversationId: selectedConversation,
         content,
-        isBot: true,
+        isBot: true, // ✅ CORRECT: This tells backend to generate AI response
       });
     },
     [selectedConversation, isSendingMessage, createMessage]

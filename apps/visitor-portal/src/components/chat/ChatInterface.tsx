@@ -194,7 +194,7 @@ export function ChatInterface({
                         size="sm"
                         className="w-full text-left justify-start h-auto whitespace-normal p-3"
                         onClick={() => handlePromptClick(prompt)}
-                        disabled={isLoading || isSending || isTyping}
+                        disabled={isLoading || isSending}
                       >
                         {prompt}
                       </Button>
@@ -220,7 +220,24 @@ export function ChatInterface({
                           )}
                         >
                           {message.isBot ? (
-                            <MarkdownRenderer content={message.content} className="p-3" />
+                            message.content === '...' ? (
+                              <div className="p-3 flex items-center space-x-2">
+                                <span className="text-sm text-muted-foreground">AI đang trả lời</span>
+                                <div className="flex space-x-1">
+                                  <div className="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
+                                  <div
+                                    className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                                    style={{ animationDelay: '0.15s' }}
+                                  ></div>
+                                  <div
+                                    className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                                    style={{ animationDelay: '0.3s' }}
+                                  ></div>
+                                </div>
+                              </div>
+                            ) : (
+                              <MarkdownRenderer content={message.content} className="p-3" />
+                            )
                           ) : (
                             <div className="p-3 text-sm">{message.content}</div>
                           )}
@@ -249,26 +266,29 @@ export function ChatInterface({
                   ))}
 
                   {/* Typing Indicator */}
-                  {isTyping && (
+                  {/* {isTyping && (
                     <div className="flex gap-3 justify-start">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-r from-primary to-purple-600 flex items-center justify-center flex-shrink-0">
                         <Bot className="h-4 w-4 text-white" />
                       </div>
                       <div className="bg-muted p-3 rounded-lg">
-                        <div className="flex space-x-1">
-                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"></div>
-                          <div
-                            className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                            style={{ animationDelay: '0.1s' }}
-                          ></div>
-                          <div
-                            className="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
-                            style={{ animationDelay: '0.2s' }}
-                          ></div>
+                        <div className="flex items-center space-x-1">
+                          <span className="text-sm text-muted-foreground animate-pulse">AI đang trả lời</span>
+                          <div className="flex space-x-1 ml-2">
+                            <div className="w-1 h-1 bg-primary rounded-full animate-bounce"></div>
+                            <div
+                              className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                              style={{ animationDelay: '0.15s' }}
+                            ></div>
+                            <div
+                              className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                              style={{ animationDelay: '0.3s' }}
+                            ></div>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  )}
+                  )} */}
 
                   {/* Scroll anchor */}
                   <div ref={messagesEndRef} style={{ height: '1px' }} />
@@ -282,19 +302,15 @@ export function ChatInterface({
         <div className="p-4 border-t bg-background">
           <div className="flex space-x-2">
             <Input
-              placeholder="Nhập tin nhắn của bạn..."
+              placeholder={isTyping ? 'AI đang trả lời...' : 'Nhập tin nhắn của bạn...'}
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyPress}
               className="flex-1"
-              disabled={isLoading || isSending || isTyping}
+              disabled={isLoading || isSending}
             />
-            <Button
-              size="sm"
-              onClick={handleSendMessage}
-              disabled={!inputValue.trim() || isLoading || isSending || isTyping}
-            >
-              {isSending || isTyping ? (
+            <Button size="sm" onClick={handleSendMessage} disabled={!inputValue.trim() || isLoading || isSending}>
+              {isSending ? (
                 <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin"></div>
               ) : (
                 <Send className="h-4 w-4" />
