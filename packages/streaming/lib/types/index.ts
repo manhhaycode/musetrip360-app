@@ -54,7 +54,15 @@ export interface RoomMetadata {
 
 export interface TourActions {
   Id: string;
-  ActionType: 'camera_change' | 'scene_change' | 'artifact_preview' | 'artifact_close';
+  ActionType:
+    | 'camera_change'
+    | 'scene_change'
+    | 'artifact_preview'
+    | 'artifact_close'
+    | 'audio_mute'
+    | 'audio_unmute'
+    | 'auto_rotate_start'
+    | 'auto_rotate_stop';
   ActionData: {
     // Scene navigation
     SceneId?: string;
@@ -67,6 +75,16 @@ export interface TourActions {
       theta: number; // Horizontal angle in radians
       phi: number; // Vertical angle in radians
       fov: number; // Field of view in degrees
+    };
+
+    // Audio control data
+    AudioState?: {
+      isMuted: boolean;
+    };
+
+    // Auto-rotation control data
+    RotationState?: {
+      isAutoRotating: boolean;
     };
   };
   PerformedBy: string;

@@ -106,6 +106,74 @@ export const useTourActionState = () => {
   }, [currentRoom?.Id, currentUserId]);
 
   /**
+   * Send audio mute action to other participants
+   */
+  const sendAudioMute = useCallback(async () => {
+    if (!currentRoom?.Id || !currentUserId) {
+      console.warn('Cannot send audio mute: Missing room or user ID');
+      return;
+    }
+
+    try {
+      await tourActionService.sendAudioMute(currentRoom.Id, currentUserId);
+      console.log('🔇 Audio mute sent');
+    } catch (error) {
+      console.error('Failed to send audio mute:', error);
+    }
+  }, [currentRoom?.Id, currentUserId]);
+
+  /**
+   * Send audio unmute action to other participants
+   */
+  const sendAudioUnmute = useCallback(async () => {
+    if (!currentRoom?.Id || !currentUserId) {
+      console.warn('Cannot send audio unmute: Missing room or user ID');
+      return;
+    }
+
+    try {
+      await tourActionService.sendAudioUnmute(currentRoom.Id, currentUserId);
+      console.log('🔊 Audio unmute sent');
+    } catch (error) {
+      console.error('Failed to send audio unmute:', error);
+    }
+  }, [currentRoom?.Id, currentUserId]);
+
+  /**
+   * Send auto rotate start action to other participants
+   */
+  const sendAutoRotateStart = useCallback(async () => {
+    if (!currentRoom?.Id || !currentUserId) {
+      console.warn('Cannot send auto rotate start: Missing room or user ID');
+      return;
+    }
+
+    try {
+      await tourActionService.sendAutoRotateStart(currentRoom.Id, currentUserId);
+      console.log('🔄 Auto rotate start sent');
+    } catch (error) {
+      console.error('Failed to send auto rotate start:', error);
+    }
+  }, [currentRoom?.Id, currentUserId]);
+
+  /**
+   * Send auto rotate stop action to other participants
+   */
+  const sendAutoRotateStop = useCallback(async () => {
+    if (!currentRoom?.Id || !currentUserId) {
+      console.warn('Cannot send auto rotate stop: Missing room or user ID');
+      return;
+    }
+
+    try {
+      await tourActionService.sendAutoRotateStop(currentRoom.Id, currentUserId);
+      console.log('⏹️ Auto rotate stop sent');
+    } catch (error) {
+      console.error('Failed to send auto rotate stop:', error);
+    }
+  }, [currentRoom?.Id, currentUserId]);
+
+  /**
    * Check if user can send tour actions (is tour guide or has guide permissions)
    */
   const canSendTourActions = useMemo(() => {
@@ -132,6 +200,10 @@ export const useTourActionState = () => {
     sendSceneChange,
     sendArtifactPreview,
     sendArtifactClose,
+    sendAudioMute,
+    sendAudioUnmute,
+    sendAutoRotateStart,
+    sendAutoRotateStop,
 
     // Service status
     isServiceAvailable: tourActionService.isAvailable(),
@@ -150,6 +222,8 @@ export const useTourActionReceiver = () => {
   >(undefined);
   const [currentSceneId, setCurrentSceneId] = useState<string | undefined>(undefined);
   const [currentArtifactId, setCurrentArtifactId] = useState<string | null>(null);
+  const [currentAudioMuted, setCurrentAudioMuted] = useState<boolean | undefined>(undefined);
+  const [currentAutoRotate, setCurrentAutoRotate] = useState<boolean | undefined>(undefined);
 
   // Track if user has received first tour action (for deferred initialization)
   const [hasReceivedFirstAction, setHasReceivedFirstAction] = useState<boolean>(false);
@@ -196,6 +270,30 @@ export const useTourActionReceiver = () => {
             setCurrentArtifactId(null);
             break;
 
+          case 'audio_mute':
+            if (tourAction.ActionData.AudioState) {
+              setCurrentAudioMuted(tourAction.ActionData.AudioState.isMuted);
+            }
+            break;
+
+          case 'audio_unmute':
+            if (tourAction.ActionData.AudioState) {
+              setCurrentAudioMuted(tourAction.ActionData.AudioState.isMuted);
+            }
+            break;
+
+          case 'auto_rotate_start':
+            if (tourAction.ActionData.RotationState) {
+              setCurrentAutoRotate(tourAction.ActionData.RotationState.isAutoRotating);
+            }
+            break;
+
+          case 'auto_rotate_stop':
+            if (tourAction.ActionData.RotationState) {
+              setCurrentAutoRotate(tourAction.ActionData.RotationState.isAutoRotating);
+            }
+            break;
+
           default:
             console.warn('Unknown tour action type:', tourAction.ActionType);
         }
@@ -216,6 +314,8 @@ export const useTourActionReceiver = () => {
     controlledCameraPosition: currentCameraPosition,
     controlledSceneId: currentSceneId,
     controlledArtifactId: currentArtifactId,
+    controlledAudioMuted: currentAudioMuted,
+    controlledAutoRotate: currentAutoRotate,
 
     // State flags
     hasReceivedFirstAction,
@@ -225,6 +325,8 @@ export const useTourActionReceiver = () => {
       setCurrentCameraPosition(undefined);
       setCurrentSceneId(undefined);
       setCurrentArtifactId(null);
+      setCurrentAudioMuted(undefined);
+      setCurrentAutoRotate(undefined);
       setHasReceivedFirstAction(false);
     }, []),
   };

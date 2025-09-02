@@ -119,6 +119,40 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
     [canSendActions, tourActionState, virtualTourProps]
   );
 
+  // Handle audio mute/unmute changes - send to other participants if guide
+  const handleAudioMuteChange = useCallback(
+    (isMuted: boolean) => {
+      if (canSendActions) {
+        if (isMuted) {
+          tourActionState.sendAudioMute();
+        } else {
+          tourActionState.sendAudioUnmute();
+        }
+      }
+
+      // Call original callback if provided
+      virtualTourProps.onAudioMuteChange?.(isMuted);
+    },
+    [canSendActions, tourActionState, virtualTourProps]
+  );
+
+  // Handle auto rotate changes - send to other participants if guide
+  const handleAutoRotateChange = useCallback(
+    (isAutoRotating: boolean) => {
+      if (canSendActions) {
+        if (isAutoRotating) {
+          tourActionState.sendAutoRotateStart();
+        } else {
+          tourActionState.sendAutoRotateStop();
+        }
+      }
+
+      // Call original callback if provided
+      virtualTourProps.onAutoRotateChange?.(isAutoRotating);
+    },
+    [canSendActions, tourActionState, virtualTourProps]
+  );
+
   // Loading Screen Component
   const LoadingScreen = useCallback(() => {
     const isConnected = tourActionState.isServiceAvailable;
@@ -178,6 +212,8 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
       controlledSceneId: tourActionReceiver.controlledSceneId,
       controlledCameraPosition: tourActionReceiver.controlledCameraPosition,
       controlledArtifactId: tourActionReceiver.controlledArtifactId || undefined,
+      controlledAudioMuted: tourActionReceiver.controlledAudioMuted,
+      controlledAutoRotate: tourActionReceiver.controlledAutoRotate,
     };
   }, [isFreeExploreMode, tourActionReceiver]);
 
@@ -193,8 +229,17 @@ export const SyncedVirtualTourViewer: React.FC<SyncedVirtualTourViewerProps> = (
       onCameraChange: handleCameraChange,
       onSceneChange: handleSceneChange,
       onPolygonClick: handlePolygonClick,
+      onAudioMuteChange: handleAudioMuteChange,
+      onAutoRotateChange: handleAutoRotateChange,
     };
-  }, [isFreeExploreMode, handleCameraChange, handleSceneChange, handlePolygonClick]);
+  }, [
+    isFreeExploreMode,
+    handleCameraChange,
+    handleSceneChange,
+    handlePolygonClick,
+    handleAudioMuteChange,
+    handleAutoRotateChange,
+  ]);
 
   // Merge all props
   const mergedProps: VirtualTourViewerProps = {
@@ -263,6 +308,10 @@ export const useSyncedVirtualTour = () => {
     sendSceneChange: tourActionState.sendSceneChange,
     sendArtifactPreview: tourActionState.sendArtifactPreview,
     sendArtifactClose: tourActionState.sendArtifactClose,
+    sendAudioMute: tourActionState.sendAudioMute,
+    sendAudioUnmute: tourActionState.sendAudioUnmute,
+    sendAutoRotateStart: tourActionState.sendAutoRotateStart,
+    sendAutoRotateStop: tourActionState.sendAutoRotateStop,
     canSendActions: tourActionState.canSendTourActions,
   };
 
@@ -271,6 +320,8 @@ export const useSyncedVirtualTour = () => {
     controlledSceneId: tourActionReceiver.controlledSceneId,
     controlledCameraPosition: tourActionReceiver.controlledCameraPosition,
     controlledArtifactId: tourActionReceiver.controlledArtifactId,
+    controlledAudioMuted: tourActionReceiver.controlledAudioMuted,
+    controlledAutoRotate: tourActionReceiver.controlledAutoRotate,
     hasReceivedFirstAction: tourActionReceiver.hasReceivedFirstAction,
     clearControlledState: tourActionReceiver.clearControlledState,
   };
