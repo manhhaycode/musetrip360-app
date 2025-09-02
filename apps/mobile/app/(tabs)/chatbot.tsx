@@ -3,6 +3,7 @@ import { AIChatRelatedData, Conversation, Message } from '@musetrip360/ai-bot';
 import {
   useCreateConversation,
   useCreateMessage,
+  useDeleteConversation,
   useGetConversationMessages,
   useGetUserConversations,
 } from '@musetrip360/ai-bot/api';
@@ -18,10 +19,11 @@ import {
   MessageCircle,
   Plus,
   Send,
+  Trash2,
   User,
 } from 'lucide-react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const defaultPrompts = [
@@ -104,15 +106,19 @@ function getTypeIcon(type: string) {
 }
 
 function getNavigationPath(item: AIChatRelatedData): string {
-  switch (item.type) {
+  // Handle API response casing differences
+  const itemId = (item as any).Id || item.id;
+  const itemType = (item as any).Type || item.type;
+
+  switch (itemType) {
     case 'Museum':
-      return `/museum/${item.id}`;
+      return `/museum/${itemId}`;
     case 'Event':
-      return `/event/${item.id}`;
+      return `/event/${itemId}`;
     case 'Artifact':
-      return `/artifact/${item.id}`;
+      return `/artifact/${itemId}`;
     case 'TourOnline':
-      return `/tour/${item.id}`;
+      return `/tour/${itemId}`;
     default:
       return '';
   }
@@ -123,20 +129,23 @@ function RelatedDataSuggestions({ relatedData }: { relatedData: AIChatRelatedDat
 
   const handleItemPress = (item: AIChatRelatedData) => {
     const path = getNavigationPath(item);
-    console.log('Navigation debug:', { item, path });
+    const itemId = (item as any).Id || item.id;
+    const itemType = (item as any).Type || item.type;
+
+    console.log('Navigation debug:', { item, path, itemId, itemType });
 
     if (path) {
       try {
         console.log('Attempting to navigate to:', path);
 
-        if (item.type === 'Museum') {
-          router.push(`/museum/${item.id}` as any);
-        } else if (item.type === 'Event') {
-          router.push(`/event/${item.id}` as any);
-        } else if (item.type === 'Artifact') {
-          router.push(`/artifact/${item.id}` as any);
-        } else if (item.type === 'TourOnline') {
-          router.push(`/tour/${item.id}` as any);
+        if (itemType === 'Museum') {
+          router.push(`/museum/${itemId}` as any);
+        } else if (itemType === 'Event') {
+          router.push(`/event/${itemId}` as any);
+        } else if (itemType === 'Artifact') {
+          router.push(`/artifact/${itemId}` as any);
+        } else if (itemType === 'TourOnline') {
+          router.push(`/tour/${itemId}` as any);
         } else {
           console.log('Unknown type, trying default navigation');
           router.push(path as any);
@@ -160,31 +169,39 @@ function RelatedDataSuggestions({ relatedData }: { relatedData: AIChatRelatedDat
   return (
     <View className="mt-3 ml-10">
       <Text className="text-xs text-gray-500 mb-2">Gợi ý liên quan:</Text>
-      {relatedData.slice(0, 3).map((item) => (
-        <TouchableOpacity
-          key={item.id}
-          onPress={() => handleItemPress(item)}
-          className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2"
-        >
-          <View className="flex-row items-start">
-            <View className="w-8 h-8 rounded-full bg-gray-200 justify-center items-center mr-3">
-              {getTypeIcon(item.type)}
+      {relatedData.slice(0, 3).map((item, index) => {
+        const itemId = (item as any).Id || item.id;
+        const itemType = (item as any).Type || item.type;
+        const itemTitle = (item as any).Title || item.title;
+        const itemDescription = (item as any).Description || item.description;
+        const itemSimilarityScore = (item as any).SimilarityScore || item.similarityScore;
+
+        return (
+          <TouchableOpacity
+            key={itemId || `suggestion-${index}`}
+            onPress={() => handleItemPress(item)}
+            className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2"
+          >
+            <View className="flex-row items-start">
+              <View className="w-8 h-8 rounded-full bg-gray-200 justify-center items-center mr-3">
+                {getTypeIcon(itemType)}
+              </View>
+              <View className="flex-1">
+                <Text className="font-medium text-gray-900 text-sm mb-1" numberOfLines={2}>
+                  {itemTitle}
+                </Text>
+                <Text className="text-gray-600 text-xs mb-2" numberOfLines={2}>
+                  {itemDescription}
+                </Text>
+                {itemSimilarityScore > 0 && (
+                  <Text className="text-xs text-gray-500">Độ liên quan: {(itemSimilarityScore * 100).toFixed(0)}%</Text>
+                )}
+              </View>
+              <ExternalLink size={14} color="#9ca3af" />
             </View>
-            <View className="flex-1">
-              <Text className="font-medium text-gray-900 text-sm mb-1" numberOfLines={2}>
-                {item.title}
-              </Text>
-              <Text className="text-gray-600 text-xs mb-2" numberOfLines={2}>
-                {item.description}
-              </Text>
-              {item.similarityScore > 0 && (
-                <Text className="text-xs text-gray-500">Độ liên quan: {(item.similarityScore * 100).toFixed(0)}%</Text>
-              )}
-            </View>
-            <ExternalLink size={14} color="#9ca3af" />
-          </View>
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 }
@@ -246,6 +263,21 @@ export default function ChatbotTab() {
     },
     onError: (error: any) => {
       console.error('Failed to create conversation:', error);
+    },
+  });
+
+  const { mutate: deleteConversation } = useDeleteConversation({
+    onSuccess: () => {
+      // Refresh conversations list
+      fetchConversations(null);
+      // If deleted conversation was selected, clear selection
+      if (selectedConversation) {
+        setSelectedConversation(null);
+        setMessages([]);
+      }
+    },
+    onError: (error: any) => {
+      console.error('Failed to delete conversation:', error);
     },
   });
 
@@ -437,24 +469,43 @@ export default function ChatbotTab() {
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectedConversation(item.id);
-                      setShowConversations(false);
-                    }}
-                    className={`mr-3 p-3 rounded-lg border ${
-                      selectedConversation === item.id ? 'bg-primary border-primary' : 'bg-card border-border'
-                    }`}
-                  >
-                    <Text
-                      className={`text-sm font-medium ${
-                        selectedConversation === item.id ? 'text-white' : 'text-foreground'
+                  <View className="mr-3 relative">
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectedConversation(item.id);
+                        setShowConversations(false);
+                      }}
+                      className={`p-3 rounded-lg border ${
+                        selectedConversation === item.id ? 'bg-primary border-primary' : 'bg-card border-border'
                       }`}
-                      numberOfLines={1}
                     >
-                      {item.name}
-                    </Text>
-                  </TouchableOpacity>
+                      <Text
+                        className={`text-sm font-medium ${
+                          selectedConversation === item.id ? 'text-white' : 'text-foreground'
+                        }`}
+                        numberOfLines={1}
+                      >
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+
+                    {/* Delete button */}
+                    <TouchableOpacity
+                      onPress={() => {
+                        Alert.alert('Xóa cuộc trò chuyện', `Bạn có chắc muốn xóa cuộc trò chuyện "${item.name}"?`, [
+                          { text: 'Hủy', style: 'cancel' },
+                          {
+                            text: 'Xóa',
+                            style: 'destructive',
+                            onPress: () => deleteConversation(item.id),
+                          },
+                        ]);
+                      }}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 rounded-full items-center justify-center"
+                    >
+                      <Trash2 size={12} color="#fff" />
+                    </TouchableOpacity>
+                  </View>
                 )}
               />
             </View>
