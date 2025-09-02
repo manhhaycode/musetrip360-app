@@ -29,7 +29,7 @@ const museumRequestSchema = z.object({
   contactPhone: z.string().refine((val) => {
     if (!val) return true; // Optional field
     // Vietnamese phone number validation
-    const phoneRegex = /^(\+84|84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[0-6|8|9]|9[0-4|6-9])[0-9]{9}$/;
+    const phoneRegex = /^(\+?[1-9]\d{1,14}|0\d{8,14})$/;
     return phoneRegex.test(val);
   }, 'Số điện thoại không hợp lệ (VD: +84912345678 hoặc 0912345678)'),
   documents: z.array(z.union([z.string(), z.any()])).optional(),
