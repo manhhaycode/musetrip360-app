@@ -1,13 +1,13 @@
-import { useNavigate } from 'react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
-import { Button } from '@musetrip360/ui-core/button';
-import { ArrowLeft } from 'lucide-react';
-import { Event, EventBasicInfoForm } from '@musetrip360/event-management';
-import { useMuseumStore } from '@musetrip360/museum-management';
 import withPermission from '@/hocs/withPermission';
+import { EventBasicInfoForm } from '@musetrip360/event-management';
+import { useMuseumStore } from '@musetrip360/museum-management';
 import { PERMISSION_EVENT_CREATE, PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
-import { toast } from '@musetrip360/ui-core/sonner';
 import { BulkUploadProvider } from '@musetrip360/shared';
+import { Button } from '@musetrip360/ui-core/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
+import { toast } from '@musetrip360/ui-core/sonner';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 const EventCreatePage = withPermission(() => {
   const navigate = useNavigate();
@@ -16,11 +16,11 @@ const EventCreatePage = withPermission(() => {
 
   const handleEventCreated = () => {
     toast.success('Sự kiện đã được tạo thành công!');
-    navigate(-1);
+    navigate('/event');
   };
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate('/event');
   };
 
   if (!museumId) {
