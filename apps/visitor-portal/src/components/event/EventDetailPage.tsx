@@ -131,12 +131,16 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
 
   const createOrderMutation = useCreateOrder({
     onSuccess: (data) => {
-      setOrderCode(String(data.orderCode));
-      setIsOrdering(false);
+      if (data) {
+        if (data.orderCode) {
+          setOrderCode(String(data.orderCode));
+        }
+        setIsOrdering(false);
 
-      // Open payment link in new window
-      if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, '_blank');
+        // Open payment link in new window
+        if (data.checkoutUrl) {
+          window.open(data.checkoutUrl, '_blank');
+        }
       }
 
       refetchEventParticipants();

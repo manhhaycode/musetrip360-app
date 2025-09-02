@@ -10,6 +10,7 @@ import { ArrowRight } from 'lucide-react';
 import { EventCard } from '../event/EventCard';
 import { useMemo } from 'react';
 import { EventStatusEnum } from '@musetrip360/event-management/types';
+import Link from 'next/link';
 
 export function UpcomingEvents() {
   // Fetch museums first to get their events
@@ -84,10 +85,12 @@ export function UpcomingEvents() {
 
         {/* View All CTA */}
         <div className="text-center">
-          <Button size="lg" variant="outline" className="group">
-            Xem tất cả sự kiện
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link href={'/search?type=Event'}>
+            <Button size="lg" variant="outline" className="group">
+              Xem tất cả sự kiện
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
