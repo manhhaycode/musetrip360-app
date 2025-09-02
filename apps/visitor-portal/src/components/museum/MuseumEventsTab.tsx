@@ -1,4 +1,4 @@
-import { Event, EventTypeEnum, useGetEventsByMuseumId, useGetEventRooms } from '@musetrip360/event-management';
+import { Event, EventTypeEnum, useGetEventRooms, useSearchEvents } from '@musetrip360/event-management';
 import { Alert, AlertDescription } from '@musetrip360/ui-core/alert';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
@@ -279,16 +279,11 @@ export function MuseumEventsTab({ museumId, className }: MuseumEventsTabProps) {
     data: eventsData,
     isLoading,
     error,
-  } = useGetEventsByMuseumId(
+  } = useSearchEvents({
     museumId,
-    {
-      Page: 1,
-      PageSize: 10000,
-    },
-    {
-      refetchOnWindowFocus: true,
-    }
-  );
+    Page: 1,
+    PageSize: 10000,
+  });
 
   const allEvents = (eventsData as any)?.list || [];
 

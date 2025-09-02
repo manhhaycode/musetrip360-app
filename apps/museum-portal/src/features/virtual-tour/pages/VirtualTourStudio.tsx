@@ -1,6 +1,6 @@
-import { useNavigate, useParams } from 'react-router';
 import { useMuseumStore } from '@musetrip360/museum-management';
 import { StudioVirtualTour } from '@musetrip360/virtual-tour/components';
+import { useNavigate, useParams } from 'react-router';
 export default function VirtualTourInfo() {
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();

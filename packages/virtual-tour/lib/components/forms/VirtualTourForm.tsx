@@ -147,7 +147,7 @@ export function VirtualTourForm({
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const submitFunc = mode === 'create' ? createVirtualTourMutation.mutate : updateVirtualTourMutation.mutate;

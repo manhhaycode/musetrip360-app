@@ -51,6 +51,7 @@ const SubscriptionPlanPage = () => {
   const [isUploadingDocs, setIsUploadingDocs] = useState(false);
   const [isPolling, setIsPolling] = useState(false);
   const [orderCode, setOrderCode] = useState<string | null>(null);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [contractUrl, setContractUrl] = useState<string | null>(null);
 
   const paymentSuccess = searchParams.get('success') === 'true';
@@ -94,6 +95,7 @@ const SubscriptionPlanPage = () => {
         startPollingOrder(`${data.orderCode}`);
       }
       if (data?.checkoutUrl) {
+        setPaymentUrl(data.checkoutUrl);
         window.open(data.checkoutUrl, '_blank');
       }
       setShowConfirmDialog(false);
@@ -218,6 +220,7 @@ const SubscriptionPlanPage = () => {
         setTimeout(() => {
           setIsPolling(false);
           setOrderCode(null);
+          setPaymentUrl(null);
           clearInterval(pollInterval);
           refetchSubscriptions();
         }, 30000);
@@ -226,6 +229,7 @@ const SubscriptionPlanPage = () => {
         clearInterval(pollInterval);
         setIsPolling(false);
         setOrderCode(null);
+        setPaymentUrl(null);
       }
     }, 3000);
 
@@ -404,7 +408,27 @@ const SubscriptionPlanPage = () => {
           <Alert className="mt-4 border-blue-200 bg-blue-50">
             <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
             <AlertDescription className="text-blue-700">
-              <strong>Đang xử lý đơn hàng #{orderCode}</strong> - Hệ thống đang kiểm tra trạng thái thanh toán...
+              <div className="space-y-2">
+                <p>
+                  <strong>Đang xử lý đơn hàng #{orderCode}</strong> - Hệ thống đang kiểm tra trạng thái thanh toán...
+                </p>
+                {paymentUrl && (
+                  <div className="flex items-center gap-2 pt-2 border-t border-blue-200">
+                    <span className="text-sm">Nếu trang thanh toán không mở, vui lòng truy cập:</span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        window.location.href = paymentUrl;
+                      }}
+                      className="h-8 text-xs bg-white hover:bg-blue-50"
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Thanh toán ngay
+                    </Button>
+                  </div>
+                )}
+              </div>
             </AlertDescription>
           </Alert>
         )}

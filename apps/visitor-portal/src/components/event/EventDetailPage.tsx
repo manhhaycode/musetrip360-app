@@ -131,12 +131,16 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
 
   const createOrderMutation = useCreateOrder({
     onSuccess: (data) => {
-      setOrderCode(String(data.orderCode));
-      setIsOrdering(false);
+      if (data) {
+        if (data.orderCode) {
+          setOrderCode(String(data.orderCode));
+        }
+        setIsOrdering(false);
 
-      // Open payment link in new window
-      if (data.checkoutUrl) {
-        window.open(data.checkoutUrl, '_blank');
+        // Open payment link in new window
+        if (data.checkoutUrl) {
+          window.open(data.checkoutUrl, '_blank');
+        }
       }
 
       refetchEventParticipants();
@@ -261,9 +265,9 @@ export function EventDetailPage({ eventId, className }: EventDetailPageProps) {
           {/* Event Details - Left Side */}
           <div className="lg:col-span-2 space-y-6">
             {/* Event Image */}
-            {event.metadata?.thumbnail?.[0] && (
+            {event.metadata?.thumbnail && (
               <div className="relative aspect-video rounded-lg overflow-hidden">
-                <Image src={event.metadata?.thumbnail[0]} alt={event.title} fill className="object-cover" unoptimized />
+                <Image src={event.metadata?.thumbnail} alt={event.title} fill className="object-cover" unoptimized />
               </div>
             )}
 
