@@ -163,8 +163,6 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
   const handleCreateMessageSuccess = useCallback(
     (response: any) => {
       if (response) {
-        const newMessage = response;
-
         // Since API call has isBot: true, the response will contain both user and AI messages
         // We need to keep our mocked user message and wait for the real AI response
         setMessages((prev) => {
@@ -296,7 +294,6 @@ export function ChatbotPage({ initialConversationId }: ChatbotPageProps = {}) {
         createdAt: new Date(),
         createdBy: 'ai-bot',
         createdUser: { id: 'ai-bot', name: 'AI Assistant' } as any,
-        metadata: { isTemporary: true }, // Mark as placeholder
       };
 
       // 2. Update UI with only AI loading placeholder
