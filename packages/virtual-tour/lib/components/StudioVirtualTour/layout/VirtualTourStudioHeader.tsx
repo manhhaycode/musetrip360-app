@@ -1,17 +1,17 @@
 'use client';
 
+import { PreviewModal } from '@musetrip360/shared/ui';
 import { Button } from '@musetrip360/ui-core/button';
 import { Separator } from '@musetrip360/ui-core/separator';
 import { SidebarTrigger } from '@musetrip360/ui-core/sidebar';
 import { Circle, Eye, Redo, SettingsIcon, Undo } from 'lucide-react';
-import { PreviewModal } from '@musetrip360/shared/ui';
 
+import { VirtualTourViewer } from '@/components/VirtualTourViewer';
 import { useHistoryState, useIsDirty, useStudioStore } from '@/store/studioStore';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import { cn } from '@musetrip360/ui-core/utils';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
-import { VirtualTourViewer } from '@/components/VirtualTourViewer';
-import { PERMISSION_TOUR_CREATE, PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 export function VirtualTourStudioHeader({ museumId }: { museumId: string }) {
   const { setPropertiesSelection, getSelectedScene, selectedSceneId, virtualTour } = useStudioStore(

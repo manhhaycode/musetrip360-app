@@ -9,3 +9,4 @@ export * from './EventDetailManagement';
 export * from './EventTourOnlineForm';
 export * from './EventParticipants';
 export * from './AddParticipantDialog';
+export * from './AddTourGuideDialog';

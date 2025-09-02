@@ -53,6 +53,8 @@ import {
 } from '../api/hooks/useEventParticipant';
 import { Event, EventParticipant, ParticipantRoleEnum, ParticipantStatus } from '../types';
 import { AddParticipantDialog } from './AddParticipantDialog';
+import { AddTourGuideDialog } from './AddTourGuideDialog';
+import { useTourGuides } from '@musetrip360/user-management/api';
 
 interface EventParticipantProps {
   event: Event;
@@ -106,6 +108,7 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   const editable = hasPermission(event.museumId, PERMISSION_EVENT_MANAGEMENT);
   const initialData: EventParticipant[] = useMemo(() => [], []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isAddTourGuideDialogOpen, setIsAddTourGuideDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedParticipant, setSelectedParticipant] = useState<EventParticipant | null>(null);
@@ -115,6 +118,12 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   }>({
     role: ParticipantRoleEnum.Attendee,
     status: ParticipantStatus.Pending,
+  });
+
+  // Get tour guides for the museum
+  const { data: tourGuidesResponse } = useTourGuides(event.museumId, {
+    Page: 1,
+    PageSize: 100, // Get all tour guides for the museum
   });
 
   // Role and status filter options
@@ -461,6 +470,10 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
                 <UserPlus className="mr-2 h-4 w-4" />
                 Thêm người tham gia
               </Button>
+              <Button variant="outline" size="sm" className="ml-2" onClick={() => setIsAddTourGuideDialogOpen(true)}>
+                <GraduationCap className="mr-2 h-4 w-4" />
+                Thêm hướng dẫn viên
+              </Button>
             </>
           )}
         </DataTableToolbar>
@@ -471,6 +484,18 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
         eventId={event.id}
         open={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
+        onSuccess={() => {
+          refetch();
+          onUpdated?.();
+        }}
+      />
+
+      {/* Add Tour Guide Dialog */}
+      <AddTourGuideDialog
+        eventId={event.id}
+        museumId={event.museumId}
+        open={isAddTourGuideDialogOpen}
+        onOpenChange={setIsAddTourGuideDialogOpen}
         onSuccess={() => {
           refetch();
           onUpdated?.();
@@ -499,7 +524,9 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
                 <SelectContent>
                   <SelectItem value={ParticipantRoleEnum.Organizer}>Organizer</SelectItem>
                   <SelectItem value={ParticipantRoleEnum.Attendee}>Attendee</SelectItem>
-                  <SelectItem value={ParticipantRoleEnum.TourGuide}>TourGuide</SelectItem>
+                  {(tourGuidesResponse as any)?.data?.list?.some(
+                    ({ user }: any) => selectedParticipant?.user?.id === user.id
+                  ) && <SelectItem value={ParticipantRoleEnum.TourGuide}>TourGuide</SelectItem>}
                   <SelectItem value={ParticipantRoleEnum.Guest}>Guest</SelectItem>
                 </SelectContent>
               </Select>

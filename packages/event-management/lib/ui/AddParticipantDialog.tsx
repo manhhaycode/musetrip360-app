@@ -255,12 +255,6 @@ export function AddParticipantDialog({ eventId, open, onOpenChange, onSuccess }:
                     <span>Attendee - Người tham dự</span>
                   </div>
                 </SelectItem>
-                <SelectItem value={ParticipantRoleEnum.TourGuide}>
-                  <div className="flex items-center space-x-2">
-                    <UserIcon className="h-4 w-4" />
-                    <span>Tour Guide - Hướng dẫn viên</span>
-                  </div>
-                </SelectItem>
                 <SelectItem value={ParticipantRoleEnum.Guest}>
                   <div className="flex items-center space-x-2">
                     <UserIcon className="h-4 w-4" />

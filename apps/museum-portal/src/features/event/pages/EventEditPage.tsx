@@ -22,7 +22,7 @@ const EventEditPage = () => {
   });
 
   const handleCancel = () => {
-    navigate(-1);
+    navigate('/event');
   };
 
   if (!museumId) {

@@ -1,7 +1,6 @@
 'use client';
 
 import { Button, buttonVariants } from '@musetrip360/ui-core/button';
-import { Input } from '@musetrip360/ui-core/input';
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -44,15 +43,14 @@ import { twMerge } from 'tailwind-merge';
 import { useUserStore } from '@musetrip360/user-management/state';
 import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetrip360/auth-system/state';
 import { cn } from '@musetrip360/ui-core/utils';
-import { useRouter } from 'next/navigation';
 import { NotificationBellContainer } from './NotificationBellContainer';
 import { getQueryClient } from '@musetrip360/query-foundation';
+import { GlobalSearchAutocomplete } from '../search/GlobalSearchAutocomplete';
 
 export function Header() {
   const isAuthenticated = useIsAuthenticated();
   const { user, resetStore: resetUserStore } = useUserStore();
   const { modalControl: authController } = useAuthActionContext();
-  const router = useRouter();
 
   const handleLogout = () => {
     useAuthStore.getState().resetStore();
@@ -198,21 +196,8 @@ export function Header() {
 
         {/* Search and Auth */}
         <div className="flex items-center gap-2">
-          {/* Search Input */}
-          <div className="relative hidden md:block">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  router.push(`/search?q=${encodeURIComponent(e.currentTarget.value)}`);
-                  // Trigger search
-                }
-              }}
-              placeholder="Tìm bảo tàng, sự kiện..."
-              className="pl-8 w-64"
-            />
-          </div>
+          {/* Global Search Autocomplete */}
+          <GlobalSearchAutocomplete className="hidden md:block" placeholder="Tìm bảo tàng, sự kiện..." />
 
           {/* Search Button for Mobile */}
           <Button variant="ghost" size="icon" className="md:hidden">

@@ -116,6 +116,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       PageSize: 10000,
     },
     {
+      staleTime: 0,
       enabled: !!museumId,
     }
   );

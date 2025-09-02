@@ -19,7 +19,13 @@ export default function StudioVirtualTour({
   onBackScreen,
   onCreateVirtualTour,
 }: StudioVirtualTourProps) {
-  const { data: virtualTour, isLoading, isError } = useVirtualTourById(virtualTourId);
+  const {
+    data: virtualTour,
+    isLoading,
+    isError,
+  } = useVirtualTourById(virtualTourId, {
+    staleTime: 0,
+  });
 
   const { isDirty, setVirtualTour, setIsDirty, setIsSyncing, virtualTourData, resetStudioStore } = useStudioStore(
     useShallow((state) => ({

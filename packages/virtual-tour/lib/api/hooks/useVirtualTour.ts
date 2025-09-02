@@ -51,9 +51,10 @@ export function useVirtualTours(
  * @param virtualTourId - The ID of the virtual tour
  * @returns A query function to fetch virtual tour details
  */
-export function useVirtualTourById(virtualTourId?: string) {
+export function useVirtualTourById(virtualTourId?: string, options: CustomQueryOptions<IVirtualTour, APIError> = {}) {
   return useQuery(virtualTourCacheKeys.detail(virtualTourId!), () => getVirtualTourById(virtualTourId!), {
     enabled: !!virtualTourId, // Only fetch if virtualTourId is provided
+    ...options,
   });
 }
 

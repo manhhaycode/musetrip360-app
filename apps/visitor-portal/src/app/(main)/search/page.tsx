@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { SearchHeader } from '@/components/search/SearchHeader';
 import { SearchFilters } from '@/components/search/SearchFilters';
@@ -34,6 +34,35 @@ export default function SearchPage() {
 
     return initialFilters;
   });
+
+  // Sync filters with searchParams changes (for external navigation)
+  useEffect(() => {
+    const updatedFilters = { ...DEFAULT_SEARCH_FILTERS };
+
+    if (searchParams.get('q')) {
+      updatedFilters.query = searchParams.get('q') || '';
+    }
+    if (searchParams.get('type')) {
+      updatedFilters.type = (searchParams.get('type') as any) || 'All';
+    }
+    if (searchParams.get('page')) {
+      updatedFilters.page = parseInt(searchParams.get('page') || '1', 10);
+    }
+    if (searchParams.get('pageSize')) {
+      updatedFilters.pageSize = parseInt(searchParams.get('pageSize') || '12', 10);
+    }
+
+    // Only update if there's an actual difference
+    const filtersChanged =
+      filters.query !== updatedFilters.query ||
+      filters.type !== updatedFilters.type ||
+      filters.page !== updatedFilters.page ||
+      filters.pageSize !== updatedFilters.pageSize;
+
+    if (filtersChanged) {
+      setFilters(updatedFilters);
+    }
+  }, [searchParams]);
 
   // Use real data from SearchResults component
   const totalItems = paginationData.totalItems;
