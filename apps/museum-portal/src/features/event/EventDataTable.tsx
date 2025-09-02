@@ -35,7 +35,12 @@ import {
 
 import get from 'lodash.get';
 import { EventStatusName, EventTypeName } from '@/config/constants/event';
-import { PERMISSION_EVENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
+import {
+  PERMISSION_EVENT_APPROVAL,
+  PERMISSION_EVENT_CREATE,
+  PERMISSION_EVENT_MANAGEMENT,
+  useRolebaseStore,
+} from '@musetrip360/rolebase-management';
 
 interface EventDataTableProps {
   museumId: string;
@@ -295,10 +300,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
       isOpen: true,
       type: 'bulk-cancel',
       events: selectedEvents.filter(
-        (event) =>
-          event.status === EventStatusEnum.Draft ||
-          event.status === EventStatusEnum.Pending ||
-          (event.status === EventStatusEnum.Published && new Date(event.startTime) > new Date())
+        (event) => event.status === EventStatusEnum.Published && new Date(event.startTime) > new Date()
       ),
     });
   }, []);
@@ -536,15 +538,19 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
               <DropdownMenuLabel>Hành động</DropdownMenuLabel>
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
-                <Eye className="mr-2 h-4 w-4" />
-                Xem
-              </DropdownMenuItem>
+              {!hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) && (
+                <DropdownMenuItem onClick={() => handleAction().onView(row.original)}>
+                  <Eye className="mr-2 h-4 w-4" />
+                  Xem
+                </DropdownMenuItem>
+              )}
 
-              <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
-                <Edit className="mr-2 h-4 w-4" />
-                Chỉnh sửa
-              </DropdownMenuItem>
+              {hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) && (
+                <DropdownMenuItem onClick={() => handleAction().onEdit(row.original)}>
+                  <Edit className="mr-2 h-4 w-4" />
+                  Chỉnh sửa
+                </DropdownMenuItem>
+              )}
 
               {row.original.status === EventStatusEnum.Draft && (
                 <DropdownMenuItem onClick={() => handleAction().onSubmit(row.original)} className="text-blue-600">
@@ -554,7 +560,7 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
               )}
 
               {row.original.status === EventStatusEnum.Pending &&
-                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) && (
+                hasPermission(museumId, PERMISSION_EVENT_APPROVAL) && (
                   <>
                     <DropdownMenuItem onClick={() => handleAction().onApprove(row.original)} className="text-green-600">
                       <BadgeCheckIcon className="mr-2 h-4 w-4" />
@@ -567,15 +573,14 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
                   </>
                 )}
 
-              {(row.original.status === EventStatusEnum.Draft ||
-                row.original.status === EventStatusEnum.Pending ||
-                (row.original.status === EventStatusEnum.Published && new Date(row.original.startTime) > new Date()) ||
-                hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT)) && (
-                <DropdownMenuItem onClick={() => handleAction().onCancel(row.original)} className="text-orange-600">
-                  <X className="mr-2 h-4 w-4" />
-                  Hủy
-                </DropdownMenuItem>
-              )}
+              {hasPermission(museumId, PERMISSION_EVENT_APPROVAL) &&
+                row.original.status === EventStatusEnum.Published &&
+                new Date(row.original.startTime) > new Date() && (
+                  <DropdownMenuItem onClick={() => handleAction().onCancel(row.original)} className="text-orange-600">
+                    <X className="mr-2 h-4 w-4" />
+                    Hủy
+                  </DropdownMenuItem>
+                )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),
@@ -604,24 +609,27 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
   const hasSelection = selectedEvents.length > 0;
 
   // Check permissions for bulk operations
-  const canBulkSubmit = hasSelection && selectedEvents.some((event) => event.status === EventStatusEnum.Draft);
+  const canBulkSubmit =
+    hasSelection &&
+    hasPermission(museumId, PERMISSION_EVENT_CREATE) &&
+    selectedEvents.some((event) => event.status === EventStatusEnum.Draft);
+
   const canBulkCancel =
     hasSelection &&
+    hasPermission(museumId, PERMISSION_EVENT_APPROVAL) &&
     selectedEvents.some(
-      (event) =>
-        event.status === EventStatusEnum.Draft ||
-        event.status === EventStatusEnum.Pending ||
-        (event.status === EventStatusEnum.Published && new Date(event.startTime) > new Date()) ||
-        hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT)
+      (event) => event.status === EventStatusEnum.Published && new Date(event.startTime) > new Date()
     );
+
   const canBulkApprove =
     hasSelection &&
     selectedEvents.some((event) => event.status === EventStatusEnum.Pending) &&
-    hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT);
+    hasPermission(museumId, PERMISSION_EVENT_APPROVAL);
+
   const canBulkReject =
     hasSelection &&
     selectedEvents.some((event) => event.status === EventStatusEnum.Pending) &&
-    hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT);
+    hasPermission(museumId, PERMISSION_EVENT_APPROVAL);
 
   return (
     <>
@@ -687,10 +695,12 @@ const EventDataTable = ({ museumId, onView, onEdit, onAdd, onSubmit, onCancel }:
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
-            <Plus className="mr-2 h-4 w-4" />
-            Thêm sự kiện
-          </Button>
+          {hasPermission(museumId, PERMISSION_EVENT_CREATE) && (
+            <Button variant="default" size="sm" className="ml-2" onClick={onAdd}>
+              <Plus className="mr-2 h-4 w-4" />
+              Thêm sự kiện
+            </Button>
+          )}
         </DataTableToolbar>
       </DataTable>
 

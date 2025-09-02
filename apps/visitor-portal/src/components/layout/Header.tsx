@@ -46,6 +46,7 @@ import { useAuthActionContext, useAuthStore, useIsAuthenticated } from '@musetri
 import { cn } from '@musetrip360/ui-core/utils';
 import { useRouter } from 'next/navigation';
 import { NotificationBellContainer } from './NotificationBellContainer';
+import { getQueryClient } from '@musetrip360/query-foundation';
 
 export function Header() {
   const isAuthenticated = useIsAuthenticated();
@@ -56,6 +57,7 @@ export function Header() {
   const handleLogout = () => {
     useAuthStore.getState().resetStore();
     resetUserStore();
+    getQueryClient().clear();
   };
 
   const handleLogin = () => {

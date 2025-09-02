@@ -5,6 +5,7 @@ export const PERMISSION_MUSEUM_REQUEST_APPROVAL = 'museum_requests.approval';
 export const PERMISSION_EVENT_VIEW = 'events.view';
 export const PERMISSION_EVENT_CREATE = 'events.create';
 export const PERMISSION_EVENT_MANAGEMENT = 'events.management';
+export const PERMISSION_EVENT_APPROVAL = 'events.approval';
 export const PERMISSION_CONTENT_MANAGEMENT = 'content.management';
 export const PERMISSION_USER_VIEW = 'users.view';
 export const PERMISSION_USER_MANAGEMENT = 'users.management';

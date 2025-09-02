@@ -5,6 +5,8 @@ import { useUserStore } from '@musetrip360/user-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Home } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { getQueryClient } from '@musetrip360/query-foundation';
+import { useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const PublicHeader = () => {
   const navigate = useNavigate();
@@ -34,6 +36,8 @@ const PublicHeader = () => {
               useAuthStore.getState().resetStore();
               useMuseumStore.getState().resetStore();
               useUserStore.getState().resetStore();
+              useRolebaseStore.getState().resetStore();
+              getQueryClient().clear();
               navigate('/');
             }}
           >

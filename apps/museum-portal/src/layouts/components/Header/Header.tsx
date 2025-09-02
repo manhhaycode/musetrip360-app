@@ -15,6 +15,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar
 import { LogOutIcon, UserIcon, LockIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { NotificationBellContainer } from './NotificationBellContainer';
+import { useRolebaseStore } from '@musetrip360/rolebase-management';
+import { getQueryClient } from '@musetrip360/query-foundation';
 
 export default function Header() {
   const { data } = useCurrentProfile();
@@ -24,6 +26,8 @@ export default function Header() {
     useAuthStore.getState().resetStore();
     useMuseumStore.getState().resetStore();
     useUserStore.getState().resetStore();
+    useRolebaseStore.getState().resetStore();
+    getQueryClient().clear();
   };
 
   const getInitials = (firstName?: string, lastName?: string) => {

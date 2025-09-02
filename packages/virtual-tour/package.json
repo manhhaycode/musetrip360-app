@@ -74,6 +74,7 @@
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/rich-editor": "workspace:*",
+    "@musetrip360/rolebase-management": "workspace:*",
     "@musetrip360/shared": "workspace:*",
     "@musetrip360/ui-core": "workspace:*",
     "@react-three/drei": "^10.6.1",

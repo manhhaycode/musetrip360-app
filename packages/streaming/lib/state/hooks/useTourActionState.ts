@@ -220,6 +220,11 @@ export const useTourActionReceiver = () => {
   const [currentCameraPosition, setCurrentCameraPosition] = useState<
     { theta: number; phi: number; fov: number } | undefined
   >(undefined);
+
+  // Store guide's actual camera position (always updated, even during auto-rotate)
+  const [guideCameraPosition, setGuideCameraPosition] = useState<
+    { theta: number; phi: number; fov: number } | undefined
+  >(undefined);
   const [currentSceneId, setCurrentSceneId] = useState<string | undefined>(undefined);
   const [currentArtifactId, setCurrentArtifactId] = useState<string | null>(null);
   const [currentAudioMuted, setCurrentAudioMuted] = useState<boolean | undefined>(undefined);
@@ -250,7 +255,20 @@ export const useTourActionReceiver = () => {
         switch (tourAction.ActionType) {
           case 'camera_change':
             if (tourAction.ActionData.CameraPosition) {
-              setCurrentCameraPosition(tourAction.ActionData.CameraPosition);
+              // Always store guide's actual position for later sync
+              setGuideCameraPosition(tourAction.ActionData.CameraPosition);
+
+              // If currently auto-rotating, only update FOV (zoom), ignore position
+              if (currentAutoRotate) {
+                setCurrentCameraPosition((prevPosition) => ({
+                  theta: prevPosition?.theta ?? 0,
+                  phi: prevPosition?.phi ?? 0,
+                  fov: tourAction.ActionData.CameraPosition!.fov,
+                }));
+                console.log('🔄 Auto-rotate active: Only updating FOV, storing guide position for later');
+              } else {
+                setCurrentCameraPosition(tourAction.ActionData.CameraPosition);
+              }
             }
             break;
 
@@ -291,6 +309,12 @@ export const useTourActionReceiver = () => {
           case 'auto_rotate_stop':
             if (tourAction.ActionData.RotationState) {
               setCurrentAutoRotate(tourAction.ActionData.RotationState.isAutoRotating);
+
+              // When auto-rotate stops, sync to guide's current position
+              if (!tourAction.ActionData.RotationState.isAutoRotating && guideCameraPosition) {
+                setCurrentCameraPosition(guideCameraPosition);
+                console.log('⏹️ Auto-rotate stopped: Syncing to guide position', guideCameraPosition);
+              }
             }
             break;
 
@@ -307,7 +331,7 @@ export const useTourActionReceiver = () => {
     return () => {
       client.off('ReceiveTourAction');
     };
-  }, []);
+  }, [currentAutoRotate, guideCameraPosition, hasReceivedFirstAction]);
 
   return {
     // Controlled props for VirtualTourViewer
@@ -323,6 +347,7 @@ export const useTourActionReceiver = () => {
     // Actions to clear controlled state (when switching to guide mode)
     clearControlledState: useCallback(() => {
       setCurrentCameraPosition(undefined);
+      setGuideCameraPosition(undefined);
       setCurrentSceneId(undefined);
       setCurrentArtifactId(null);
       setCurrentAudioMuted(undefined);

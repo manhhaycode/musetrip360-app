@@ -81,7 +81,7 @@ export default function StudioVirtualTour({
   return (
     <StudioLayout museumId={museumId} onBackScreen={onBackScreen}>
       {/* <StudioVirtualTourEditor /> */}
-      <SceneEditor />
+      <SceneEditor museumId={museumId} />
       <CreateVirtualTourDialog
         onSuccess={onCreateVirtualTour}
         onCancel={onBackScreen}

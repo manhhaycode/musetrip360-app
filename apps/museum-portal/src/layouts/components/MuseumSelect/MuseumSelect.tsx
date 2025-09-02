@@ -46,7 +46,7 @@ const MuseumSelect = () => {
             <DropdownMenuLabel className="text-muted-foreground text-xs">Bảo tàng</DropdownMenuLabel>
             {userMuseums.map((museum) => (
               <DropdownMenuItem key={museum.id} onClick={() => setSelectedMuseum(museum)} className="gap-2 p-2">
-                <div className="flex size-6 items-center justify-center rounded-md w-full gap-2">
+                <div className="flex size-6 items-center rounded-md w-full gap-2">
                   <MuseTrip360Logo className="size-3.5 shrink-0" />
                   <span className="text-xs font-normal">{museum.name}</span>
                 </div>

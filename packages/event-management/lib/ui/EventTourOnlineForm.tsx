@@ -17,6 +17,7 @@ import { IVirtualTour, useVirtualTourByMuseum } from '@musetrip360/virtual-tour/
 import { VirtualTourViewer } from '@musetrip360/virtual-tour/components';
 export interface EventTourOnlineFormProps {
   event: Event;
+  disabled?: boolean;
   className?: string;
   onUpdated?: () => void;
 }
@@ -28,6 +29,7 @@ interface TourSelectionPanelProps {
   onPreviewTour: (tour: IVirtualTour) => void;
   isLoading: boolean;
   isUpdating?: boolean;
+  disabled?: boolean;
 }
 
 function TourSelectionPanel({
@@ -37,6 +39,7 @@ function TourSelectionPanel({
   onPreviewTour,
   isLoading,
   isUpdating = false,
+  disabled = false,
 }: TourSelectionPanelProps) {
   const [searchQuery, setSearchQuery] = React.useState('');
   const [debouncedQuery, setDebouncedQuery] = React.useState('');
@@ -153,7 +156,7 @@ function TourSelectionPanel({
           ) : (
             filteredTours.map((tour) => {
               const firstSceneThumbnail = tour.metadata.scenes?.[0]?.thumbnail;
-              const isInactive = !tour.isActive;
+              const isInactive = disabled && !tour.isActive;
 
               return (
                 <div
@@ -253,7 +256,7 @@ function TourSelectionPanel({
   );
 }
 
-export function EventTourOnlineForm({ event, className, onUpdated }: EventTourOnlineFormProps) {
+export function EventTourOnlineForm({ event, disabled, className, onUpdated }: EventTourOnlineFormProps) {
   const [previewTour, setPreviewTour] = React.useState<IVirtualTour | null>(null);
   const [selectedTourIds, setSelectedTourIds] = React.useState<string[]>(
     event.tourOnlines?.map((tour) => tour.id) || []
@@ -335,6 +338,7 @@ export function EventTourOnlineForm({ event, className, onUpdated }: EventTourOn
           {/* Left Panel - Tour Selection (40%) */}
           <div className="basis-1/3 flex border-r pr-6">
             <TourSelectionPanel
+              disabled={disabled}
               tours={virtualTours?.list || []}
               selectedTourIds={selectedTourIds}
               onSelectionChange={(newTourIds: string[]) => {

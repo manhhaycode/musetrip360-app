@@ -56,7 +56,7 @@ const EventListPage = withPermission(() => {
   return (
     <EventDataTable
       museumId={museumId}
-      onView={handleViewEvent}
+      onView={handleEditEvent}
       onEdit={handleEditEvent}
       onDelete={handleDeleteEvent}
       onAdd={handleAddEvent}
