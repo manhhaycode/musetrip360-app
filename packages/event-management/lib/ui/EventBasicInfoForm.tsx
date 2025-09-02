@@ -45,6 +45,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from '@musetrip360/ui-core/sonner';
 import { z } from 'zod';
+import {
+  PERMISSION_EVENT_CREATE,
+  PERMISSION_EVENT_MANAGEMENT,
+  useRolebaseStore,
+} from '@musetrip360/rolebase-management';
 
 const RichEditor = React.lazy(() =>
   import('@musetrip360/rich-editor').then((module) => ({
@@ -133,6 +138,7 @@ const eventTypeOptions = [
 ];
 
 export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoFormProps) => {
+  const { hasPermission } = useRolebaseStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const endTimePickerRef = useRef<DateTimePickerRef>(null);
@@ -140,7 +146,11 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
   const bulkUpload = useBulkUpload();
 
   const form = useForm<EventInfoFormData>({
-    disabled: isSubmitting || event?.status === EventStatusEnum.Expired,
+    disabled:
+      isSubmitting ||
+      !hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) ||
+      event?.status === EventStatusEnum.Cancelled ||
+      event?.status === EventStatusEnum.Expired,
     resolver: (data, context, options) => {
       if (event?.status === EventStatusEnum.Published) {
         return zodResolver(eventPublishedSchema)(data, context, options);
@@ -255,7 +265,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
       setIsSubmitting(true);
       const data = form.getValues();
@@ -291,8 +301,6 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
     }
   };
 
-  console.log(form.formState.disabled || event?.status === EventStatusEnum.Published);
-
   return (
     <Form {...form}>
       <form
@@ -317,7 +325,12 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                 <FormItem className="flex gap-3">
                   <FormLabel className="text-gray-600 font-medium">Loại sự kiện</FormLabel>
                   <FormControl>
-                    <Select key={field.value} onValueChange={field.onChange} value={field.value}>
+                    <Select
+                      disabled={field.disabled}
+                      key={field.value}
+                      onValueChange={field.onChange}
+                      value={field.value}
+                    >
                       <FormItem>
                         <SelectTrigger>
                           <PencilRuler className="h-5 w-5 text-gray-400" />
@@ -352,6 +365,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
                       </FormItem>
                       <SelectContent>
                         <SelectItem value={EventStatusEnum.Draft}>Nháp</SelectItem>
+                        <SelectItem value={EventStatusEnum.Pending}>Chờ duyệt</SelectItem>
                         <SelectItem value={EventStatusEnum.Published}>Công khai</SelectItem>
                         <SelectItem value={EventStatusEnum.Expired}>Lưu trữ</SelectItem>
                         <SelectItem value={EventStatusEnum.Cancelled}>Huỷ</SelectItem>
@@ -475,8 +489,16 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
           </div>
 
           <Popover>
-            <PopoverTrigger disabled={form.formState.disabled} asChild>
-              <Card className="bg-secondary/40 hover:bg-secondary/80! hover:cursor-pointer flex-1">
+            <PopoverTrigger asChild>
+              <Card
+                onClick={(e) => {
+                  if (form.formState.disabled) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                  }
+                }}
+                className="bg-secondary/40 hover:bg-secondary/80! hover:cursor-pointer flex-1"
+              >
                 <CardContent className="flex gap-2 relative">
                   {form.watch('metadata.roomCreateType') === 'NONE' ? (
                     <>
@@ -660,9 +682,12 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
             </CardContent>
           </Card>
 
-          <Button className="w-full" type="submit" disabled={isSubmitting}>
-            {event ? 'Cập nhật sự kiện' : 'Tạo sự kiện'}
-          </Button>
+          {(hasPermission(museumId, PERMISSION_EVENT_MANAGEMENT) ||
+            hasPermission(museumId, PERMISSION_EVENT_CREATE)) && (
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
+              {event ? 'Cập nhật sự kiện' : 'Tạo sự kiện'}
+            </Button>
+          )}
         </div>
       </form>
     </Form>

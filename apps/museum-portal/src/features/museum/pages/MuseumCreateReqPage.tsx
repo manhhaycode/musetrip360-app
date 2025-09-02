@@ -26,7 +26,12 @@ const museumRequestSchema = z.object({
   museumDescription: z.string().min(1, 'Mô tả là bắt buộc').min(10, 'Mô tả phải có ít nhất 10 ký tự'),
   location: z.string().min(1, 'Địa chỉ là bắt buộc').min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
-  contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
+  contactPhone: z.string().refine((val) => {
+    if (!val) return true; // Optional field
+    // Vietnamese phone number validation
+    const phoneRegex = /^(\+?[1-9]\d{1,14}|0\d{8,14})$/;
+    return phoneRegex.test(val);
+  }, 'Số điện thoại không hợp lệ (VD: +84912345678 hoặc 0912345678)'),
   documents: z.array(z.union([z.string(), z.any()])).optional(),
   images: z.array(z.union([z.string(), z.any()])).optional(),
   categoryIds: z.array(z.string()).optional(),

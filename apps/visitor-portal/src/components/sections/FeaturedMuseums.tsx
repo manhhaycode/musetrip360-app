@@ -20,6 +20,7 @@ import {
   Star,
 } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function FeaturedMuseums() {
@@ -297,10 +298,12 @@ export function FeaturedMuseums() {
 
         {/* View All CTA */}
         <div className="text-center">
-          <Button size="lg" variant="outline" className="group">
-            Xem tất cả bảo tàng
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+          <Link href={'/search?type=Museum'}>
+            <Button size="lg" variant="outline" className="group">
+              Xem tất cả bảo tàng
+              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

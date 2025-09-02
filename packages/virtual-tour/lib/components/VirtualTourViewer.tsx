@@ -45,6 +45,7 @@ export interface VirtualTourViewerProps {
   /** Use hamburger menu instead of button stack */
   useHamburgerMenu?: boolean;
   initialSceneId?: string | null;
+  isStreaming?: boolean;
 }
 
 export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
@@ -66,6 +67,7 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   // Navigation style
   useHamburgerMenu = false,
   initialSceneId,
+  isStreaming = false,
 }) => {
   // Current scene state
   const [currentSceneId, setCurrentSceneId] = useState<string>(() => {
@@ -81,7 +83,7 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   // Audio state for dual audio support
   const voiceAIRef = useRef<HTMLAudioElement | null>(null);
   const audioCommentaryRef = useRef<HTMLAudioElement | null>(null);
-  const [isMuted, setIsMuted] = useState(false);
+  const [isMuted, setIsMuted] = useState(isStreaming);
   const [isAudioLoaded, setIsAudioLoaded] = useState(false);
   const [isAutoRotate, setIsAutoRotate] = useState(false);
 
@@ -411,9 +413,9 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
           />
         ) : (
           <div className="bg-black bg-opacity-75 text-white rounded-lg p-3 max-w-xs">
-            <h3 className="font-semibold text-lg">{currentScene.sceneName}</h3>
+            <h3 className="font-semibold text-lg line-clamp-2">{currentScene.sceneName}</h3>
             {currentScene.sceneDescription && (
-              <p className="text-sm text-gray-300 mt-1">{currentScene.sceneDescription}</p>
+              <p className="text-sm text-gray-300 mt-1 line-clamp-3">{currentScene.sceneDescription}</p>
             )}
             <p className="text-xs text-gray-400 mt-2">
               Scene {allScenes.findIndex((s) => s.sceneId === currentSceneId) + 1} of {allScenes.length}
@@ -424,7 +426,7 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
 
       {/* Audio Control Buttons - Vertical Stack */}
       {enableUserControls && (
-        <div className="absolute top-20 left-4 z-20 flex flex-col gap-2">
+        <div className="absolute bottom-28 left-4 z-20 flex flex-col gap-2">
           {/* Mute/Unmute Button */}
           {isAudioLoaded && (
             <Button
@@ -439,15 +441,17 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
           )}
 
           {/* Auto-Rotate Button */}
-          <Button
-            variant="default"
-            size="sm"
-            onClick={toggleAutoRotate}
-            className="backdrop-blur-sm transition-all duration-200 hover:scale-105"
-            title={isAutoRotate ? 'Tắt tự động xoay' : 'Bật tự động xoay'}
-          >
-            {isAutoRotate ? <Square className="h-4 w-4" /> : <RotateCw className="h-4 w-4" />}
-          </Button>
+          {!isStreaming && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={toggleAutoRotate}
+              className="backdrop-blur-sm transition-all duration-200 hover:scale-105"
+              title={isAutoRotate ? 'Tắt tự động xoay' : 'Bật tự động xoay'}
+            >
+              {isAutoRotate ? <Square className="h-4 w-4" /> : <RotateCw className="h-4 w-4" />}
+            </Button>
+          )}
         </div>
       )}
 

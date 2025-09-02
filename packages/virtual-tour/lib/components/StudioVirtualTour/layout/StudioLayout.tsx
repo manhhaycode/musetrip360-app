@@ -18,7 +18,7 @@ export default function StudioLayout({ children, onBackScreen, museumId }: Studi
         <SceneListSidebar onBackScreen={onBackScreen} />
 
         <SidebarInset className="flex-1 flex flex-col">
-          <VirtualTourStudioHeader />
+          <VirtualTourStudioHeader museumId={museumId} />
           {/* {children} */}
 
           <div className="flex flex-1 relative overflow-hidden">

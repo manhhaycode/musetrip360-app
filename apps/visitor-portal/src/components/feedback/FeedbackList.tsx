@@ -46,7 +46,7 @@ export function FeedbackList({ targetId, targetType, className }: FeedbackListPr
     targetId,
     targetType,
     Page: 1,
-    PageSize: 20,
+    PageSize: 100,
   };
 
   const { data: feedbackResponse, isLoading, error } = useFeedback(feedbackParams);

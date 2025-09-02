@@ -6,9 +6,10 @@ import { Separator } from '@musetrip360/ui-core/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@musetrip360/ui-core/tooltip';
 import { MousePointer2, Hand, MapPin, PenTool, Move } from 'lucide-react';
 import { useEditorToolbar, EditorTool } from './EditorToolbarContext';
-
+import { PERMISSION_TOUR_MANAGEMENT, PERMISSION_TOUR_VIEW, useRolebaseStore } from '@musetrip360/rolebase-management';
 interface EditorToolbarProps {
   className?: string;
+  museumId: string;
 }
 
 interface ToolItem {
@@ -17,6 +18,7 @@ interface ToolItem {
   label: string;
   description: string;
   shortcut: string;
+  permission: string;
 }
 
 const toolbarItems: ToolItem[] = [
@@ -26,6 +28,7 @@ const toolbarItems: ToolItem[] = [
     label: 'Select Tool',
     description: 'Select objects in the scene',
     shortcut: 'S',
+    permission: PERMISSION_TOUR_VIEW,
   },
   {
     id: 'hand',
@@ -33,6 +36,7 @@ const toolbarItems: ToolItem[] = [
     label: 'Hand Tool',
     description: 'Pan and navigate around the scene',
     shortcut: 'H',
+    permission: PERMISSION_TOUR_VIEW,
   },
   {
     id: 'drag',
@@ -40,6 +44,7 @@ const toolbarItems: ToolItem[] = [
     label: 'Drag Tool',
     description: 'Drag objects in the scene',
     shortcut: 'D',
+    permission: PERMISSION_TOUR_MANAGEMENT,
   },
 ];
 
@@ -50,6 +55,7 @@ const creationTools: ToolItem[] = [
     label: 'Add Hotspot',
     description: 'Add interactive hotspots to the scene',
     shortcut: 'A',
+    permission: PERMISSION_TOUR_MANAGEMENT,
   },
   {
     id: 'pen',
@@ -57,16 +63,19 @@ const creationTools: ToolItem[] = [
     label: 'Polygon Select',
     description: 'Draw polygon selection areas',
     shortcut: 'P',
+    permission: PERMISSION_TOUR_MANAGEMENT,
   },
 ];
 
-export default function EditorToolbar({ className }: EditorToolbarProps) {
+export default function EditorToolbar({ className, museumId }: EditorToolbarProps) {
   const { setSelectedTool, isToolActive, disabled } = useEditorToolbar();
+  const { hasPermission } = useRolebaseStore();
 
   const renderToolButton = (tool: ToolItem) => {
     const Icon = tool.icon;
     const isActive = isToolActive(tool.id);
-
+    const hidden = !hasPermission(museumId, tool.permission);
+    if (hidden) return null;
     return (
       <TooltipProvider key={tool.id}>
         <Tooltip>

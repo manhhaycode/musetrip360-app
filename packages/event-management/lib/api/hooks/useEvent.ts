@@ -69,14 +69,16 @@ export function useCreateEvent(options?: CustomMutationOptions<Event, APIError, 
   return useMutation((data: EventCreateDto) => createEventRequest(data.museumId, data), {
     onSuccess: (data, variables, context) => {
       const queryClient = getQueryClient();
-      queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: eventManagementCacheKeys.eventsByMuseum(variables.museumId),
+      });
       onSuccess?.(data, variables, context);
     },
     ...optionMutate,
   });
 }
 
-export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, EventUpdateDto>) {
+export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, EventUpdateDto & { eventId: string }>) {
   const { onSuccess, ...optionMutate } = options || {};
   return useMutation(
     (
@@ -87,7 +89,7 @@ export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, 
     {
       onSuccess: (data, variables, context) => {
         const queryClient = getQueryClient();
-        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.eventsByMuseum() });
         queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.event(variables.eventId) });
         onSuccess?.(data, variables, context);
       },

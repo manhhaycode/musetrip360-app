@@ -7,6 +7,7 @@ import { GLTFViewer } from '../../canvas/GLTFViewer';
 import { ControlBar } from './ControlBar';
 import { InfoPanel } from './InfoPanel';
 import { ImagesPanel } from './ImagesPanel';
+import { ErrorBoundary } from 'react-error-boundary';
 
 export interface PreviewArtifactProps {
   /** Artifact ID to preview */
@@ -98,24 +99,6 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
     );
   }
 
-  // Check if 3D model URL exists
-  if (artifact && !artifact.model3DUrl) {
-    return (
-      <div className="absolute inset-0 z-50 bg-black flex items-center justify-center">
-        <div className="text-center text-white p-8">
-          <h2 className="text-2xl font-bold mb-4">{artifact.name}</h2>
-          <p className="text-gray-400 mb-6">Model 3D không có sẵn cho artifact này.</p>
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Đóng
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   const hasMultiple = artifacts && artifacts.length > 1;
 
   // Don't render if no artifact data
@@ -125,15 +108,34 @@ export function PreviewArtifact({ artifactId, isOpen, onClose, artifacts, onPrev
     <div className="absolute inset-0 z-50 bg-black">
       {/* 3D Model Viewer */}
       <div className="absolute inset-0">
-        <GLTFViewer
-          modelUrl={artifact.model3DUrl}
-          autoRotate={false}
-          environmentPreset="studio"
-          showShadows={true}
-          cameraPosition={[50, 0, 50]}
-          animations={{ autoPlay: true, loop: true }}
-          className="w-full h-full"
-        />
+        {artifact.model3DUrl ? (
+          <ErrorBoundary
+            fallback={
+              <div className="h-full flex items-center justify-center text-white">Failed to load 3D model.</div>
+            }
+          >
+            <GLTFViewer
+              modelUrl={artifact.model3DUrl}
+              autoRotate={false}
+              environmentPreset="studio"
+              showShadows={true}
+              cameraPosition={[50, 0, 50]}
+              animations={{ autoPlay: true, loop: true }}
+              className="w-full h-full"
+            />
+          </ErrorBoundary>
+        ) : (
+          <div className="text-center text-white p-8">
+            <h2 className="text-2xl font-bold mb-4">{artifact.name}</h2>
+            <p className="text-gray-400 mb-6">Model 3D không có sẵn cho artifact này.</p>
+            <button
+              onClick={onClose}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Đóng
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Control Bar */}

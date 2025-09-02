@@ -2006,6 +2006,9 @@ importers:
       '@musetrip360/rich-editor':
         specifier: workspace:*
         version: link:../rich-editor
+      '@musetrip360/rolebase-management':
+        specifier: workspace:*
+        version: link:../rolebase-management
       '@musetrip360/shared':
         specifier: workspace:*
         version: link:../shared
@@ -2036,6 +2039,9 @@ importers:
       react-dropzone:
         specifier: ^14.3.8
         version: 14.3.8(react@19.0.0)
+      react-error-boundary:
+        specifier: ^4.1.2
+        version: 4.1.2(react@19.0.0)
       react-hook-form:
         specifier: ^7.58.1
         version: 7.60.0(react@19.0.0)

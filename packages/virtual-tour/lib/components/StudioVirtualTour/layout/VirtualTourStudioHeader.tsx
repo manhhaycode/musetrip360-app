@@ -11,8 +11,9 @@ import { cn } from '@musetrip360/ui-core/utils';
 import { useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { VirtualTourViewer } from '@/components/VirtualTourViewer';
+import { PERMISSION_TOUR_CREATE, PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
-export function VirtualTourStudioHeader() {
+export function VirtualTourStudioHeader({ museumId }: { museumId: string }) {
   const { setPropertiesSelection, getSelectedScene, selectedSceneId, virtualTour } = useStudioStore(
     useShallow((state) => ({
       selectedSceneId: state.selectedSceneId,
@@ -21,6 +22,8 @@ export function VirtualTourStudioHeader() {
       virtualTour: state.virtualTour,
     }))
   );
+  const { hasPermission } = useRolebaseStore();
+
   const isDirty = useIsDirty();
 
   const selectedScene = useMemo(() => {
@@ -60,26 +63,30 @@ export function VirtualTourStudioHeader() {
         {/* Action Bar */}
         <div className="ml-auto flex items-center gap-2">
           {/* Save Status Indicator */}
-          <div className="flex items-center gap-1.5">
-            <Circle
-              className={cn(
-                'h-2 w-2 transition-colors duration-300 ease-in-out',
-                isDirty ? 'fill-orange-500 text-orange-500' : 'fill-green-500 text-green-500'
-              )}
-            />
-          </div>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <div className="flex items-center gap-1.5">
+              <Circle
+                className={cn(
+                  'h-2 w-2 transition-colors duration-300 ease-in-out',
+                  isDirty ? 'fill-orange-500 text-orange-500' : 'fill-green-500 text-green-500'
+                )}
+              />
+            </div>
+          )}
 
           <Separator orientation="vertical" className="mx-1 h-4" />
 
           {/* Undo/Redo Actions */}
-          <div className="flex items-center gap-1">
-            <Button variant="ghost" size="sm" onClick={undo} disabled={!canUndo} title="Undo (Ctrl+Z)">
-              <Undo className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={redo} disabled={!canRedo} title="Redo (Ctrl+Y)">
-              <Redo className="h-4 w-4" />
-            </Button>
-          </div>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <div className="flex items-center gap-1">
+              <Button variant="ghost" size="sm" onClick={undo} disabled={!canUndo} title="Undo (Ctrl+Z)">
+                <Undo className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="sm" onClick={redo} disabled={!canRedo} title="Redo (Ctrl+Y)">
+                <Redo className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           <Separator orientation="vertical" className="mx-1 h-4" />
 

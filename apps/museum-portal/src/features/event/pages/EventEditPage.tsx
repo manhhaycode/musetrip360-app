@@ -1,14 +1,12 @@
-import withPermission from '@/hocs/withPermission';
 import { useGetEventById } from '@musetrip360/event-management';
 import { EventDetailManagement } from '@musetrip360/event-management/ui';
 import { useMuseumStore } from '@musetrip360/museum-management';
-import { PERMISSION_EVENT_MANAGEMENT } from '@musetrip360/rolebase-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@musetrip360/ui-core/card';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router';
 
-const EventEditPage = withPermission(() => {
+const EventEditPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { selectedMuseum } = useMuseumStore();
@@ -93,6 +91,6 @@ const EventEditPage = withPermission(() => {
       <EventDetailManagement event={event} onUpdated={refetch} />
     </div>
   );
-}, [PERMISSION_EVENT_MANAGEMENT]);
+};
 
 export default EventEditPage;

@@ -3,6 +3,7 @@
 import type { Hotspot } from '@/canvas/types';
 import { useScenes, useStudioStore } from '@/store';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@musetrip360/ui-core/form';
 import { Input } from '@musetrip360/ui-core/input';
@@ -39,7 +40,7 @@ export interface HotspotPropertyFormProps {
   onDelete?: () => void;
 }
 
-export function HotspotPropertyForm() {
+export function HotspotPropertyForm({ museumId }: { museumId: string }) {
   const { updateHotspot, deleteHotspot, selectHotspot, getSelectedHotspot, selectedHotspotId, isDirty } =
     useStudioStore(
       useShallow((state) => ({
@@ -51,6 +52,7 @@ export function HotspotPropertyForm() {
         isDirty: state.isDirty,
       }))
     );
+  const { hasPermission } = useRolebaseStore();
 
   const hotspot = useMemo(() => {
     return getSelectedHotspot();
@@ -60,6 +62,7 @@ export function HotspotPropertyForm() {
   const allScenes = useScenes();
 
   const form = useForm<HotspotFormData>({
+    disabled: !hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT),
     resolver: zodResolver(hotspotFormSchema),
     defaultValues: {
       title: hotspot?.title,
@@ -159,7 +162,7 @@ export function HotspotPropertyForm() {
               <FormItem>
                 <FormLabel className="text-xs font-medium">Type</FormLabel>
                 <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange}>
+                  <Select disabled={field.disabled} value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger className="text-sm">
                       <SelectValue />
                     </SelectTrigger>
@@ -201,7 +204,7 @@ export function HotspotPropertyForm() {
                     Link to Scene <span className="text-destructive">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select disabled={field.disabled} value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger className="text-sm">
                         <SelectValue placeholder="Select target scene" />
                       </SelectTrigger>
@@ -221,14 +224,16 @@ export function HotspotPropertyForm() {
           )}
 
           {/* Actions */}
-          <div className="flex gap-2 pt-4 border-t">
-            <Button type="submit" size="sm" className="flex-1">
-              Save Changes
-            </Button>
-            <Button type="button" onClick={handleDelete} variant="destructive" size="sm" className="px-3">
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <div className="flex gap-2 pt-4 border-t">
+              <Button type="submit" size="sm" className="flex-1">
+                Save Changes
+              </Button>
+              <Button type="button" onClick={handleDelete} variant="destructive" size="sm" className="px-3">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>

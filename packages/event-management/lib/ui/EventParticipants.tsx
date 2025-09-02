@@ -1,5 +1,6 @@
 'use client';
 
+import { PERMISSION_EVENT_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core/avatar';
 import { Badge } from '@musetrip360/ui-core/badge';
 import { Button } from '@musetrip360/ui-core/button';
@@ -32,7 +33,6 @@ import { vi } from 'date-fns/locale';
 import {
   Clock,
   Crown,
-  Download,
   Edit,
   GraduationCap,
   Mail,
@@ -51,8 +51,7 @@ import {
   useGetEventParticipantsByEvent,
   useUpdateEventParticipant,
 } from '../api/hooks/useEventParticipant';
-import { Event, EventParticipant, ParticipantStatus } from '../types';
-import { ParticipantRoleEnum } from '../types';
+import { Event, EventParticipant, ParticipantRoleEnum, ParticipantStatus } from '../types';
 import { AddParticipantDialog } from './AddParticipantDialog';
 
 interface EventParticipantProps {
@@ -103,6 +102,8 @@ const getStatusVariant = (status: ParticipantStatus): 'default' | 'secondary' | 
 };
 
 export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
+  const { hasPermission } = useRolebaseStore();
+  const editable = hasPermission(event.museumId, PERMISSION_EVENT_MANAGEMENT);
   const initialData: EventParticipant[] = useMemo(() => [], []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -215,26 +216,8 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
   }, [selectedParticipant, deleteParticipant]);
 
   // Table columns
-  const columns = useMemo<ColumnDef<EventParticipant>[]>(
-    () => [
-      {
-        id: 'select',
-        header: ({ table }) => (
-          <Checkbox
-            className="size-5"
-            checked={table.getIsAllRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-            onCheckedChange={(checked) => table.toggleAllRowsSelected(!!checked)}
-          />
-        ),
-        enableSorting: false,
-        cell: ({ row }) => (
-          <Checkbox
-            className="size-5"
-            checked={row.getIsSelected()}
-            onCheckedChange={(checked) => row.toggleSelected(!!checked)}
-          />
-        ),
-      },
+  const columns = useMemo<ColumnDef<EventParticipant>[]>(() => {
+    const columns: ColumnDef<EventParticipant>[] = [
       {
         meta: {
           variant: 'text',
@@ -321,7 +304,28 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
           return <div className="text-sm">{format(new Date(joinedAt), 'dd/MM/yyyy', { locale: vi })}</div>;
         },
       },
-      {
+    ];
+
+    if (editable) {
+      columns.unshift({
+        id: 'select',
+        header: ({ table }) => (
+          <Checkbox
+            className="size-5"
+            checked={table.getIsAllRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+            onCheckedChange={(checked) => table.toggleAllRowsSelected(!!checked)}
+          />
+        ),
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Checkbox
+            className="size-5"
+            checked={row.getIsSelected()}
+            onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+          />
+        ),
+      });
+      columns.push({
         id: 'actions',
         header: 'Thao tác',
         enableSorting: false,
@@ -352,10 +356,10 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         ),
-      },
-    ],
-    [handleAction, roleOptions, statusOptions]
-  );
+      });
+    }
+    return columns;
+  }, [handleAction, editable, roleOptions, statusOptions]);
 
   // Setup data table
   const { table } = useDataTable<EventParticipant, string>({
@@ -451,14 +455,14 @@ export function EventParticipants({ event, onUpdated }: EventParticipantProps) {
       {/* Data Table */}
       <DataTable table={table}>
         <DataTableToolbar table={table}>
-          <Button variant="outline" size="sm" className="ml-2">
-            <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="default" size="sm" className="ml-2" onClick={() => setIsAddDialogOpen(true)}>
-            <UserPlus className="mr-2 h-4 w-4" />
-            Thêm người tham gia
-          </Button>
+          {editable && (
+            <>
+              <Button variant="default" size="sm" className="ml-2" onClick={() => setIsAddDialogOpen(true)}>
+                <UserPlus className="mr-2 h-4 w-4" />
+                Thêm người tham gia
+              </Button>
+            </>
+          )}
         </DataTableToolbar>
       </DataTable>
 
