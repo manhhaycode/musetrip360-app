@@ -54,7 +54,15 @@ export interface RoomMetadata {
 
 export interface TourActions {
   Id: string;
-  ActionType: 'camera_change' | 'scene_change' | 'artifact_preview' | 'artifact_close';
+  ActionType:
+    | 'camera_change'
+    | 'scene_change'
+    | 'artifact_preview'
+    | 'artifact_close'
+    | 'audio_mute'
+    | 'audio_unmute'
+    | 'auto_rotate_start'
+    | 'auto_rotate_stop';
   ActionData: {
     // Scene navigation
     SceneId?: string;
@@ -67,6 +75,16 @@ export interface TourActions {
       theta: number; // Horizontal angle in radians
       phi: number; // Vertical angle in radians
       fov: number; // Field of view in degrees
+    };
+
+    // Audio control data
+    AudioState?: {
+      isMuted: boolean;
+    };
+
+    // Auto-rotation control data
+    RotationState?: {
+      isAutoRotating: boolean;
     };
   };
   PerformedBy: string;
@@ -209,7 +227,7 @@ export interface UseMediaStreamReturn {
   isInitializingMedia: boolean;
   initializeMedia: (constraints?: StreamConstraints) => Promise<MediaStream>;
   toggleVideo: () => void;
-  toggleAudio: () => void;
+  toggleAudio: () => boolean;
   stopStream: () => void;
   startScreenShare: () => Promise<MediaStream>;
   stopScreenShare: () => void;
@@ -245,6 +263,10 @@ export interface StreamingContextValue {
   isInRoom: boolean;
   initialize: () => Promise<void>;
 
+  // Tour State
+  isTourReady: boolean;
+  setTourReady: (ready: boolean) => void;
+
   // Actions
   joinRoom: (roomId: string, metadata?: Record<string, any>) => Promise<void>;
   createRoom: (metadata?: Record<string, any>) => Promise<string>;
@@ -262,7 +284,7 @@ export interface StreamingContextValue {
 // Component Props Types
 export interface VideoComponentProps {
   stream?: MediaStream;
-  muted?: boolean;
+  audioState?: boolean;
   autoPlay?: boolean;
   playsInline?: boolean;
   className?: string;

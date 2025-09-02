@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { IVirtualTour, IVirtualTourScene } from '@/api/types';
 import { InteractiveHotspot } from '@/canvas/InteractiveHotspot';
 import { PanoramaSphere } from '@/canvas/PanoramaSphere';
@@ -6,6 +6,8 @@ import { PolygonSelector } from '@/canvas/PolygonSelect';
 import type { Hotspot, Polygon } from '@/canvas/types';
 import { PreviewArtifact } from './PreviewArtifact';
 import { SceneNavigationMenu } from './SceneNavigationMenu';
+import { Button } from '@musetrip360/ui-core/button';
+import { Volume2, VolumeX, RotateCw, Square } from 'lucide-react';
 
 export interface VirtualTourViewerProps {
   /** Virtual tour data */
@@ -18,6 +20,10 @@ export interface VirtualTourViewerProps {
   controlledCameraPosition?: { theta: number; phi: number; fov?: number };
   /** Controlled artifact ID to show preview */
   controlledArtifactId?: string;
+  /** Controlled audio muted state */
+  controlledAudioMuted?: boolean;
+  /** Controlled auto-rotate state */
+  controlledAutoRotate?: boolean;
 
   // NEW: Event callbacks for capturing user actions
   /** Called when user navigates to a different scene */
@@ -26,6 +32,10 @@ export interface VirtualTourViewerProps {
   onCameraChange?: (position: { theta: number; phi: number; fov: number }) => void;
   /** Called when user clicks on a polygon */
   onPolygonClick?: (polygon: Polygon) => void;
+  /** Called when audio mute state changes */
+  onAudioMuteChange?: (isMuted: boolean) => void;
+  /** Called when auto-rotate state changes */
+  onAutoRotateChange?: (isAutoRotating: boolean) => void;
 
   // NEW: Control mode
   /** Enable/disable user controls - false for attendee mode */
@@ -43,10 +53,14 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   controlledSceneId,
   controlledCameraPosition,
   controlledArtifactId,
+  controlledAudioMuted,
+  controlledAutoRotate,
   // Event callbacks
   onSceneChange,
   onCameraChange,
   onPolygonClick,
+  onAudioMuteChange,
+  onAutoRotateChange,
   // Control mode
   enableUserControls = true,
   // Navigation style
@@ -63,6 +77,13 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
   // PreviewArtifact state
   const [selectedArtifactId, setSelectedArtifactId] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  // Audio state for dual audio support
+  const voiceAIRef = useRef<HTMLAudioElement | null>(null);
+  const audioCommentaryRef = useRef<HTMLAudioElement | null>(null);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isAudioLoaded, setIsAudioLoaded] = useState(false);
+  const [isAutoRotate, setIsAutoRotate] = useState(false);
 
   // Find current scene data
   const currentScene = useMemo(() => {
@@ -159,6 +180,152 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
     }
   }, [controlledArtifactId]);
 
+  // Sync with controlled audio muted state
+  useEffect(() => {
+    if (controlledAudioMuted !== undefined) {
+      setIsMuted(controlledAudioMuted);
+    }
+  }, [controlledAudioMuted]);
+
+  // Sync with controlled auto rotate state
+  useEffect(() => {
+    if (controlledAutoRotate !== undefined) {
+      setIsAutoRotate(controlledAutoRotate);
+    }
+  }, [controlledAutoRotate]);
+
+  // Get both audio sources from current scene
+  const voiceAIData = useMemo(() => {
+    if (!currentScene || !currentScene.isUseVoiceAI || !currentScene.voiceAI?.file) {
+      return null;
+    }
+    return currentScene.voiceAI;
+  }, [currentScene]);
+
+  const audioCommentaryData = useMemo(() => {
+    if (!currentScene || !currentScene.audio?.file) {
+      return null;
+    }
+    return currentScene.audio;
+  }, [currentScene]);
+
+  // Extract audio options for each source
+  const voiceAIOptions = useMemo(
+    () => ({
+      autoPlay: voiceAIData?.audioOptions?.autoPlay ?? true,
+      volume: voiceAIData?.audioOptions?.volume ?? 0.8,
+      loop: voiceAIData?.audioOptions?.loop ?? true,
+    }),
+    [voiceAIData]
+  );
+
+  const audioCommentaryOptions = useMemo(
+    () => ({
+      autoPlay: audioCommentaryData?.audioOptions?.autoPlay ?? true,
+      volume: audioCommentaryData?.audioOptions?.volume ?? 0.6,
+      loop: audioCommentaryData?.audioOptions?.loop ?? true,
+    }),
+    [audioCommentaryData]
+  );
+
+  // Check if any audio is available
+  const hasAnyAudio = !!(voiceAIData || audioCommentaryData);
+
+  // Handle Voice AI audio loading and playback
+  useEffect(() => {
+    if (!voiceAIRef.current) return;
+
+    const audio = voiceAIRef.current;
+
+    if (voiceAIData?.file) {
+      audio.src = voiceAIData.file as string;
+      audio.loop = voiceAIOptions.loop;
+      audio.volume = voiceAIOptions.volume;
+      audio.muted = isMuted;
+
+      // Auto-play voice AI if enabled
+      if (enableUserControls && voiceAIOptions.autoPlay) {
+        audio.play().catch(() => {
+          console.log('Voice AI auto-play prevented by browser policy');
+        });
+      }
+    } else {
+      audio.pause();
+      audio.src = '';
+    }
+  }, [voiceAIData, enableUserControls, isMuted, voiceAIOptions]);
+
+  // Handle Audio Commentary loading and playback
+  useEffect(() => {
+    if (!audioCommentaryRef.current) return;
+
+    const audio = audioCommentaryRef.current;
+
+    if (audioCommentaryData?.file) {
+      audio.src = audioCommentaryData.file as string;
+      audio.loop = audioCommentaryOptions.loop;
+      audio.volume = audioCommentaryOptions.volume;
+      audio.muted = isMuted;
+
+      // Auto-play audio commentary if enabled
+      if (enableUserControls && audioCommentaryOptions.autoPlay) {
+        audio.play().catch(() => {
+          console.log('Audio commentary auto-play prevented by browser policy');
+        });
+      }
+    } else {
+      audio.pause();
+      audio.src = '';
+    }
+  }, [audioCommentaryData, enableUserControls, isMuted, audioCommentaryOptions]);
+
+  // Update audio loaded state
+  useEffect(() => {
+    setIsAudioLoaded(hasAnyAudio);
+  }, [hasAnyAudio]);
+
+  // Toggle audio mute state for both audio sources
+  const toggleAudioMute = useCallback(() => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+
+    // Notify parent component of audio mute change
+    onAudioMuteChange?.(newMutedState);
+
+    // Mute/unmute Voice AI audio
+    if (voiceAIRef.current) {
+      voiceAIRef.current.muted = newMutedState;
+
+      // If unmuting and audio is paused, try to play
+      if (!newMutedState && voiceAIRef.current.paused && voiceAIData?.file) {
+        voiceAIRef.current.play().catch(() => {
+          console.log('Voice AI play failed');
+        });
+      }
+    }
+
+    // Mute/unmute Audio Commentary
+    if (audioCommentaryRef.current) {
+      audioCommentaryRef.current.muted = newMutedState;
+
+      // If unmuting and audio is paused, try to play
+      if (!newMutedState && audioCommentaryRef.current.paused && audioCommentaryData?.file) {
+        audioCommentaryRef.current.play().catch(() => {
+          console.log('Audio commentary play failed');
+        });
+      }
+    }
+  }, [isMuted, voiceAIData, audioCommentaryData, onAudioMuteChange]);
+
+  // Toggle auto-rotate for camera
+  const toggleAutoRotate = useCallback(() => {
+    const newAutoRotateState = !isAutoRotate;
+    setIsAutoRotate(newAutoRotateState);
+
+    // Notify parent component of auto-rotate change
+    onAutoRotateChange?.(newAutoRotateState);
+  }, [isAutoRotate, onAutoRotateChange]);
+
   // Enhanced hotspots with click handlers
   const enhancedHotspots = useMemo(() => {
     if (!currentScene?.data?.hotspots) return [];
@@ -207,10 +374,15 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
 
   return (
     <div className="virtual-tour-viewer relative w-full h-full">
+      {/* Hidden audio elements for dual audio support */}
+      <audio ref={voiceAIRef} preload="auto" />
+      <audio ref={audioCommentaryRef} preload="auto" />
+
       {/* Panorama sphere with hotspots */}
       <PanoramaSphere
         cubeMapLevel={cubeMapLevel}
         enableRotate={enableUserControls}
+        autoRotate={isAutoRotate}
         controlledCameraPosition={controlledCameraPosition}
         onCameraChange={onCameraChange}
         enableUserControls={enableUserControls}
@@ -249,6 +421,35 @@ export const VirtualTourViewer: React.FC<VirtualTourViewerProps> = ({
           </div>
         )}
       </div>
+
+      {/* Audio Control Buttons - Vertical Stack */}
+      {enableUserControls && (
+        <div className="absolute top-20 left-4 z-20 flex flex-col gap-2">
+          {/* Mute/Unmute Button */}
+          {isAudioLoaded && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={toggleAudioMute}
+              className="backdrop-blur-sm transition-all duration-200 hover:scale-105"
+              title={isMuted ? 'Bật âm thanh' : 'Tắt âm thanh'}
+            >
+              {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
+          )}
+
+          {/* Auto-Rotate Button */}
+          <Button
+            variant="default"
+            size="sm"
+            onClick={toggleAutoRotate}
+            className="backdrop-blur-sm transition-all duration-200 hover:scale-105"
+            title={isAutoRotate ? 'Tắt tự động xoay' : 'Bật tự động xoay'}
+          >
+            {isAutoRotate ? <Square className="h-4 w-4" /> : <RotateCw className="h-4 w-4" />}
+          </Button>
+        </div>
+      )}
 
       {/* PreviewArtifact Modal */}
       {selectedArtifactId && (

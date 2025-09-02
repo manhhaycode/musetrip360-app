@@ -11,6 +11,7 @@ export interface PanoramaSphereProps {
   className?: string;
   children?: React.ReactNode;
   enableRotate?: boolean;
+  autoRotate?: boolean;
   onClick?: (event: ThreeEvent<MouseEvent>) => void;
   // NEW: Camera control props
   controlledCameraPosition?: { theta: number; phi: number; fov?: number };
@@ -22,6 +23,7 @@ function PanoramaContent({
   cubeMapFiles,
   children,
   enableRotate,
+  autoRotate,
   onClick,
   controlledCameraPosition,
   onCameraChange,
@@ -31,6 +33,7 @@ function PanoramaContent({
   onClick?: (event: ThreeEvent<MouseEvent>) => void;
   children?: React.ReactNode;
   enableRotate: boolean;
+  autoRotate?: boolean;
   controlledCameraPosition?: { theta: number; phi: number; fov?: number };
   onCameraChange?: (position: { theta: number; phi: number; fov: number }) => void;
   enableUserControls?: boolean;
@@ -61,6 +64,7 @@ function PanoramaContent({
       <PanoramaControls
         enableDamping={false}
         enableRotate={enableRotate}
+        autoRotate={autoRotate}
         controlledPosition={controlledCameraPosition}
         onViewChange={onCameraChange}
         enableUserControls={enableUserControls}
@@ -73,6 +77,7 @@ export function PanoramaSphere({
   cubeMapLevel,
   children,
   enableRotate = true,
+  autoRotate = false,
   onClick,
   controlledCameraPosition,
   onCameraChange,
@@ -112,6 +117,7 @@ export function PanoramaSphere({
         <PanoramaContent
           cubeMapFiles={cubeMapFiles}
           enableRotate={enableRotate}
+          autoRotate={autoRotate}
           onClick={onClick}
           controlledCameraPosition={controlledCameraPosition}
           onCameraChange={onCameraChange}

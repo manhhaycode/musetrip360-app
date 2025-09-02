@@ -73,6 +73,7 @@ export function useCreateMuseumVirtualTour(
     {
       ...options,
       onSuccess: (data, variables, context) => {
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
         queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
         options?.onSuccess?.(data, variables, context);
       },

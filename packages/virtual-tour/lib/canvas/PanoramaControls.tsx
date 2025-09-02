@@ -13,6 +13,7 @@ export interface PanoramaControlsProps {
   minPolarAngle?: number;
   maxPolarAngle?: number;
   enableRotate?: boolean;
+  autoRotate?: boolean;
   // NEW: Controlled camera position
   controlledPosition?: { theta: number; phi: number; fov?: number };
   // NEW: Camera change callback
@@ -26,11 +27,12 @@ export interface PanoramaControlsProps {
  * Handles camera controls, zoom functionality, and renders interactive hotspots
  */
 export function PanoramaControls({
-  enableDamping = false,
-  dampingFactor = 0.02,
-  minPolarAngle = Math.PI / 6,
-  maxPolarAngle = (5 * Math.PI) / 6,
+  enableDamping = true,
+  dampingFactor = 0.05,
+  minPolarAngle = Math.PI / 4,
+  maxPolarAngle = (3 * Math.PI) / 4,
   enableRotate = true,
+  autoRotate = false,
   controlledPosition,
   onViewChange,
   enableUserControls = true,
@@ -110,6 +112,8 @@ export function PanoramaControls({
         enablePan={false}
         enableZoom={false} // Disabled to use custom FOV zoom
         enableRotate={enableRotate && enableUserControls}
+        autoRotate={autoRotate}
+        autoRotateSpeed={0.5}
         enableDamping={enableDamping}
         dampingFactor={dampingFactor}
         target={[0, 0, 0]}
