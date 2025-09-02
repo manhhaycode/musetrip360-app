@@ -73,8 +73,7 @@ export function useCreateMuseumVirtualTour(
     {
       ...options,
       onSuccess: (data, variables, context) => {
-        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
-        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(data.id) });
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.listByMuseum(museumId) });
         options?.onSuccess?.(data, variables, context);
       },
     }
@@ -95,7 +94,10 @@ export function useUpdateVirtualTour(
   return useMutation<IVirtualTour, APIError, IVirtualTour>((variables) => updateVirtualTour(variables.id, variables), {
     ...options,
     onSuccess: (data, variables, context) => {
-      if (isInvalidQuery) queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.lists() });
+      if (isInvalidQuery) {
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.listByMuseum() });
+        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(variables.id) });
+      }
       options?.onSuccess?.(data, variables, context);
     },
   });

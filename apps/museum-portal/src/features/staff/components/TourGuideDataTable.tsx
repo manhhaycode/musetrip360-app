@@ -3,18 +3,28 @@ import { useMuseumStore } from '@musetrip360/museum-management';
 import { Button } from '@musetrip360/ui-core/button';
 import { Checkbox } from '@musetrip360/ui-core/checkbox';
 import { DataTable, useDataTable, useDataTableState } from '@musetrip360/ui-core/data-table';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@musetrip360/ui-core/dropdown-menu';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from '@musetrip360/ui-core/dropdown-menu';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal, UserPlus } from 'lucide-react';
+import { MoreHorizontal, UserPlus, Edit, Trash2 } from 'lucide-react';
 import { useMemo, useState, useCallback } from 'react';
 
 import get from 'lodash.get';
 import { Avatar, AvatarFallback, AvatarImage } from '@musetrip360/ui-core';
 import AddTourGuide from './AddTourGuide';
+import EditTourGuide from './EditTourGuide';
+import DeleteTourGuideConfirm from './DeleteTourGuideConfirm';
 
 const TourGuideDataTable = () => {
   const { selectedMuseum } = useMuseumStore();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedTourGuide, setSelectedTourGuide] = useState<TourGuide | null>(null);
 
   const tableState = useDataTableState({
     defaultPerPage: 10,
@@ -32,6 +42,28 @@ const TourGuideDataTable = () => {
 
   const handleAddTourGuideSuccess = useCallback(() => {
     setIsAddModalOpen(false);
+    refetch();
+  }, [refetch]);
+
+  const handleEditTourGuide = useCallback((tourGuide: TourGuide) => {
+    setSelectedTourGuide(tourGuide);
+    setIsEditModalOpen(true);
+  }, []);
+
+  const handleDeleteTourGuide = useCallback((tourGuide: TourGuide) => {
+    setSelectedTourGuide(tourGuide);
+    setIsDeleteModalOpen(true);
+  }, []);
+
+  const handleEditSuccess = useCallback(() => {
+    setIsEditModalOpen(false);
+    setSelectedTourGuide(null);
+    refetch();
+  }, [refetch]);
+
+  const handleDeleteSuccess = useCallback(() => {
+    setIsDeleteModalOpen(false);
+    setSelectedTourGuide(null);
     refetch();
   }, [refetch]);
 
@@ -117,13 +149,23 @@ const TourGuideDataTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <span>{row.original.id}</span>
+              <DropdownMenuItem onClick={() => handleEditTourGuide(row.original)} className="cursor-pointer">
+                <Edit className="mr-2 h-4 w-4" />
+                Chỉnh sửa
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => handleDeleteTourGuide(row.original)}
+                className="cursor-pointer text-red-600 focus:text-red-600"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Xoá
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ],
-    []
+    [handleDeleteTourGuide, handleEditTourGuide]
   );
 
   const { table } = useDataTable<TourGuide, string>({
@@ -174,6 +216,30 @@ const TourGuideDataTable = () => {
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={handleAddTourGuideSuccess}
       />
+
+      {selectedTourGuide && (
+        <EditTourGuide
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedTourGuide(null);
+          }}
+          onSuccess={handleEditSuccess}
+          tourGuide={selectedTourGuide}
+        />
+      )}
+
+      {selectedTourGuide && (
+        <DeleteTourGuideConfirm
+          isOpen={isDeleteModalOpen}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setSelectedTourGuide(null);
+          }}
+          onSuccess={handleDeleteSuccess}
+          tourGuide={selectedTourGuide}
+        />
+      )}
     </>
   );
 };

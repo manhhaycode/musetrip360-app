@@ -1,28 +1,14 @@
+import { useIsAuthenticated } from '@musetrip360/auth-system';
+import { useGetUserMuseums } from '@musetrip360/museum-management';
 import { SidebarInset, SidebarProvider } from '@musetrip360/ui-core/sidebar';
 import { Navigate, Outlet, useLocation } from 'react-router';
 import Header from '../components/Header';
 import DashboardSidebar from '../components/Sidebar';
-import { useIsAuthenticated } from '@musetrip360/auth-system';
-import { useGetUserMuseums, useMuseumStore } from '@musetrip360/museum-management';
-import { useEffect } from 'react';
 
 export default function DefaultLayout() {
   const isAuthenticated = useIsAuthenticated();
   const location = useLocation();
   const { data: userMuseums, isLoading } = useGetUserMuseums();
-  const { setUserMuseums, setSelectedMuseum, selectedMuseum } = useMuseumStore();
-
-  // Update the store when user museums are loaded
-  useEffect(() => {
-    if (userMuseums) {
-      setUserMuseums(userMuseums);
-
-      // Auto-select the first museum if none is selected
-      if (!selectedMuseum && userMuseums.length > 0) {
-        setSelectedMuseum(userMuseums[0] || null);
-      }
-    }
-  }, [userMuseums, setUserMuseums, setSelectedMuseum, selectedMuseum]);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />; // Redirect to login if not authenticated

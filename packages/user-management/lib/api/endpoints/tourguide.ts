@@ -44,4 +44,9 @@ export const tourGuideEndpoints = {
     const response = await client.put<ApiResponse<TourGuide>>(`/tour-guides/${id}`, tourGuideData);
     return response;
   },
+  deleteTourGuide: async (id: string): Promise<ApiResponse<void>> => {
+    const client = getHttpClient();
+    const response = await client.delete<ApiResponse<void>>(`/tour-guides/${id}`);
+    return response;
+  },
 };

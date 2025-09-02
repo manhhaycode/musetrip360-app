@@ -13,6 +13,7 @@ import { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useShallow } from 'zustand/shallow';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const polygonFormSchema = z.object({
   artifactIdLink: z.string().min(1, 'Artifact ID is required'),
@@ -39,6 +40,7 @@ export function PolygonPropertyForm({ museumId }: { museumId: string }) {
         isDirty: state.isDirty,
       }))
     );
+  const { hasPermission } = useRolebaseStore();
 
   const polygon = useMemo(() => {
     return getSelectedPolygon();
@@ -63,6 +65,7 @@ export function PolygonPropertyForm({ museumId }: { museumId: string }) {
   }, [artifacts, polygon?.artifactIdLink]);
 
   const form = useForm<PolygonFormData>({
+    disabled: !hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT),
     resolver: zodResolver(polygonFormSchema),
     defaultValues: {
       artifactIdLink: polygon?.artifactIdLink || '',
@@ -128,7 +131,11 @@ export function PolygonPropertyForm({ museumId }: { museumId: string }) {
                   Linked Artifact <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Select value={field.value} onValueChange={field.onChange} disabled={artifactsLoading}>
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={artifactsLoading || field.disabled}
+                  >
                     <SelectTrigger className="text-sm">
                       <SelectValue placeholder={artifactsLoading ? 'Loading artifacts...' : 'Select an artifact'} />
                     </SelectTrigger>
@@ -190,14 +197,16 @@ export function PolygonPropertyForm({ museumId }: { museumId: string }) {
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-4 border-t">
-            <Button type="submit" size="sm" className="flex-1">
-              Save Changes
-            </Button>
-            <Button type="button" onClick={handleDelete} variant="destructive" size="sm" className="px-3">
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <div className="flex gap-2 pt-4 border-t">
+              <Button type="submit" size="sm" className="flex-1">
+                Save Changes
+              </Button>
+              <Button type="button" onClick={handleDelete} variant="destructive" size="sm" className="px-3">
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
     </div>

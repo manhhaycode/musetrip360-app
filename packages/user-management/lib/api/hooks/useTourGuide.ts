@@ -60,3 +60,20 @@ export function useUpdateTourGuide(options?: CustomMutationOptions<unknown, APIE
     }
   );
 }
+
+export function useDeleteTourGuide(options?: CustomMutationOptions<unknown, APIError, string>) {
+  const queryClient = useQueryClient();
+
+  return useMutation((id: string) => tourGuideEndpoints.deleteTourGuide(id), {
+    onSuccess: (data, variables, context) => {
+      if (options) {
+        options.onSuccess?.(data, variables, context);
+      }
+      // Invalidate the specific tour guide query to refetch updated data
+      queryClient.invalidateQueries({ queryKey: ['tourGuides'] });
+    },
+    onError: (error: APIError) => {
+      console.error('Failed to delete tour guide:', error);
+    },
+  });
+}
