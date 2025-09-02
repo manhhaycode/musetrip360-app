@@ -279,7 +279,7 @@ const ArtifactForm: React.FC<ArtifactFormProps> = ({ mode, artifactId, defaultVa
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const formData = form.getValues();

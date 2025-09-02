@@ -30,7 +30,7 @@ export const SavePlugin: React.FC<SavePluginProps> = ({ config }) => {
         if (isAccept) {
           await bulkUpload?.uploadAll();
           updateEditor();
-        }
+        } else return;
       } else {
         updateEditor();
       }

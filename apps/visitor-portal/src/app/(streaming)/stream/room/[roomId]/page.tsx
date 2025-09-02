@@ -67,6 +67,7 @@ export default function StreamRoomPage({ params }: StreamRoomPageProps) {
           >
             <div className="relative h-full">
               <SyncedVirtualTourViewer
+                virtualTourProps={{ isStreaming: true }}
                 mode={effectiveMode}
                 virtualTour={event.tourOnlines[0] as IVirtualTour}
                 onModeChange={setUserTourMode}

@@ -96,7 +96,6 @@ export function useUpdateVirtualTour(
     onSuccess: (data, variables, context) => {
       if (isInvalidQuery) {
         queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.listByMuseum() });
-        queryClient.invalidateQueries({ queryKey: virtualTourCacheKeys.detail(variables.id) });
       }
       options?.onSuccess?.(data, variables, context);
     },

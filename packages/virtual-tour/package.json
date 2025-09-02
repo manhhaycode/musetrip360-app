@@ -85,6 +85,7 @@
     "js-file-download": "^0.4.12",
     "lucide-react": "^0.525.0",
     "react-dropzone": "^14.3.8",
+    "react-error-boundary": "^4.1.2",
     "react-hook-form": "^7.58.1",
     "tailwindcss": "^4",
     "three": "^0.178.0",

@@ -31,10 +31,12 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Edit, Trash2, Power, PowerOff, MoreHorizontal } from 'lucide-react';
 import { useCallback, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
   const initialData: IVirtualTour[] = useMemo(() => [], []);
   const navigate = useNavigate();
+  const { hasPermission } = useRolebaseStore();
 
   // State for confirmation dialogs
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -243,28 +245,32 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
 
   const columns = useMemo<ColumnDef<IVirtualTour>[]>(
     () => [
-      {
-        id: 'select',
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              className="size-5"
-              checked={table.getIsAllRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
-              onCheckedChange={(checked) => table.toggleAllRowsSelected(!!checked)}
-            />
-          );
-        },
-        enableSorting: false,
-        cell: ({ row }) => {
-          return (
-            <Checkbox
-              className="size-5"
-              checked={row.getIsSelected()}
-              onCheckedChange={(checked) => row.toggleSelected(!!checked)}
-            />
-          );
-        },
-      },
+      ...(hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT)
+        ? ([
+            {
+              id: 'select',
+              header: ({ table }) => {
+                return (
+                  <Checkbox
+                    className="size-5"
+                    checked={table.getIsAllRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')}
+                    onCheckedChange={(checked) => table.toggleAllRowsSelected(!!checked)}
+                  />
+                );
+              },
+              enableSorting: false,
+              cell: ({ row }) => {
+                return (
+                  <Checkbox
+                    className="size-5"
+                    checked={row.getIsSelected()}
+                    onCheckedChange={(checked) => row.toggleSelected(!!checked)}
+                  />
+                );
+              },
+            },
+          ] as ColumnDef<IVirtualTour>[])
+        : []),
       {
         meta: {
           variant: 'text',
@@ -384,6 +390,7 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
         enableColumnFilter: true,
         cell: ({ row }) => (
           <Select
+            disabled={!hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT)}
             value={row.original.isActive.toString()}
             onValueChange={(value) => {
               const newStatus = value === 'true';
@@ -429,18 +436,20 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleEdit(row.original)}>
                 <Edit className="mr-2 h-4 w-4" />
-                Edit
+                {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) ? 'Edit' : 'View'}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => handleDeleteTour(row.original)} className="text-destructive">
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
+              {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+                <DropdownMenuItem onClick={() => handleDeleteTour(row.original)} className="text-destructive">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         ),
       },
     ],
-    [handleEdit, handleDeleteTour, priceRangeOptions, statusOptions, handleStatusChange]
+    [priceRangeOptions, statusOptions, hasPermission, museumId, handleStatusChange, handleEdit, handleDeleteTour]
   );
 
   const { table } = useDataTable<IVirtualTour, string>({
@@ -466,7 +475,7 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
     <>
       <DataTable table={table}>
         <DataTableToolbar table={table}>
-          {hasSelection && (
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && hasSelection && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="h-8">
@@ -505,11 +514,13 @@ export const VirtualTourDataTable = ({ museumId }: { museumId: string }) => {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <Link to="/virtual-tour/studio/create">
-            <Button variant="default" size="sm" className="ml-2">
-              Add Virtual Tour
-            </Button>
-          </Link>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <Link to="/virtual-tour/studio/create">
+              <Button variant="default" size="sm" className="ml-2">
+                Add Virtual Tour
+              </Button>
+            </Link>
+          )}
         </DataTableToolbar>
       </DataTable>
 
