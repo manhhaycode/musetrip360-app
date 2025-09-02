@@ -55,7 +55,7 @@ export const MultipleUploadExample: React.FC = () => {
         if (isAccept) {
           await bulkUpload?.uploadAll();
           console.log('Files uploaded successfully:', form.getValues());
-        }
+        } else return;
       } else {
         console.log('No files to upload, form data:', form.getValues());
       }

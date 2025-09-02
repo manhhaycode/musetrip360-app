@@ -46,7 +46,6 @@ import { useForm } from 'react-hook-form';
 import { toast } from '@musetrip360/ui-core/sonner';
 import { z } from 'zod';
 import {
-  PERMISSION_CONTENT_MANAGEMENT,
   PERMISSION_EVENT_CREATE,
   PERMISSION_EVENT_MANAGEMENT,
   useRolebaseStore,
@@ -266,7 +265,7 @@ export const EventBasicInfoForm = ({ museumId, event, onSuccess }: EventInfoForm
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
       setIsSubmitting(true);
       const data = form.getValues();

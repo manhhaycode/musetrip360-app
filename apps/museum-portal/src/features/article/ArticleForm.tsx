@@ -112,7 +112,7 @@ const ArticleForm = ({ article, museumId, onSuccess, onCancel, className }: Arti
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const formData = form.getValues();

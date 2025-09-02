@@ -93,7 +93,7 @@ export function ScenePropertyForm({ museumId }: { museumId: string }) {
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const formData = form.getValues();
