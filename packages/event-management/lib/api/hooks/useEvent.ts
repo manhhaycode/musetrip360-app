@@ -89,7 +89,8 @@ export function useUpdateEvent(options?: CustomMutationOptions<Event, APIError, 
     {
       onSuccess: (data, variables, context) => {
         const queryClient = getQueryClient();
-        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.eventsByMuseum(variables.eventId) });
+        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.eventsByMuseum() });
+        queryClient.invalidateQueries({ queryKey: eventManagementCacheKeys.event(variables.eventId) });
         onSuccess?.(data, variables, context);
       },
       ...optionMutate,
