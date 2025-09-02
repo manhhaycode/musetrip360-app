@@ -12,6 +12,7 @@ import { MuseumEventsTab } from './MuseumEventsTab';
 import { MuseumArticlesTab } from './MuseumArticlesTab';
 import { MuseumVirtualToursTab } from './MuseumVirtualToursTab';
 import { MuseumFeedbackTab } from './MuseumFeedbackTab';
+import { MuseumPoliciesTab } from './MuseumPoliciesTab';
 
 interface MuseumHomePageProps {
   museumId: string;
@@ -86,7 +87,7 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
       <div className="space-y-6">
         {/* Main Content with Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6 lg:w-fit lg:grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7 lg:w-fit lg:grid-cols-7">
             <TabsTrigger value="intro" className="text-sm">
               Giới thiệu
             </TabsTrigger>
@@ -101,6 +102,9 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
             </TabsTrigger>
             <TabsTrigger value="virtual-tours" className="text-sm">
               Tour ảo
+            </TabsTrigger>
+            <TabsTrigger value="policies" className="text-sm">
+              Chính sách
             </TabsTrigger>
             <TabsTrigger value="feedback" className="text-sm">
               Đánh giá
@@ -125,6 +129,10 @@ export function MuseumHomePage({ museumId, className }: MuseumHomePageProps) {
 
           <TabsContent value="virtual-tours" className="mt-6">
             <MuseumVirtualToursTab museumId={museumId} />
+          </TabsContent>
+
+          <TabsContent value="policies" className="mt-6">
+            <MuseumPoliciesTab museumId={museumId} />
           </TabsContent>
 
           <TabsContent value="feedback" className="mt-6">
