@@ -25,7 +25,15 @@ const museumUpdateSchema = z.object({
   description: z.string().min(1, 'Mô tả là bắt buộc').min(10, 'Mô tả phải có ít nhất 10 ký tự'),
   location: z.string().min(1, 'Địa chỉ là bắt buộc').min(5, 'Địa chỉ phải có ít nhất 5 ký tự'),
   contactEmail: z.string().min(1, 'Email là bắt buộc').email('Email không hợp lệ'),
-  contactPhone: z.string().min(1, 'Số điện thoại là bắt buộc').min(10, 'Số điện thoại phải có ít nhất 10 số'),
+  contactPhone: z
+    .string()
+    .optional()
+    .refine((val) => {
+      if (!val) return true; // Optional field
+      // Vietnamese phone number validation
+      const phoneRegex = /^(\+?[1-9]\d{1,14}|0\d{8,14})$/;
+      return phoneRegex.test(val);
+    }, 'Số điện thoại không hợp lệ'),
   images: z.array(ZodFileData.nullable()).optional(),
   categoryIds: z.array(z.string()).optional(),
 });
