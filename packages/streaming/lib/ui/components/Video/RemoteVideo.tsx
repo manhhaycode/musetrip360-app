@@ -14,7 +14,6 @@ import { Crown, Target, User, VideoOff, MicOff } from 'lucide-react';
 export const RemoteVideo: React.FC<RemoteVideoProps> = ({
   stream,
   participant,
-  muted = false, // Remote videos should have audio enabled by default
   autoPlay = true,
   playsInline = true,
   className,
@@ -127,7 +126,7 @@ export const RemoteVideo: React.FC<RemoteVideoProps> = ({
         id={`remoteVideo-${streamId}`}
         autoPlay={autoPlay}
         playsInline={playsInline}
-        muted={muted}
+        muted={false}
         className="w-full h-full object-cover"
         style={{ display: isVideoReady && isVideoEnabled ? 'block' : 'none' }}
         {...props}

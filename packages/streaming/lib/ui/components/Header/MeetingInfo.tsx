@@ -24,15 +24,15 @@ interface MeetingInfoProps {
 }
 
 export const MeetingInfo: React.FC<MeetingInfoProps> = ({
-  meetingTitle = '[Internal] Weekly Report Marketing + Sales',
-  meetingDate = 'June 21st, 2024',
-  meetingTime = '11:00 AM',
+  meetingTitle,
+  meetingDate,
+  meetingTime,
   currentRoomId,
   isConnected,
   onCopyRoomId,
   duration = 0,
   participantCount = 0,
-  meetingType = 'internal',
+  meetingType = 'presentation',
   className,
 }) => {
   const [liveDuration, setLiveDuration] = useState(duration);
@@ -49,22 +49,10 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({
   }, [isConnected]);
 
   const formatDateTime = () => {
-    if (meetingDate && meetingTime) {
-      return `${meetingDate} | ${meetingTime}`;
-    }
-    // Fallback to current date/time
+    if (meetingDate && meetingTime) return `${meetingDate} | ${meetingTime}`;
+
     const now = new Date();
-    const date = now.toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const time = now.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true,
-    });
-    return `${date} | ${time}`;
+    return `${now.toLocaleDateString('vi-VN', { month: 'short', day: 'numeric' })} | ${now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`;
   };
 
   const formatDuration = (minutes: number) => {
@@ -92,21 +80,21 @@ export const MeetingInfo: React.FC<MeetingInfoProps> = ({
   const meetingConfig = getMeetingTypeConfig(meetingType);
 
   return (
-    <div className={cn('flex items-center gap-3 max-w-[320px]', className)}>
+    <div className={cn('flex items-center gap-3 max-w-76', className)}>
       {/* Meeting Icon & Status */}
-      <div className="flex items-center gap-2 shrink-0">
-        <Video className="h-5 w-5 text-primary" />
-        <div
-          className={cn('w-2 h-2 rounded-full', isConnected ? 'bg-green-500 animate-pulse' : 'bg-destructive')}
-          title={isConnected ? 'Connected' : 'Disconnected'}
-        />
-      </div>
 
       {/* Meeting Info */}
       <div className="flex flex-col gap-2 min-w-0">
         <div className="flex items-center gap-2">
-          <h1 className="text-sm font-semibold text-foreground truncate" title={meetingTitle}>
-            {meetingTitle}
+          <div className="flex items-center gap-2 shrink-0">
+            <Video className="h-5 w-5 text-primary" />
+            <div
+              className={cn('w-2 h-2 rounded-full', isConnected ? 'bg-green-500 animate-pulse' : 'bg-destructive')}
+              title={isConnected ? 'Connected' : 'Disconnected'}
+            />
+          </div>
+          <h1 className="text-sm font-semibold text-foreground line-clamp-2" title={meetingTitle}>
+            {meetingTitle || 'Live Virtual Tour'}
           </h1>
           <Badge variant={meetingConfig.variant} className="text-xs px-1.5 py-0.5 shrink-0">
             {meetingConfig.label}

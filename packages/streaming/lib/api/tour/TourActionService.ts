@@ -97,6 +97,34 @@ export class TourActionService {
   }
 
   /**
+   * Send audio mute action
+   */
+  async sendAudioMute(roomId: string, performedBy: string): Promise<TourActions> {
+    return this.sendTourAction(roomId, 'audio_mute', { AudioState: { isMuted: true } }, performedBy);
+  }
+
+  /**
+   * Send audio unmute action
+   */
+  async sendAudioUnmute(roomId: string, performedBy: string): Promise<TourActions> {
+    return this.sendTourAction(roomId, 'audio_unmute', { AudioState: { isMuted: false } }, performedBy);
+  }
+
+  /**
+   * Send auto rotate start action
+   */
+  async sendAutoRotateStart(roomId: string, performedBy: string): Promise<TourActions> {
+    return this.sendTourAction(roomId, 'auto_rotate_start', { RotationState: { isAutoRotating: true } }, performedBy);
+  }
+
+  /**
+   * Send auto rotate stop action
+   */
+  async sendAutoRotateStop(roomId: string, performedBy: string): Promise<TourActions> {
+    return this.sendTourAction(roomId, 'auto_rotate_stop', { RotationState: { isAutoRotating: false } }, performedBy);
+  }
+
+  /**
    * Check if tour action service is available
    */
   isAvailable(): boolean {
