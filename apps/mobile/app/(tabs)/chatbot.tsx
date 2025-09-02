@@ -1,11 +1,28 @@
 import { Badge } from '@/components/core/ui/badge';
-import { useChatWithAI } from '@musetrip360/ai-bot/api';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Bot, Globe, Loader, Send, User } from 'lucide-react-native';
-import React, { useEffect, useRef, useState } from 'react';
+import { AIChatRelatedData, Conversation, Message } from '@musetrip360/ai-bot';
+import {
+  useCreateConversation,
+  useCreateMessage,
+  useGetConversationMessages,
+  useGetUserConversations,
+} from '@musetrip360/ai-bot/api';
+import { router } from 'expo-router';
+import {
+  Archive,
+  Bot,
+  CalendarRange,
+  ExternalLink,
+  Globe,
+  Landmark,
+  Loader,
+  MessageCircle,
+  Plus,
+  Send,
+  User,
+} from 'lucide-react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FlatList, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-// Sử dụng className với nativewind, bảng màu tailwind, theme lucid đã được define
 
 const defaultPrompts = [
   'Tôi muốn tìm hiểu về bảo tàng lịch sử',
@@ -13,14 +30,6 @@ const defaultPrompts = [
   'Có những bảo tàng nào nổi tiếng?',
   'Tính năng VR hoạt động như thế nào?',
 ];
-
-// Định nghĩa kiểu dữ liệu tin nhắn
-export type ChatMessage = {
-  id: string;
-  content: string;
-  sender: 'user' | 'bot';
-  timestamp: number;
-};
 
 function AvatarBot() {
   return (
@@ -39,7 +48,6 @@ function AvatarUser() {
 }
 
 function MarkdownRenderer({ content }: { content: string }) {
-  // TODO: Sử dụng react-native-markdown-display nếu cần render markdown phức tạp
   return <Text className="text-base text-lucid-foreground">{content}</Text>;
 }
 
@@ -79,72 +87,282 @@ function TypingIndicator() {
   );
 }
 
+function getTypeIcon(type: string) {
+  const iconProps = { size: 16, color: '#6b7280' };
+  switch (type) {
+    case 'Museum':
+      return <Landmark {...iconProps} />;
+    case 'Event':
+      return <CalendarRange {...iconProps} />;
+    case 'Artifact':
+      return <Archive {...iconProps} />;
+    case 'TourOnline':
+      return <Globe {...iconProps} />;
+    default:
+      return <ExternalLink {...iconProps} />;
+  }
+}
+
+function getNavigationPath(item: AIChatRelatedData): string {
+  switch (item.type) {
+    case 'Museum':
+      return `/museum/${item.id}`;
+    case 'Event':
+      return `/event/${item.id}`;
+    case 'Artifact':
+      return `/artifact/${item.id}`;
+    case 'TourOnline':
+      return `/tour/${item.id}`;
+    default:
+      return '';
+  }
+}
+
+function RelatedDataSuggestions({ relatedData }: { relatedData: AIChatRelatedData[] }) {
+  if (!relatedData || relatedData.length === 0) return null;
+
+  const handleItemPress = (item: AIChatRelatedData) => {
+    const path = getNavigationPath(item);
+    console.log('Navigation debug:', { item, path });
+
+    if (path) {
+      try {
+        console.log('Attempting to navigate to:', path);
+
+        if (item.type === 'Museum') {
+          router.push(`/museum/${item.id}` as any);
+        } else if (item.type === 'Event') {
+          router.push(`/event/${item.id}` as any);
+        } else if (item.type === 'Artifact') {
+          router.push(`/artifact/${item.id}` as any);
+        } else if (item.type === 'TourOnline') {
+          router.push(`/tour/${item.id}` as any);
+        } else {
+          console.log('Unknown type, trying default navigation');
+          router.push(path as any);
+        }
+
+        console.log('Navigation completed');
+      } catch (error) {
+        console.error('Navigation error:', error);
+        console.log('Fallback: trying to navigate to home');
+        try {
+          router.push('/(tabs)/' as any);
+        } catch (fallbackError) {
+          console.error('Fallback navigation also failed:', fallbackError);
+        }
+      }
+    } else {
+      console.log('No valid path found for item:', item);
+    }
+  };
+
+  return (
+    <View className="mt-3 ml-10">
+      <Text className="text-xs text-gray-500 mb-2">Gợi ý liên quan:</Text>
+      {relatedData.slice(0, 3).map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          onPress={() => handleItemPress(item)}
+          className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-2"
+        >
+          <View className="flex-row items-start">
+            <View className="w-8 h-8 rounded-full bg-gray-200 justify-center items-center mr-3">
+              {getTypeIcon(item.type)}
+            </View>
+            <View className="flex-1">
+              <Text className="font-medium text-gray-900 text-sm mb-1" numberOfLines={2}>
+                {item.title}
+              </Text>
+              <Text className="text-gray-600 text-xs mb-2" numberOfLines={2}>
+                {item.description}
+              </Text>
+              {item.similarityScore > 0 && (
+                <Text className="text-xs text-gray-500">Độ liên quan: {(item.similarityScore * 100).toFixed(0)}%</Text>
+              )}
+            </View>
+            <ExternalLink size={14} color="#9ca3af" />
+          </View>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
 export default function ChatbotTab() {
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showConversations, setShowConversations] = useState(false);
   const flatListRef = useRef<FlatList>(null);
 
-  const { mutate: chatWithAI, isPending } = useChatWithAI({
-    onSuccess: (response: { data?: string }) => {
-      const botMsg: ChatMessage = {
-        id: Date.now().toString(),
-        content: response?.data || 'Bot không trả lời được.',
-        sender: 'bot',
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, botMsg]);
-      setIsTyping(false);
-      saveMessages([...messages, botMsg]);
+  // API Hooks
+  const { mutate: fetchConversations } = useGetUserConversations({
+    onSuccess: (response: any) => {
+      if (response && Array.isArray(response)) {
+        const sortedConversations = response.sort(
+          (a: any, b: any) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+        );
+        setConversations(sortedConversations);
+
+        // Auto-select first conversation if none selected
+        if (!selectedConversation && sortedConversations.length > 0) {
+          setSelectedConversation(sortedConversations[0].id);
+        }
+      }
     },
-    onError: () => {
-      const botMsg: ChatMessage = {
-        id: Date.now().toString(),
-        content: 'Bot gặp lỗi, vui lòng thử lại.',
-        sender: 'bot',
-        timestamp: Date.now(),
-      };
-      setMessages((prev) => [...prev, botMsg]);
+    onError: (error: any) => {
+      console.error('Failed to fetch conversations:', error);
+    },
+  });
+
+  const { mutate: fetchMessages } = useGetConversationMessages({
+    onSuccess: (response: any) => {
+      const newMessages = response?.messages || [];
+      if (Array.isArray(newMessages)) {
+        const sortedMessages = newMessages.sort(
+          (a: Message, b: Message) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        setMessages(sortedMessages);
+        setIsTyping(false);
+      }
+    },
+    onError: (error: any) => {
+      console.error('Failed to fetch messages:', error);
       setIsTyping(false);
     },
   });
 
+  const { mutate: createConversation } = useCreateConversation({
+    onSuccess: (response: any) => {
+      if (response) {
+        const newConversation = response;
+        setConversations((prev) => [newConversation, ...prev]);
+        setSelectedConversation(newConversation.id);
+        setMessages([]);
+      }
+    },
+    onError: (error: any) => {
+      console.error('Failed to create conversation:', error);
+    },
+  });
+
+  const { mutate: createMessage, isPending: isSendingMessage } = useCreateMessage({
+    onSuccess: (response: any) => {
+      if (response && selectedConversation) {
+        // Fetch messages lại để lấy response của AI
+        setTimeout(() => {
+          fetchMessages({
+            conversationId: selectedConversation,
+            Page: 1,
+            PageSize: 100,
+          });
+        }, 1500);
+      }
+    },
+    onError: (error: any) => {
+      setIsTyping(false);
+      console.error('Failed to create message:', error);
+    },
+  });
+
+  // Load conversations on component mount
   useEffect(() => {
-    loadMessages();
+    fetchConversations(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const saveMessages = async (msgs: ChatMessage[]) => {
-    await AsyncStorage.setItem('chatbot-messages', JSON.stringify(msgs));
-  };
-  const loadMessages = async () => {
-    const raw = await AsyncStorage.getItem('chatbot-messages');
-    if (raw) setMessages(JSON.parse(raw));
+  // Load messages when conversation changes
+  useEffect(() => {
+    if (selectedConversation) {
+      setMessages([]);
+      setIsTyping(false);
+      fetchMessages({
+        conversationId: selectedConversation,
+        Page: 1,
+        PageSize: 100,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedConversation]);
+
+  const formatTime = (date: Date) => {
+    return new Date(date).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
   };
 
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+  const handleCreateConversation = () => {
+    createConversation({
+      isBot: true,
+      name: `Trò chuyện mới ${conversations.length + 1}`,
+    });
   };
 
-  const handleSend = () => {
+  const handleSendMessage = () => {
     if (!input.trim()) return;
-    const userMsg: ChatMessage = {
-      id: Date.now().toString(),
-      content: input,
-      sender: 'user',
-      timestamp: Date.now(),
-    };
-    setMessages((prev) => [...prev, userMsg]);
-    saveMessages([...messages, userMsg]);
+
+    // Create new conversation if none exists
+    if (!selectedConversation || conversations.length === 0) {
+      handleCreateConversation();
+      return;
+    }
+
+    // Add typing indicator
     setIsTyping(true);
-    chatWithAI({ prompt: input, isVector: true });
+
+    // Send message to API
+    createMessage({
+      conversationId: selectedConversation,
+      content: input.trim(),
+      isBot: true, // This tells backend to generate AI response
+    });
+
     setInput('');
   };
 
   const handlePromptClick = (prompt: string) => {
     setInput(prompt);
-    setTimeout(() => handleSend(), 0);
+    setTimeout(() => handleSendMessage(), 0);
   };
+
+  const renderMessageItem = useCallback(
+    ({ item }: { item: Message }) => (
+      <View className={`flex-row items-end mb-3 ${!item.isBot ? 'justify-end' : 'justify-start'}`}>
+        {item.isBot && <AvatarBot />}
+        <View className="max-w-[75%]">
+          <View
+            className={`rounded-2xl p-3 shadow-md border border-card ${!item.isBot ? 'bg-primary ml-8' : 'bg-card mr-8'}`}
+          >
+            {item.isBot ? (
+              <MarkdownRenderer content={item.content} />
+            ) : (
+              <Text className="text-white text-base">{item.content}</Text>
+            )}
+          </View>
+          <Text className={`text-xs text-gray-500 mt-1 ${!item.isBot ? 'text-right' : 'text-left'}`}>
+            {formatTime(item.createdAt)}
+          </Text>
+          {item.isBot && item.metadata?.relatedData && item.metadata.relatedData.length > 0 && (
+            <RelatedDataSuggestions relatedData={item.metadata.relatedData} />
+          )}
+        </View>
+        {!item.isBot && <AvatarUser />}
+      </View>
+    ),
+    []
+  );
+
+  const keyExtractor = useCallback((item: Message) => item.id, []);
+
+  const getItemLayout = useCallback(
+    (_: any, index: number) => ({
+      length: 100, // Estimated height
+      offset: 100 * index,
+      index,
+    }),
+    []
+  );
 
   useEffect(() => {
     if (flatListRef.current) {
@@ -171,52 +389,87 @@ export default function ChatbotTab() {
       >
         <View className="flex-1 p-4">
           {/* Header */}
-          <View className="flex-row items-center mb-3">
-            <AvatarBot />
-            <Text className="text-xl font-bold text-primary ml-2">Trợ lý AI MuseTrip</Text>
-            <Badge
-              variant={isPending ? 'secondary' : isTyping ? 'outline' : 'default'}
-              className="ml-2 bg-card border border-card"
-            >
-              <View className="flex-row items-center">
-                {isPending ? (
-                  <Loader size={12} color="#a67c52" />
-                ) : isTyping ? (
-                  <Loader size={12} color="#3b82f6" />
-                ) : (
-                  <Bot size={12} color="#22c55e" />
-                )}
-                <Text className="text-xs text-gray-700 ml-1">
-                  {isPending ? 'Đang tải' : isTyping ? 'Đang nhập' : 'Online'}
-                </Text>
-              </View>
-            </Badge>
+          <View className="flex-row items-center justify-between mb-3">
+            <View className="flex-row items-center">
+              <AvatarBot />
+              <Text className="text-xl font-bold text-primary ml-2">Trợ lý AI MuseTrip</Text>
+              <Badge
+                variant={isSendingMessage ? 'secondary' : isTyping ? 'outline' : 'default'}
+                className="ml-2 bg-card border border-card"
+              >
+                <View className="flex-row items-center">
+                  {isSendingMessage ? (
+                    <Loader size={12} color="#a67c52" />
+                  ) : isTyping ? (
+                    <Loader size={12} color="#3b82f6" />
+                  ) : (
+                    <Bot size={12} color="#22c55e" />
+                  )}
+                  <Text className="text-xs text-gray-700 ml-1">
+                    {isSendingMessage ? 'Đang gửi' : isTyping ? 'Đang nhập' : 'Online'}
+                  </Text>
+                </View>
+              </Badge>
+            </View>
+            <View className="flex-row items-center space-x-2">
+              {/* New Conversation Button */}
+              <TouchableOpacity onPress={handleCreateConversation} className="p-2 bg-primary rounded-lg">
+                <Plus size={16} color="#fff" />
+              </TouchableOpacity>
+
+              {/* Conversations Toggle */}
+              <TouchableOpacity
+                onPress={() => setShowConversations(!showConversations)}
+                className="p-2 bg-blue-100 rounded-lg"
+              >
+                <MessageCircle size={16} color="#3b82f6" />
+              </TouchableOpacity>
+            </View>
           </View>
+
+          {/* Conversation List */}
+          {showConversations && conversations.length > 0 && (
+            <View className="mb-4 max-h-40">
+              <Text className="text-sm font-medium text-gray-600 mb-2">Cuộc trò chuyện gần đây:</Text>
+              <FlatList
+                data={conversations.slice(0, 5)}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                keyExtractor={(item) => item.id}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setSelectedConversation(item.id);
+                      setShowConversations(false);
+                    }}
+                    className={`mr-3 p-3 rounded-lg border ${
+                      selectedConversation === item.id ? 'bg-primary border-primary' : 'bg-card border-border'
+                    }`}
+                  >
+                    <Text
+                      className={`text-sm font-medium ${
+                        selectedConversation === item.id ? 'text-white' : 'text-foreground'
+                      }`}
+                      numberOfLines={1}
+                    >
+                      {item.name}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
 
           <FlatList
             ref={flatListRef}
             data={messages}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View className={`flex-row items-end mb-3 ${item.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                {item.sender === 'bot' && <AvatarBot />}
-                <View className="max-w-[75%]">
-                  <View
-                    className={`rounded-2xl p-3 shadow-md border border-card ${item.sender === 'user' ? 'bg-primary ml-8' : 'bg-card mr-8'}`}
-                  >
-                    {item.sender === 'bot' ? (
-                      <MarkdownRenderer content={item.content} />
-                    ) : (
-                      <Text className="text-white text-base">{item.content}</Text>
-                    )}
-                  </View>
-                  <Text className={`text-xs text-gray-500 mt-1 ${item.sender === 'user' ? 'text-right' : 'text-left'}`}>
-                    {formatTime(item.timestamp)}
-                  </Text>
-                </View>
-                {item.sender === 'user' && <AvatarUser />}
-              </View>
-            )}
+            keyExtractor={keyExtractor}
+            renderItem={renderMessageItem}
+            getItemLayout={getItemLayout}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            windowSize={10}
+            initialNumToRender={10}
             ListFooterComponent={isTyping ? <TypingIndicator /> : null}
           />
 
@@ -241,11 +494,11 @@ export default function ChatbotTab() {
               onChangeText={setInput}
               placeholder="Nhập tin nhắn..."
               className="flex-1 border-0 rounded-xl p-2 mr-2 bg-white text-gray-900"
-              editable={!isPending && !isTyping}
+              editable={!isSendingMessage && !isTyping}
             />
             <TouchableOpacity
-              onPress={handleSend}
-              disabled={isPending || isTyping || input.trim() === ''}
+              onPress={handleSendMessage}
+              disabled={isSendingMessage || isTyping || input.trim() === ''}
               className="bg-primary py-2 px-4 rounded-xl flex-row items-center"
             >
               <Text className="text-white font-bold mr-2">Gửi</Text>

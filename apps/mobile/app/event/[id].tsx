@@ -3,14 +3,31 @@ import { Card, CardContent } from '@/components/core/ui/card';
 import { Image } from '@/components/core/ui/image';
 import { Text } from '@/components/core/ui/text';
 import { useAuthStore } from '@musetrip360/auth-system/state';
-import { useGetEventById, useGetEventParticipants, useGetEventRooms, useGetUserEventParticipants } from '@musetrip360/event-management/api';
+import {
+  useGetEventById,
+  useGetEventParticipants,
+  useGetEventRooms,
+  useGetUserEventParticipants,
+} from '@musetrip360/event-management/api';
 import { CreateOrder, OrderTypeEnum, PaymentStatusEnum } from '@musetrip360/payment-management';
 import { useCreateOrder, useGetOrderByCode } from '@musetrip360/payment-management/api';
 import { useFeedback } from '@musetrip360/shared/api';
 import type { FeedbackSearchParams } from '@musetrip360/shared/types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { AlertCircle, ArrowLeft, Calendar, CheckCircle, Clock, CreditCard, ExternalLink, Loader2, MapPin, UserCheck, Users } from 'lucide-react-native';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Calendar,
+  CheckCircle,
+  Clock,
+  CreditCard,
+  ExternalLink,
+  Loader2,
+  MapPin,
+  UserCheck,
+  Users,
+} from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Alert, Linking, RefreshControl, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -53,14 +70,18 @@ export default function EventDetailPage() {
   // Create order mutation
   const createOrderMutation = useCreateOrder({
     onSuccess: (data) => {
-      setOrderCode(String(data.orderCode));
-      setIsOrdering(false);
+      if (data) {
+        if (data.orderCode) {
+          setOrderCode(String(data.orderCode));
+        }
+        setIsOrdering(false);
 
-      // Open payment link in mobile browser
-      if (data.checkoutUrl) {
-        Linking.openURL(data.checkoutUrl).catch(() => {
-          Alert.alert('Lỗi', 'Không thể mở trang thanh toán. Vui lòng thử lại!');
-        });
+        // Open payment link in mobile browser
+        if (data.checkoutUrl) {
+          Linking.openURL(data.checkoutUrl).catch(() => {
+            Alert.alert('Lỗi', 'Không thể mở trang thanh toán. Vui lòng thử lại!');
+          });
+        }
       }
 
       refetchParticipants();
@@ -70,7 +91,6 @@ export default function EventDetailPage() {
     onError: (error) => {
       console.error('Order creation failed:', error);
       setIsOrdering(false);
-      Alert.alert('Lỗi', 'Tạo đơn hàng thất bại. Vui lòng thử lại!');
     },
   });
 
@@ -92,65 +112,30 @@ export default function EventDetailPage() {
   const handleRegisterEvent = () => {
     if (!event) return;
 
-    if (isFree) {
-      // For free events, register directly (TODO: implement proper free registration API)
-      Alert.alert(
-        'Đăng ký sự kiện',
-        'Bạn có muốn đăng ký tham gia sự kiện miễn phí này?',
-        [
-          { text: 'Hủy', style: 'cancel' },
-          {
-            text: 'Đăng ký',
-            onPress: async () => {
-              try {
-                setIsOrdering(true);
+    setIsOrdering(true);
 
-                // Simulate free registration
-                await new Promise(resolve => setTimeout(resolve, 1000));
+    const orderData: CreateOrder = {
+      orderType: OrderTypeEnum.Event,
+      itemIds: [event.id],
+      returnUrl: 'mobile://order/success',
+      cancelUrl: 'mobile://order/cancel',
+    };
 
-                Alert.alert('Thành công', 'Đăng ký sự kiện thành công!');
-                refetchUserParticipants();
-                refetchParticipants();
-              } catch {
-                Alert.alert('Lỗi', 'Đăng ký thất bại. Vui lòng thử lại!');
-              } finally {
-                setIsOrdering(false);
-              }
-            }
-          }
-        ]
-      );
-    } else {
-      // For paid events, use payment system
-      setIsOrdering(true);
-
-      const orderData: CreateOrder = {
-        orderType: OrderTypeEnum.Event,
-        itemIds: [event.id],
-        returnUrl: 'mobile://order/success',
-        cancelUrl: 'mobile://order/cancel',
-      };
-
-      createOrderMutation.mutate(orderData);
-    }
+    createOrderMutation.mutate(orderData);
   };
 
   const handleJoinEvent = () => {
     if (eventRooms && eventRooms.length > 0) {
-      Alert.alert(
-        'Tham gia sự kiện',
-        'Bạn có muốn tham gia sự kiện đang diễn ra?',
-        [
-          { text: 'Hủy', style: 'cancel' },
-          {
-            text: 'Tham gia',
-            onPress: () => {
-              // TODO: Navigate to stream/setup room
-              Alert.alert('Thông báo', 'Tính năng tham gia trực tiếp sẽ được cập nhật!');
-            }
-          }
-        ]
-      );
+      Alert.alert('Tham gia sự kiện', 'Bạn có muốn tham gia sự kiện đang diễn ra?', [
+        { text: 'Hủy', style: 'cancel' },
+        {
+          text: 'Tham gia',
+          onPress: () => {
+            // TODO: Navigate to stream/setup room
+            Alert.alert('Thông báo', 'Tính năng tham gia trực tiếp sẽ được cập nhật!');
+          },
+        },
+      ]);
     } else {
       Alert.alert('Lỗi', 'Không tìm thấy phòng sự kiện để tham gia!');
     }
@@ -279,24 +264,30 @@ export default function EventDetailPage() {
       {/* Order Status Alert */}
       {order && (
         <View className="px-4 pb-2">
-          <Card className={`${order.status === PaymentStatusEnum.Success
-            ? 'bg-green-50 border-green-200'
-            : order.status === PaymentStatusEnum.Canceled
-              ? 'bg-red-50 border-red-200'
-              : 'bg-blue-50 border-blue-200'
-            } rounded-lg`}>
+          <Card
+            className={`${
+              order.status === PaymentStatusEnum.Success
+                ? 'bg-green-50 border-green-200'
+                : order.status === PaymentStatusEnum.Canceled
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-blue-50 border-blue-200'
+            } rounded-lg`}
+          >
             <CardContent className="p-4 flex-row items-center">
               {order.status === PaymentStatusEnum.Success && <CheckCircle size={20} color="#16a34a" />}
               {order.status === PaymentStatusEnum.Pending && <Loader2 size={20} color="#2563eb" />}
               {order.status === PaymentStatusEnum.Canceled && <AlertCircle size={20} color="#dc2626" />}
 
               <View className="ml-3 flex-1">
-                <Text className={`font-medium ${order.status === PaymentStatusEnum.Success
-                  ? 'text-green-800'
-                  : order.status === PaymentStatusEnum.Canceled
-                    ? 'text-red-800'
-                    : 'text-blue-800'
-                  }`}>
+                <Text
+                  className={`font-medium ${
+                    order.status === PaymentStatusEnum.Success
+                      ? 'text-green-800'
+                      : order.status === PaymentStatusEnum.Canceled
+                        ? 'text-red-800'
+                        : 'text-blue-800'
+                  }`}
+                >
                   {order.status === PaymentStatusEnum.Success && 'Thanh toán thành công! Bạn đã đăng ký sự kiện.'}
                   {order.status === PaymentStatusEnum.Pending && 'Đang xử lý thanh toán...'}
                   {order.status === PaymentStatusEnum.Canceled && 'Thanh toán thất bại. Vui lòng thử lại.'}
@@ -304,10 +295,7 @@ export default function EventDetailPage() {
               </View>
 
               {order.status === PaymentStatusEnum.Pending && order.metadata?.checkoutUrl && (
-                <TouchableOpacity
-                  className="ml-2"
-                  onPress={() => Linking.openURL(order.metadata!.checkoutUrl)}
-                >
+                <TouchableOpacity className="ml-2" onPress={() => Linking.openURL(order.metadata!.checkoutUrl)}>
                   <ExternalLink size={16} color="#2563eb" />
                 </TouchableOpacity>
               )}
@@ -322,8 +310,8 @@ export default function EventDetailPage() {
       >
         {/* Event Image */}
         {event.metadata?.thumbnail &&
-          typeof event.metadata.thumbnail === 'string' &&
-          event.metadata.thumbnail.startsWith('http') ? (
+        typeof event.metadata.thumbnail === 'string' &&
+        event.metadata.thumbnail.startsWith('http') ? (
           <Image source={{ uri: event.metadata.thumbnail }} className="w-full h-64" resizeMode="cover" />
         ) : null}
         <View className="px-4 py-4 space-y-6">
@@ -333,9 +321,7 @@ export default function EventDetailPage() {
               <CardContent className="p-3">
                 <View className="flex-row items-center">
                   <CheckCircle size={20} color="#16a34a" />
-                  <Text className="ml-2 text-green-800 font-medium">
-                    Bạn đã đăng ký tham gia sự kiện này
-                  </Text>
+                  <Text className="ml-2 text-green-800 font-medium">Bạn đã đăng ký tham gia sự kiện này</Text>
                 </View>
               </CardContent>
             </Card>
@@ -540,9 +526,11 @@ export default function EventDetailPage() {
               ) : (
                 (() => {
                   // Mapping đúng chuẩn visitor-portal
-                  const feedbacks: any[] = (feedbackResponse as any)?.list || (feedbackResponse as any)?.data?.list || [];
+                  const feedbacks: any[] =
+                    (feedbackResponse as any)?.list || (feedbackResponse as any)?.data?.list || [];
                   const feedbackCount = feedbacks.length;
-                  const averageRating = feedbackCount > 0 ? feedbacks.reduce((acc, f) => acc + f.rating, 0) / feedbackCount : 0;
+                  const averageRating =
+                    feedbackCount > 0 ? feedbacks.reduce((acc, f) => acc + f.rating, 0) / feedbackCount : 0;
 
                   // Star rating component
                   const StarRating = ({ rating }: { rating: number }) => (
@@ -567,7 +555,9 @@ export default function EventDetailPage() {
                         <CardContent className="p-8 items-center">
                           <Text className="text-3xl mb-3">⭐</Text>
                           <Text className="text-lg font-semibold text-foreground mb-2">Chưa có đánh giá</Text>
-                          <Text className="text-muted-foreground text-center">Hãy là người đầu tiên đánh giá sự kiện này!</Text>
+                          <Text className="text-muted-foreground text-center">
+                            Hãy là người đầu tiên đánh giá sự kiện này!
+                          </Text>
                         </CardContent>
                       </Card>
                     );
@@ -661,8 +651,11 @@ export default function EventDetailPage() {
               <View className="space-y-3 border-t border-gray-200 pt-4 mb-4">
                 <View className="flex-row justify-between">
                   <Text className="text-gray-600">Trạng thái:</Text>
-                  <Text className={`font-medium ${isOngoing ? 'text-red-600' : isUpcoming ? 'text-blue-600' : 'text-gray-600'
-                    }`}>
+                  <Text
+                    className={`font-medium ${
+                      isOngoing ? 'text-red-600' : isUpcoming ? 'text-blue-600' : 'text-gray-600'
+                    }`}
+                  >
                     {isOngoing ? 'Đang diễn ra' : isUpcoming ? 'Sắp diễn ra' : 'Đã kết thúc'}
                   </Text>
                 </View>
@@ -674,9 +667,7 @@ export default function EventDetailPage() {
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-gray-600">Hạn đăng ký:</Text>
-                  <Text className="font-medium">
-                    {new Date(event.bookingDeadline).toLocaleDateString('vi-VN')}
-                  </Text>
+                  <Text className="font-medium">{new Date(event.bookingDeadline).toLocaleDateString('vi-VN')}</Text>
                 </View>
               </View>
 
@@ -701,18 +692,16 @@ export default function EventDetailPage() {
                       <Text className="text-white font-medium ml-2">Đã đăng ký</Text>
                     </View>
                     {isOngoing && (
-                      <TouchableOpacity
-                        className="bg-red-500 p-3 rounded-lg"
-                        onPress={handleJoinEvent}
-                      >
+                      <TouchableOpacity className="bg-red-500 p-3 rounded-lg" onPress={handleJoinEvent}>
                         <Text className="text-white font-medium text-center">📍 Tham gia sự kiện</Text>
                       </TouchableOpacity>
                     )}
                   </View>
                 ) : (
                   <TouchableOpacity
-                    className={`p-3 rounded-lg flex-row items-center justify-center ${isOrdering ? 'bg-gray-400' : 'bg-primary'
-                      }`}
+                    className={`p-3 rounded-lg flex-row items-center justify-center ${
+                      isOrdering ? 'bg-gray-400' : 'bg-primary'
+                    }`}
                     onPress={handleRegisterEvent}
                     disabled={isOrdering}
                   >

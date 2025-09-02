@@ -1,4 +1,3 @@
-import { Text } from '@/components/core/ui/text';
 import { cn } from '@/libs/utils';
 import React, { useRef, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
@@ -78,7 +77,7 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
           height: 100vh;
           background-color: var(--background);
           --poster-color: transparent;
-          --progress-bar-color: var(--primary);
+          --progress-bar-color: transparent;
           --progress-mask: transparent;
         }
         
@@ -107,8 +106,7 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
     </head>
     <body>
       <div class="loading" id="loading">
-        <div style="margin-top: 10px;">Đang tải mô hình 3D...</div>
-        <div style="margin-top: 5px; font-size: 12px; opacity: 0.7;">Vui lòng đợi</div>
+        <!-- No text, just visual loading indicator -->
       </div>
       
       <model-viewer
@@ -149,15 +147,11 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
         });
         
         modelElement.addEventListener('error', function() {
-          document.getElementById('loading').innerHTML = \`
-            <div class="error">
-              <div>❌</div>
-              <div style="margin-top: 10px;">Không thể tải mô hình 3D</div>
-              <div style="margin-top: 10px; font-size: 12px; opacity: 0.8;">
-                Có thể do định dạng file không hỗ trợ hoặc lỗi mạng
-              </div>
-            </div>
-          \`;
+          document.getElementById('loading').innerHTML = 
+            '<div class="error">' +
+              '<div>❌</div>' +
+              '<div style="margin-top: 10px;">Không thể tải mô hình</div>' +
+            '</div>';
           
           // Send error message to React Native
           window.ReactNativeWebView?.postMessage(JSON.stringify({
@@ -271,7 +265,6 @@ export function ModelViewer({ modelUrl, className }: ModelViewerProps) {
       {isLoading && (
         <View className="absolute inset-0 bg-background/90 justify-center items-center z-50">
           <ActivityIndicator size="large" color="#ff914d" />
-          <Text className="text-foreground mt-4 text-sm text-center">Đang khởi tạo 3D viewer...</Text>
         </View>
       )}
 

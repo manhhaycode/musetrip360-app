@@ -1,14 +1,30 @@
-import { useFeedback } from '@musetrip360/shared/api';
-import type { Feedback, FeedbackSearchParams } from '@musetrip360/shared/types';
+import { getHttpClient } from '@musetrip360/query-foundation';
+import { useQuery } from '@tanstack/react-query';
+
+interface FeedbackSearchParams {
+  targetId?: string;
+  targetType?: string;
+  Page?: number;
+  PageSize?: number;
+}
 
 export const useFeedbacks = (params: FeedbackSearchParams) => {
-  const result = useFeedback(params);
+  const queryResult = useQuery({
+    queryKey: ['feedbacks', params],
+    queryFn: async () => {
+      const httpClient = getHttpClient();
+      const response = await httpClient.get('/feedbacks', { params });
+      return response.data;
+    },
+    enabled: !!params.targetId,
+  });
+
   return {
-    data: result.data,
-    isLoading: result.isLoading,
-    error: result.error,
-    refetch: result.refetch,
+    data: queryResult.data,
+    isLoading: queryResult.isLoading,
+    error: queryResult.error,
+    refetch: queryResult.refetch,
   };
 };
 
-export type { Feedback, FeedbackSearchParams };
+export type { FeedbackSearchParams };

@@ -7,6 +7,7 @@ import {
   Camera,
   ClipboardList,
   Clock,
+  FileText,
   Frown,
   Globe2,
   Mail,
@@ -14,8 +15,11 @@ import {
   Newspaper,
   Package,
   Phone,
+  RefreshCw,
+  Shield,
   Star,
   Tag,
+  Users,
 } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Linking, RefreshControl, ScrollView, TouchableOpacity, View, useWindowDimensions } from 'react-native';
@@ -32,6 +36,7 @@ import { useMuseumArtifacts } from '@/hooks/useArtifacts';
 import { useMuseumEvents } from '@/hooks/useEvents';
 import { useFeedbacks } from '@/hooks/useFeedbacks';
 import { useMuseum } from '@/hooks/useMuseums';
+import { usePolicies } from '@/hooks/usePolicies';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
 
 function MuseumHeader() {
@@ -65,6 +70,7 @@ const MUSEUM_TABS = [
   { key: 'events', label: 'Sự kiện', icon: CalendarDays },
   { key: 'articles', label: 'Bài viết', icon: Newspaper },
   { key: 'tours', label: 'Tour ảo', icon: Globe2 },
+  { key: 'policies', label: 'Chính sách', icon: ClipboardList },
   { key: 'feedbacks', label: 'Đánh giá', icon: Star },
 ] as const;
 
@@ -77,12 +83,15 @@ export default function MuseumDetailPage() {
   const [refreshing, setRefreshing] = useState(false);
   const { width } = useWindowDimensions();
 
-  // Pagination states for each tab
+  // Frontend pagination states - frontend pagination
   const [artifactsPage, setArtifactsPage] = useState(1);
   const [eventsPage, setEventsPage] = useState(1);
   const [toursPage, setToursPage] = useState(1);
   const [articlesPage, setArticlesPage] = useState(1);
+  const [feedbacksPage, setFeedbacksPage] = useState(1);
+  const [policiesPage, setPoliciesPage] = useState(1);
 
+  const itemsPerPage = 12;
   const { data: museum, isLoading, error, refetch } = useMuseum(id!);
 
   // Fetch artifacts and events for this museum
@@ -90,31 +99,59 @@ export default function MuseumDetailPage() {
     data: artifactsData,
     isLoading: artifactsLoading,
     error: artifactsError,
-  } = useMuseumArtifacts(id!, { Page: artifactsPage, PageSize: 12 });
+  } = useMuseumArtifacts(id!, { Page: 1, PageSize: 10000 });
 
   const {
     data: eventsData,
     isLoading: eventsLoading,
     error: eventsError,
-  } = useMuseumEvents(id!, { Page: eventsPage, PageSize: 12 });
+  } = useMuseumEvents(id!, { Page: 1, PageSize: 10000 });
 
   const {
     data: virtualToursData,
     isLoading: virtualToursLoading,
     error: virtualToursError,
-  } = useVirtualTours({ museumId: id!, Page: toursPage, PageSize: 12 });
+  } = useVirtualTours({ museumId: id!, Page: 1, PageSize: 50 });
 
   const {
     data: articlesData,
     isLoading: articlesLoading,
     error: articlesError,
-  } = useArticles({ museumId: id!, Page: articlesPage, PageSize: 12 });
+  } = useArticles({ museumId: id!, Page: 1, PageSize: 10000 });
 
   const {
     data: feedbacksData,
     isLoading: feedbacksLoading,
     error: feedbacksError,
-  } = useFeedbacks({ targetId: id!, targetType: 'Museum', Page: 1, PageSize: 20 });
+  } = useFeedbacks({ targetId: id!, targetType: 'museum', Page: 1, PageSize: 100 });
+
+  const {
+    data: policiesData,
+    isLoading: policiesLoading,
+    error: policiesError,
+  } = usePolicies(id!, { Page: 1, PageSize: 100 });
+
+  // Frontend pagination calculations
+  const artifacts = (artifactsData as any)?.list || [];
+  const events = (eventsData as any)?.list || [];
+  const tours = (virtualToursData as any)?.list || [];
+  const articles = (articlesData as any)?.list || [];
+  const feedbacks = (feedbacksData as any)?.list || [];
+  const policies = (policiesData as any)?.list || [];
+
+  // Paginated data
+  const paginatedArtifacts = artifacts.slice((artifactsPage - 1) * itemsPerPage, artifactsPage * itemsPerPage);
+  const paginatedEvents = events.slice((eventsPage - 1) * itemsPerPage, eventsPage * itemsPerPage);
+  const paginatedTours = tours.slice((toursPage - 1) * itemsPerPage, toursPage * itemsPerPage);
+  const paginatedArticles = articles.slice((articlesPage - 1) * itemsPerPage, articlesPage * itemsPerPage);
+  const paginatedFeedbacks = feedbacks.slice((feedbacksPage - 1) * itemsPerPage, feedbacksPage * itemsPerPage);
+
+  // Pagination info
+  const totalArtifactsPages = Math.ceil(artifacts.length / itemsPerPage);
+  const totalEventsPages = Math.ceil(events.length / itemsPerPage);
+  const totalToursPages = Math.ceil(tours.length / itemsPerPage);
+  const totalArticlesPages = Math.ceil(articles.length / itemsPerPage);
+  const totalFeedbacksPages = Math.ceil(feedbacks.length / itemsPerPage);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -262,8 +299,8 @@ export default function MuseumDetailPage() {
                 const displayImages = museum.metadata?.coverImageUrl
                   ? availableImages
                   : museum.metadata.images
-                    .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
-                    .slice(1); // Skip first image as it's used as cover
+                      .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
+                      .slice(1); // Skip first image as it's used as cover
 
                 if (displayImages.length === 0) return null;
 
@@ -318,7 +355,9 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const artifacts = (artifactsData as any)?.list || [];
+        // Use the pre-calculated paginated data
+        const displayArtifacts = paginatedArtifacts;
+        const totalPages = totalArtifactsPages;
 
         if (artifacts.length === 0) {
           return (
@@ -336,7 +375,7 @@ export default function MuseumDetailPage() {
 
         return (
           <View className="px-2">
-            {artifacts.map((artifact: any) => (
+            {displayArtifacts.map((artifact: any) => (
               <TouchableOpacity
                 key={artifact.id}
                 onPress={() => router.push(`/artifact/${artifact.id}` as any)}
@@ -368,10 +407,10 @@ export default function MuseumDetailPage() {
             ))}
 
             {/* Artifacts Pagination */}
-            {(artifactsData as any)?.total && Math.ceil((artifactsData as any).total / 12) > 1 && (
+            {totalPages > 1 && (
               <Pagination
                 currentPage={artifactsPage}
-                totalPages={Math.ceil((artifactsData as any).total / 12)}
+                totalPages={totalPages}
                 onPageChange={setArtifactsPage}
                 showPages={5}
                 className="pt-4"
@@ -405,8 +444,6 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const events = (eventsData as any)?.list || [];
-
         if (events.length === 0) {
           return (
             <Card className="bg-card border border-border rounded-lg">
@@ -421,7 +458,7 @@ export default function MuseumDetailPage() {
 
         return (
           <View className="px-2">
-            {events.map((event: any) => (
+            {paginatedEvents.map((event: any) => (
               <TouchableOpacity
                 key={event.id}
                 onPress={() => router.push(`/event/${event.id}` as any)}
@@ -455,10 +492,10 @@ export default function MuseumDetailPage() {
             ))}
 
             {/* Events Pagination */}
-            {(eventsData as any)?.total && Math.ceil((eventsData as any).total / 12) > 1 && (
+            {totalEventsPages > 1 && (
               <Pagination
                 currentPage={eventsPage}
-                totalPages={Math.ceil((eventsData as any).total / 12)}
+                totalPages={totalEventsPages}
                 onPageChange={setEventsPage}
                 showPages={5}
                 className="pt-4"
@@ -492,8 +529,6 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const articles = (articlesData as any)?.list || [];
-
         if (articles.length === 0) {
           return (
             <Card className="bg-card border border-border rounded-lg">
@@ -510,7 +545,7 @@ export default function MuseumDetailPage() {
 
         return (
           <View className="px-2">
-            {articles.map((article: any) => (
+            {paginatedArticles.map((article: any) => (
               <TouchableOpacity
                 key={article.id}
                 onPress={() => router.push(`/article/${article.id}` as any)}
@@ -535,10 +570,10 @@ export default function MuseumDetailPage() {
             ))}
 
             {/* Articles Pagination */}
-            {(articlesData as any)?.total && Math.ceil((articlesData as any).total / 12) > 1 && (
+            {totalArticlesPages > 1 && (
               <Pagination
                 currentPage={articlesPage}
-                totalPages={Math.ceil((articlesData as any).total / 12)}
+                totalPages={totalArticlesPages}
                 onPageChange={setArticlesPage}
                 showPages={5}
                 className="pt-4"
@@ -572,9 +607,7 @@ export default function MuseumDetailPage() {
           );
         }
 
-        const virtualTours = (virtualToursData as any)?.list || [];
-
-        if (virtualTours.length === 0) {
+        if (tours.length === 0) {
           return (
             <Card className="bg-card border border-border rounded-lg">
               <CardContent className="p-8 items-center">
@@ -590,15 +623,15 @@ export default function MuseumDetailPage() {
 
         return (
           <View className="px-2">
-            {virtualTours.map((tour: any) => (
+            {paginatedTours.map((tour: any) => (
               <TouchableOpacity key={tour.id} onPress={() => router.push(`/tour/${tour.id}`)} className="mb-4">
                 <Card className="overflow-hidden bg-card border border-card rounded-xl shadow-md">
                   <View className="flex-row h-28">
                     <View className="w-24 h-28 bg-gray-100">
                       {/* Hiển thị ảnh theo thứ tự ưu tiên: ảnh đại diện tour trước, nếu không có thì hiển thị thumbnail cảnh đầu tiên */}
                       {tour.metadata?.images?.[0]?.file &&
-                        typeof tour.metadata.images[0].file === 'string' &&
-                        tour.metadata.images[0].file.startsWith('http') ? (
+                      typeof tour.metadata.images[0].file === 'string' &&
+                      tour.metadata.images[0].file.startsWith('http') ? (
                         <Image
                           source={{ uri: tour.metadata.images[0].file }}
                           className="w-24 h-28"
@@ -654,10 +687,10 @@ export default function MuseumDetailPage() {
             ))}
 
             {/* Virtual Tours Pagination */}
-            {(virtualToursData as any)?.total && Math.ceil((virtualToursData as any).total / 12) > 1 && (
+            {totalToursPages > 1 && (
               <Pagination
                 currentPage={toursPage}
-                totalPages={Math.ceil((virtualToursData as any).total / 12)}
+                totalPages={totalToursPages}
                 onPageChange={setToursPage}
                 showPages={5}
                 className="pt-4"
@@ -694,9 +727,9 @@ export default function MuseumDetailPage() {
         }
 
         // Mapping đúng chuẩn visitor-portal
-        const feedbacks: any[] = (feedbacksData as any)?.list || (feedbacksData as any)?.data?.list || [];
         const feedbackCount = feedbacks.length;
-        const averageRating = feedbackCount > 0 ? feedbacks.reduce((acc, f) => acc + f.rating, 0) / feedbackCount : 0;
+        const averageRating =
+          feedbackCount > 0 ? feedbacks.reduce((acc: number, f: any) => acc + f.rating, 0) / feedbackCount : 0;
 
         // Star rating component
         const StarRating = ({ rating }: { rating: number }) => (
@@ -744,7 +777,7 @@ export default function MuseumDetailPage() {
             </Card>
 
             {/* Feedback List */}
-            {feedbacks.map((review: any) => (
+            {paginatedFeedbacks.map((review: any) => (
               <Card key={review.id} className="bg-card border border-border rounded-lg mb-4">
                 <CardContent className="p-4">
                   <View className="flex-row items-center justify-between mb-3">
@@ -777,15 +810,184 @@ export default function MuseumDetailPage() {
             ))}
 
             {/* Pagination */}
-            {feedbacksData?.data?.total && Math.ceil(feedbacksData.data.total / 20) > 1 && (
+            {/* Feedbacks Pagination */}
+            {totalFeedbacksPages > 1 && (
               <Pagination
-                currentPage={1} // Nếu muốn phân trang thực tế, cần lưu state page cho feedbacks
-                totalPages={Math.ceil(feedbacksData.data.total / 20)}
-                onPageChange={() => { }}
+                currentPage={feedbacksPage}
+                totalPages={totalFeedbacksPages}
+                onPageChange={setFeedbacksPage}
                 showPages={5}
                 className="pt-4"
               />
             )}
+          </View>
+        );
+
+      case 'policies':
+        if (policiesLoading) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Text className="text-lg font-semibold text-foreground mb-2">Đang tải chính sách...</Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        if (policiesError) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Frown size={32} color="#a67c52" className="mb-3" />
+                <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải chính sách</Text>
+                <Text className="text-muted-foreground text-center">
+                  {policiesError?.message || 'Không thể tải danh sách chính sách'}
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        const activePolicies = policies.filter((policy: any) => policy.isActive);
+
+        if (activePolicies.length === 0) {
+          return (
+            <Card className="bg-card border border-border rounded-lg">
+              <CardContent className="p-8 items-center">
+                <Shield size={32} color="#a67c52" className="mb-3" />
+                <Text className="text-lg font-semibold text-foreground mb-2">Chưa có chính sách công khai</Text>
+                <Text className="text-muted-foreground text-center">
+                  Bảo tàng chưa công bố các chính sách cho khách tham quan.
+                </Text>
+              </CardContent>
+            </Card>
+          );
+        }
+
+        // Pagination for policies
+        const paginatedActivePolicies = activePolicies.slice(
+          (policiesPage - 1) * itemsPerPage,
+          policiesPage * itemsPerPage
+        );
+        const totalActivePoliciesPages = Math.ceil(activePolicies.length / itemsPerPage);
+
+        // Define policy type configurations for mobile
+        const getPolicyIcon = (policyType: string) => {
+          switch (policyType) {
+            case 'TermsOfService':
+              return FileText;
+            case 'Visitor':
+              return Users;
+            case 'Tour':
+              return MapPin;
+            case 'Refund':
+              return RefreshCw;
+            default:
+              return ClipboardList;
+          }
+        };
+
+        const getPolicyLabel = (policyType: string) => {
+          switch (policyType) {
+            case 'TermsOfService':
+              return 'Điều khoản dịch vụ';
+            case 'Visitor':
+              return 'Chính sách khách tham quan';
+            case 'Tour':
+              return 'Chính sách tour';
+            case 'Refund':
+              return 'Chính sách hoàn tiền';
+            default:
+              return 'Chính sách khác';
+          }
+        };
+
+        // Group policies by type using paginated data
+        const groupedPolicies: Record<string, any[]> = {};
+        paginatedActivePolicies.forEach((policy: any) => {
+          const type = policy.policyType || 'Other';
+          if (!groupedPolicies[type]) {
+            groupedPolicies[type] = [];
+          }
+          groupedPolicies[type].push(policy);
+        });
+
+        return (
+          <View className="px-2">
+            {/* Header */}
+            <Card className="bg-card border border-border rounded-lg mb-6">
+              <CardContent className="p-6">
+                <View className="flex-row items-center mb-3">
+                  <View className="w-10 h-10 bg-primary rounded-full items-center justify-center mr-3">
+                    <Shield size={24} color="#fff" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-xl font-bold text-foreground">Chính sách & Quy định</Text>
+                    <Text className="text-muted-foreground">Thông tin về các chính sách của bảo tàng</Text>
+                  </View>
+                </View>
+                <Text className="text-sm text-primary font-medium">
+                  {activePolicies.length} chính sách đang áp dụng
+                </Text>
+              </CardContent>
+            </Card>
+
+            {/* Policy Groups */}
+            {Object.entries(groupedPolicies).map(([policyType, policies]) => {
+              const IconComponent = getPolicyIcon(policyType);
+
+              return (
+                <Card key={policyType} className="bg-card border border-border rounded-lg mb-6">
+                  <CardContent className="p-6">
+                    <View className="flex-row items-center mb-4">
+                      <View className="w-8 h-8 bg-primary/10 rounded-lg items-center justify-center mr-3">
+                        <IconComponent size={20} color="#a67c52" />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-lg font-semibold text-foreground">{getPolicyLabel(policyType)}</Text>
+                        <Text className="text-muted-foreground text-sm">
+                          {policies.length} {policies.length === 1 ? 'chính sách' : 'chính sách'}
+                        </Text>
+                      </View>
+                    </View>
+
+                    {policies.map((policy: any, index: number) => (
+                      <View key={policy.id}>
+                        {index > 0 && <View className="border-t border-border my-4" />}
+                        <View className="space-y-3">
+                          <Text className="text-lg font-semibold text-foreground leading-tight">{policy.title}</Text>
+                          <Text className="text-muted-foreground leading-relaxed text-base">{policy.content}</Text>
+                        </View>
+                      </View>
+                    ))}
+                  </CardContent>
+                </Card>
+              );
+            })}
+
+            {/* Pagination */}
+            {totalActivePoliciesPages > 1 && (
+              <Pagination
+                currentPage={policiesPage}
+                totalPages={totalActivePoliciesPages}
+                onPageChange={setPoliciesPage}
+                showPages={5}
+                className="pt-4"
+              />
+            )}
+
+            {/* Footer Note */}
+            <Card className="bg-muted/30 border border-border rounded-lg">
+              <CardContent className="p-4">
+                <View className="flex-row items-center">
+                  <FileText size={16} color="#6b7280" />
+                  <Text className="text-sm text-muted-foreground ml-2 flex-1">
+                    Các chính sách này có hiệu lực từ thời điểm được công bố. Bảo tàng có quyền thay đổi và cập nhật khi
+                    cần thiết.
+                  </Text>
+                </View>
+              </CardContent>
+            </Card>
           </View>
         );
 
@@ -924,9 +1126,12 @@ export default function MuseumDetailPage() {
                     setEventsPage(1);
                     setToursPage(1);
                     setArticlesPage(1);
+                    setFeedbacksPage(1);
+                    setPoliciesPage(1);
                   }}
-                  className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
-                    }`}
+                  className={`px-4 py-2 rounded-full border mr-6 ${
+                    activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
+                  }`}
                 >
                   <View className="flex-row items-center">
                     <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />
