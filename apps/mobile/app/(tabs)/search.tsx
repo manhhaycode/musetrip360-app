@@ -3,15 +3,20 @@ import { Image } from '@/components/core/ui/image';
 import { Input } from '@/components/core/ui/input';
 import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
+import { useArtifacts } from '@/hooks/useArtifacts';
 import { useEntityImage } from '@/hooks/useEntityImage';
-import { searchUtils, useGlobalSearch } from '@/hooks/useSearch';
+import { useEvents } from '@/hooks/useEvents';
+import { useMuseums } from '@/hooks/useMuseums';
+import { useVirtualTours } from '@/hooks/useVirtualTours';
 import type { SearchFilters, SearchResultItem } from '@/types/api';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { CalendarDays, Filter, Frown, Globe2, Landmark, Package, Search as SearchIcon } from 'lucide-react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { searchUtils } from '../../hooks/useSearch';
+import { extractImageUrl } from '../../utils/imageUtils';
 
 // SearchHeader component: search bar + tabs
 type SearchHeaderProps = {
@@ -49,14 +54,14 @@ function SearchHeader({
       </View>
       {/* Search Tabs */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
-        <View className="flex-row">
+        <View className="flex-row px-2">
           {SEARCH_TABS.map((tab) => (
             <TouchableOpacity
               key={tab.key}
               onPress={() => handleTabChange(tab.key)}
-              className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'}`}
+              className={`px-3 py-2 rounded-full border mr-3 min-w-[100px] ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-card'}`}
             >
-              <View className="flex-row items-center">
+              <View className="flex-row items-center justify-center">
                 <tab.icon size={16} color={activeTab === tab.key ? '#fff6ed' : '#a67c52'} style={{ marginRight: 4 }} />
                 <Text
                   className={`text-sm font-medium ${activeTab === tab.key ? 'text-primary-foreground' : 'text-card-foreground'}`}
@@ -95,26 +100,140 @@ export default function SearchPage() {
     pageSize: 12,
   });
 
-  // Convert filters to API parameters
-  const apiParams = useMemo(() => {
-    return searchUtils.formatFiltersForAPI({
-      ...filters,
-      type: activeTab,
-      page: currentPage,
-    });
-  }, [filters, activeTab, currentPage]);
+  // API calls for different entity types  
+  const museumParams = {
+    Page: currentPage,
+    PageSize: filters.pageSize,
+    Search: filters.query || undefined,
+  };
 
-  // Global search API call
-  const { data: searchResponse, isLoading, error } = useGlobalSearch(apiParams, true);
+  const tourParams = {
+    Page: currentPage,
+    PageSize: filters.pageSize,
+    Search: filters.query || undefined,
+  };
+
+  const artifactParams = {
+    Page: currentPage,
+    PageSize: filters.pageSize,
+    Search: filters.query || undefined,
+  };
+
+  const eventParams = {
+    Page: currentPage,
+    PageSize: filters.pageSize,
+    Search: filters.query || undefined,
+  };
+
+  // Conditional API calls based on active tab
+  const { data: museumData, isLoading: isLoadingMuseums, error: museumError } = useMuseums(museumParams, {
+    enabled: activeTab === 'Museum',
+  });
+
+  const { data: tourData, isLoading: isLoadingTours, error: tourError } = useVirtualTours(tourParams, {
+    enabled: activeTab === 'TourOnline',
+  });
+
+  const { data: artifactData, isLoading: isLoadingArtifacts, error: artifactError } = useArtifacts(artifactParams, {
+    enabled: activeTab === 'Artifact',
+  });
+
+  const { data: eventData, isLoading: isLoadingEvents, error: eventError } = useEvents(eventParams, {
+    enabled: activeTab === 'Event',
+  });
+
+  // Determine current loading state and error
+  const isLoading =
+    (activeTab === 'Museum' && isLoadingMuseums) ||
+    (activeTab === 'TourOnline' && isLoadingTours) ||
+    (activeTab === 'Artifact' && isLoadingArtifacts) ||
+    (activeTab === 'Event' && isLoadingEvents) ||
+    false;
+
+  const error =
+    (activeTab === 'Museum' && museumError) ||
+    (activeTab === 'TourOnline' && tourError) ||
+    (activeTab === 'Artifact' && artifactError) ||
+    (activeTab === 'Event' && eventError) ||
+    null;
+
+  // Đảm bảo fetch data ngay khi component mount
+  useEffect(() => {
+    // Force refresh data khi component mount hoặc tab change
+    // Điều này đảm bảo data sẽ được fetch ngay cả khi không có search query
+  }, [activeTab]);
 
   const searchResults = useMemo(() => {
-    return searchResponse?.data?.items || [];
-  }, [searchResponse]);
+    // Convert data from different APIs to SearchResultItem format
+    let items: SearchResultItem[] = [];
+
+    if (activeTab === 'Museum' && museumData?.data?.list) {
+      items = museumData.data.list.map(museum => ({
+        id: museum.id,
+        title: museum.name,
+        description: museum.description || '',
+        type: 'Museum' as const,
+        thumbnail: extractImageUrl(museum.metadata?.images?.[0]) ||
+          extractImageUrl(museum.metadata?.logoUrl) ||
+          undefined, // Following visitor-portal pattern
+        location: museum.location || '',
+      }));
+    } else if (activeTab === 'TourOnline' && tourData?.list) {
+      items = tourData.list.map(tour => ({
+        id: tour.id,
+        title: tour.name,
+        description: tour.description || '',
+        type: 'TourOnline' as const,
+        thumbnail: extractImageUrl(tour.metadata?.images?.[0]) || undefined,
+        location: '',
+      }));
+    } else if (activeTab === 'Artifact' && artifactData?.data?.list) {
+      items = artifactData.data.list.map((artifact: any) => ({
+        id: artifact.id,
+        title: artifact.name,
+        description: artifact.description || '',
+        type: 'Artifact' as const,
+        thumbnail: extractImageUrl(artifact.imageUrl) ||
+          extractImageUrl(artifact.metadata?.images?.[0]) ||
+          undefined,
+        location: artifact.location || '',
+      }));
+    } else if (activeTab === 'Event' && eventData?.list) {
+      // Event data structure: eventData = {list: [...], total: 27}
+      items = eventData.list.map((event: any) => {
+        const thumbnail = extractImageUrl(event.metadata?.thumbnail) ||
+          extractImageUrl(event.representationMaterials?.[0]) ||
+          extractImageUrl(event.metadata?.images?.[0]) ||
+          extractImageUrl(event.bannerUrl) ||
+          'https://thumb.ac-illust.com/11/11f66d349dd80280994aa0eea7902af5_t.jpeg'; // Fallback image
+
+        return {
+          id: event.id,
+          title: event.title,
+          description: event.description || '',
+          type: 'Event' as const,
+          thumbnail,
+          location: event.location || '',
+        };
+      });
+    }
+
+    return items;
+  }, [activeTab, museumData, tourData, artifactData, eventData]);
 
   const totalPages = useMemo(() => {
-    if (!searchResponse?.data) return 0;
-    return searchUtils.calculateTotalPages(searchResponse.data.total, filters.pageSize);
-  }, [searchResponse?.data, filters.pageSize]);
+    let total = 0;
+    if (activeTab === 'Museum' && museumData?.data?.total) {
+      total = museumData.data.total;
+    } else if (activeTab === 'TourOnline' && tourData?.total) {
+      total = tourData.total;
+    } else if (activeTab === 'Artifact' && artifactData?.data?.total) {
+      total = artifactData.data.total;
+    } else if (activeTab === 'Event' && eventData?.total) {
+      total = eventData.total;
+    }
+    return searchUtils.calculateTotalPages(total, filters.pageSize);
+  }, [activeTab, museumData, tourData, artifactData, eventData, filters.pageSize]);
 
   // Debounced search function
   const debouncedSearch = useMemo(
@@ -133,10 +252,8 @@ export default function SearchPage() {
 
   const handleSearchInputChange = (text: string) => {
     setSearchQuery(text);
-    // Debounced search for live search
-    if (text.length >= 2 || text.length === 0) {
-      debouncedSearch(text);
-    }
+    // Debounced search for live search - trigger ngay cả khi text rỗng
+    debouncedSearch(text);
   };
 
   const handleTabChange = (tab: SearchTabKey) => {
@@ -283,7 +400,7 @@ export default function SearchPage() {
             ListFooterComponent={() => (
               <View className="pt-4 pb-20">
                 {/* Pagination */}
-                {searchResponse?.data?.total && totalPages > 1 && (
+                {totalPages > 1 && (
                   <Pagination
                     currentPage={currentPage}
                     totalPages={totalPages}

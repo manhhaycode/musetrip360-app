@@ -29,6 +29,10 @@ export default function RootLayout() {
           <Stack.Screen name="event/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
           <Stack.Screen name="tour/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="profile/edit" options={{ headerShown: false }} />
+          <Stack.Screen name="order/[id]" options={{ headerShown: false }} />
+          <Stack.Screen name="order/success" options={{ headerShown: false }} />
+          <Stack.Screen name="order/cancel" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       ) : (

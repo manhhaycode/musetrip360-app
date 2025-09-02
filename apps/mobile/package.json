@@ -18,6 +18,7 @@
     "@musetrip360/event-management": "workspace:*",
     "@musetrip360/infras": "workspace:*",
     "@musetrip360/museum-management": "workspace:*",
+    "@musetrip360/payment-management": "workspace:*",
     "@musetrip360/query-foundation": "workspace:*",
     "@musetrip360/shared": "workspace:*",
     "@musetrip360/streaming": "workspace:*",

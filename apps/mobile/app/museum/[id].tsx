@@ -28,8 +28,8 @@ import { Image } from '@/components/core/ui/image';
 import { Pagination } from '@/components/core/ui/pagination';
 import { Text } from '@/components/core/ui/text';
 import { useArticles } from '@/hooks/useArticles';
-import { useArtifacts } from '@/hooks/useArtifacts';
-import { useEvents } from '@/hooks/useEvents';
+import { useMuseumArtifacts } from '@/hooks/useArtifacts';
+import { useMuseumEvents } from '@/hooks/useEvents';
 import { useFeedbacks } from '@/hooks/useFeedbacks';
 import { useMuseum } from '@/hooks/useMuseums';
 import { useVirtualTours } from '@/hooks/useVirtualTours';
@@ -90,13 +90,13 @@ export default function MuseumDetailPage() {
     data: artifactsData,
     isLoading: artifactsLoading,
     error: artifactsError,
-  } = useArtifacts({ museumId: id!, Page: artifactsPage, PageSize: 12 });
+  } = useMuseumArtifacts(id!, { Page: artifactsPage, PageSize: 12 });
 
   const {
     data: eventsData,
     isLoading: eventsLoading,
     error: eventsError,
-  } = useEvents({ museumId: id!, Page: eventsPage, PageSize: 12 });
+  } = useMuseumEvents(id!, { Page: eventsPage, PageSize: 12 });
 
   const {
     data: virtualToursData,
@@ -262,8 +262,8 @@ export default function MuseumDetailPage() {
                 const displayImages = museum.metadata?.coverImageUrl
                   ? availableImages
                   : museum.metadata.images
-                      .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
-                      .slice(1); // Skip first image as it's used as cover
+                    .filter((img) => img && (img.startsWith('http://') || img.startsWith('https://')))
+                    .slice(1); // Skip first image as it's used as cover
 
                 if (displayImages.length === 0) return null;
 
@@ -597,8 +597,8 @@ export default function MuseumDetailPage() {
                     <View className="w-24 h-28 bg-gray-100">
                       {/* Hiển thị ảnh theo thứ tự ưu tiên: ảnh đại diện tour trước, nếu không có thì hiển thị thumbnail cảnh đầu tiên */}
                       {tour.metadata?.images?.[0]?.file &&
-                      typeof tour.metadata.images[0].file === 'string' &&
-                      tour.metadata.images[0].file.startsWith('http') ? (
+                        typeof tour.metadata.images[0].file === 'string' &&
+                        tour.metadata.images[0].file.startsWith('http') ? (
                         <Image
                           source={{ uri: tour.metadata.images[0].file }}
                           className="w-24 h-28"
@@ -781,7 +781,7 @@ export default function MuseumDetailPage() {
               <Pagination
                 currentPage={1} // Nếu muốn phân trang thực tế, cần lưu state page cho feedbacks
                 totalPages={Math.ceil(feedbacksData.data.total / 20)}
-                onPageChange={() => {}}
+                onPageChange={() => { }}
                 showPages={5}
                 className="pt-4"
               />
@@ -925,9 +925,8 @@ export default function MuseumDetailPage() {
                     setToursPage(1);
                     setArticlesPage(1);
                   }}
-                  className={`px-4 py-2 rounded-full border mr-6 ${
-                    activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
-                  }`}
+                  className={`px-4 py-2 rounded-full border mr-6 ${activeTab === tab.key ? 'bg-primary border-primary' : 'bg-card border-border'
+                    }`}
                 >
                   <View className="flex-row items-center">
                     <tab.icon size={16} color={activeTab === tab.key ? '#fff' : '#a67c52'} style={{ marginRight: 4 }} />

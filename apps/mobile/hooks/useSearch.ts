@@ -29,7 +29,9 @@ function buildSearchUrl(params: SearchParams): string {
   if (params.Page) searchParams.append('Page', params.Page.toString());
   if (params.PageSize) searchParams.append('PageSize', params.PageSize.toString());
 
-  return `${SEARCH_ENDPOINTS.global}?${searchParams.toString()}`;
+  const url = `${SEARCH_ENDPOINTS.global}?${searchParams.toString()}`;
+
+  return url;
 }
 
 /**
@@ -40,7 +42,7 @@ export function useGlobalSearch(params: SearchParams, enabled: boolean = true) {
   const cacheKey = createSearchCacheKey('global', params.Search || '', params);
 
   return useQuery<SearchResponse>(cacheKey, () => getHttpClient().get<SearchResponse>(url), {
-    enabled: enabled && (!!params.Search || !!params.Type || !!params.Status),
+    enabled: enabled && !!params.Type, // Chỉ cần có Type là fetch, không bắt buộc phải có Search
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 2,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -56,7 +58,7 @@ export function useMuseumSearch(params: SearchParams, enabled: boolean = true) {
   const cacheKey = createSearchCacheKey('museums', params.Search || '', museumParams);
 
   return useQuery<SearchResponse>(cacheKey, () => getHttpClient().get<SearchResponse>(url), {
-    enabled: enabled && (!!params.Search || !!params.Status),
+    enabled: enabled, // Luôn enabled, không cần search query
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -71,7 +73,7 @@ export function useArtifactSearch(params: SearchParams, enabled: boolean = true)
   const cacheKey = createSearchCacheKey('artifacts', params.Search || '', artifactParams);
 
   return useQuery<SearchResponse>(cacheKey, () => getHttpClient().get<SearchResponse>(url), {
-    enabled: enabled && (!!params.Search || !!params.Status),
+    enabled: enabled, // Luôn enabled, không cần search query
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -86,7 +88,7 @@ export function useEventSearch(params: SearchParams, enabled: boolean = true) {
   const cacheKey = createSearchCacheKey('events', params.Search || '', eventParams);
 
   return useQuery<SearchResponse>(cacheKey, () => getHttpClient().get<SearchResponse>(url), {
-    enabled: enabled && (!!params.Search || !!params.Status),
+    enabled: enabled, // Luôn enabled, không cần search query
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -101,7 +103,7 @@ export function useTourOnlineSearch(params: SearchParams, enabled: boolean = tru
   const cacheKey = createSearchCacheKey('tours', params.Search || '', tourParams);
 
   return useQuery<SearchResponse>(cacheKey, () => getHttpClient().get<SearchResponse>(url), {
-    enabled: enabled && (!!params.Search || !!params.Status),
+    enabled: enabled, // Luôn enabled, không cần search query
     staleTime: 5 * 60 * 1000,
     retry: 2,
   });
@@ -128,7 +130,7 @@ export const searchUtils = {
   formatFiltersForAPI: (filters: any): SearchParams => {
     return {
       Search: filters.query || undefined,
-      Type: filters.type && filters.type !== 'All' ? filters.type : undefined,
+      Type: filters.type || 'Museum', // Luôn có Type, mặc định là Museum
       Page: filters.page || 1,
       PageSize: filters.pageSize || 12,
     };
