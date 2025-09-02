@@ -22,6 +22,7 @@ import { FileText, Loader2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
 import { FileData, FormDropZone, MediaType, useBulkUpload, ZodFileData } from '@musetrip360/shared';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 const RichEditor = React.lazy(() =>
   import('@musetrip360/rich-editor').then((module) => ({
@@ -71,6 +72,7 @@ export function VirtualTourForm({
   submitLabel = 'Save',
   showCancelButton = false,
 }: VirtualTourFormProps) {
+  const { hasPermission } = useRolebaseStore();
   // Form state
   const [openSheet, setOpenSheet] = useState(false);
   const bulkUpload = useBulkUpload();
@@ -96,7 +98,7 @@ export function VirtualTourForm({
   });
 
   const form = useForm<VirtualTourFormData>({
-    disabled: createVirtualTourMutation.isPending,
+    disabled: createVirtualTourMutation.isPending || !hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT),
     resolver: (data, context, options) => {
       if (mode === 'edit') {
         return zodResolver(virtualTourFormSchema)(data, context, options);
@@ -145,7 +147,7 @@ export function VirtualTourForm({
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const submitFunc = mode === 'create' ? createVirtualTourMutation.mutate : updateVirtualTourMutation.mutate;
@@ -306,6 +308,7 @@ export function VirtualTourForm({
                     />
                     {fields.length > 1 && (
                       <Button
+                        disabled={form.formState.disabled}
                         type="button"
                         onClick={() => remove(index)}
                         variant="destructive"
@@ -323,31 +326,33 @@ export function VirtualTourForm({
         )}
 
         {/* Action Buttons */}
-        <div className="flex gap-2 pt-6 border-t">
-          {showCancelButton && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                handleReset();
-                onCancel?.();
-              }}
-              disabled={createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending}
-            >
-              Cancel
-            </Button>
-          )}
-          <Button
-            type="submit"
-            disabled={createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending}
-            className="flex-1"
-          >
-            {(createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending) && (
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+        {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+          <div className="flex gap-2 pt-6 border-t">
+            {showCancelButton && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  handleReset();
+                  onCancel?.();
+                }}
+                disabled={createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending}
+              >
+                Cancel
+              </Button>
             )}
-            {submitLabel}
-          </Button>
-        </div>
+            <Button
+              type="submit"
+              disabled={createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending}
+              className="flex-1"
+            >
+              {(createVirtualTourMutation.isPending || updateVirtualTourMutation.isPending) && (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              )}
+              {submitLabel}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );

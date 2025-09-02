@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { useStudioStore } from '@/store';
 import { useAudioAIGenerate } from '@musetrip360/ai-bot/api';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 import { FormDropZone, useBulkUpload, ZodFileData } from '@musetrip360/shared';
 import { MediaType } from '@musetrip360/shared/types';
 import { Button } from '@musetrip360/ui-core/button';
@@ -47,7 +48,8 @@ export const scenePropertyFormSchema = z.object({
 
 export type ScenePropertyFormData = z.infer<typeof scenePropertyFormSchema>;
 
-export function ScenePropertyForm() {
+export function ScenePropertyForm({ museumId }: { museumId: string }) {
+  const { hasPermission } = useRolebaseStore();
   const bulkUpload = useBulkUpload();
   const { isSyncing, updateScene, selectedSceneId, getSelectedScene, isDirty } = useStudioStore(
     useShallow((state) => ({
@@ -70,7 +72,7 @@ export function ScenePropertyForm() {
   const [openSheet, setOpenSheet] = useState(false);
 
   const form = useForm<ScenePropertyFormData>({
-    disabled: disabled || isSyncing,
+    disabled: disabled || !hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) || isSyncing,
     resolver: zodResolver(scenePropertyFormSchema),
     defaultValues: {
       sceneName: scene?.sceneName || '',
@@ -91,7 +93,7 @@ export function ScenePropertyForm() {
         const isAccept = await bulkUpload?.openConfirmDialog();
         if (isAccept) {
           await bulkUpload?.uploadAll();
-        }
+        } else return;
       }
 
       const formData = form.getValues();
@@ -282,9 +284,11 @@ export function ScenePropertyForm() {
               className="min-h-[80px] gap-4"
             />
           </div>
-          <Button type="submit" variant="outline" className="w-full">
-            Save Changes
-          </Button>
+          {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+            <Button type="submit" variant="outline" className="w-full">
+              Save Changes
+            </Button>
+          )}
         </form>
       </Form>
     </div>

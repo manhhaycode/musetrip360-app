@@ -15,8 +15,8 @@ export class VirtualTourCacheKeys extends BaseCacheKeyFactory {
     super('virtualTour');
   }
 
-  listByMuseum(museumId: string, params: Pagination): QueryKey {
-    return [this.prefix, 'lists', 'byMuseum', museumId, params];
+  listByMuseum(museumId?: string, params?: Pagination): QueryKey {
+    return [this.prefix, 'lists', 'byMuseum', ...(museumId ? [museumId] : []), ...(params ? [params] : [])];
   }
 }
 

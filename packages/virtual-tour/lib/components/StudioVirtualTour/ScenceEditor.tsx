@@ -11,7 +11,7 @@ import { ThreeEvent } from '@react-three/fiber';
 import { Hotspot, Vector3Like } from '@/canvas/types';
 import * as THREE from 'three';
 
-function SceneEditorContent() {
+function SceneEditorContent({ museumId }: { museumId: string }) {
   const { selectedTool, setSelectedTool } = useEditorToolbar();
   const {
     selectedSceneId,
@@ -70,13 +70,6 @@ function SceneEditorContent() {
   const isDragMode = selectedTool === 'drag';
   const isPolygonMode = selectedTool === 'pen';
   const isEditing = isHotspotMode || selectedTool === 'select';
-
-  console.log('SceneEditor: Tool states', {
-    selectedTool,
-    isPolygonMode,
-    polygonPointsLength: polygonPoints.length,
-    completedPolygonsLength: polygons.length,
-  });
 
   const handleHotspotCreate = (event: ThreeEvent<MouseEvent>) => {
     if (!isHotspotMode) return;
@@ -144,14 +137,14 @@ function SceneEditorContent() {
   if (isError || !selectedScene.data?.cubeMaps[0] || listImages.filter((item) => item).length !== 6) {
     return (
       <BulkUploadProvider>
-        <SceneCubeMapUploadForm />
+        <SceneCubeMapUploadForm museumId={museumId} />
       </BulkUploadProvider>
     );
   }
 
   return (
     <div className="flex-1 flex relative">
-      <EditorToolbar className="absolute top-4 left-4 z-10" />
+      <EditorToolbar museumId={museumId} className="absolute top-4 left-4 z-10" />
       <div
         className={cn(
           'flex absolute inset-0 border overflow-hidden',
@@ -195,10 +188,10 @@ function SceneEditorContent() {
   );
 }
 
-export default function SceneEditor() {
+export default function SceneEditor({ museumId }: { museumId: string }) {
   return (
     <EditorToolbarProvider defaultTool="hand">
-      <SceneEditorContent />
+      <SceneEditorContent museumId={museumId} />
     </EditorToolbarProvider>
   );
 }

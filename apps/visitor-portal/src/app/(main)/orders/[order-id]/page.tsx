@@ -25,7 +25,7 @@ export default function OrderDetailPage() {
     if (!order) return;
 
     if (order.orderType === OrderTypeEnum.Event && order.orderEvents[0]) {
-      router.push(`/events/${order.orderEvents[0].eventId}`);
+      router.push(`/event/${order.orderEvents[0].eventId}`);
     } else if (order.orderType === OrderTypeEnum.Tour && order.orderTours[0]) {
       router.push(`/virtual-tour/${order.orderTours[0].tourId}`);
     }

@@ -76,12 +76,12 @@ export function PropertiesPanel({ className, museumId }: PropertiesPanelProps) {
   const renderContent = () => {
     switch (type) {
       case 'scene':
-        return <ScenePropertyForm />;
+        return <ScenePropertyForm museumId={museumId} />;
       case 'tour':
         return <VirtualTourForm mode="edit" museumId={museumId} />;
 
       case 'hotspot':
-        return <HotspotPropertyForm />;
+        return <HotspotPropertyForm museumId={museumId} />;
 
       case 'polygon':
         return <PolygonPropertyForm museumId={museumId} />;
