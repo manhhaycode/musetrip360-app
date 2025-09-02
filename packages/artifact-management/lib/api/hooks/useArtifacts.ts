@@ -6,35 +6,35 @@
  */
 
 import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  CustomQueryOptions,
-  CustomMutationOptions,
-  APIError,
-  APIResponse,
-  PaginatedResponse,
-} from '@musetrip360/query-foundation';
-import {
-  getArtifacts,
-  getArtifactsAdmin,
-  getArtifactById,
-  updateArtifact,
-  deleteArtifact,
-  activateArtifact,
-  deactivateArtifact,
-  getArtifactsByMuseum,
-  createArtifactForMuseum,
-} from '../endpoints/artifacts';
-import {
+  Artifact,
   ArtifactCreateDto,
-  ArtifactUpdateDto,
   ArtifactListParams,
   ArtifactMuseumSearchParams,
-  Artifact,
+  ArtifactUpdateDto,
 } from '@/types';
+import {
+  APIError,
+  APIResponse,
+  CustomMutationOptions,
+  CustomQueryOptions,
+  PaginatedResponse,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@musetrip360/query-foundation';
 import { artifactCacheKeys } from '../cache/cacheKeys';
-import { artifactErrorHandler } from '../endpoints/artifacts';
+import {
+  activateArtifact,
+  artifactErrorHandler,
+  createArtifactForMuseum,
+  deactivateArtifact,
+  deleteArtifact,
+  getArtifactById,
+  getArtifacts,
+  getArtifactsAdmin,
+  getArtifactsByMuseum,
+  updateArtifact,
+} from '../endpoints/artifacts';
 
 /**
  * Hook for getting paginated list of active artifacts

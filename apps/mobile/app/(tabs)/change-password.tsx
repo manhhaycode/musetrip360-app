@@ -1,3 +1,4 @@
+import { useAuthStore } from '@musetrip360/auth-system/state';
 import { useChangePassword } from '@musetrip360/user-management/api';
 import { Eye, EyeOff, Lock } from 'lucide-react-native';
 import React, { useState } from 'react';
@@ -15,8 +16,16 @@ function validatePassword(pw: string) {
 }
 
 export default function ChangePasswordScreen() {
+  const { resetStore } = useAuthStore();
+
   const { mutate: changePassword, isPending } = useChangePassword({
-    onSuccess: () => setSuccess('Đổi mật khẩu thành công!'),
+    onSuccess: () => {
+      setSuccess('Đổi mật khẩu thành công! Đang đăng xuất...');
+      // Sau 2 giây sẽ logout, app sẽ tự động navigate về LoginScreen
+      setTimeout(() => {
+        resetStore();
+      }, 2000);
+    },
     onError: (error: any) => {
       const errorMsg = error?.message || error?.response?.data?.message || 'Đã xảy ra lỗi, vui lòng thử lại';
       setError(errorMsg);

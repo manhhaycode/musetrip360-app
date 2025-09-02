@@ -5,8 +5,8 @@
  * Follows the same pattern as user-management for consistency.
  */
 
+import { ArtifactListParams } from '@/types';
 import { BaseCacheKeyFactory, QueryKey } from '@musetrip360/query-foundation';
-import { ArtifactListParams, ArtifactMuseumSearchParams } from '@/types';
 
 /**
  * Artifact Management cache keys

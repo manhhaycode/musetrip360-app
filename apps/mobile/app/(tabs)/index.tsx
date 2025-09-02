@@ -30,7 +30,7 @@ function SearchBar({ searchQuery, setSearchQuery, handleSearch }: SearchBarProps
           onSubmitEditing={handleSearch}
         />
         <TouchableOpacity onPress={handleSearch} className="absolute left-4 top-3">
-          <Search size={20} color="#FF7A00" />
+          <Search size={20} color="#ff914d" />
         </TouchableOpacity>
       </View>
     </View>
@@ -71,7 +71,7 @@ export default function HomePage() {
       {/* Branding header */}
       <View className="flex-row items-center justify-center mt-6 mb-2">
         <View className="w-14 h-14 rounded-lg bg-primary items-center justify-center mr-3">
-          <Globe size={32} color="#fff" />
+          <Globe size={32} color="#fff6ed" />
         </View>
         <View>
           <Text className="text-xl font-bold text-foreground">MuseTrip360</Text>
@@ -91,7 +91,7 @@ export default function HomePage() {
             <Text className="text-xl font-semibold text-foreground">Bảo tàng nổi bật</Text>
             <TouchableOpacity onPress={() => router.push('/search')} className="flex-row items-center">
               <Text className="text-primary font-medium mr-1">Xem tất cả</Text>
-              <ArrowRight size={16} color="#FF7A00" />
+              <ArrowRight size={16} color="#ff914d" />
             </TouchableOpacity>
           </View>
           {museumsLoading ? (
@@ -115,7 +115,7 @@ export default function HomePage() {
           ) : error ? (
             <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
-                <Frown size={40} color="#FF7A00" className="mb-3" />
+                <Frown size={40} color="#ff914d" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Lỗi tải dữ liệu</Text>
                 <Text className="text-muted-foreground text-center mb-4">
                   {error?.message || 'Không thể tải danh sách bảo tàng'}
@@ -136,7 +136,7 @@ export default function HomePage() {
           ) : (
             <Card className="bg-card border border-card rounded-xl shadow-md">
               <CardContent className="p-8 items-center">
-                <Landmark size={40} color="#FF7A00" className="mb-3" />
+                <Landmark size={40} color="#ff914d" className="mb-3" />
                 <Text className="text-lg font-semibold text-foreground mb-2">Chưa có bảo tàng nổi bật</Text>
                 <Text className="text-muted-foreground text-center">Các bảo tàng thú vị đang được cập nhật...</Text>
               </CardContent>

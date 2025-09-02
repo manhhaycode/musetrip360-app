@@ -1,4 +1,4 @@
-import { useVirtualTourById, useVirtualTourByMuseum } from '@musetrip360/virtual-tour/api';
+import { useVirtualTourById, useVirtualTours as useVirtualToursAPI } from '@musetrip360/virtual-tour/api';
 
 interface VirtualTourSearchParams {
   Page?: number;
@@ -7,10 +7,11 @@ interface VirtualTourSearchParams {
 }
 
 export const useVirtualTours = (params?: VirtualTourSearchParams, options?: { enabled?: boolean }) => {
-  const apiResult = useVirtualTourByMuseum({
-    museumId: params?.museumId || '',
+  const apiResult = useVirtualToursAPI({
     Page: params?.Page || 1,
     PageSize: params?.PageSize || 12,
+  }, {
+    enabled: options?.enabled !== false,
   });
 
   return {
