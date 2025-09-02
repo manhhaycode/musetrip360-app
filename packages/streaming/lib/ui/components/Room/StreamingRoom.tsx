@@ -9,7 +9,7 @@ import { Button } from '@musetrip360/ui-core/button';
 import { cn } from '@musetrip360/ui-core/utils';
 import { Mic, MicOff, MoreHorizontal, PhoneOff, Settings, Users, Video, VideoOff } from 'lucide-react';
 import React from 'react';
-import { StreamingHeader } from '../Header/StreamingHeader';
+import { ConnectedStreamingHeader } from '../Header/ConnectedStreamingHeader';
 import { StreamingSidebar } from '../Sidebar/StreamingSidebar';
 
 interface StreamingRoomProps {
@@ -24,7 +24,7 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
     isInRoom,
 
     // Media state
-    mediaStream: { localStream, mediaState, remoteStreams },
+    mediaStream: { localStream, mediaState },
 
     leaveRoom,
     toggleVideo,
@@ -85,28 +85,7 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
   return (
     <div className={cn('streaming-room w-full h-full flex flex-col bg-background', className)}>
       {/* Header */}
-      <StreamingHeader
-        // Meeting info props
-        meetingTitle="[Internal] Weekly Report Marketing + Sales"
-        meetingDate="June 21st, 2024"
-        meetingTime="11:00 AM"
-        currentRoomId={currentRoomId}
-        isConnected={isConnected}
-        onCopyRoomId={handleCopyRoomId}
-        duration={25} // Example: 25 minutes into the meeting
-        participantCount={participantArray.length}
-        meetingType="internal"
-        // Participants props
-        participants={participantArray}
-        localStream={localStream}
-        remoteStreams={remoteStreams}
-        // Host info props
-        hostName="Adam Joseph"
-        hostTitle="Manager"
-        isLive={true}
-        viewerCount={participantArray.length}
-        onMenuClick={() => console.log('Menu clicked')}
-      />
+      <ConnectedStreamingHeader onCopyRoomId={handleCopyRoomId} onMenuClick={() => console.log('Menu clicked')} />
 
       {/* Error Display */}
       {/* {errors.length > 0 && (
@@ -181,7 +160,7 @@ export const StreamingRoom: React.FC<StreamingRoomProps> = ({ className, childre
         </div>
 
         {/* Sidebar */}
-        <StreamingSidebar participants={participantArray} onAddParticipant={() => {}} />
+        <StreamingSidebar participants={participantArray} />
       </div>
     </div>
   );

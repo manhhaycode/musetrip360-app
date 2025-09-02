@@ -98,8 +98,7 @@ export const StreamingHeader: React.FC<StreamingHeaderProps> = ({
           hostAvatar={hostAvatar}
           isLive={isLive}
           viewerCount={viewerCount}
-          onMenuClick={onMenuClick}
-          className="flex-shrink-0"
+          className="flex-shrink-0 w-76"
         />
       </div>
     </div>

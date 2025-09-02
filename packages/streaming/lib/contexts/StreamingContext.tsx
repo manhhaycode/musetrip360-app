@@ -15,7 +15,7 @@ import { SignalRConnectionConfig, StreamingContextValue, StreamingErrorCode } fr
 import { useStreamingEvents } from '@/utils/eventBus';
 import { generateRoomId } from '@/utils/webrtc';
 import { useGetEventParticipants } from '@musetrip360/event-management/api';
-import React, { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { v4 as uuid } from 'uuid';
 
 const StreamingContext = createContext<StreamingContextValue | null>(null);
@@ -34,6 +34,9 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   autoInitializeMedia = true,
 }) => {
   const isInitializedRef = useRef(false);
+
+  // Tour state - centralized control for tour readiness
+  const [isTourReady, setIsTourReady] = useState<boolean>(false);
 
   // Hooks
   const webRTC = useWebRTC();
@@ -66,6 +69,8 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
   const initialize = useCallback(async () => {
     if (isInitializedRef.current) return;
 
+    isInitializedRef.current = true;
+
     try {
       console.log('🚀 Initializing streaming system...');
 
@@ -83,7 +88,6 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
         await signalR.connect(config);
       }
 
-      isInitializedRef.current = true;
       console.log('✅ Streaming system initialized');
     } catch (error) {
       console.error('❌ Failed to initialize streaming system:', error);
@@ -182,6 +186,9 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
 
       streamingActions.leaveRoomSafely();
 
+      // Reset tour state
+      setIsTourReady(false);
+
       isInitializedRef.current = false;
 
       console.log('✅ Successfully left room');
@@ -210,13 +217,13 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
    * Toggle audio
    */
   const toggleAudio = useCallback((): void => {
-    mediaStream.toggleAudio();
+    const audioState = mediaStream.toggleAudio();
 
     // Update local participant state
     const localParticipant = Array.from(participantMap.values()).find((p) => p.isLocalUser);
     if (localParticipant) {
       participantActions.updateMediaStateWithLog(localParticipant.id, {
-        audio: mediaStream.mediaState.audio,
+        audio: audioState,
       });
     }
   }, [mediaStream, participantMap]);
@@ -338,6 +345,10 @@ export const StreamingProvider: React.FC<StreamingProviderProps> = ({
     localParticipant,
     currentRoomId,
     isInRoom,
+
+    // Tour State
+    isTourReady,
+    setTourReady: setIsTourReady,
 
     // Actions
     joinRoom,

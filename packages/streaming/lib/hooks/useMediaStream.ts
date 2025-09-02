@@ -128,12 +128,12 @@ export const useMediaStream = (): UseMediaStreamReturn => {
   /**
    * Toggle audio track
    */
-  const toggleAudio = useCallback((): void => {
+  const toggleAudio = useCallback((): boolean => {
     const manager = mediaManagerRef.current;
 
     if (!manager) {
       console.warn('⚠️ Media manager not initialized');
-      return;
+      return false;
     }
 
     try {
@@ -141,6 +141,7 @@ export const useMediaStream = (): UseMediaStreamReturn => {
       storeToggleAudio();
 
       console.log(`🎤 Audio ${isEnabled ? 'enabled' : 'disabled'}`);
+      return isEnabled;
     } catch (error) {
       console.error('❌ Failed to toggle audio:', error);
 
@@ -151,6 +152,7 @@ export const useMediaStream = (): UseMediaStreamReturn => {
         timestamp: new Date(),
       });
     }
+    return false;
   }, [storeToggleAudio, addError]);
 
   /**
