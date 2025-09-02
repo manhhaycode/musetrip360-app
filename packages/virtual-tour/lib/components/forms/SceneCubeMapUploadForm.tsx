@@ -17,6 +17,7 @@ import { useBulkUpload } from '@musetrip360/shared';
 import { ScrollArea } from '@musetrip360/ui-core/scroll-area';
 import { useEffect, useMemo, useState } from 'react';
 import { useShallow } from 'zustand/shallow';
+import { PERMISSION_TOUR_MANAGEMENT, useRolebaseStore } from '@musetrip360/rolebase-management';
 
 // Form schema for cube map upload
 export const sceneCubeMapUploadSchema = z
@@ -47,6 +48,7 @@ export interface SceneCubeMapUploadFormProps {
   submitLabel?: string;
   showCancelButton?: boolean;
   defaultValues?: SceneCubeMapUploadFormData;
+  museumId: string;
 }
 
 // Face layout configuration for the grid
@@ -69,6 +71,7 @@ export function SceneCubeMapUploadForm({
     pz: null,
     nz: null,
   },
+  museumId,
 }: SceneCubeMapUploadFormProps) {
   const { selectedSceneId, updateScene, isSyncing, getSelectedScene } = useStudioStore(
     useShallow((state) => ({
@@ -78,11 +81,12 @@ export function SceneCubeMapUploadForm({
       getSelectedScene: state.getSelectedScene,
     }))
   );
+  const { hasPermission } = useRolebaseStore();
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [disable, setDisable] = useState(false);
 
   const form = useForm<SceneCubeMapUploadFormData>({
-    disabled: disable || isSyncing,
+    disabled: disable || !hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) || isSyncing,
     resolver: zodResolver(sceneCubeMapUploadSchema),
     defaultValues,
   });
@@ -194,15 +198,17 @@ export function SceneCubeMapUploadForm({
               )}
 
               {/* Action Buttons */}
-              <div className="flex gap-2 pt-4">
-                <Button type="button" variant="outline" onClick={handleOpenPreview} className="flex-1">
-                  Preview virtual scene
-                </Button>
-                <Button type="submit" disabled={disable} className="flex-1">
-                  {isSyncing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                  {submitLabel}
-                </Button>
-              </div>
+              {hasPermission(museumId, PERMISSION_TOUR_MANAGEMENT) && (
+                <div className="flex gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={handleOpenPreview} className="flex-1">
+                    Preview virtual scene
+                  </Button>
+                  <Button type="submit" disabled={disable} className="flex-1">
+                    {isSyncing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    {submitLabel}
+                  </Button>
+                </div>
+              )}
             </form>
           </Form>
         </div>

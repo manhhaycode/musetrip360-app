@@ -85,8 +85,16 @@ const getPolicyTypeOption = (policyType: PolicyTypeEnum) => {
 
 // Validation schema for policy creation/editing
 const policySchema = z.object({
-  title: z.string().min(1, 'Tiêu đề là bắt buộc').min(3, 'Tiêu đề phải có ít nhất 3 ký tự'),
-  content: z.string().min(1, 'Nội dung là bắt buộc').min(10, 'Nội dung phải có ít nhất 10 ký tự'),
+  title: z
+    .string()
+    .min(1, 'Tiêu đề là bắt buộc')
+    .min(3, 'Tiêu đề phải có ít nhất 3 ký tự')
+    .max(100, 'Tiêu đề không được vượt quá 100 ký tự'),
+  content: z
+    .string()
+    .min(1, 'Nội dung là bắt buộc')
+    .min(10, 'Nội dung phải có ít nhất 10 ký tự')
+    .max(1000, 'Nội dung không được vượt quá 1000 ký tự'),
   policyType: z.nativeEnum(PolicyTypeEnum, { required_error: 'Loại chính sách là bắt buộc' }),
   zOrder: z
     .number()

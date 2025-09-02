@@ -1,7 +1,23 @@
+import { useMuseumStore } from '@musetrip360/museum-management';
+import {
+  PERMISSION_ARTIFACT_MANAGEMENT,
+  PERMISSION_ARTIFACT_VIEW,
+  PERMISSION_CONTENT_MANAGEMENT,
+  PERMISSION_EVENT_CREATE,
+  PERMISSION_EVENT_MANAGEMENT,
+  PERMISSION_EVENT_VIEW,
+  PERMISSION_MUSEUM_DETAIL_MANAGEMENT,
+  PERMISSION_PAYMENT_MANAGEMENT,
+  PERMISSION_TOUR_CREATE,
+  PERMISSION_TOUR_MANAGEMENT,
+  PERMISSION_USER_MANAGEMENT,
+  PERMISSION_USER_VIEW,
+  useRolebaseStore,
+} from '@musetrip360/rolebase-management';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupLabel,
   SidebarHeader,
@@ -12,7 +28,6 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from '@musetrip360/ui-core/sidebar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@musetrip360/ui-core/collapsible';
 import {
   ArchiveIcon,
   BookOpenIcon,
@@ -27,35 +42,17 @@ import {
   LandmarkIcon,
   LayoutDashboardIcon,
   ListChecksIcon,
-  LogOutIcon,
   LucideIcon,
+  NewspaperIcon,
   PlusIcon,
   ScaleIcon,
-  UsersIcon,
   TicketsPlaneIcon,
-  NewspaperIcon,
+  UsersIcon,
   WalletIcon,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { twMerge } from 'tailwind-merge';
 import MuseumSelect from '../MuseumSelect';
-import {
-  PERMISSION_ARTIFACT_MANAGEMENT,
-  PERMISSION_ARTIFACT_VIEW,
-  PERMISSION_CONTENT_MANAGEMENT,
-  PERMISSION_EVENT_CREATE,
-  PERMISSION_EVENT_MANAGEMENT,
-  PERMISSION_EVENT_VIEW,
-  PERMISSION_MUSEUM_DETAIL_MANAGEMENT,
-  PERMISSION_TOUR_CREATE,
-  PERMISSION_TOUR_MANAGEMENT,
-  PERMISSION_USER_MANAGEMENT,
-  PERMISSION_USER_VIEW,
-  PERMISSION_PAYMENT_MANAGEMENT,
-  useRolebaseStore,
-} from '@musetrip360/rolebase-management';
-import { useMuseumStore } from '@musetrip360/museum-management';
 
 const sidebarButtonClasses =
   'hover:text-primary-foreground data-[active=true]:text-primary-foreground data-[active=true]:bg-primary/70 active:text-primary-foreground data-[state=close]:hover:text-primary-foreground data-[state=open]:hover:text-primary-foreground';
@@ -252,16 +249,6 @@ export default function DashboardSidebar({ ...props }: React.ComponentProps<type
           ]}
         />
       </SidebarContent>
-      <SidebarFooter className="border-t-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton className={twMerge(sidebarButtonClasses, 'font-medium')}>
-              <LogOutIcon />
-              <span>Đăng xuất</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
     </Sidebar>
   );
 }

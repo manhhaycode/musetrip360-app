@@ -2000,6 +2000,9 @@ importers:
       '@musetrip360/rich-editor':
         specifier: workspace:*
         version: link:../rich-editor
+      '@musetrip360/rolebase-management':
+        specifier: workspace:*
+        version: link:../rolebase-management
       '@musetrip360/shared':
         specifier: workspace:*
         version: link:../shared

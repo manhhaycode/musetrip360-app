@@ -22,6 +22,8 @@ export const useMuseumStore = create<MuseumStore>()(
 
         setUserMuseums: (museums) =>
           set((state) => {
+            state.selectedMuseum =
+              museums.find((museum) => museum.id === state.selectedMuseum?.id) || museums[0] || null;
             state.userMuseums = museums;
           }),
 

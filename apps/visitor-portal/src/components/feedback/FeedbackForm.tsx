@@ -11,6 +11,7 @@ import { Textarea } from '@musetrip360/ui-core/textarea';
 import { Alert, AlertDescription } from '@musetrip360/ui-core/alert';
 import { Star, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@musetrip360/ui-core/utils';
+import { getQueryClient } from '@musetrip360/query-foundation';
 
 interface FeedbackFormProps {
   targetId: string;
@@ -76,6 +77,10 @@ export function FeedbackForm({ targetId, targetType, onSuccess, className }: Fee
 
       // Reset success message after 3 seconds
       setTimeout(() => setIsSubmitted(false), 3000);
+      const queryClient = getQueryClient();
+      queryClient.invalidateQueries({
+        queryKey: ['feedback'],
+      });
     } catch (error) {
       console.error('Failed to submit feedback:', error);
     }

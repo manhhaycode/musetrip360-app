@@ -276,6 +276,7 @@ const MuseumDetailPage = () => {
               <FormField
                 control={form.control}
                 name="name"
+                disabled
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-gray-600">Tên bảo tàng</FormLabel>
