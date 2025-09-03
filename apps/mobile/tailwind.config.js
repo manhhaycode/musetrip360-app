@@ -8,48 +8,44 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        border: 'var(--border)',
-        input: 'var(--input)',
-        ring: 'var(--ring)',
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        border: '#ffd2b2',
+        input: '#ffd2b2',
+        ring: '#ff914d',
+        background: '#fff6ed',
+        foreground: '#2d1f13',
         primary: {
-          DEFAULT: 'var(--primary)',
-          foreground: 'var(--primary-foreground)',
+          DEFAULT: '#ff914d',
+          foreground: '#ffffff',
         },
         secondary: {
-          DEFAULT: 'var(--secondary)',
-          foreground: 'var(--secondary-foreground)',
+          DEFAULT: '#ffe3cc',
+          foreground: '#2d1f13',
         },
         destructive: {
-          DEFAULT: 'var(--destructive)',
-          foreground: 'var(--destructive-foreground)',
+          DEFAULT: '#ef4444',
+          foreground: '#ffffff',
         },
         muted: {
-          DEFAULT: 'var(--muted)',
-          foreground: 'var(--muted-foreground)',
+          DEFAULT: '#f5e9dd',
+          foreground: '#a67c52',
         },
         accent: {
-          DEFAULT: 'var(--accent)',
-          foreground: 'var(--accent-foreground)',
+          DEFAULT: '#ffb672',
+          foreground: '#2d1f13',
         },
         popover: {
-          DEFAULT: 'var(--popover)',
-          foreground: 'var(--popover-foreground)',
+          DEFAULT: '#fff6ed',
+          foreground: '#2d1f13',
         },
         card: {
-          DEFAULT: 'var(--card)',
-          foreground: 'var(--card-foreground)',
+          DEFAULT: '#ffffff',
+          foreground: '#2d1f13',
         },
       },
-      fontFamily: {
-        sans: ['var(--font-sans)'],
-        mono: ['var(--font-mono)'],
-      },
       borderRadius: {
-        DEFAULT: 'var(--radius)',
-        sm: 'calc(var(--radius) - 4px)',
-        lg: 'calc(var(--radius) + 4px)',
+        DEFAULT: '10px',
+        sm: '6px',
+        lg: '14px',
       },
       borderWidth: {
         hairline: hairlineWidth(),

@@ -4,11 +4,11 @@
 
 @layer base {
   :root {
-    /* Base colors - matching visitor-portal, dùng HEX cho mobile/nativewind */
+    /* Base colors - HEX values for React Native compatibility */
     --background: #fff6ed;
     --foreground: #2d1f13;
 
-    /* Card colors - matching visitor-portal (web: trắng) */
+    /* Card colors */
     --card: #ffffff;
     --card-foreground: #2d1f13;
 
@@ -16,82 +16,55 @@
     --popover: #fff6ed;
     --popover-foreground: #2d1f13;
 
-    /* Primary colors - matching visitor-portal */
+    /* Primary colors */
     --primary: #ff914d;
-    --primary-foreground: #fff6ed;
+    --primary-foreground: #ffffff;
 
-    /* Secondary colors - matching visitor-portal */
+    /* Secondary colors */
     --secondary: #ffe3cc;
     --secondary-foreground: #2d1f13;
 
-    /* Muted colors - matching visitor-portal */
+    /* Muted colors */
     --muted: #f5e9dd;
     --muted-foreground: #a67c52;
 
-    /* Accent colors - matching visitor-portal */
+    /* Accent colors */
     --accent: #ffb672;
     --accent-foreground: #2d1f13;
 
-    /* Destructive colors - matching visitor-portal */
-    --destructive: #f87171;
-    --destructive-foreground: #fff6ed;
+    /* Destructive colors */
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
 
-    /* Border, input, ring colors - matching visitor-portal */
+    /* Border, input, ring colors */
     --border: #ffd2b2;
     --input: #ffd2b2;
     --ring: #ff914d;
-
-    /* Font families - removed quotes for React Native compatibility */
-    --font-sans: Montserrat;
-    --font-mono: Ubuntu Mono;
 
     /* Border radius */
     --radius: 10px;
   }
 
-  .dark:root {
-    /* Base colors - dark mode HEX */
+  .dark {
+    /* Dark mode colors */
     --background: #1a1208;
     --foreground: #ffe3cc;
-
-    /* Card colors - dark mode HEX */
     --card: #23180c;
     --card-foreground: #ffe3cc;
-
-    /* Popover colors */
     --popover: #23180c;
     --popover-foreground: #ffe3cc;
-
-    /* Primary colors - dark mode HEX */
     --primary: #ff914d;
-    --primary-foreground: #fff6ed;
-
-    /* Secondary colors - dark mode HEX */
+    --primary-foreground: #ffffff;
     --secondary: #2d1f13;
     --secondary-foreground: #ffe3cc;
-
-    /* Muted colors - dark mode HEX */
     --muted: #23180c;
     --muted-foreground: #a67c52;
-
-    /* Accent colors - dark mode HEX */
     --accent: #ffb672;
     --accent-foreground: #1a1208;
-
-    /* Destructive colors - dark mode HEX */
-    --destructive: #f87171;
-    --destructive-foreground: #fff6ed;
-
-    /* Border, input, ring colors - dark mode HEX */
+    --destructive: #ef4444;
+    --destructive-foreground: #ffffff;
     --border: #2d1f13;
     --input: #2d1f13;
     --ring: #ff914d;
-
-    /* Font families - removed quotes for React Native compatibility */
-    --font-sans: Montserrat;
-    --font-mono: Ubuntu Mono;
-
-    /* Border radius */
-    --radius: 10px;
   }
 }
